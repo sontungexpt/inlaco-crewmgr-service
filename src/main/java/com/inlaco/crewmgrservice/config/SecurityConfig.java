@@ -1,7 +1,14 @@
 package com.inlaco.crewmgrservice.config;
 
+import static org.springframework.http.HttpMethod.DELETE;
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.PATCH;
+import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.http.HttpMethod.PUT;
+
 import com.inlaco.crewmgrservice.feature.auth.jwt.AuthEntryPointJwt;
 import com.inlaco.crewmgrservice.feature.auth.jwt.LazyJwtAuthTokenFilter;
+import com.inlaco.crewmgrservice.feature.user.enums.RoleType;
 import com.inlaco.crewmgrservice.utils.ApiEndpointSecurityInspector;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -144,6 +151,26 @@ public class SecurityConfig {
                             .toArray(String[]::new))
                     .permitAll()
                     .requestMatchers(HttpMethod.PATCH)
+                    .permitAll()
+                    .anyRequest()
+                    .hasRole(RoleType.Fields.ADMIN)
+                    .requestMatchers(GET)
+                    .permitAll()
+                    .anyRequest()
+                    .hasRole(RoleType.Fields.ADMIN)
+                    .requestMatchers(POST)
+                    .permitAll()
+                    .anyRequest()
+                    .hasRole(RoleType.Fields.ADMIN)
+                    .requestMatchers(PUT)
+                    .permitAll()
+                    .anyRequest()
+                    .hasRole(RoleType.Fields.ADMIN)
+                    .requestMatchers(PATCH)
+                    .permitAll()
+                    .anyRequest()
+                    .hasRole(RoleType.Fields.ADMIN)
+                    .requestMatchers(DELETE)
                     .permitAll()
                     .anyRequest()
                     .authenticated())
