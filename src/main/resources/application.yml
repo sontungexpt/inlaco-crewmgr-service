@@ -1,0 +1,151 @@
+debug: false
+
+caching:
+  spring:
+    userListTTL: 60000
+
+spring:
+  application:
+    name: "crewmgrservice"
+  profiles:
+    active: dev
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  main:
+    allow-bean-definition-overriding: true
+  # cache:
+  #   type: caffeine
+  #   caffeine:
+  #     spec: maximumSize=100000,expireAfterAccess=3600s
+  #   cache-names:
+  #     - rate-limit-buckets
+  #     - rate-limit-filter
+  #   jcache:
+  #     provider: com.github.benmanes.caffeine.jcache.spi.CaffeineCachingProvider
+  data:
+    mongodb:
+      database: ${MONGO_DATABASE:inlaco-db}
+      uri: mongodb+srv://${MONGO_USER:admin}:${MONGO_PASSWORD}@${MONGO_DATABASE:inlaco-db}.e2nsr.mongodb.net/?retryWrites=true&w=majority&appName=${MONGO_DATABASE:inlaco-db}
+      autoIndexCreation: true
+    # redis:
+    #   host: ${REDIS_HOST}
+    #   port: ${REDIS_PORT}
+    # password: ${REDIS_PASSWORD:IxXNUvoIE4ZywfZ8PMZ0nmVxVzKwUeC3}
+  # mail:
+  #   host: ${EMAIL_HOST:smtp.gmail.com}
+  #   port: 587
+  #   username: ${EMAIL_USERNAME:foodeysystem@gmail.com}
+  #   password: ${EMAIL_PASSWORD}
+  #   transport:
+  #     protocol: smtp
+  #   smtp:
+  #     auth: true
+  #     starttls:
+  #       enable: true
+  #   properties:
+  #     mail:
+  #       smtp:
+  #         auth: true
+  #         starttls:
+  #           enable: true
+# management:
+#   endpoints:
+#     web:
+#       exposure:
+#         include: "*"
+#   security:
+#     enabled: true
+
+# bucket4j:
+#   enabled: true
+#   filter-config-caching-enabled: true
+#   filter-config-cache-name: rate-limit-filter
+#   methods:
+#     - name: default
+#       cache-name: rate-limit-buckets
+#       rate-limit:
+#         cache-key: 1
+#         bandwidths:
+#           - capacity: 1
+#             refill-capacity: 1
+#             time: 2
+#             unit: seconds
+#             initial-capacity: 1
+#             refill-speed: interval
+#   filters:
+#     - cache-name: rate-limit-buckets
+#       id: otp-filter
+#       filter-method: servlet
+#       filter-order: 1
+#       url: /api/v1/auth/otp/.*
+#       http-status-code: TOO_MANY_REQUESTS
+#       http-response-body: '{ "status": 429, "error": "Too Many Requests", "message": "You have exhausted your API Request" }'
+#       rate-limits:
+#         - cache-key: "@rateLimiterService.getClientIP()"
+#           bandwidths:
+#             - capacity: 2
+#               time: 60
+#               unit: seconds
+#     - cache-name: rate-limit-buckets
+#       id: auth-filter
+#       filter-method: servlet
+#       filter-order: 2
+#       url: /api/v1/auth/.*
+#       http-response-body: '{ "status": 429, "error": "Too Many Requests", "message": "You have exhausted your API Request" }'
+#       rate-limits:
+#         - cache-key: "@rateLimiterService.getClientIP()"
+#           bandwidths:
+#             - capacity: ${REQUESTS_PER_SECOND_DEV:1}
+#               time: 5
+#               unit: seconds
+#     - cache-name: rate-limit-buckets
+#       id: bandwidth-filter
+#       filter-method: servlet
+#       filter-order: 3
+#       url: /.*
+#       http-response-body: '{ "status": 429, "error": "Too Many Requests", "message": "You have exhausted your API Request" }'
+#       rate-limits:
+#         - cache-key: "@rateLimiterService.username()?: @rateLimiterService.getClientIP()" # use the username as key. if authenticated use the ip address
+#           bandwidths:
+#             - capacity: ${REQUESTS_PER_SECOND_DEV:4}
+#               time: 1
+#               unit: seconds
+
+inlaco:
+  jwt:
+    # inlaco.JWT-secret-key
+    secret-key: ${JWT_SECRET_KEY}
+    access-token-expiration: 300000 # 5 mins
+    refresh-token-expiration: 2592000000 # 30 days
+
+#   rating:
+#     shop:
+#       max_shop_per_calculation: 100000
+#       duration_between_calculations_ms: 172800000
+#       cron_expression: "0 30 14,23 * * ?" # 2:30 PM and 11:30 PM every day
+#   recommendation:
+#     pre_compute:
+#       collaborative_filtering:
+#         shop_cron_expression: "0 0 0 * * ?" # 12:00 AM every day
+#   email:
+#     from: foodey@gmail.com
+#   sms:
+#     httpsms:
+#       secret-key: 7a9e35901bf69ed8ab21ad415ce20c3a7b18efe1e733b90044dcd328fdfe5d8b
+#       api-key: Z1CRFGp2xy2Pww71MTfImM8ikzpNHiEjYGGXoXBB1Bz7gOYTGSCrg_uszlIQr0zd
+#       sender: "+84392211343"
+#   otp:
+#     expiration:
+#       long: 600000 # 10 mins
+#       medium: 300000 # 5 mins
+#       short: 120000 # 2 mins
+#       fast: 60000 # 10s
+#     resend-interval: 60000 # 1 min
+#   webauthn:
+#     rp:
+#       name: "Foodey"
+#     user:
+#       name: "foodey_user"
+#       displayName: "Foodey User"
+
