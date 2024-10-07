@@ -4,6 +4,12 @@ caching:
   spring:
     userListTTL: 60000
 
+jwt:
+  # inlaco.JWT-secret-key
+  secret-key: ${JWT_SECRET_KEY}
+  access-token-expiration: 300000 # 5 mins
+  refresh-token-expiration: 2592000000 # 30 days
+
 spring:
   application:
     name: "crewmgrservice"
@@ -14,6 +20,23 @@ spring:
       matching-strategy: ant_path_matcher
   main:
     allow-bean-definition-overriding: true
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${EMAIL_USERNAME}
+    password: ${EMAIL_PASSWORD}
+    transport:
+      protocol: smtp
+    smtp:
+      auth: true
+      starttls:
+        enable: true
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
   # cache:
   #   type: caffeine
   #   caffeine:
@@ -32,93 +55,71 @@ spring:
     #   host: ${REDIS_HOST}
     #   port: ${REDIS_PORT}
     # password: ${REDIS_PASSWORD:IxXNUvoIE4ZywfZ8PMZ0nmVxVzKwUeC3}
-  # mail:
-  #   host: ${EMAIL_HOST:smtp.gmail.com}
-  #   port: 587
-  #   username: ${EMAIL_USERNAME:foodeysystem@gmail.com}
-  #   password: ${EMAIL_PASSWORD}
-  #   transport:
-  #     protocol: smtp
-  #   smtp:
-  #     auth: true
-  #     starttls:
-  #       enable: true
-  #   properties:
-  #     mail:
-  #       smtp:
-  #         auth: true
-  #         starttls:
-  #           enable: true
-# management:
-#   endpoints:
-#     web:
-#       exposure:
-#         include: "*"
-#   security:
-#     enabled: true
+  # management:
+  #   endpoints:
+  #     web:
+  #       exposure:
+  #         include: "*"
+  #   security:
+  #     enabled: true
 
-# bucket4j:
-#   enabled: true
-#   filter-config-caching-enabled: true
-#   filter-config-cache-name: rate-limit-filter
-#   methods:
-#     - name: default
-#       cache-name: rate-limit-buckets
-#       rate-limit:
-#         cache-key: 1
-#         bandwidths:
-#           - capacity: 1
-#             refill-capacity: 1
-#             time: 2
-#             unit: seconds
-#             initial-capacity: 1
-#             refill-speed: interval
-#   filters:
-#     - cache-name: rate-limit-buckets
-#       id: otp-filter
-#       filter-method: servlet
-#       filter-order: 1
-#       url: /api/v1/auth/otp/.*
-#       http-status-code: TOO_MANY_REQUESTS
-#       http-response-body: '{ "status": 429, "error": "Too Many Requests", "message": "You have exhausted your API Request" }'
-#       rate-limits:
-#         - cache-key: "@rateLimiterService.getClientIP()"
-#           bandwidths:
-#             - capacity: 2
-#               time: 60
-#               unit: seconds
-#     - cache-name: rate-limit-buckets
-#       id: auth-filter
-#       filter-method: servlet
-#       filter-order: 2
-#       url: /api/v1/auth/.*
-#       http-response-body: '{ "status": 429, "error": "Too Many Requests", "message": "You have exhausted your API Request" }'
-#       rate-limits:
-#         - cache-key: "@rateLimiterService.getClientIP()"
-#           bandwidths:
-#             - capacity: ${REQUESTS_PER_SECOND_DEV:1}
-#               time: 5
-#               unit: seconds
-#     - cache-name: rate-limit-buckets
-#       id: bandwidth-filter
-#       filter-method: servlet
-#       filter-order: 3
-#       url: /.*
-#       http-response-body: '{ "status": 429, "error": "Too Many Requests", "message": "You have exhausted your API Request" }'
-#       rate-limits:
-#         - cache-key: "@rateLimiterService.username()?: @rateLimiterService.getClientIP()" # use the username as key. if authenticated use the ip address
-#           bandwidths:
-#             - capacity: ${REQUESTS_PER_SECOND_DEV:4}
-#               time: 1
-#               unit: seconds
+  # bucket4j:
+  #   enabled: true
+  #   filter-config-caching-enabled: true
+  #   filter-config-cache-name: rate-limit-filter
+  #   methods:
+  #     - name: default
+  #       cache-name: rate-limit-buckets
+  #       rate-limit:
+  #         cache-key: 1
+  #         bandwidths:
+  #           - capacity: 1
+  #             refill-capacity: 1
+  #             time: 2
+  #             unit: seconds
+  #             initial-capacity: 1
+  #             refill-speed: interval
+  #   filters:
+  #     - cache-name: rate-limit-buckets
+  #       id: otp-filter
+  #       filter-method: servlet
+  #       filter-order: 1
+  #       url: /api/v1/auth/otp/.*
+  #       http-status-code: TOO_MANY_REQUESTS
+  #       http-response-body: '{ "status": 429, "error": "Too Many Requests", "message": "You have exhausted your API Request" }'
+  #       rate-limits:
+  #         - cache-key: "@rateLimiterService.getClientIP()"
+  #           bandwidths:
+  #             - capacity: 2
+  #               time: 60
+  #               unit: seconds
+  #     - cache-name: rate-limit-buckets
+  #       id: auth-filter
+  #       filter-method: servlet
+  #       filter-order: 2
+  #       url: /api/v1/auth/.*
+  #       http-response-body: '{ "status": 429, "error": "Too Many Requests", "message": "You have exhausted your API Request" }'
+  #       rate-limits:
+  #         - cache-key: "@rateLimiterService.getClientIP()"
+  #           bandwidths:
+  #             - capacity: ${REQUESTS_PER_SECOND_DEV:1}
+  #               time: 5
+  #               unit: seconds
+  #     - cache-name: rate-limit-buckets
+  #       id: bandwidth-filter
+  #       filter-method: servlet
+  #       filter-order: 3
+  #       url: /.*
+  #       http-response-body: '{ "status": 429, "error": "Too Many Requests", "message": "You have exhausted your API Request" }'
+  #       rate-limits:
+  #         - cache-key: "@rateLimiterService.username()?: @rateLimiterService.getClientIP()" # use the username as key. if authenticated use the ip address
+  #           bandwidths:
+  #             - capacity: ${REQUESTS_PER_SECOND_DEV:4}
+  #               time: 1
+  #               unit: seconds
+  #
 
 inlaco:
-  jwt:
-    # inlaco.JWT-secret-key
-    secret-key: ${JWT_SECRET_KEY}
-    access-token-expiration: 300000 # 5 mins
-    refresh-token-expiration: 2592000000 # 30 days
-
 #   rating:
 #     shop:
 #       max_shop_per_calculation: 100000

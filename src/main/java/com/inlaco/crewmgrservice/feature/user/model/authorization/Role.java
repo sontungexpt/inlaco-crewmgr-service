@@ -19,10 +19,6 @@ public class Role {
 
   @NotNull private RoleType name;
 
-  private String displayName;
-
-  private String description;
-
   @Override
   public int hashCode() {
     return name.hashCode();

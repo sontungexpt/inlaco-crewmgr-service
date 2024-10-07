@@ -94,10 +94,33 @@ public class User implements UserDetails, Persistable<String> {
   @JsonIgnore
   private Instant updatedAt;
 
+  public enum JobState {
+    CAN_APPLY,
+    CANDIDATE,
+    EMPLOYEE
+  }
+
+  private JobState jobState;
+
   @JsonIgnore @Transient private Collection<? extends GrantedAuthority> authorities;
 
   public boolean hasRole(RoleType roleType) {
     return roles.stream().anyMatch(r -> r.getName().equals(roleType));
+  }
+
+  public User(User user) {
+    this.id = user.getId();
+    this.pubId = user.getPubId();
+    this.phoneNumber = user.getPhoneNumber();
+    this.password = user.getPassword();
+    this.name = user.getName();
+    this.email = user.getEmail();
+    this.lastLogoutAt = user.getLastLogoutAt();
+    this.status = user.getStatus();
+    this.roles = user.getRoles();
+    this.createdAt = user.getCreatedAt();
+    this.updatedAt = user.getUpdatedAt();
+    this.authorities = user.getAuthorities();
   }
 
   @Override
@@ -169,7 +192,9 @@ public class User implements UserDetails, Persistable<String> {
     if (this == obj) return true;
     else if (obj instanceof User) {
       User that = (User) obj;
-      return id.equals(that.id) || phoneNumber.equals(that.phoneNumber) || pubId.equals(that.pubId);
+      return id.equals(that.getId())
+          || phoneNumber.equals(that.getPhoneNumber())
+          || pubId.equals(that.getPubId());
     }
     return false;
   }

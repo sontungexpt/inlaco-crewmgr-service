@@ -14,13 +14,13 @@ import org.springframework.stereotype.Service;
 @Service
 public class JwtService {
 
-  @Value("${inlaco.jwt.secret-key}")
+  @Value("${jwt.secret-key}")
   private String JWT_SECRET_KEY;
 
-  @Value("${inlaco.jwt.access-token-expiration}")
+  @Value("${jwt.access-token-expiration}")
   private long ACCESS_TOKEN_EXPIRATION;
 
-  @Value("${inlaco.jwt.refresh-token-expiration}")
+  @Value("${jwt.refresh-token-expiration}")
   private long REFRESH_TOKEN_EXPIRATION;
 
   public String generateAccessToken(User user) {
