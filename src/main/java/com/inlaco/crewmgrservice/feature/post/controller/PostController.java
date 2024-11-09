@@ -2,11 +2,13 @@ package com.inlaco.crewmgrservice.feature.post.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.inlaco.crewmgrservice.annotation.BearerToken;
+import com.inlaco.crewmgrservice.annotation.CurrentUser;
 import com.inlaco.crewmgrservice.annotation.PageableQueryParams;
 import com.inlaco.crewmgrservice.annotation.PublicEndpoint;
 import com.inlaco.crewmgrservice.config.OpenApiConfig;
 import com.inlaco.crewmgrservice.feature.post.model.Post;
 import com.inlaco.crewmgrservice.feature.post.service.PostService;
+import com.inlaco.crewmgrservice.feature.user.model.User;
 import com.inlaco.crewmgrservice.utils.ConsoleUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -39,8 +41,8 @@ public record PostController(PostService postService) {
   @PostMapping("")
   @ResponseStatus(HttpStatus.CREATED)
   @PublicEndpoint(profiles = "dev")
-  public Post createPost(@RequestBody @Valid Post newPost) {
-    return postService.createPost(newPost);
+  public Post createPost(@CurrentUser User user, @RequestBody @Valid Post newPost) {
+    return postService.createPost(newPost, user);
   }
 
   @Operation(
@@ -49,15 +51,19 @@ public record PostController(PostService postService) {
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   @PatchMapping(value = "/{id}", consumes = "application/merge-patch+json ")
   @ResponseStatus(HttpStatus.OK)
-  public Post updatePost(@PathVariable("id") String id, @RequestBody JsonNode patch) {
-    return postService.updatePost(id, patch);
+  public Post updatePost(
+      @CurrentUser User user, @PathVariable("id") String id, @RequestBody JsonNode patch) {
+    return postService.updatePost(id, patch, user);
   }
 
-  @Operation(summary = "Delete a post with post Id")
+  @Operation(
+      summary = "Delete a post with post Id",
+      description = "Delete a post with post Id",
+      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   @DeleteMapping("/{id}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void deletePost(@PathVariable("id") String id) {
-    postService.deletePost(id);
+  public void deletePost(@CurrentUser User user, @PathVariable("id") String id) {
+    postService.deletePost(id, user);
   }
 
   @GetMapping("/test")

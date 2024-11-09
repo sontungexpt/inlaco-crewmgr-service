@@ -5,6 +5,7 @@ import com.inlaco.crewmgrservice.exceptions.ResourceNotFoundException;
 import com.inlaco.crewmgrservice.feature.post.model.Post;
 import com.inlaco.crewmgrservice.feature.post.repository.PostRepository;
 import com.inlaco.crewmgrservice.feature.post.service.PostService;
+import com.inlaco.crewmgrservice.feature.user.model.User;
 import com.inlaco.crewmgrservice.utils.JsonPatchUtils;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -24,12 +25,12 @@ public class PostServiceImpl implements PostService {
   private final JsonPatchUtils jsonPatchUtils;
 
   @Override
-  public Post createPost(Post post) {
-    return postRepository.save(post);
+  public Post createPost(Post post, User user) {
+    return postRepository.insert(post);
   }
 
   @Override
-  public void deletePost(String postId) {
+  public void deletePost(String postId, User user) {
     postRepository.deleteById(postId);
   }
 
@@ -58,12 +59,12 @@ public class PostServiceImpl implements PostService {
   }
 
   @Override
-  public Post updatePost(Post post) {
+  public Post updatePost(Post post, User user) {
     return postRepository.save(post);
   }
 
   @Override
-  public Post updatePost(String postId, JsonNode patch) {
+  public Post updatePost(String postId, JsonNode patch, User user) {
     Post oldPost = getPost(postId);
     Post updatedPost = jsonPatchUtils.applyMergePatch(oldPost, patch, "id");
     return postRepository.save(updatedPost);

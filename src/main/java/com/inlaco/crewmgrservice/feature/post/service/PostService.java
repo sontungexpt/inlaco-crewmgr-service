@@ -2,6 +2,7 @@ package com.inlaco.crewmgrservice.feature.post.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.inlaco.crewmgrservice.feature.post.model.Post;
+import com.inlaco.crewmgrservice.feature.user.model.User;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -10,13 +11,13 @@ import org.springframework.data.domain.Window;
 
 public interface PostService {
 
-  Post createPost(Post post);
+  Post createPost(Post post, User user);
 
-  Post updatePost(Post post);
+  Post updatePost(Post post, User user);
 
-  Post updatePost(String postId, JsonNode patch);
+  Post updatePost(String postId, JsonNode patch, User user);
 
-  void deletePost(String postId);
+  void deletePost(String postId, User user);
 
   Post getPost(String postId);
 
