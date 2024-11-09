@@ -7,8 +7,8 @@ public class PostFactory {
 
   public Post createPost(PostType type) {
     switch (type) {
-      case BASIC:
-        return new BasicPost();
+      case NEWS:
+        return new NewsPost();
       case RECRUITMENT:
         return new RecruitmentPost();
       default:

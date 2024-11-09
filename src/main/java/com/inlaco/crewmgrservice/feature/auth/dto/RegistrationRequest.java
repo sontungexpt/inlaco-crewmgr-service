@@ -20,6 +20,10 @@ public class RegistrationRequest {
   @JsonAlias("username")
   private String phoneNumber;
 
+  public String getUsername() {
+    return phoneNumber;
+  }
+
   @Password private String password;
 
   @OptimizedName private String name;

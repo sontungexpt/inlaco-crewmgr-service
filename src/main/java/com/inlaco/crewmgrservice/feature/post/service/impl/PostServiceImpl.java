@@ -7,6 +7,8 @@ import com.inlaco.crewmgrservice.feature.post.repository.PostRepository;
 import com.inlaco.crewmgrservice.feature.post.service.PostService;
 import com.inlaco.crewmgrservice.utils.JsonPatchUtils;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.ScrollPosition;
@@ -14,8 +16,12 @@ import org.springframework.data.domain.Window;
 import org.springframework.stereotype.Service;
 
 @Service
-public record PostServiceImpl(PostRepository postRepository, JsonPatchUtils jsonPatchUtils)
-    implements PostService {
+@RequiredArgsConstructor
+@Slf4j
+public class PostServiceImpl implements PostService {
+
+  private final PostRepository postRepository;
+  private final JsonPatchUtils jsonPatchUtils;
 
   @Override
   public Post createPost(Post post) {
@@ -59,6 +65,7 @@ public record PostServiceImpl(PostRepository postRepository, JsonPatchUtils json
   @Override
   public Post updatePost(String postId, JsonNode patch) {
     Post oldPost = getPost(postId);
-    return postRepository.save(jsonPatchUtils.applyMergePatch(oldPost, patch));
+    Post updatedPost = jsonPatchUtils.applyMergePatch(oldPost, patch, "id");
+    return postRepository.save(updatedPost);
   }
 }

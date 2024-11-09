@@ -1,14 +1,19 @@
 package com.inlaco.crewmgrservice.feature.post.enums;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.experimental.FieldNameConstants;
 
 @FieldNameConstants
+@Schema(description = "Post type")
 public enum PostType {
   @FieldNameConstants.Include
-  BASIC,
+  @Schema(description = "Basic post type")
+  NEWS,
   @FieldNameConstants.Include
+  @Schema(description = "Recruitment post type")
   RECRUITMENT,
   @FieldNameConstants.Include
+  @Schema(description = "Event post type")
   EVENT,
   ;
 

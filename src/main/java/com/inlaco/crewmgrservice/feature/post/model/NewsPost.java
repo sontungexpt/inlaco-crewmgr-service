@@ -5,7 +5,7 @@ import com.inlaco.crewmgrservice.feature.post.enums.PostType;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-@JsonTypeName(PostType.Fields.BASIC)
+@JsonTypeName(PostType.Fields.NEWS)
 @SuperBuilder
 @NoArgsConstructor
-public class BasicPost extends Post {}
+public class NewsPost extends Post {}

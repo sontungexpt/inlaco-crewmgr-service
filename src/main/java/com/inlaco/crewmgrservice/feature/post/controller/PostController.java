@@ -2,6 +2,7 @@ package com.inlaco.crewmgrservice.feature.post.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.inlaco.crewmgrservice.annotation.BearerToken;
+import com.inlaco.crewmgrservice.annotation.PageableQueryParams;
 import com.inlaco.crewmgrservice.annotation.PublicEndpoint;
 import com.inlaco.crewmgrservice.config.OpenApiConfig;
 import com.inlaco.crewmgrservice.feature.post.model.Post;
@@ -26,20 +27,26 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/v1/posts")
+@RequestMapping("/api/v1/posts")
 @PublicEndpoint
 public record PostController(PostService postService) {
 
   @Operation(
-      summary = "Create a new post with the given data using type field to identify the post type")
+      summary = "Create a new post with the given data using type field to identify the post type",
+      description =
+          "Create a new post with the given data using type field to identify the post type",
+      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   @PostMapping("")
   @ResponseStatus(HttpStatus.CREATED)
+  @PublicEndpoint(profiles = "dev")
   public Post createPost(@RequestBody @Valid Post newPost) {
     return postService.createPost(newPost);
   }
 
-  @Operation(summary = "Update a post with post Id")
-  @SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)
+  @Operation(
+      summary = "Update a post with post Id",
+      description = "Update a post with post Id",
+      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   @PatchMapping(value = "/{id}", consumes = "application/merge-patch+json ")
   @ResponseStatus(HttpStatus.OK)
   public Post updatePost(@PathVariable("id") String id, @RequestBody JsonNode patch) {
@@ -56,8 +63,8 @@ public record PostController(PostService postService) {
   @GetMapping("/test")
   @Operation(
       summary = "Get all posts at the given window",
-      description = "Get all posts at the given window")
-  @SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)
+      description = "Get all posts at the given window",
+      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   public Window<?> getWindowPosts(@BearerToken String token) {
     ConsoleUtils.prettyPrint(token);
     return null;
@@ -66,6 +73,7 @@ public record PostController(PostService postService) {
   @Operation(summary = "Get all posts at the given page")
   @PostMapping("/web")
   @ResponseStatus(HttpStatus.OK)
+  @PageableQueryParams
   public Page<?> getPagePosts(@PageableDefault(size = 10, page = 0) Pageable pageable) {
     return postService.getPagePosts(pageable);
   }
