@@ -2,10 +2,10 @@ package com.inlaco.crewmgrservice.feature.post.model;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.inlaco.crewmgrservice.feature.post.enums.PostType;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
-@Data
-@EqualsAndHashCode(callSuper = true)
 @JsonTypeName(PostType.Fields.BASIC)
+@SuperBuilder
+@NoArgsConstructor
 public class BasicPost extends Post {}

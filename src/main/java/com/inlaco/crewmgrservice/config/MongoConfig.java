@@ -2,6 +2,8 @@ package com.inlaco.crewmgrservice.config;
 
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
+import org.bson.types.ObjectId;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -12,11 +14,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 @Configuration
 @EnableMongoAuditing
+@RequiredArgsConstructor
 public class MongoConfig {
 
   // https://stackoverflow.com/questions/29472931/how-does-createdby-work-in-spring-data-jpa
   @Bean
-  @Primary
   public AuditorAware<String> auditorProvider() {
     return () -> {
       Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -28,6 +30,22 @@ public class MongoConfig {
         return Optional.empty();
       }
       return Optional.of(((User) principal).getId());
+    };
+  }
+
+  @Bean
+  @Primary
+  public AuditorAware<ObjectId> auditorObjectIdProvider() {
+    return () -> {
+      Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+      if (authentication == null || !authentication.isAuthenticated()) {
+        return Optional.empty();
+      }
+      Object principal = authentication.getPrincipal();
+      if (!(principal instanceof User)) {
+        return Optional.empty();
+      }
+      return Optional.of(new ObjectId(((User) principal).getId()));
     };
   }
 }

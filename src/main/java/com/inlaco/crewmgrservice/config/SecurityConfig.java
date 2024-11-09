@@ -3,8 +3,10 @@ package com.inlaco.crewmgrservice.config;
 import com.inlaco.crewmgrservice.feature.auth.jwt.AuthEntryPointJwt;
 import com.inlaco.crewmgrservice.feature.auth.jwt.LazyJwtAuthTokenFilter;
 import com.inlaco.crewmgrservice.utils.ApiEndpointSecurityInspector;
+import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -23,21 +25,24 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
+@Slf4j
 @EnableWebSecurity
 @EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
 @RequiredArgsConstructor
 public class SecurityConfig {
-  private final LazyJwtAuthTokenFilter lazyJwtAuthTokenFilter;
-  // private final LogoutHandler logoutHandler;
-  //
+
   private final UserDetailsService userDetailsService;
+
+  private final LazyJwtAuthTokenFilter lazyJwtAuthTokenFilter;
   private final AuthEntryPointJwt unauthorizedHandler;
   private final ApiEndpointSecurityInspector apiEndpointSecurityInspector;
+
   private final LogoutSuccessHandler logoutSuccessHandler;
   private final LogoutHandler logoutHandler;
 
@@ -55,7 +60,8 @@ public class SecurityConfig {
   }
 
   @Bean
-  public AuthenticationManager authenticationManager(List<AuthenticationProvider> providers) {
+  public AuthenticationManager authenticationManager(List<AuthenticationProvider> providers)
+      throws Exception {
     return new ProviderManager(providers);
   }
 
@@ -109,13 +115,13 @@ public class SecurityConfig {
 
   @Bean
   public SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
-    apiEndpointSecurityInspector.getPublicEndpoints().add("/api/v1/auth/**");
-    apiEndpointSecurityInspector.getPublicEndpoints().add("/actuator/**");
+
+    apiEndpointSecurityInspector.addPublicEndpoint("/v1/auth/**", "/actuator/**");
 
     http.cors(cors -> cors.configurationSource(corsApiConfigurationSource()))
         .csrf(
             customizer -> {
-              // customizer.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
+              customizer.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
               customizer.ignoringRequestMatchers("/**", "/actuator/**");
             })
 
@@ -128,24 +134,16 @@ public class SecurityConfig {
 
         // authorize
         .authorizeHttpRequests(
-            auth ->
-                auth.requestMatchers(
-                        apiEndpointSecurityInspector.getPublicEndpoints().toArray(String[]::new))
-                    .permitAll()
-                    .requestMatchers(
-                        HttpMethod.GET,
-                        apiEndpointSecurityInspector.getPublicGetEndpoints().toArray(String[]::new))
-                    .permitAll()
-                    .requestMatchers(
-                        HttpMethod.POST,
-                        apiEndpointSecurityInspector
-                            .getPublicPostEndpoints()
-                            .toArray(String[]::new))
-                    .permitAll()
-                    .requestMatchers(HttpMethod.PATCH)
-                    .permitAll()
-                    .anyRequest()
-                    .authenticated())
+            auth -> {
+              Arrays.stream(HttpMethod.values())
+                  .forEach(
+                      method -> {
+                        auth.requestMatchers(
+                                method, apiEndpointSecurityInspector.getPublicSecurityPaths(method))
+                            .permitAll();
+                      });
+              auth.anyRequest().authenticated();
+            })
         .authenticationProvider(authenticationProvider())
         .addFilterBefore(lazyJwtAuthTokenFilter, UsernamePasswordAuthenticationFilter.class)
         .logout(

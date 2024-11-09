@@ -13,10 +13,14 @@ import com.inlaco.crewmgrservice.feature.auth.service.AuthService;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import com.inlaco.crewmgrservice.feature.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,14 +33,36 @@ public record AuthServiceImpl(
     AuthenticationManager authenticationManager)
     implements AuthService {
 
+  public void checkUserValid(UserDetails user) {
+    if (!user.isAccountNonLocked()) {
+      log.debug("Failed to authenticate since user account is locked");
+      throw new LockedException(
+          "AbstractUserDetailsAuthenticationProvider.locked. User account is locked");
+    } else if (!user.isEnabled()) {
+      log.debug("Failed to authenticate since user account is disabled");
+      throw new DisabledException(
+          "AbstractUserDetailsAuthenticationProvider.disabled. User is disabled");
+    } else if (!user.isAccountNonExpired()) {
+      log.debug("Failed to authenticate since user account has expired");
+      throw new AccountExpiredException(
+          "AbstractUserDetailsAuthenticationProvider.expired. User account has expired");
+    } else if (!user.isCredentialsNonExpired()) {
+      log.debug("Failed to authenticate since user credentials have expired");
+      throw new AccountExpiredException(
+          "AbstractUserDetailsAuthenticationProvider.expired. User credentials have expired");
+    }
+  }
+
   @Override
   public LoginResponse login(LoginRequest loginRequest) {
     Authentication authentication =
         authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(
-                loginRequest.getPhoneNumber(), loginRequest.getPassword()));
+                loginRequest.getUsername(), loginRequest.getPassword()));
 
     User user = (User) authentication.getPrincipal();
+    checkUserValid(user);
+
     // if (user == null)
     //   throw new UsernameNotFoundException(
     //       "User not found with phone number " + loginRequest.getPhoneNumber());
@@ -44,9 +70,7 @@ public record AuthServiceImpl(
     SecurityContextHolder.getContext().setAuthentication(authentication);
 
     final String accessToken = jwtService.generateAccessToken(user);
-    final RefreshToken refreshToken = jwtService.generateRefreshToken(user);
-
-    refreshTokenRepository.save(refreshToken);
+    final RefreshToken refreshToken = jwtService.generateRefreshTokenAndSaveToDB(user);
 
     log.info("Account with public id {} logged in successfully", user.getPubId());
 
@@ -91,20 +115,27 @@ public record AuthServiceImpl(
                 });
 
     if (savedRefreshToken.isRevoked()) {
+      handleRefreshtokenIntrusion(savedRefreshToken);
       throw new JwtTokenException(refreshToken, "Refresh token revoked");
     } else if (savedRefreshToken.isExpired()) {
-      refreshTokenRepository.save(savedRefreshToken.revoke());
+      savedRefreshToken.revoke(refreshTokenRepository);
       throw new JwtTokenException(refreshToken, "Refresh token expired");
     }
 
-    String newAccessToken = jwtService.generateAccessToken(savedRefreshToken.getUserPubId());
-    RefreshToken updatedRefreshToken = refreshTokenRepository.save(savedRefreshToken.refresh());
+    String userPubId = savedRefreshToken.getUserPubId();
+    String newAccessToken = jwtService.generateAccessToken(userPubId);
+
+    RefreshToken newRefreshToken = savedRefreshToken.refresh(refreshTokenRepository);
 
     log.info(
         "Refresh token {} refreshed successfully for user with public id {}",
         refreshToken,
         savedRefreshToken.getUserPubId());
 
-    return new JwtResponse(newAccessToken, updatedRefreshToken.getToken());
+    return new JwtResponse(newAccessToken, newRefreshToken.getToken());
+  }
+
+  public void handleRefreshtokenIntrusion(RefreshToken refreshToken) {
+    log.warn("Infiltration detected");
   }
 }

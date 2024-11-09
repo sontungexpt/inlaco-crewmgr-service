@@ -1,6 +1,7 @@
 package com.inlaco.crewmgrservice.feature.user.model.authorization;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.inlaco.crewmgrservice.feature.user.enums.PermissionType;
 import jakarta.validation.constraints.NotNull;
 import java.util.Set;
 import lombok.Getter;
@@ -18,7 +19,7 @@ public class Permission {
 
   @Id private String id;
 
-  @NotNull private Permission name;
+  @NotNull private PermissionType name;
 
   private String displayName;
 

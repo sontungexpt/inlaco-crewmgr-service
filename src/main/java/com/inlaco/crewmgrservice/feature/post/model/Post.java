@@ -4,16 +4,19 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.inlaco.crewmgrservice.feature.post.enums.PostType;
 import jakarta.validation.constraints.NotBlank;
+import java.io.Serializable;
 import java.time.Instant;
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Data
-@Document(collection = "posts")
 @JsonTypeInfo(
     include = JsonTypeInfo.As.PROPERTY,
     visible = true,
@@ -23,7 +26,12 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @JsonIgnoreProperties(
     value = {"id", "authorId", "createdAt", "updatedAt"},
     allowGetters = true)
-public abstract class Post {
+@Document(collection = "posts")
+@NoArgsConstructor
+@SuperBuilder
+@Getter
+@Setter
+public abstract class Post implements Serializable {
 
   @Id private String id;
 
@@ -39,7 +47,7 @@ public abstract class Post {
 
   protected PostType type;
 
-  @CreatedBy private String authorId;
+  @CreatedBy private ObjectId authorId;
 
   @CreatedDate private Instant createdAt;
 
