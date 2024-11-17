@@ -4,6 +4,7 @@ import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
+import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -115,5 +116,25 @@ public class RefreshToken implements Persistable<String> {
   @JsonIgnore
   public boolean isNew() {
     return createdAt == null || id == null;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, userPubId, token);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) return true;
+    else if (obj instanceof RefreshToken) {
+      RefreshToken that = (RefreshToken) obj;
+      return id.equals(that.id) || token.equals(that.token);
+    }
+    return false;
+  }
+
+  @Override
+  public String toString() {
+    return token;
   }
 }

@@ -2,6 +2,7 @@ package com.inlaco.crewmgrservice.feature.user.model.authorization;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.NotNull;
+import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
@@ -28,14 +29,14 @@ public class ApiEndpoint {
 
   @Override
   public int hashCode() {
-    return endpoint.hashCode() + method.hashCode();
+    return Objects.hash(endpoint, method);
   }
 
   @Override
   public boolean equals(Object obj) {
     if (this == obj) return true;
     else if (!(obj instanceof ApiEndpoint)) return false;
-    return endpoint.equals(((ApiEndpoint) obj).endpoint)
-        && method.equals(((ApiEndpoint) obj).method);
+    ApiEndpoint that = (ApiEndpoint) obj;
+    return endpoint.equals(that.endpoint) && method.equals(that.method);
   }
 }

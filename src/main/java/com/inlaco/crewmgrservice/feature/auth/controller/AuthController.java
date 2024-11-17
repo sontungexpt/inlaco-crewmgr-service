@@ -2,10 +2,12 @@ package com.inlaco.crewmgrservice.feature.auth.controller;
 
 import com.inlaco.crewmgrservice.annotation.BearerToken;
 import com.inlaco.crewmgrservice.annotation.PublicEndpoint;
+import com.inlaco.crewmgrservice.config.OpenApiConfig;
 import com.inlaco.crewmgrservice.feature.auth.dto.LoginRequest;
 import com.inlaco.crewmgrservice.feature.auth.dto.RegistrationRequest;
 import com.inlaco.crewmgrservice.feature.auth.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.ServletException;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -35,7 +37,9 @@ public record AuthController(AuthService authService) {
   }
 
   @PostMapping("/refresh-token")
-  @Operation(summary = "Refresh the expired jwt authentication")
+  @Operation(
+      summary = "Refresh the expired jwt authentication",
+      security = @SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME))
   public ResponseEntity<?> refreshToken(@BearerToken String refreshToken) throws ServletException {
     return ResponseEntity.ok(authService.refreshToken(refreshToken));
   }

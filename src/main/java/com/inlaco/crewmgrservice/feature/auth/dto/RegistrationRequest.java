@@ -4,29 +4,35 @@ import com.fasterxml.jackson.annotation.JsonAlias;
 import com.inlaco.crewmgrservice.validation.annotation.OptimizedName;
 import com.inlaco.crewmgrservice.validation.annotation.Password;
 import com.inlaco.crewmgrservice.validation.annotation.PhoneNumber;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
-import lombok.AllArgsConstructor;
+import java.io.Serializable;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
-public class RegistrationRequest {
+public class RegistrationRequest implements Serializable {
 
   @PhoneNumber
   @JsonAlias("username")
+  @Schema(description = "Username", example = "+840392211343")
   private String phoneNumber;
 
+  @Schema(hidden = true)
   public String getUsername() {
     return phoneNumber;
   }
 
-  @Password private String password;
+  @Schema(description = "Password", example = "Admin123")
+  @Password
+  private String password;
 
-  @OptimizedName private String name;
+  @Schema(description = "Name", example = "Admin")
+  @OptimizedName
+  private String name;
 
-  @Email private String email;
+  @Email
+  @Schema(description = "Email", example = "admin@gmail.com")
+  private String email;
 }

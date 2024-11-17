@@ -1,11 +1,10 @@
 package com.inlaco.crewmgrservice.event;
 
-import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
-import com.github.slugify.Slugify;
 import com.inlaco.crewmgrservice.annotation.AutoSlugify;
 import com.inlaco.crewmgrservice.annotation.AutoSlugify.Separator;
 import com.inlaco.crewmgrservice.annotation.AutoSlugify.UpdateStrategy;
 import com.inlaco.crewmgrservice.common.model.Sluggable;
+import com.inlaco.crewmgrservice.utils.SlugUtils;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +16,6 @@ import org.springframework.data.mongodb.core.mapping.event.AbstractMongoEventLis
 import org.springframework.data.mongodb.core.mapping.event.BeforeSaveEvent;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
-import org.springframework.util.StringUtils;
 
 @SuppressWarnings("rawtypes")
 @Component
@@ -26,43 +24,6 @@ import org.springframework.util.StringUtils;
 public class SluggableModelListener extends AbstractMongoEventListener<Sluggable> {
 
   private final MongoTemplate mongoTemplate;
-
-  private int determineNanoIdSize(int length) {
-    if (length > 100) return 5;
-    else if (length > 80) return 7;
-    else if (length > 70) return 9;
-    else if (length > 60) return 11;
-    else if (length > 40) return 13;
-    else if (length > 30) return 15;
-    else if (length > 20) return 17;
-    else if (length > 15) return 19;
-    return NanoIdUtils.DEFAULT_SIZE;
-  }
-
-  private String createSlug(
-      String value, boolean unique, boolean fromUniqueField, Separator separator) {
-    if (!StringUtils.hasText(value)) {
-      throw new IllegalArgumentException("Cannot generate a slug from an empty string.");
-    }
-
-    final Slugify slg =
-        Slugify.builder()
-            .transliterator(true)
-            .underscoreSeparator(separator == Separator.UNDERSCORE)
-            .build();
-
-    String slug = slg.slugify(value);
-    if (unique && !fromUniqueField) {
-      slug += separator.getValue();
-      int value_len = value.length();
-      int nanoid_size = determineNanoIdSize(value_len);
-      slug +=
-          NanoIdUtils.randomNanoId(
-              NanoIdUtils.DEFAULT_NUMBER_GENERATOR, NanoIdUtils.DEFAULT_ALPHABET, nanoid_size);
-    }
-
-    return slug;
-  }
 
   @Override
   public void onBeforeSave(BeforeSaveEvent<Sluggable> event) {
@@ -136,7 +97,7 @@ public class SluggableModelListener extends AbstractMongoEventListener<Sluggable
 
         Separator sep = autoSlugify.separator();
         String slug =
-            createSlug(
+            SlugUtils.createSlug(
                 String.join(sep.getValue(), values),
                 autoSlugify.unique(),
                 autoSlugify.fromUniqueField(),

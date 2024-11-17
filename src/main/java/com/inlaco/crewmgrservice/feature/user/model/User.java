@@ -36,10 +36,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Getter
 @Setter
 @SuperBuilder
+@NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "User model", name = "User")
 @Document(collection = "users")
-@JsonInclude(JsonInclude.Include.NON_NULL)
-@NoArgsConstructor
 public class User implements UserDetails, Persistable<String> {
   @JsonIgnore @Id private String id;
 
@@ -57,12 +57,18 @@ public class User implements UserDetails, Persistable<String> {
 
   @PhoneNumber
   @Indexed(unique = true)
-  @Schema(description = "The phone number of the account", requiredMode = RequiredMode.REQUIRED)
+  @Schema(
+      description = "The phone number of the account",
+      example = "0392211343",
+      requiredMode = RequiredMode.REQUIRED)
   private String phoneNumber;
 
   @JsonIgnore
   @Password
-  @Schema(description = "The password of the account", requiredMode = RequiredMode.REQUIRED)
+  @Schema(
+      description = "The password of the account",
+      example = "Admin123",
+      requiredMode = RequiredMode.REQUIRED)
   private String password;
 
   @OptimizedName
@@ -192,9 +198,7 @@ public class User implements UserDetails, Persistable<String> {
     if (this == obj) return true;
     else if (obj instanceof User) {
       User that = (User) obj;
-      return id.equals(that.getId())
-          || phoneNumber.equals(that.getPhoneNumber())
-          || pubId.equals(that.getPubId());
+      return id.equals(that.id) || phoneNumber.equals(that.phoneNumber) || pubId.equals(that.pubId);
     }
     return false;
   }

@@ -11,6 +11,8 @@ public class PostFactory {
         return new NewsPost();
       case RECRUITMENT:
         return new RecruitmentPost();
+      case EVENT:
+        return new EventPost();
       default:
         return null;
     }

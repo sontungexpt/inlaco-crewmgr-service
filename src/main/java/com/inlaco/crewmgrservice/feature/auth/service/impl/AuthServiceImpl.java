@@ -59,13 +59,8 @@ public record AuthServiceImpl(
         authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(
                 loginRequest.getUsername(), loginRequest.getPassword()));
-
     User user = (User) authentication.getPrincipal();
     checkUserValid(user);
-
-    // if (user == null)
-    //   throw new UsernameNotFoundException(
-    //       "User not found with phone number " + loginRequest.getPhoneNumber());
 
     SecurityContextHolder.getContext().setAuthentication(authentication);
 
@@ -84,7 +79,6 @@ public record AuthServiceImpl(
   @Transactional
   public void register(RegistrationRequest request) {
     final String phoneNumber = request.getPhoneNumber();
-
     if (userService.existsByPhoneNumber(phoneNumber)) {
       throw new ResourceAlreadyInUseException(User.class, "phoneNumber", phoneNumber);
     }

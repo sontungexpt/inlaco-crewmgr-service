@@ -1,6 +1,5 @@
-package com.inlaco.crewmgrservice.feature.user.model;
+package com.inlaco.crewmgrservice.feature.user.model.authorization;
 
-import com.inlaco.crewmgrservice.feature.user.model.authorization.Role;
 import java.security.Permission;
 import java.util.Set;
 

@@ -2,6 +2,7 @@ package com.inlaco.crewmgrservice.feature.user.model.authorization;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.inlaco.crewmgrservice.feature.user.enums.PermissionType;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import java.util.Set;
 import lombok.Getter;
@@ -25,7 +26,7 @@ public class Permission {
 
   private String description;
 
-  private Set<ApiEndpoint> apiEndpoints;
+  private Set<@Valid ApiEndpoint> apiEndpoints;
 
   @Override
   public int hashCode() {
