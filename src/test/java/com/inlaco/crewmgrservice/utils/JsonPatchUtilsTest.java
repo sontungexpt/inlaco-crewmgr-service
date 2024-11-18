@@ -6,41 +6,80 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.inlaco.crewmgrservice.annotation.JsonPatchIgnore;
-import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.mongodb.core.MongoTemplate;
 
+@ExtendWith(MockitoExtension.class)
+@SuppressWarnings("unused")
 public class JsonPatchUtilsTest {
-  ObjectMapper objectMapper = new ObjectMapper(); // Jackson ObjectMapper
 
-  @Test
-  void testRemoveIgnoreFields_shouldRemoveFields() throws Exception {
+  private static class ParentClass {
+    private String includedField;
+    @JsonPatchIgnore private String ignoredField;
+
+    private NestedClass nestedObject;
+  }
+
+  private static class NestedClass {
+    private String includedNestedField;
+    @JsonPatchIgnore private String ignoredNestedField;
+    private Nested2Class nested2Object;
+  }
+
+  private static class Nested2Class {
+    private String includedNested2Field;
+    @JsonPatchIgnore private String ignoredNested2Field;
+  }
+
+  @Mock private MongoTemplate mongoTemplate;
+  @InjectMocks private JsonMergePatchUtils jsonMergePatchUtils;
+
+  private final ObjectMapper objectMapper = RawJsonConvertor.getMapper();
+  private JsonNode inputNode = null;
+
+  // Sample JSON for testing
+  @BeforeEach
+  private void setup() {
     String jsonString =
-        "{\"name\":\"John\",\"age\":30,\"address\":{\"city\":\"New York\",\"zipcode\":\"10001\"}}";
-    JsonNode requestNode = objectMapper.readTree(jsonString);
+        """
+            {
+                "includedField": "John",
+                "ignoredField": "10001",
+                "nestedObject": {
+                    "includedNestedField": "New York",
+                    "ignoredNestedField": "10001",
+                    "nested2Object": {
+                      "includedNested2Field": "Doe",
+                      "ignoredNested2Field": "John"
+                    }
+                }
+            }
+        """;
 
-    // Define the fields to ignore (i.e., remove)
-    JsonPatchUtils patchTest = new JsonPatchUtils();
-    String[] ignoredFields = {"address.zipcode"};
+    try {
 
-    JsonNode resultNode = patchTest.removeIgnoreFields(requestNode, ignoredFields);
-
-    // Assert that "zipcode" was removed but "city" remains
-    assertFalse(resultNode.has("address.zipcode"));
-    assertTrue(resultNode.has("address.city"));
+      inputNode = objectMapper.readTree(jsonString);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Test
-  void testGetJsonPatchIgnoreFields_shouldReturnIgnoredFields() {
-    class TestClass {
-      @JsonPatchIgnore private String ignoredField;
-      private String allowedField;
-    }
-
-    JsonPatchUtils patchTest = new JsonPatchUtils();
-    List<String> ignoredFields = patchTest.getJsonPatchIgnoreFields(TestClass.class);
-
-    // Assert that "ignoredField" is returned, and "allowedField" is not
-    assertTrue(ignoredFields.contains("ignoredField"));
-    assertFalse(ignoredFields.contains("allowedField"));
+  void testGetJsonPatchIgnoreAsPath() {
+    JsonNode ignoredFields =
+        jsonMergePatchUtils.removeJsonPatchIgnoreFields(inputNode, ParentClass.class);
+    assertTrue(ignoredFields.has("includedField"));
+    assertTrue(ignoredFields.has("nestedObject"));
+    assertFalse(ignoredFields.has("ignoredField"));
+    assertTrue(ignoredFields.get("nestedObject").has("includedNestedField"));
+    assertFalse(ignoredFields.get("nestedObject").has("ignoredNestedField"));
+    assertTrue(ignoredFields.get("nestedObject").has("nested2Object"));
+    assertTrue(ignoredFields.get("nestedObject").get("nested2Object").has("includedNested2Field"));
+    assertFalse(ignoredFields.get("nestedObject").get("nested2Object").has("ignoredNested2Field"));
   }
 }

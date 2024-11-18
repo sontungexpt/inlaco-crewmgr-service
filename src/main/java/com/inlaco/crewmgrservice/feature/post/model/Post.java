@@ -3,6 +3,7 @@ package com.inlaco.crewmgrservice.feature.post.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.inlaco.crewmgrservice.annotation.JsonPatchIgnore;
 import com.inlaco.crewmgrservice.feature.post.enums.PostType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -42,6 +43,7 @@ public abstract class Post implements Serializable {
       example = "60d5c88e4314e3b98a1e4fbd",
       hidden = true)
   @Id
+  @JsonPatchIgnore
   private String id;
 
   @Schema(description = "Title of the post", example = "Introduction to Spring Boot")

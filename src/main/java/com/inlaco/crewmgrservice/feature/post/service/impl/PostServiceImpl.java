@@ -6,7 +6,7 @@ import com.inlaco.crewmgrservice.feature.post.model.Post;
 import com.inlaco.crewmgrservice.feature.post.repository.PostRepository;
 import com.inlaco.crewmgrservice.feature.post.service.PostService;
 import com.inlaco.crewmgrservice.feature.user.model.User;
-import com.inlaco.crewmgrservice.utils.JsonPatchUtils;
+import com.inlaco.crewmgrservice.utils.JsonMergePatchUtils;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +22,7 @@ import org.springframework.stereotype.Service;
 public class PostServiceImpl implements PostService {
 
   private final PostRepository postRepository;
-  private final JsonPatchUtils jsonPatchUtils;
+  private final JsonMergePatchUtils jsonPatchUtils;
 
   @Override
   public Post createPost(Post post, User user) {
@@ -65,8 +65,6 @@ public class PostServiceImpl implements PostService {
 
   @Override
   public Post updatePost(String postId, JsonNode patch, User user) {
-    Post oldPost = getPost(postId);
-    Post updatedPost = jsonPatchUtils.applyMergePatch(oldPost, patch, "id");
-    return postRepository.save(updatedPost);
+    return jsonPatchUtils.patch(postId, Post.class, patch);
   }
 }

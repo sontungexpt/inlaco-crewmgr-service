@@ -1,6 +1,7 @@
 package com.inlaco.crewmgrservice.feature.contract.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.inlaco.crewmgrservice.annotation.JsonPatchIgnore;
 import com.inlaco.crewmgrservice.common.model.Attachment;
 import com.inlaco.crewmgrservice.common.model.Versionable;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -21,6 +22,7 @@ public class Contract implements Versionable<String, Integer> {
 
   @Id
   @Schema(hidden = true)
+  @JsonPatchIgnore
   private String id;
 
   @NotBlank
