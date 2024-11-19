@@ -4,6 +4,16 @@ caching:
   spring:
     userListTTL: 60000
 
+vonage:
+  api-key: ${VONAGE_API_KEY}
+  api-secret: ${VONAGE_API_SECRET}
+  sender: ${VONAGE_SENDER:Inlaco}
+
+httpsms:
+  api-key: ${HTTPSMS_API_KEY}
+  sender: "+84392211343"
+  api-secret: ${HTTPSMS_SECRET_KEY}
+
 jwt:
   # inlaco.JWT-secret-key
   secret-key: ${JWT_SECRET_KEY}

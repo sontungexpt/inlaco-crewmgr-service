@@ -1,9 +1,9 @@
-// package com.foodey.server.notify.httpsms;
+// package com.inlaco.crewmgrservice.feature.notify.httpsms;
 
-// import com.foodey.server.auth.enums.TokenType;
-// import com.foodey.server.auth.jwt.JwtService;
-// import com.foodey.server.auth.jwt.JwtTokenException;
-// import com.foodey.server.utils.JwtUtils;
+// import com.inlaco.crewmgrservice.exceptions.JwtTokenException;
+// import com.inlaco.crewmgrservice.feature.auth.enums.TokenType;
+// import com.inlaco.crewmgrservice.feature.auth.jwt.JwtService;
+// import com.inlaco.crewmgrservice.utils.JwtUtils;
 // import jakarta.servlet.http.HttpServletRequest;
 // import lombok.RequiredArgsConstructor;
 // import lombok.extern.slf4j.Slf4j;
@@ -15,7 +15,7 @@
 // @RequiredArgsConstructor
 // public class HttpSMSEventServiceImpl implements HttpSMSEventService {
 
-//   @Value("${foodey.sms.httpsms.secret-key}")
+//   @Value("httpsms.secret-key")
 //   private String SECRET_KEY;
 
 //   private final JwtService jwtService;

@@ -1,4 +1,4 @@
-// package com.foodey.server.notify.httpsms;
+// package com.inlaco.crewmgrservice.feature.notify.httpsms;
 
 // import jakarta.servlet.http.HttpServletRequest;
 

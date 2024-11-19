@@ -46,6 +46,7 @@
     <icu4j.version>76.1</icu4j.version>
     <redisson.version>3.38.1</redisson.version>
     <springdoc.version>2.6.0</springdoc.version>
+    <!-- <vonage.version>8.14.0</vonage.version> -->
   </properties>
   <dependencies>
     <dependency>
@@ -205,6 +206,11 @@
       <artifactId>cloudinary-taglib</artifactId>
       <version>${cloudinary.version}</version>
     </dependency>
+    <!-- <dependency> -->
+    <!--   <groupId>com.vonage</groupId> -->
+    <!--   <artifactId>server-sdk</artifactId> -->
+    <!--   <version>${vonage.version}</version> -->
+    <!-- </dependency> -->
   </dependencies>
   <build>
     <plugins>

@@ -1,20 +1,22 @@
-// package com.foodey.server.notify;
+package com.inlaco.crewmgrservice.feature.notify;
 
-// import lombok.Getter;
-// import lombok.Setter;
+import lombok.Getter;
+import lombok.Setter;
 
-// @Getter
-// @Setter
-// public abstract class NotificationRequest {
+@Getter
+@Setter
+public abstract class NotificationRequest<S, R> {
 
-//   protected String recipient;
-//   protected String message;
+  private S sender;
+  private R recipient;
+  private String message;
 
-//   public NotificationRequest(String recipient, String message) {
-//     assert recipient != null;
-//     assert message != null;
+  public NotificationRequest(S sender, R recipient, String message) {
+    assert recipient != null;
+    assert message != null;
 
-//     this.recipient = recipient;
-//     this.message = message;
-//   }
-// }
+    this.sender = sender;
+    this.recipient = recipient;
+    this.message = message;
+  }
+}

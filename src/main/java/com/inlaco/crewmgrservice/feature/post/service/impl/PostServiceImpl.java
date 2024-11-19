@@ -7,9 +7,9 @@ import com.inlaco.crewmgrservice.feature.post.repository.PostRepository;
 import com.inlaco.crewmgrservice.feature.post.service.PostService;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import com.inlaco.crewmgrservice.utils.JsonMergePatchUtils;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.ScrollPosition;
@@ -42,9 +42,8 @@ public class PostServiceImpl implements PostService {
   }
 
   @Override
-  public List<Post> getPostsByAuthorId(String authorId) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'getPostsByAuthorId'");
+  public Page<Post> getPostsByAuthorId(String authorId, Pageable pageable) {
+    return postRepository.findByAuthorId(new ObjectId(authorId), pageable);
   }
 
   @Override
@@ -54,7 +53,6 @@ public class PostServiceImpl implements PostService {
 
   @Override
   public Window<Post> getWindowPosts(ScrollPosition position) {
-
     return null;
   }
 

@@ -13,6 +13,7 @@ import com.inlaco.crewmgrservice.utils.ConsoleUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Window;
@@ -31,7 +32,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/posts")
 @PublicEndpoint
-public record PostController(PostService postService) {
+@RequiredArgsConstructor
+public class PostController {
+
+  private final PostService postService;
 
   @Operation(
       summary = "Create a new post with the given data using type field to identify the post type",

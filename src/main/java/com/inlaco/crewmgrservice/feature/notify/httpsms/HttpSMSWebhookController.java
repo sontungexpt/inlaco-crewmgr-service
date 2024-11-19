@@ -1,11 +1,4 @@
-// package com.foodey.server.notify.httpsms;
-
 // import com.fasterxml.jackson.databind.ObjectMapper;
-// import com.foodey.server.annotation.PublicEndpoint;
-// import com.foodey.server.auth.enums.TokenType;
-// import com.foodey.server.auth.jwt.JwtTokenException;
-// import com.foodey.server.utils.HttpHeaderUtils;
-// import jakarta.servlet.http.HttpServletRequest;
 // import lombok.RequiredArgsConstructor;
 // import lombok.extern.slf4j.Slf4j;
 // import org.springframework.web.bind.annotation.PostMapping;

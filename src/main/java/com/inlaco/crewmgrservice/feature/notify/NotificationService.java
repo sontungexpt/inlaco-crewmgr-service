@@ -1,12 +1,12 @@
-// package com.foodey.server.notify;
+package com.inlaco.crewmgrservice.feature.notify;
 
-// import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletableFuture;
 
-// public interface NotificationService {
+public interface NotificationService<N extends NotificationRequest<?, ?>> {
 
-//   void sendNotification(NotificationRequest request);
+  void sendNotification(N request);
 
-//   default void sendNotificationAsync(NotificationRequest request) {
-//     CompletableFuture.runAsync(() -> sendNotification(request));
-//   }
-// }
+  default CompletableFuture<Void> sendNotificationAsync(N request) {
+    return CompletableFuture.runAsync(() -> sendNotification(request));
+  }
+}
