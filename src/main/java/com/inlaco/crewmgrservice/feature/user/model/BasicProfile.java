@@ -17,7 +17,7 @@ import org.springframework.data.annotation.Id;
 @Getter
 @Setter
 @AllArgsConstructor
-public class Person implements Serializable {
+public class BasicProfile implements Serializable {
 
   @Id
   @Schema(hidden = true)
@@ -30,7 +30,7 @@ public class Person implements Serializable {
       type = "String")
   @com.inlaco.crewmgrservice.validation.annotation.ObjectId
   @CreatedBy
-  protected ObjectId userAccountId;
+  protected ObjectId accountId;
 
   @Schema(
       description = "The full name of the person",

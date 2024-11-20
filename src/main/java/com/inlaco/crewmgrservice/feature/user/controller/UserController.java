@@ -1,13 +1,45 @@
 package com.inlaco.crewmgrservice.feature.user.controller;
 
-import com.inlaco.crewmgrservice.feature.user.repository.UserRepository;
+import com.inlaco.crewmgrservice.annotation.BearerToken;
+import com.inlaco.crewmgrservice.config.OpenApiConfig;
+import com.inlaco.crewmgrservice.feature.auth.dto.JwtResponse;
+import com.inlaco.crewmgrservice.feature.auth.dto.NewPasswordRequest;
+import com.inlaco.crewmgrservice.feature.user.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/users")
-@RequiredArgsConstructor
+@Tag(name = "Users", description = "A collection endpoints of user")
 public class UserController {
-  private final UserRepository userRepository;
+  private final UserService userService;
+
+  @Operation(
+      summary = "Change the password for an account",
+      description =
+          """
+Change the password for an account
+**Required**:
+- Refresh token is passed in the header as a Bearer token
+
+**Usecase**:
+- UC_account-doi-mat-khau
+
+**Note**
+- The new password must be different from the old password
+
+""",
+      security = @SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME))
+  @PostMapping("/new-password")
+  public JwtResponse changePassword(
+      @BearerToken String refreshToken, @RequestBody NewPasswordRequest newPasswordRequest) {
+    return userService.changePassword(refreshToken, newPasswordRequest);
+  }
 }

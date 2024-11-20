@@ -16,7 +16,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 @AllArgsConstructor
 @Document(collection = "candidates")
-public class Candidate extends Person {
+public class CandidateProfile extends BasicProfile {
 
   private String resume;
 

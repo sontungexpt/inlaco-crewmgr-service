@@ -16,7 +16,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "sailors")
 @NoArgsConstructor
 @AllArgsConstructor
-public class Sailor extends Person {
+public class SailorProfile extends BasicProfile {
+
+  private SailorPosition position;
 
   @CreatedDate private Instant joinedAt;
 

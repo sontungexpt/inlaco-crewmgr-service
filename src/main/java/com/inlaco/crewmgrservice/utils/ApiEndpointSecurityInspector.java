@@ -20,7 +20,6 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
@@ -192,23 +191,19 @@ public class ApiEndpointSecurityInspector {
    * considered as public. The method is annotated with {@link PostConstruct} to ensure that the
    */
   @PostConstruct
-  @Lazy
   public void init() {
     final var handlerMethods = requestHandlerMapping.getHandlerMethods();
 
     handlerMethods.forEach(
         (requestInfo, handlerMethod) -> {
           // check if the method is annotated with PublicEndpoint or the parent class is annotated
-          //
-          //
-
           var annotation = handlerMethod.getMethodAnnotation(PublicEndpoint.class);
 
-          if ((annotation = handlerMethod.getBeanType().getAnnotation(PublicEndpoint.class))
-              != null) {
-            // if (handlerMethod.hasMethodAnnotation(PublicEndpoint.class)
-            //     || handlerMethod.getBeanType().isAnnotationPresent(PublicEndpoint.class)) {
+          if (annotation == null) {
+            annotation = handlerMethod.getBeanType().getAnnotation(PublicEndpoint.class);
+          }
 
+          if (annotation != null) {
             List<String> profilesList = Arrays.asList(annotation.profiles());
             boolean filterJwt = annotation.filterJwt();
 

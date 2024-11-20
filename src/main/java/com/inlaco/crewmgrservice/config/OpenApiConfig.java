@@ -53,8 +53,15 @@ public class OpenApiConfig {
                             new ApiResponses()
                                 .addApiResponse("200", new ApiResponse().description("OK")))
                         .security(List.of(new SecurityRequirement().addList(BEARER_AUTH_NAME)))
-                        .tags(List.of("auth-controller"))
+                        .tags(List.of("Authentication"))
                         .summary("Logout the current user")
-                        .description("Logout the current user.")));
+                        .description(
+                            """
+                            Logout the current user.
+
+                            **Usecase**:
+                            - UC_account-dang-xuat
+
+                            """)));
   }
 }

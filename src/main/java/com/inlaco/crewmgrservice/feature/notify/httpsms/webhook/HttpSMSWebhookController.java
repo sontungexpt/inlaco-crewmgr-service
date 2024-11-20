@@ -5,6 +5,7 @@ import com.inlaco.crewmgrservice.annotation.PublicEndpoint;
 import com.inlaco.crewmgrservice.exceptions.JwtTokenException;
 import com.inlaco.crewmgrservice.feature.auth.enums.TokenType;
 import com.inlaco.crewmgrservice.utils.HttpHeaderUtils;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ import org.springframework.web.multipart.support.MissingServletRequestPartExcept
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
+@Tag(name = "Httpsms Webhook")
 public class HttpSMSWebhookController {
 
   private final HttpSMSEventService httpSMSEventService;

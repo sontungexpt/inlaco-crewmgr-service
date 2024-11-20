@@ -1,6 +1,5 @@
 package com.inlaco.crewmgrservice.feature.auth.service.impl;
 
-import com.inlaco.crewmgrservice.exceptions.JwtTokenException;
 import com.inlaco.crewmgrservice.exceptions.ResourceAlreadyInUseException;
 import com.inlaco.crewmgrservice.feature.auth.dto.JwtResponse;
 import com.inlaco.crewmgrservice.feature.auth.dto.LoginRequest;
@@ -10,6 +9,7 @@ import com.inlaco.crewmgrservice.feature.auth.jwt.JwtService;
 import com.inlaco.crewmgrservice.feature.auth.model.RefreshToken;
 import com.inlaco.crewmgrservice.feature.auth.repository.RefreshTokenRepository;
 import com.inlaco.crewmgrservice.feature.auth.service.AuthService;
+import com.inlaco.crewmgrservice.feature.auth.service.RefreshTokenService;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import com.inlaco.crewmgrservice.feature.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public record AuthServiceImpl(
     RefreshTokenRepository refreshTokenRepository,
+    RefreshTokenService refreshTokenService,
     JwtService jwtService,
     UserService userService,
     AuthenticationManager authenticationManager)
@@ -100,33 +101,9 @@ public record AuthServiceImpl(
   @Transactional
   public JwtResponse refreshToken(String refreshToken) {
     RefreshToken savedRefreshToken =
-        refreshTokenRepository
-            .findByToken(refreshToken)
-            .orElseThrow(
-                () -> {
-                  log.warn("Refresh token {} not found", refreshToken);
-                  return new JwtTokenException(refreshToken, "Refresh token not found");
-                });
-
-    if (savedRefreshToken.isRevoked()) {
-      handleRefreshtokenIntrusion(savedRefreshToken);
-      throw new JwtTokenException(refreshToken, "Refresh token revoked");
-    } else if (savedRefreshToken.isExpired()) {
-      savedRefreshToken.revoke(refreshTokenRepository);
-      throw new JwtTokenException(refreshToken, "Refresh token expired");
-    }
-
-    String userPubId = savedRefreshToken.getUserPubId();
-    String newAccessToken = jwtService.generateAccessToken(userPubId);
-
-    RefreshToken newRefreshToken = savedRefreshToken.refresh(refreshTokenRepository);
-
-    log.info(
-        "Refresh token {} refreshed successfully for user with public id {}",
-        refreshToken,
-        savedRefreshToken.getUserPubId());
-
-    return new JwtResponse(newAccessToken, newRefreshToken.getToken());
+        refreshTokenService.getAndValidateRefreshToken(
+            refreshToken, this::handleRefreshtokenIntrusion);
+    return refreshTokenService.refreshJwtTokens(savedRefreshToken);
   }
 
   public void handleRefreshtokenIntrusion(RefreshToken refreshToken) {

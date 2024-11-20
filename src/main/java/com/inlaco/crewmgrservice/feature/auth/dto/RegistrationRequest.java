@@ -1,6 +1,7 @@
 package com.inlaco.crewmgrservice.feature.auth.dto;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
+import com.inlaco.crewmgrservice.common.payload.IMatchPassword;
 import com.inlaco.crewmgrservice.validation.annotation.OptimizedName;
 import com.inlaco.crewmgrservice.validation.annotation.Password;
 import com.inlaco.crewmgrservice.validation.annotation.PhoneNumber;
@@ -12,7 +13,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class RegistrationRequest implements Serializable {
+public class RegistrationRequest implements Serializable, IMatchPassword {
 
   @PhoneNumber
   @JsonAlias("username")
@@ -28,6 +29,10 @@ public class RegistrationRequest implements Serializable {
   @Password
   private String password;
 
+  @Schema(description = "The confirm passowrd", example = "Admin123")
+  @Password
+  private String confirmPassowrd;
+
   @Schema(description = "Name", example = "Admin")
   @OptimizedName
   private String name;
@@ -35,4 +40,14 @@ public class RegistrationRequest implements Serializable {
   @Email
   @Schema(description = "Email", example = "admin@gmail.com")
   private String email;
+
+  @Override
+  public String getPasswordToMatch() {
+    return password;
+  }
+
+  @Override
+  public String getMatchingPassword() {
+    return confirmPassowrd;
+  }
 }

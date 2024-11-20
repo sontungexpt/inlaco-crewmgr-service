@@ -1,5 +1,6 @@
 package com.inlaco.crewmgrservice.feature.course.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.inlaco.crewmgrservice.annotation.AutoSlugify;
 import com.inlaco.crewmgrservice.common.model.Sluggable;
@@ -92,17 +93,21 @@ public class Course implements Sluggable<String>, Cloneable, Serializable {
 
   @Schema(hidden = true)
   @CreatedBy
+  @JsonIgnore
   private ObjectId createdBy;
 
   @Schema(hidden = true)
   @LastModifiedBy
+  @JsonIgnore
   private ObjectId updatedBy;
 
   @Schema(hidden = true)
   @CreatedDate
+  @JsonIgnore
   private Instant createdAt;
 
   @Schema(hidden = true)
   @LastModifiedDate
+  @JsonIgnore
   private Instant updatedAt;
 }
