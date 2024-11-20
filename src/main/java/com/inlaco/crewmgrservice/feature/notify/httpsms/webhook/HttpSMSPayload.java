@@ -1,4 +1,4 @@
-package com.inlaco.crewmgrservice.feature.notify.httpsms;
+package com.inlaco.crewmgrservice.feature.notify.httpsms.webhook;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import java.time.Instant;

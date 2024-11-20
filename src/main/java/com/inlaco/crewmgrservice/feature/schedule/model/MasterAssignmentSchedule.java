@@ -13,6 +13,7 @@ import java.time.Instant;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -35,6 +36,10 @@ public class MasterAssignmentSchedule implements Serializable {
   @Schema(description = "The name of the partner company", requiredMode = RequiredMode.REQUIRED)
   @NotBlank
   private String partnerName;
+
+  // NOTE: This is not implemented in the current version of the application
+  // Because of the lack of information about the partner company
+  private ObjectId partnerId;
 
   @NotNull
   @Schema(description = "The information of the ship", requiredMode = RequiredMode.REQUIRED)

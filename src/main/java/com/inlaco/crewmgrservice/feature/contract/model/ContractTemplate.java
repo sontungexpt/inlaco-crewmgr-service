@@ -4,14 +4,26 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import java.io.Serializable;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+@Getter
+@Setter
+@Builder
 @Document("contract_templates")
 @JsonIgnoreProperties(
     value = {"id", "templateUrl"},
     allowGetters = true)
-public class ContractTemplate {
+@NoArgsConstructor
+@AllArgsConstructor
+public class ContractTemplate implements Serializable {
 
   @Schema(hidden = true)
   @Id
@@ -31,11 +43,14 @@ public class ContractTemplate {
   @NotBlank
   private String description;
 
-  @NotBlank private String templateUrl;
+  @NotBlank
+  @Schema(description = "The url of the template")
+  private String templateUrl;
 
+  @NotNull
   @Schema(
       description = "The type of the contract",
       enumAsRef = true,
       requiredMode = RequiredMode.REQUIRED)
-  private ContractType contractType;
+  private ContractType type;
 }
