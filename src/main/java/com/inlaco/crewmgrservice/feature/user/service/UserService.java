@@ -8,9 +8,11 @@ public interface UserService {
 
   boolean existsByPhoneNumber(String phoneNumber);
 
+  User findUserByPhoneNumber(String phoneNumber);
+
   User updateUser(User user);
 
-  User findByPubId(String pubId);
+  User findUserByPubId(String pubId);
 
   JwtResponse changePassword(String refreshToken, NewPasswordRequest newPasswordRequest);
 }

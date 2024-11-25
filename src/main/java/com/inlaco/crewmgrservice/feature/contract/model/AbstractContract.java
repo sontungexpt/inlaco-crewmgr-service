@@ -87,7 +87,6 @@ public abstract class AbstractContract extends ContractVersion implements Contra
       description = "The template id of the contract",
       type = "String",
       requiredMode = RequiredMode.REQUIRED)
-  @com.inlaco.crewmgrservice.validation.annotation.ObjectId
   private ObjectId templateId;
 
   @Schema(

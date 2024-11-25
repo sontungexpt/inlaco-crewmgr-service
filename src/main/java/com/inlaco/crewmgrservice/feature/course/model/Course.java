@@ -44,7 +44,6 @@ public class Course implements Sluggable<String>, Cloneable, Serializable {
   @Schema(
       description = "The ID of the course that this course is reopened based on",
       example = "60f7b3b3b3b3b3b3b3b3b3b3")
-  @com.inlaco.crewmgrservice.validation.annotation.ObjectId
   private ObjectId reopenedBasedOn;
 
   public Course clone() throws CloneNotSupportedException {

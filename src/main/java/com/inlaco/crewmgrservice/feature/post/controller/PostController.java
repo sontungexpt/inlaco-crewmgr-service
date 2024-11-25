@@ -58,7 +58,7 @@ Create a new post with the given data using type field to identify the post type
       summary = "Update a post with post Id",
       description = "Update a post with post Id",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
-  @PatchMapping(value = "/{id}", consumes = "application/merge-patch+json ")
+  @PatchMapping(value = "/{id}", consumes = "application/merge-patch+json")
   @ResponseStatus(HttpStatus.OK)
   public Post updatePost(
       @CurrentUser User user, @PathVariable("id") String id, @RequestBody JsonNode patch) {

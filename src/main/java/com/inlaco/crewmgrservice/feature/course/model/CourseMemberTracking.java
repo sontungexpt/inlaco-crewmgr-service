@@ -22,13 +22,11 @@ public class CourseMemberTracking {
 
   @Id private String id;
 
-  @com.inlaco.crewmgrservice.validation.annotation.ObjectId
   @Schema(
       description = "The ID of the course that this course member tracking is associated with",
       hidden = true)
   private ObjectId courseId;
 
-  @com.inlaco.crewmgrservice.validation.annotation.ObjectId
   @Schema(
       description = "The ID of the user that this course member tracking is associated with",
       hidden = true)

@@ -28,7 +28,6 @@ public class BasicProfile implements Serializable {
       example = "60f1b3b3b3b3b3b3b3b3b3b3",
       requiredMode = RequiredMode.REQUIRED,
       type = "String")
-  @com.inlaco.crewmgrservice.validation.annotation.ObjectId
   @CreatedBy
   protected ObjectId accountId;
 

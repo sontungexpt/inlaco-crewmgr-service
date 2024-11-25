@@ -31,7 +31,6 @@ public class SailorWorkSchedule {
   @Schema(hidden = true)
   private String id;
 
-  @com.inlaco.crewmgrservice.validation.annotation.ObjectId
   @Schema(
       description = "The ID of the sailor that this work schedule is associated with",
       type = "String",
@@ -45,11 +44,9 @@ public class SailorWorkSchedule {
       type = "String",
       example = "5f7f1b3b7f4b7b001f3b3b7f",
       requiredMode = RequiredMode.REQUIRED)
-  @com.inlaco.crewmgrservice.validation.annotation.ObjectId
   @Null
   private ObjectId sailorPositionId;
 
-  @com.inlaco.crewmgrservice.validation.annotation.ObjectId
   @Schema(description = "The ID of the master assignment schedule", hidden = true)
   @Null
   private ObjectId masterAssignmentScheduleId;
