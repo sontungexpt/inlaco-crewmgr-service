@@ -19,7 +19,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
 @Slf4j
@@ -44,13 +43,17 @@ public class LazyJwtAuthTokenFilter extends OncePerRequestFilter {
 
   @Override
   protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-    return apiEndpointSecurityInspector.isUnsecureJwtRequest(request);
+    boolean skip = apiEndpointSecurityInspector.isUnsecureJwtRequest(request);
+    log.info(request.getRequestURI() + " is unsecure jwt: " + skip);
+    return skip;
   }
 
   @Override
   protected void doFilterInternal(
       HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException {
+
+    log.info("Processing jwt authentication for '{}'", request.getRequestURI());
 
     boolean isOptional = apiEndpointSecurityInspector.isOptionalJwtSecurityPath(request);
 
@@ -59,19 +62,24 @@ public class LazyJwtAuthTokenFilter extends OncePerRequestFilter {
 
       Authentication authentication = context.getAuthentication();
 
-      if (authentication == null || (authentication.getName() == "anonymousUser" && isOptional)) {
-        String jwtToken = HttpHeaderUtils.extractBearerTokenOrThrow(request);
+      if (authentication == null || (isAnonymousUser(authentication) && isOptional)) {
+        String jwtToken = HttpHeaderUtils.extractBearerToken(request).orElse(null);
+        if (jwtToken == null) {
+          if (isOptional) filterChain.doFilter(request, response);
+          else resolveException(request, response, new JwtTokenException("Missing JWT token"));
+          return;
+        }
+
         String userPubId = jwtService.extractSubject(jwtToken);
 
         if (userPubId != null) {
           log.debug("Processing authentication for userPubId: {}", userPubId);
 
-          User user =
-              userRepository
-                  .findByPubId(userPubId)
-                  .orElseThrow(() -> new JwtTokenException(jwtToken, "User not found"));
-
-          if (jwtService.isAccessTokenValid(jwtToken, user)) {
+          User user = userRepository.findByPubId(userPubId).orElse(null);
+          if (user == null) {
+            resolveException(request, response, new JwtTokenException(jwtToken, "User not found"));
+            return;
+          } else if (jwtService.isAccessTokenValid(jwtToken, user)) {
             UsernamePasswordAuthenticationToken usernameAuthentication =
                 new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
 
@@ -85,14 +93,17 @@ public class LazyJwtAuthTokenFilter extends OncePerRequestFilter {
       }
       filterChain.doFilter(request, response);
 
-    } catch (MissingServletRequestPartException e) {
-      if (isOptional) {
-        filterChain.doFilter(request, response);
-      } else {
-        resolver.resolveException(request, response, null, e);
-      }
     } catch (Exception e) {
       resolver.resolveException(request, response, null, e);
     }
+  }
+
+  private boolean isAnonymousUser(Authentication authentication) {
+    return authentication.getName() == "anonymousUser";
+  }
+
+  private void resolveException(
+      HttpServletRequest request, HttpServletResponse response, Exception ex) {
+    resolver.resolveException(request, response, null, ex);
   }
 }
