@@ -2,7 +2,9 @@ package com.inlaco.crewmgrservice.feature.user.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
+import jakarta.validation.constraints.Past;
 import java.io.Serializable;
+import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,6 +13,7 @@ import lombok.experimental.SuperBuilder;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.Id;
+import org.springframework.format.annotation.DateTimeFormat;
 
 @SuperBuilder
 @NoArgsConstructor
@@ -30,6 +33,15 @@ public class BasicProfile implements Serializable {
       type = "String")
   @CreatedBy
   protected ObjectId accountId;
+
+  @Schema(
+      description = "The birth date of the person",
+      example = "2000-01-01T00:00:00Z",
+      requiredMode = RequiredMode.REQUIRED,
+      type = "String")
+  @DateTimeFormat
+  @Past
+  protected Instant birthDate;
 
   @Schema(
       description = "The full name of the person",
@@ -58,4 +70,12 @@ public class BasicProfile implements Serializable {
       requiredMode = RequiredMode.REQUIRED,
       type = "String")
   protected String address;
+
+  @Schema(
+      description = "The gender of the person",
+      example = "MALE",
+      enumAsRef = true,
+      requiredMode = RequiredMode.REQUIRED,
+      type = "enum")
+  protected Gender gender;
 }
