@@ -22,6 +22,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.util.StringUtils;
 
 @Document(collection = "courses")
 @JsonIgnoreProperties(
@@ -46,6 +47,17 @@ public class Course implements Sluggable<String>, Cloneable, Serializable {
       example = "60f7b3b3b3b3b3b3b3b3b3b3")
   private ObjectId reopenedBasedOn;
 
+  @Schema(description = "The name of the teacher", example = "Nguyễn Văn A")
+  private String teacherName;
+
+  public String getTeacherName() {
+    if (StringUtils.hasText(teacherName)) {
+      return teacherName;
+    } else {
+      return "In upcoming";
+    }
+  }
+
   public Course clone() throws CloneNotSupportedException {
     return (Course) this.clone();
   }
@@ -69,6 +81,20 @@ public class Course implements Sluggable<String>, Cloneable, Serializable {
   @AutoSlugify(fields = "name")
   @Schema(hidden = true)
   private String slug;
+
+  @JsonIgnore
+  @Schema(description = "Is the course deleted", hidden = true)
+  private boolean isDeleted;
+
+  @Schema(description = "The time the course was deleted", example = "2021-09-06T00:00:00Z")
+  private Instant deletedAt;
+
+  public void setDeleted(boolean deleted) {
+    isDeleted = deleted;
+    if (deleted) {
+      deletedAt = Instant.now();
+    }
+  }
 
   @Min(1)
   @Schema(description = "The limit of student in the course", example = "100")
@@ -106,7 +132,17 @@ public class Course implements Sluggable<String>, Cloneable, Serializable {
   private Instant createdAt;
 
   @Schema(hidden = true)
+  public Instant getCreatedDate() {
+    return createdAt;
+  }
+
+  @Schema(hidden = true)
   @LastModifiedDate
   @JsonIgnore
   private Instant updatedAt;
+
+  @Schema(hidden = true)
+  public Instant getUpdatedDate() {
+    return updatedAt;
+  }
 }
