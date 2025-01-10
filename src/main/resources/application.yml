@@ -1,7 +1,7 @@
-debug: false
+debug: true
 
 server:
-  port: 8090
+  port: 8080
 
 caching:
   spring:
@@ -14,7 +14,7 @@ vonage:
 
 httpsms:
   api-key: ${HTTPSMS_API_KEY}
-  sender: "+84392211343"
+  sender: ${HTTPSMS_SENDER}
   api-secret: ${HTTPSMS_SECRET_KEY}
 
 jwt:
@@ -50,6 +50,7 @@ spring:
           auth: true
           starttls:
             enable: true
+
   cache:
     type: caffeine
     caffeine:
@@ -64,10 +65,28 @@ spring:
       uri: mongodb://localhost:27017
       database: ${MONGO_DATABASE}
       # uri: mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_DATABASE}.e2nsr.mongodb.net/?retryWrites=true&w=majority&appName=${MONGO_DATABASE}
-      autoIndexCreation: true
-    # redis:
-    #   host: ${REDIS_HOST}
-    #   port: ${REDIS_PORT}
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
     # password: ${REDIS_PASSWORD:IxXNUvoIE4ZywfZ8PMZ0nmVxVzKwUeC3}
 
 inlaco:
+  upload:
+    path:
+      image: ${INLACO_UPLOAD_PATH_IMAGE:client_upload/images}
+      document: ${INLACO_UPLOAD_PATH_DOCUMENT:client_upload/documents}
+    max-size: ${INLACO_UPLOAD_MAX_SIZE:5MB}
+    max-request-size: ${INLACO_UPLOAD_MAX_REQUEST_SIZE:5MB}
+    file-size-threshold: ${INLACO_UPLOAD_FILE_SIZE_THRESHOLD:0}
+
+  url: ${INLACO_URL:http://localhost:8080}
+
+  client:
+    base:
+      url: ${INLACO_CLIENT_URL:http://localhost:3000}
+      endpoint:
+        login: ${INLACO_CLIENT_LOGIN_ENDPOINT:/login}
+        error: ${INLACO_CLIENT_ERROR_ENDPOINT:/error}
+  api:
+    url:
+      v1: ${INLACO_API_V1_URL:http://localhost:8080/api/v1}

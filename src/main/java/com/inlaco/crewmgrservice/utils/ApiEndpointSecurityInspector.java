@@ -63,9 +63,10 @@ public class ApiEndpointSecurityInspector {
     public boolean equals(Object obj) {
       if (obj == null) return false;
       else if (obj == this) return true;
-      else if (!(obj instanceof APIPath)) return false;
-      APIPath other = (APIPath) obj;
-      return this.path.equals(other.path);
+      else if (obj instanceof APIPath that) {
+        return this.path.equals(that.path);
+      }
+      return false;
     }
 
     @Override

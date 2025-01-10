@@ -39,8 +39,8 @@ public class BasicProfile implements Serializable {
       example = "2000-01-01T00:00:00Z",
       requiredMode = RequiredMode.REQUIRED,
       type = "String")
-  @DateTimeFormat
   @Past
+  @DateTimeFormat
   protected Instant birthDate;
 
   @Schema(

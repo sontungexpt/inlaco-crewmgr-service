@@ -25,8 +25,8 @@ import org.springframework.data.repository.CrudRepository;
 @Document(collection = "refresh_tokens")
 public class RefreshToken implements Persistable<String> {
 
-  @Schema(hidden = true)
   @Id
+  @Schema(hidden = true)
   private String id;
 
   @JsonIgnore
@@ -126,8 +126,7 @@ public class RefreshToken implements Persistable<String> {
   @Override
   public boolean equals(Object obj) {
     if (this == obj) return true;
-    else if (obj instanceof RefreshToken) {
-      RefreshToken that = (RefreshToken) obj;
+    else if (obj instanceof RefreshToken that) {
       return id.equals(that.id) || token.equals(that.token);
     }
     return false;

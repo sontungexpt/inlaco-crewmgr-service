@@ -2,11 +2,12 @@ package com.inlaco.crewmgrservice.feature.auth.dto;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.inlaco.crewmgrservice.common.payload.IMatchPassword;
+import com.inlaco.crewmgrservice.feature.user.enums.UsernameType;
+import com.inlaco.crewmgrservice.utils.PhoneNumberValidatorUtils;
 import com.inlaco.crewmgrservice.validation.annotation.OptimizedName;
 import com.inlaco.crewmgrservice.validation.annotation.Password;
-import com.inlaco.crewmgrservice.validation.annotation.PhoneNumber;
+import com.inlaco.crewmgrservice.validation.annotation.Username;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Email;
 import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,14 +16,25 @@ import lombok.Setter;
 @Setter
 public class RegistrationRequest implements Serializable, IMatchPassword {
 
-  @PhoneNumber
-  @JsonAlias("username")
-  @Schema(description = "Username", example = "+840392211343")
-  private String phoneNumber;
+  @JsonAlias({"phoneNumber", "email"})
+  @Schema(
+      example = "tunggitclone03@gmail.com",
+      description = "Username (Phone number or email)",
+      examples = {"+840392211343", "a@gmail.com"})
+  @Username
+  private String username;
 
   @Schema(hidden = true)
+  public UsernameType getUsernameType() {
+    if (PhoneNumberValidatorUtils.isPotentialPhoneNumber(username)) {
+      return UsernameType.PHONE_NUMBER;
+    } else {
+      return UsernameType.EMAIL;
+    }
+  }
+
   public String getUsername() {
-    return phoneNumber;
+    return username;
   }
 
   @Schema(description = "Password", example = "Admin123")
@@ -37,16 +49,14 @@ public class RegistrationRequest implements Serializable, IMatchPassword {
   @OptimizedName
   private String name;
 
-  @Email
-  @Schema(description = "Email", example = "admin@gmail.com")
-  private String email;
-
   @Override
+  @Schema(hidden = true)
   public String getPasswordToMatch() {
     return password;
   }
 
   @Override
+  @Schema(hidden = true)
   public String getMatchingPassword() {
     return confirmPassowrd;
   }

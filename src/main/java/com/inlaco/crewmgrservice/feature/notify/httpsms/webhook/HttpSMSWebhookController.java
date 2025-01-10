@@ -2,6 +2,7 @@ package com.inlaco.crewmgrservice.feature.notify.httpsms.webhook;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.inlaco.crewmgrservice.annotation.PublicEndpoint;
+import com.inlaco.crewmgrservice.endpoint.APIEndpointMapSkip;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ public class HttpSMSWebhookController {
 
   @PublicEndpoint
   @PostMapping("/httpsms/webhook")
+  @APIEndpointMapSkip
   public void listenEvent(HttpServletRequest request) {
     // String eventType = request.getHeader("X-Event-Type");
     // try {

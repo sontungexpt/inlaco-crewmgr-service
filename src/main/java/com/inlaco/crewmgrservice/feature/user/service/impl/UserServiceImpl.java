@@ -23,17 +23,16 @@ public record UserServiceImpl(
     implements UserService {
 
   @Override
-  public boolean existsByPhoneNumber(String phoneNumber) {
-    return userRepository.existsByPhoneNumber(phoneNumber);
+  public boolean existsByUsername(String username) {
+    return userRepository.existsByUsername(username);
   }
 
   @Override
-  public User findUserByPhoneNumber(String phoneNumber) {
+  public User findUserByUsername(String username) {
     User user =
         userRepository
-            .findByPhoneNumber(phoneNumber)
-            .orElseThrow(
-                () -> new ResourceNotFoundException(User.class, "phoneNumber", phoneNumber));
+            .findByUsername(username)
+            .orElseThrow(() -> new ResourceNotFoundException(User.class, "username", username));
     return user;
   }
 
@@ -57,6 +56,7 @@ public record UserServiceImpl(
     if (!passwordEncoder.matches(newPasswordRequest.getOldPassword(), user.getPassword())) {
       throw new IllegalArgumentException("Old password is incorrect");
     }
+
     userDetailsPasswordService.updatePassword(user, newPasswordRequest.getNewPassword());
     return refreshTokenService.refreshJwtTokens(savedRefreshToken);
   }
@@ -65,5 +65,17 @@ public record UserServiceImpl(
     System.out.println("Change the password for an account");
     System.out.println(
         "Change the password for an account\n\n**Usecase**:\n- UC_account-doi-mat-khau\n\n");
+  }
+
+  @Override
+  public User saveUser(User user) {
+    return userRepository.save(user);
+  }
+
+  @Override
+  public User findUserById(String userId) {
+    return userRepository
+        .findById(userId)
+        .orElseThrow(() -> new ResourceNotFoundException(User.class, "id", userId));
   }
 }

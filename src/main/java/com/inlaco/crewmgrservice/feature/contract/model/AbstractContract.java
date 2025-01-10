@@ -40,8 +40,6 @@ public abstract class AbstractContract extends ContractVersion implements Contra
   @MinLen(2)
   private List<Party> parties;
 
-  @NotBlank private String goal;
-
   @Schema(
       description = "The list of paper contracts",
       requiredMode = RequiredMode.REQUIRED,
@@ -69,19 +67,6 @@ public abstract class AbstractContract extends ContractVersion implements Contra
   @Future
   @DateTimeFormat
   private Instant expiredDate;
-
-  @NotBlank
-  @Schema(
-      description = "The legal document references of the contract",
-      example =
-          """
-- Căn cứ Bộ Luật Lao động nước Cộng hòa xã hội chủ nghĩa Việt Nam ngày .... tháng....năm ....
-- Căn cứ Nghị định số ../../NĐ-CP ngày ....-....-.....của Chính phủ về tuyển chọn, sử dụng và quản lý người lao động Việt Nam làm việc cho tổ chức, cá nhân nước ngoài tại Việt Nam.
-- Căn cứ Thông tư số: .../.../TT-BLĐTBXH ngày .....tháng ..... năm ..... của Bộ Lao động – Thương binh và Xã hội hướng dẫn thực hiện một số Điều của Nghị định số ../.../NĐ-CP ngày .....-.....-....của Chính phủ về tuyển chọn, sử dụng và quản lý người lao động Việt Nam làm việc cho tổ chức, cá nhân nước ngoài tại Việt Nam.
-- Căn cứ nhu cầu sử dụng lao động Việt Nam của....................
-""",
-      requiredMode = RequiredMode.REQUIRED)
-  private String legalDocumentReferences;
 
   @Schema(
       description = "The template id of the contract",

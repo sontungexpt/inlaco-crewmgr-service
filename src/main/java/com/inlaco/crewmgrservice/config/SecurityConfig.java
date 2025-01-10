@@ -11,9 +11,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -51,7 +50,6 @@ public class SecurityConfig {
     return new BCryptPasswordEncoder();
   }
 
-  @Bean
   public DaoAuthenticationProvider authenticationProvider() {
     DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
     authProvider.setUserDetailsService(userDetailsService);
@@ -60,22 +58,23 @@ public class SecurityConfig {
   }
 
   @Bean
-  public AuthenticationManager authenticationManager(List<AuthenticationProvider> providers)
+  public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig)
       throws Exception {
-    return new ProviderManager(providers);
+    return authConfig.getAuthenticationManager();
   }
 
   // @Bean
-  // public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig)
+  // public AuthenticationManager authenticationManager(List<AuthenticationProvider> providers)
   //     throws Exception {
-  //   return authConfig.getAuthenticationManager();
+  //   return new ProviderManager(providers);
   // }
 
   @Bean
   public CorsConfigurationSource corsApiConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
-    configuration.setAllowedOrigins(List.of("http://localhost:*", "*.ngrok-free.app"));
-    // configuration.addAllowedOriginPattern("*");
+    // configuration.addAllowedOriginPattern("http://localhost:*");
+    // configuration.addAllowedOriginPattern("*.ngrok-free.app");
+    configuration.addAllowedOriginPattern("*");
     // configuration.addAllowedHeader("*");
     // configuration.addAllowedMethod("*");
     configuration.setAllowCredentials(true);
@@ -146,6 +145,7 @@ public class SecurityConfig {
             })
         .authenticationProvider(authenticationProvider())
         .addFilterBefore(lazyJwtAuthTokenFilter, UsernamePasswordAuthenticationFilter.class)
+        // authorize by endpoints
         .logout(
             logout ->
                 logout

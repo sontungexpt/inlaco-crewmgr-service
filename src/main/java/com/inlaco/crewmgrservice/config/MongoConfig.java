@@ -1,6 +1,10 @@
 package com.inlaco.crewmgrservice.config;
 
+import com.inlaco.crewmgrservice.endpoint.APIEndpointNameCodeReadingConverter;
+import com.inlaco.crewmgrservice.endpoint.APIEndpointNameStrReadingConverter;
+import com.inlaco.crewmgrservice.endpoint.APIEndpointNameWritingConverter;
 import com.inlaco.crewmgrservice.feature.user.model.User;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
@@ -9,6 +13,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.mongodb.config.EnableMongoAuditing;
+import org.springframework.data.mongodb.core.convert.MongoCustomConversions;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -16,6 +21,18 @@ import org.springframework.security.core.context.SecurityContextHolder;
 @EnableMongoAuditing
 @RequiredArgsConstructor
 public class MongoConfig {
+  private final APIEndpointNameWritingConverter apiEndpointNameWritingConverter;
+  private final APIEndpointNameStrReadingConverter apiEndpointNameReadingConverter;
+  private final APIEndpointNameCodeReadingConverter apiEndpointNameCodeReadingConverter;
+
+  @Bean
+  public MongoCustomConversions customConversions() {
+    return new MongoCustomConversions(
+        List.of(
+            apiEndpointNameWritingConverter,
+            apiEndpointNameReadingConverter,
+            apiEndpointNameCodeReadingConverter));
+  }
 
   // https://stackoverflow.com/questions/29472931/how-does-createdby-work-in-spring-data-jpa
   @Bean

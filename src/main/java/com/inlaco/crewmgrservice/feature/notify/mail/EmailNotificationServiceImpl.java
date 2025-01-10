@@ -28,6 +28,8 @@ public class EmailNotificationServiceImpl implements NotificationService<EmailRe
     message.setTo(to);
     message.setSubject(subject);
     message.setText(msg);
+
+    log.info("Sending simple email to {}", to);
     mailSender.send(message);
   }
 
@@ -38,6 +40,8 @@ public class EmailNotificationServiceImpl implements NotificationService<EmailRe
     message.setRecipients(Message.RecipientType.TO, to);
     message.setSubject(subject);
     message.setContent(html, "text/html");
+
+    log.info("Sending http email to {}", to);
     mailSender.send(message);
   }
 
@@ -51,9 +55,11 @@ public class EmailNotificationServiceImpl implements NotificationService<EmailRe
     switch (request.getEmailType()) {
       case HTML:
         sendHtmlMessage(sender, recipient, subject, message);
+        log.info("HTML email sent to {}", recipient);
         break;
       default:
         sendSimpleMessage(sender, recipient, subject, message);
+        log.info("Simple email sent to {}", recipient);
     }
   }
 }

@@ -2,6 +2,8 @@ package com.inlaco.crewmgrservice.feature.user.controller;
 
 import com.inlaco.crewmgrservice.annotation.BearerToken;
 import com.inlaco.crewmgrservice.config.OpenApiConfig;
+import com.inlaco.crewmgrservice.endpoint.APIEndpointMap;
+import com.inlaco.crewmgrservice.endpoint.APIEndpointName;
 import com.inlaco.crewmgrservice.feature.auth.dto.JwtResponse;
 import com.inlaco.crewmgrservice.feature.auth.dto.NewPasswordRequest;
 import com.inlaco.crewmgrservice.feature.user.service.UserService;
@@ -23,6 +25,7 @@ public class UserController {
 
   @Operation(
       summary = "Change the password for an account",
+      security = @SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME),
       description =
           """
 Change the password for an account
@@ -35,9 +38,12 @@ Change the password for an account
 **Note**
 - The new password must be different from the old password
 
-""",
-      security = @SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME))
+""")
   @PostMapping("/new-password")
+  @APIEndpointMap(
+      name = APIEndpointName.USER_CHANGE_PASSWORD,
+      displayName = "Change password",
+      description = "Change the password for an account")
   public JwtResponse changePassword(
       @BearerToken String refreshToken, @RequestBody NewPasswordRequest newPasswordRequest) {
     return userService.changePassword(refreshToken, newPasswordRequest);

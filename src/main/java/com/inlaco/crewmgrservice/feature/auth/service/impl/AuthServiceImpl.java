@@ -5,11 +5,14 @@ import com.inlaco.crewmgrservice.feature.auth.dto.JwtResponse;
 import com.inlaco.crewmgrservice.feature.auth.dto.LoginRequest;
 import com.inlaco.crewmgrservice.feature.auth.dto.LoginResponse;
 import com.inlaco.crewmgrservice.feature.auth.dto.RegistrationRequest;
+import com.inlaco.crewmgrservice.feature.auth.dto.ResendTokenResponse;
+import com.inlaco.crewmgrservice.feature.auth.enums.TwoStepVerificationType;
 import com.inlaco.crewmgrservice.feature.auth.jwt.JwtService;
 import com.inlaco.crewmgrservice.feature.auth.model.RefreshToken;
 import com.inlaco.crewmgrservice.feature.auth.repository.RefreshTokenRepository;
 import com.inlaco.crewmgrservice.feature.auth.service.AuthService;
 import com.inlaco.crewmgrservice.feature.auth.service.RefreshTokenService;
+import com.inlaco.crewmgrservice.feature.notify.NotificationFactory;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import com.inlaco.crewmgrservice.feature.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +34,9 @@ public record AuthServiceImpl(
     RefreshTokenService refreshTokenService,
     JwtService jwtService,
     UserService userService,
-    AuthenticationManager authenticationManager)
+    AuthenticationManager authenticationManager,
+    NotificationFactory notificationFactory,
+    TwoStepVerificationFactory twoStepVerificationFactory)
     implements AuthService {
 
   public void checkUserValid(UserDetails user) {
@@ -78,23 +83,24 @@ public record AuthServiceImpl(
 
   @Override
   @Transactional
-  public void register(RegistrationRequest request) {
-    final String phoneNumber = request.getPhoneNumber();
-    if (userService.existsByPhoneNumber(phoneNumber)) {
-      throw new ResourceAlreadyInUseException(User.class, "phoneNumber", phoneNumber);
+  public ResendTokenResponse register(RegistrationRequest request) {
+    final String username = request.getUsername();
+    if (userService.existsByUsername(username)) {
+      throw new ResourceAlreadyInUseException(User.class, "username", username);
     }
 
-    // User user = userService.save(userService.createBasicUser(request));
-    // OTPProperties otpProperties =
-    //     OTPProperties.builder()
-    //         .notificationType(NotificationType.SMS)
-    //         .otpExpiration(OTPExpiration.SHORT)
-    //         .otpType(OTPType.USER_REGISTRATION)
-    //         .build();
+    var usernameType = request.getUsernameType();
 
-    // otpService.send(user.getPhoneNumber(), otpProperties);
+    User user =
+        userService.saveUser(
+            User.builder()
+                .username(username)
+                .usernameType(usernameType)
+                .password(request.getPassword())
+                .name(request.getName())
+                .build());
 
-    // applicationEventPulisher.publishEvent(new UserWaitingOTPValidationEvent(this, user));
+    return twoStepVerificationFactory.sendVerificationCode(TwoStepVerificationType.EMAIL, user);
   }
 
   @Override
@@ -108,5 +114,16 @@ public record AuthServiceImpl(
 
   public void handleRefreshtokenIntrusion(RefreshToken refreshToken) {
     log.warn("Infiltration detected");
+  }
+
+  @Override
+  public ResendTokenResponse resend2StepVerification(String identifier) {
+    User user = userService.findUserByUsername(identifier);
+    return twoStepVerificationFactory.resendVerificationCode(TwoStepVerificationType.EMAIL, user);
+  }
+
+  @Override
+  public void verify2StepVerifiction(String token) {
+    twoStepVerificationFactory.verifyCode(TwoStepVerificationType.EMAIL, token);
   }
 }

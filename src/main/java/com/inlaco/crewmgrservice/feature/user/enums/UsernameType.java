@@ -1,3 +1,6 @@
 package com.inlaco.crewmgrservice.feature.user.enums;
 
-public enum PermissionType {}
+public enum UsernameType {
+  EMAIL,
+  PHONE_NUMBER
+}

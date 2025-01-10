@@ -1,10 +1,13 @@
 package com.inlaco.crewmgrservice.feature.post.controller;
 
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.inlaco.crewmgrservice.annotation.CurrentUser;
 import com.inlaco.crewmgrservice.annotation.PageableQueryParams;
 import com.inlaco.crewmgrservice.annotation.PublicEndpoint;
 import com.inlaco.crewmgrservice.config.OpenApiConfig;
+import com.inlaco.crewmgrservice.endpoint.APIEndpointMap;
+import com.inlaco.crewmgrservice.endpoint.APIEndpointName;
 import com.inlaco.crewmgrservice.feature.post.model.Post;
 import com.inlaco.crewmgrservice.feature.post.service.PostService;
 import com.inlaco.crewmgrservice.feature.user.model.User;
@@ -49,6 +52,11 @@ Create a new post with the given data using type field to identify the post type
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   @PostMapping("")
   @ResponseStatus(HttpStatus.CREATED)
+  @APIEndpointMap(
+      name = APIEndpointName.POST_CREATE,
+      displayName = "Create a new post",
+      description =
+          "Create a new post with the given data using type field to identify the post type")
   @PublicEndpoint(profiles = "dev")
   public Post createPost(@CurrentUser User user, @RequestBody @Valid Post newPost) {
     return postService.createPost(newPost, user);
@@ -60,6 +68,10 @@ Create a new post with the given data using type field to identify the post type
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   @PatchMapping(value = "/{id}", consumes = "application/merge-patch+json")
   @ResponseStatus(HttpStatus.OK)
+  @APIEndpointMap(
+      name = APIEndpointName.POST_UPDATE,
+      displayName = "Update a post",
+      description = "Update a post with post Id")
   public Post updatePost(
       @CurrentUser User user, @PathVariable("id") String id, @RequestBody JsonNode patch) {
     return postService.updatePost(id, patch, user);
@@ -71,6 +83,10 @@ Create a new post with the given data using type field to identify the post type
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   @DeleteMapping("/{id}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
+  @APIEndpointMap(
+      name = APIEndpointName.POST_DELETE,
+      displayName = "Delete a post",
+      description = "Delete a post with post Id")
   public void deletePost(@CurrentUser User user, @PathVariable("id") String id) {
     postService.deletePost(id, user);
   }
@@ -99,9 +115,15 @@ This API retrieves a list of posts from the server based on the specified page n
 - Sorting is optional but can be applied.
 
 """)
-  @PostMapping("/web")
+  @GetMapping("/web")
   @ResponseStatus(HttpStatus.OK)
   @PageableQueryParams
+  @APIEndpointMap(
+      name = APIEndpointName.POST_READ,
+      displayName = "Retrieve all posts for a given page",
+      description =
+          "This API retrieves a list of posts from the server based on the specified page number"
+              + " and size.")
   public Page<?> getPagePosts(@PageableDefault(size = 10, page = 0) Pageable pageable) {
     return postService.getPagePosts(pageable);
   }
@@ -119,6 +141,10 @@ This API retrieves a post from the server based on its id.
   @GetMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)
   @PublicEndpoint
+  @APIEndpointMap(
+      name = APIEndpointName.POST_READ,
+      displayName = "Retrieve a post from the server by id",
+      description = "This API retrieves a post from the server based on its id.")
   public Post getPost(@PathVariable("id") String id) {
     return postService.getPost(id);
   }

@@ -10,7 +10,7 @@ public class EmailRequest extends NotificationRequest<String, String> {
 
   protected String subject;
 
-  protected EmailType emailType = EmailType.SIMPLE;
+  @Setter protected EmailType emailType = EmailType.SIMPLE;
 
   public EmailRequest(String recipient, String message, String subject) {
     this(null, recipient, message, subject, EmailType.SIMPLE);

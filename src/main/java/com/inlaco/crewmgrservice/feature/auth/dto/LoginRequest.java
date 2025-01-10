@@ -1,9 +1,8 @@
 package com.inlaco.crewmgrservice.feature.auth.dto;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
-import com.inlaco.crewmgrservice.validation.annotation.Password;
-import com.inlaco.crewmgrservice.validation.annotation.PhoneNumber;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,16 +11,18 @@ import lombok.Setter;
 @Setter
 public class LoginRequest implements Serializable {
 
-  @JsonAlias("username")
-  @PhoneNumber
-  @Schema(description = "Phone number", example = "0392211343")
-  private String phoneNumber;
+  @Schema(
+      description = "Email or PhoneNumber",
+      examples = {"a@gmail.com", "0392211343"})
+  @JsonAlias({"email", "phoneNumber"})
+  @NotBlank
+  private String username;
 
   public String getUsername() {
-    return phoneNumber;
+    return username;
   }
 
-  @Password
   @Schema(description = "Password", example = "Admin123")
+  @NotBlank
   private String password;
 }

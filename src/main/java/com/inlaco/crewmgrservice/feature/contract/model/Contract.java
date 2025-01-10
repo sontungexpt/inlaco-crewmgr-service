@@ -10,8 +10,6 @@ public interface Contract {
 
   List<Party> getParties();
 
-  String getGoal();
-
   List<PaperContract> getPaperContracts();
 
   List<Attachment> getAttachments();
@@ -21,8 +19,6 @@ public interface Contract {
   Instant getActivationDate();
 
   Instant getExpiredDate();
-
-  String getLegalDocumentReferences();
 
   boolean isFreeze();
 

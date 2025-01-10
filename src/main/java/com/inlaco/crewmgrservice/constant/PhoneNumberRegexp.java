@@ -1,4 +1,4 @@
-package com.inlaco.crewmgrservice.common.regexp;
+package com.inlaco.crewmgrservice.constant;
 
 public enum PhoneNumberRegexp {
   // South East Asia
@@ -87,9 +87,14 @@ public enum PhoneNumberRegexp {
   CROATIA("^(\\+385|00385)\\d{9}$"),
   BOSNIA_HERZEGOVINA("^(\\+387|00387)\\d{8}$"),
   SERBIA("^(\\+381|00381)\\d{9}$"),
-  ;
+
+  ITU_T_E_164("^(\\+|00)?[1-9]\\d{1,14}$");
 
   private final String regexp;
+
+  public final String getRegexp() {
+    return regexp;
+  }
 
   PhoneNumberRegexp(String regexp) {
     this.regexp = regexp;
@@ -107,5 +112,9 @@ public enum PhoneNumberRegexp {
   // Returns true if the phone number matches the regexps
   public boolean isValid(String phoneNumber) {
     return phoneNumber.matches(regexp);
+  }
+
+  public boolean isValid(CharSequence phoneNumber) {
+    return phoneNumber.toString().matches(regexp);
   }
 }
