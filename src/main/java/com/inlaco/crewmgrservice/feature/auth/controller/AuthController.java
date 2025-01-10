@@ -90,10 +90,10 @@ Retrive a new access token and refresh token
   }
 
   @Operation(
-      summary = "Verify the email verification link",
+      summary = "Verify the two step verification",
       description =
           """
-Verify the email verification link
+Verify the two step verification
 
 **Usecase**:
 - UC_account-dang-ky
@@ -109,13 +109,22 @@ Verify the email verification link
     authService.verify2StepVerifiction(token);
   }
 
+  @Operation(
+      summary = "Resend the two step verification",
+      description =
+          """
+Resend the two step verification
+
+**Usecase**:
+- UC_account-dang-ky
+
+""")
   @PostMapping("/two-step-verification/resend")
   @APIEndpointMap(
       name = APIEndpointName.AUTH_REGISTER,
       displayName = "Resend the two step verification",
       description = "Resend the two step verification")
   public ResponseEntity<?> resendTwoStepVerification(@RequestParam("username") String username) {
-
     return ResponseEntity.ok(authService.resend2StepVerification(username));
   }
 }

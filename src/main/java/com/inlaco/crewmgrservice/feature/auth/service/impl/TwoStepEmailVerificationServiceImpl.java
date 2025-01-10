@@ -12,6 +12,7 @@ import com.inlaco.crewmgrservice.feature.notify.mail.EmailRequest;
 import com.inlaco.crewmgrservice.feature.notify.mail.EmailType;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import com.inlaco.crewmgrservice.feature.user.service.UserService;
+import com.inlaco.crewmgrservice.utils.HttpServletUtils;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -35,14 +36,8 @@ public class TwoStepEmailVerificationServiceImpl implements TwoStepVerificationS
   @Value("${inlaco.api.url.v1}")
   private String API_V1_URL;
 
-  @Value("${inlaco.client.base.url}")
-  private String BASE_CLIENT_URL;
-
   @Value("${inlaco.client.base.endpoint.login}")
-  private String LOGIN_ENDPOINT;
-
-  @Value("${inlaco.client.base.endpoint.error}")
-  private String ERROR_ENDPOINT;
+  private String LOGIN_CLIENT_URL;
 
   private EmailRequest generateEmailRequest(User user, EmailVerificationToken token) {
     try {
@@ -60,7 +55,7 @@ public class TwoStepEmailVerificationServiceImpl implements TwoStepVerificationS
     } catch (IOException e) {
       e.printStackTrace();
     }
-    return null;
+    throw new RuntimeException("Failed to generate email request");
   }
 
   @Override
@@ -71,12 +66,9 @@ public class TwoStepEmailVerificationServiceImpl implements TwoStepVerificationS
 
     var emailRequest = generateEmailRequest(user, savedToken);
 
-    if (emailRequest != null) {
-      notificationFactory.sendNotificationAsync(NotificationType.EMAIL, emailRequest);
-      log.info("Email verification token sent to user {}", user.getUsername());
-      return generateResendTokenResponse(savedToken);
-    }
-    throw new RuntimeException("Failed to generate email request");
+    notificationFactory.sendNotificationAsync(NotificationType.EMAIL, emailRequest);
+    log.info("Email verification token sent to user {}", user.getUsername());
+    return generateResendTokenResponse(savedToken);
   }
 
   private EmailVerificationToken refreshToken(EmailVerificationToken unrefreshToken) {
@@ -95,12 +87,10 @@ public class TwoStepEmailVerificationServiceImpl implements TwoStepVerificationS
     if (token != null) {
       var refreshedToken = refreshToken(token);
       var emailRequest = generateEmailRequest(user, refreshedToken);
-      if (emailRequest != null) {
-        notificationFactory.sendNotificationAsync(NotificationType.EMAIL, emailRequest);
-        log.info("Email verification token resent to user {}", user.getUsername());
-        return generateResendTokenResponse(refreshedToken);
-      }
-      throw new RuntimeException("Failed to generate email request");
+
+      notificationFactory.sendNotificationAsync(NotificationType.EMAIL, emailRequest);
+      log.info("Email verification token resent to user {}", user.getUsername());
+      return generateResendTokenResponse(refreshedToken);
     }
     return send(user);
   }
@@ -111,10 +101,22 @@ public class TwoStepEmailVerificationServiceImpl implements TwoStepVerificationS
         emailVerificationTokenRepository
             .findByToken(unCheckedToken)
             .orElseThrow(() -> new TwoStepVerificationException("Token expired"));
+
     log.info("Email verification token verified for user {}", token.getUserId());
     var user = userService.findUserById(token.getUserId());
     user.activate();
     userService.saveUser(user);
+    emailVerificationTokenRepository.deleteById(token.getId());
+
+    HttpServletUtils.getResponse()
+        .ifPresent(
+            (response) -> {
+              try {
+                response.sendRedirect(LOGIN_CLIENT_URL);
+              } catch (IOException e) {
+                e.printStackTrace();
+              }
+            });
   }
 
   private String generateVerificationLink(EmailVerificationToken emailVerificationToken) {

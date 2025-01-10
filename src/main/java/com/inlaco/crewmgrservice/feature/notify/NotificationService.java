@@ -7,6 +7,13 @@ public interface NotificationService<N extends NotificationRequest<?, ?>> {
   void sendNotification(N request);
 
   default CompletableFuture<Void> sendNotificationAsync(N request) {
-    return CompletableFuture.runAsync(() -> sendNotification(request));
+    return CompletableFuture.runAsync(
+        () -> {
+          try {
+            sendNotification(request);
+          } catch (Exception e) {
+            e.printStackTrace();
+          }
+        });
   }
 }

@@ -1,4 +1,4 @@
-debug: true
+debug: false
 
 server:
   port: 8080
@@ -62,13 +62,12 @@ spring:
       provider: com.github.benmanes.caffeine.jcache.spi.CaffeineCachingProvider
   data:
     mongodb:
-      uri: mongodb://localhost:27017
       database: ${MONGO_DATABASE}
       # uri: mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_DATABASE}.e2nsr.mongodb.net/?retryWrites=true&w=majority&appName=${MONGO_DATABASE}
     redis:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT}
-    # password: ${REDIS_PASSWORD:IxXNUvoIE4ZywfZ8PMZ0nmVxVzKwUeC3}
+      # password: ${REDIS_PASSWORD:IxXNUvoIE4ZywfZ8PMZ0nmVxVzKwUeC3}
 
 inlaco:
   upload:
@@ -79,14 +78,14 @@ inlaco:
     max-request-size: ${INLACO_UPLOAD_MAX_REQUEST_SIZE:5MB}
     file-size-threshold: ${INLACO_UPLOAD_FILE_SIZE_THRESHOLD:0}
 
-  url: ${INLACO_URL:http://localhost:8080}
+  url: ${INLACO_URL:http://localhost:${server.port}}
 
   client:
     base:
-      url: ${INLACO_CLIENT_URL:http://localhost:3000}
+      url: http://localhost:3000
       endpoint:
-        login: ${INLACO_CLIENT_LOGIN_ENDPOINT:/login}
-        error: ${INLACO_CLIENT_ERROR_ENDPOINT:/error}
+        login: ${inlaco.client.base.url}/login
+        error: ${inlaco.client.base.url}/error
   api:
     url:
-      v1: ${INLACO_API_V1_URL:http://localhost:8080/api/v1}
+      v1: ${INLACO_API_V1_URL:${inlaco.url}/api/v1}

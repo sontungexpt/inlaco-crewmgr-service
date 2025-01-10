@@ -5,21 +5,25 @@ import java.util.HashMap;
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.Id;
 
 @Getter
+@Setter
 @AllArgsConstructor
 @SuperBuilder
 public abstract class VerificationToken {
 
   @Id private String id;
 
-  protected String userId;
+  private String userId;
 
-  protected Instant issuedDate;
+  private Instant issuedDate;
 
   public abstract Instant getExpiryDate();
+
+  public VerificationToken() {}
 
   public VerificationToken(String userId) {
     this.userId = userId;
@@ -33,7 +37,6 @@ public abstract class VerificationToken {
   public VerificationToken refresh() {
     return refresh(false);
   }
-  ;
 
   /**
    * Convert the object to a map representation This is useful for storing the object in a Redis
@@ -46,5 +49,19 @@ public abstract class VerificationToken {
     map.put("userId", userId);
     map.put("issuedDate", issuedDate.toString());
     return map;
+  }
+
+  @Override
+  public int hashCode() {
+    return id.hashCode();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) return true;
+    else if (obj instanceof VerificationToken that) {
+      return this.id.equals(that.id);
+    }
+    return false;
   }
 }

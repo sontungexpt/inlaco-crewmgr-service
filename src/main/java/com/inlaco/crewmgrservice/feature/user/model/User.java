@@ -87,8 +87,12 @@ public class User implements UserDetails, Persistable<String> {
   @Schema(description = "The status of the account")
   private UserStatus status = UserStatus.UNVERIFIED;
 
+  @Schema(description = "The activated time of the account")
+  private Instant activatedAt;
+
   public void activate() {
     status = UserStatus.ACTIVE;
+    this.activatedAt = Instant.now();
   }
 
   @Schema(description = "The roles of the account")
@@ -122,8 +126,10 @@ public class User implements UserDetails, Persistable<String> {
     this.id = user.getId();
     this.pubId = user.getPubId();
     this.username = user.getUsername();
+    this.usernameType = user.getUsernameType();
     this.password = user.getPassword();
     this.name = user.getName();
+    this.jobState = user.getJobState();
     // this.email = user.getEmail();
     this.lastLogoutAt = user.getLastLogoutAt();
     this.status = user.getStatus();

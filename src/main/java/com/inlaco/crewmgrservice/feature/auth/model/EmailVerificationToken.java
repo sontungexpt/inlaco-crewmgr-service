@@ -3,25 +3,41 @@ package com.inlaco.crewmgrservice.feature.auth.model;
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import java.time.Instant;
 import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+import lombok.Builder.Default;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.redis.core.RedisHash;
+import org.springframework.data.redis.core.TimeToLive;
+import org.springframework.data.redis.core.index.Indexed;
 
 @Getter
+@Setter
 @SuperBuilder
-@RedisHash(timeToLive = EmailVerificationToken.EXPIRATION_TIME_IN_S)
+// @Document(collection = "email_verification_token")
+@RedisHash(value = "email_verification_token")
 public class EmailVerificationToken extends VerificationToken {
 
   public static final long EXPIRATION_TIME_IN_S = 24 * 60 * 60; // 1 day
 
-  private String token;
+  @Indexed private String token;
 
-  public Instant getExpiryDate() {
-    return issuedDate.plusSeconds(EXPIRATION_TIME_IN_S);
+  @Default
+  @TimeToLive(unit = TimeUnit.SECONDS)
+  private long expiryTimeInS = EXPIRATION_TIME_IN_S;
+
+  public EmailVerificationToken() {
+    super();
   }
 
-  public EmailVerificationToken(String userPubId) {
-    super(userPubId);
+  public Instant getExpiryDate() {
+    return getIssuedDate().plusSeconds(EXPIRATION_TIME_IN_S);
+  }
+
+  public EmailVerificationToken(String userId) {
+    super(userId);
     generateToken();
   }
 
@@ -29,6 +45,7 @@ public class EmailVerificationToken extends VerificationToken {
     return token;
   }
 
+  @Override
   public boolean isValid(String token) {
     return this.token.equals(token);
   }
@@ -39,7 +56,7 @@ public class EmailVerificationToken extends VerificationToken {
   }
 
   public Instant getResendLockExpiryDate() {
-    return issuedDate.plusSeconds(60);
+    return getIssuedDate().plusSeconds(60);
   }
 
   public boolean canResend() {
@@ -49,10 +66,10 @@ public class EmailVerificationToken extends VerificationToken {
   @Override
   public VerificationToken refresh(boolean newToken) {
     if (newToken) {
-      return new EmailVerificationToken(userId);
+      return new EmailVerificationToken(getUserId());
     }
     generateToken();
-    issuedDate = Instant.now();
+    setIssuedDate(Instant.now());
     return this;
   }
 
@@ -80,5 +97,19 @@ public class EmailVerificationToken extends VerificationToken {
         .token(map.get("token"))
         .issuedDate(Instant.parse(map.get("issuedDate")))
         .build();
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), token);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) return true;
+    else if (obj instanceof EmailVerificationToken that) {
+      return super.equals(that) || Objects.equals(token, that.token);
+    }
+    return false;
   }
 }
