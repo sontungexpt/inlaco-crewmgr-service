@@ -1,7 +1,8 @@
 package com.inlaco.crewmgrservice.feature.contract.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.inlaco.crewmgrservice.common.model.Attachment;
+import com.inlaco.crewmgrservice.common.model.File;
+import com.inlaco.crewmgrservice.common.payload.TimeFrame;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import jakarta.validation.constraints.Future;
@@ -28,7 +29,7 @@ import org.springframework.format.annotation.DateTimeFormat;
     value = {"id", "version", "createdAt", "updatedAt", "prevVersion"},
     allowGetters = true)
 @Document("contracts")
-public abstract class AbstractContract extends ContractVersion implements Contract {
+public abstract class AbstractContract extends ContractVersion implements Contract, TimeFrame {
 
   @NotBlank
   @Schema(
@@ -49,7 +50,7 @@ public abstract class AbstractContract extends ContractVersion implements Contra
   @Schema(
       description = "The description of the contract",
       example = "{\"name\":\"Hop dong\", \"url\": \"https://....\"}")
-  private List<Attachment> attachments;
+  private List<File> attachments;
 
   @Schema(
       description = "The list of term of the contract",
@@ -63,10 +64,20 @@ public abstract class AbstractContract extends ContractVersion implements Contra
   @Schema(description = "The time that the contract is valid, and active")
   private Instant activationDate;
 
+  @Override
+  public Instant getStartDate() {
+    return activationDate;
+  }
+
   @Schema(description = "The time that the contract expired")
   @Future
   @DateTimeFormat
   private Instant expiredDate;
+
+  @Override
+  public Instant getEndDate() {
+    return expiredDate;
+  }
 
   @Schema(
       description = "The template id of the contract",

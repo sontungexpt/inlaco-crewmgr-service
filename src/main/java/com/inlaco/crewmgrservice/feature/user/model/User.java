@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.inlaco.crewmgrservice.feature.user.enums.UserStatus;
 import com.inlaco.crewmgrservice.feature.user.enums.UsernameType;
 import com.inlaco.crewmgrservice.feature.user.model.authorization.Right;
+import com.inlaco.crewmgrservice.feature.user.model.state.job.CircleJobStateContext;
 import com.inlaco.crewmgrservice.validation.annotation.OptimizedName;
 import com.inlaco.crewmgrservice.validation.annotation.Password;
 import com.inlaco.crewmgrservice.validation.annotation.Username;
@@ -58,7 +59,10 @@ public class User implements UserDetails, Persistable<String> {
   @Indexed(unique = true)
   @Schema(
       description = "The phone number of the account or email",
-      examples = {"0392211343", "a@gmail.com"},
+      examples = {
+        "tunggitclone03@gmail.com",
+        "0392211343",
+      },
       requiredMode = RequiredMode.REQUIRED)
   @Username
   private String username;
@@ -111,10 +115,18 @@ public class User implements UserDetails, Persistable<String> {
   public enum JobState {
     CAN_APPLY,
     CANDIDATE,
-    EMPLOYEE
+    SAILOR
   }
 
   private JobState jobState;
+
+  public void promoteJobState() {
+    new CircleJobStateContext(this).promote();
+  }
+
+  public void demoteJobState() {
+    new CircleJobStateContext(this).demote();
+  }
 
   @JsonIgnore @Transient private Collection<? extends GrantedAuthority> authorities;
 
@@ -130,7 +142,6 @@ public class User implements UserDetails, Persistable<String> {
     this.password = user.getPassword();
     this.name = user.getName();
     this.jobState = user.getJobState();
-    // this.email = user.getEmail();
     this.lastLogoutAt = user.getLastLogoutAt();
     this.status = user.getStatus();
     this.right = user.getRight();
@@ -150,7 +161,7 @@ public class User implements UserDetails, Persistable<String> {
             .getRoles()
             .forEach(
                 role -> {
-                  auths.add(new SimpleGrantedAuthority("ROLE_" + role));
+                  auths.add(new SimpleGrantedAuthority("ROLE_" + role.getName()));
                   role.getPermissions().stream()
                       .forEach(
                           permission -> {

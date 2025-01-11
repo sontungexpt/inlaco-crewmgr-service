@@ -28,6 +28,7 @@ public class SluggableModelListener extends AbstractMongoEventListener<Sluggable
   @Override
   public void onBeforeSave(BeforeSaveEvent<Sluggable> event) {
     var sluggable = event.getSource();
+
     Class<?> slugableClazz = sluggable.getClass();
 
     Sluggable oldSlugable = null;
@@ -60,6 +61,7 @@ public class SluggableModelListener extends AbstractMongoEventListener<Sluggable
 
         for (String f : autoSlugify.fields()) {
           Field foundField = ReflectionUtils.findField(slugableClazz, f);
+
           if (foundField == null) {
             throw new IllegalArgumentException(
                 "Cannot find field "

@@ -45,13 +45,13 @@ public class TwoStepEmailVerificationServiceImpl implements TwoStepVerificationS
       String html =
           Files.readString(
               Paths.get("src/main/resources/templates/email/html/two-step-verification.html"));
-      var emailRequest =
-          new EmailRequest(
+
+      return EmailRequest.builder(
               user.getUsername(),
               html.replace("${name}", user.getName()).replace("${verificationLink}", link),
-              SUBJECT);
-      emailRequest.setEmailType(EmailType.HTML);
-      return emailRequest;
+              SUBJECT)
+          .emailType(EmailType.MIME)
+          .build();
     } catch (IOException e) {
       e.printStackTrace();
     }

@@ -3,7 +3,9 @@ package com.inlaco.crewmgrservice.validation.validator;
 import com.inlaco.crewmgrservice.validation.annotation.Range;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import org.springframework.stereotype.Component;
 
+@Component
 public class RangeValidator implements ConstraintValidator<Range, double[]> {
 
   @Override

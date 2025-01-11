@@ -11,6 +11,7 @@ import org.bson.types.ObjectId;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
@@ -30,6 +31,7 @@ public class CourseMemberTracking {
   private ObjectId courseId;
 
   @Schema(description = "The ID of the user associated with this tracking record", hidden = true)
+  @Indexed
   private ObjectId userId;
 
   /** Enum representing the various statuses of the course member. */
@@ -38,7 +40,8 @@ public class CourseMemberTracking {
     IN_PROGRESS, // The course is currently in progress
     COMPLETED, // The course has been successfully completed
     EXPIRED, // The course has expired
-    CANCELLED // The course was cancelled
+    CANCELLED, // The course was cancelled
+    UNKNOWN // The status is unknown
   }
 
   @Schema(
@@ -129,6 +132,10 @@ public class CourseMemberTracking {
    */
   public Instant getEnrolledAt() {
     return createdAt;
+  }
+
+  public boolean isEnrolled() {
+    return createdAt != null;
   }
 
   @JsonIgnore

@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.feature.contract.model;
 
-import com.inlaco.crewmgrservice.common.model.Attachment;
+import com.inlaco.crewmgrservice.common.model.File;
 import java.time.Instant;
 import java.util.List;
 
@@ -12,7 +12,7 @@ public interface Contract {
 
   List<PaperContract> getPaperContracts();
 
-  List<Attachment> getAttachments();
+  List<File> getAttachments();
 
   List<String> getTerms();
 

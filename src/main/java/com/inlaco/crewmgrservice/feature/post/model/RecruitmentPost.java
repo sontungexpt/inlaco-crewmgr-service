@@ -2,9 +2,13 @@ package com.inlaco.crewmgrservice.feature.post.model;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.inlaco.crewmgrservice.common.model.Address;
+import com.inlaco.crewmgrservice.common.payload.TimeFrame;
 import com.inlaco.crewmgrservice.feature.post.enums.PostType;
 import com.inlaco.crewmgrservice.validation.annotation.Range;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.NotBlank;
 import java.time.Instant;
 import lombok.Builder.Default;
 import lombok.Getter;
@@ -21,7 +25,11 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @Getter
 @Setter
-public class RecruitmentPost extends Post {
+public class RecruitmentPost extends Post implements TimeFrame {
+
+  @Schema(description = "Position title", example = "Software Engineer")
+  @NotBlank
+  private String position;
 
   @Schema(description = "Expected salary range", example = "[3000, 5000]")
   @Default
@@ -30,14 +38,33 @@ public class RecruitmentPost extends Post {
 
   @Schema(description = "Indicates if the post is active", example = "true")
   @Default
-  private boolean actived = false;
+  private boolean disabled = false;
+
+  public boolean isActive() {
+    return !disabled
+        && recruitmentStartDate.isBefore(Instant.now())
+        && (recruitmentEndDate == null || recruitmentEndDate.isAfter(Instant.now()));
+  }
 
   @Schema(description = "Work location for the position")
   private Address workLocation;
 
   @Schema(description = "Date when recruitment starts (UTC)", example = "2023-11-01T08:00:00Z")
-  private Instant recruitmentStartDate;
+  @FutureOrPresent
+  @Default
+  private Instant recruitmentStartDate = Instant.now();
 
   @Schema(description = "Date when recruitment ends (UTC)", example = "2023-11-30T17:00:00Z")
+  @Future
   private Instant recruitmentEndDate;
+
+  @Override
+  public Instant getStartDate() {
+    return recruitmentStartDate;
+  }
+
+  @Override
+  public Instant getEndDate() {
+    return recruitmentEndDate;
+  }
 }

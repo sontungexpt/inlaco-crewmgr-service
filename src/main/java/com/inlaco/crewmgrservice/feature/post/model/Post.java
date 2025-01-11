@@ -4,12 +4,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.inlaco.crewmgrservice.annotation.JsonPatchIgnore;
+import com.inlaco.crewmgrservice.common.model.File;
 import com.inlaco.crewmgrservice.feature.post.enums.PostType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
+import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -63,12 +65,12 @@ public abstract class Post implements Serializable {
       description = "List of tags associated with the post",
       example = "[\"Spring Boot\", \"Java\"]",
       hidden = true)
-  private List<String> attachments;
+  private List<File> attachments;
 
   @Schema(
       description = "URL of the image associated with the post",
       example = "https://example.com/image.jpg")
-  protected String imageUrl;
+  protected File image;
 
   @Schema(description = "Name of the company associated with the post", example = "Inlaco")
   protected String company;
@@ -76,11 +78,24 @@ public abstract class Post implements Serializable {
   @Schema(description = "Type of the post", enumAsRef = true)
   protected PostType type;
 
+  @Schema(description = "Indicates if the post is deleted", example = "true")
+  @Default
+  @JsonPatchIgnore
+  private boolean deleted = false;
+
+  @Schema(
+      description = "Unique identifier of the user who deleted the post",
+      example = "5f8d0d55b54764421b7156a2",
+      hidden = true)
+  @JsonPatchIgnore
+  private ObjectId deletedBy;
+
   @Schema(
       description = "Author's unique identifier",
       example = "5f8d0d55b54764421b7156a2",
       hidden = true)
   @CreatedBy
+  @JsonPatchIgnore
   private ObjectId authorId;
 
   @Schema(
@@ -89,6 +104,7 @@ public abstract class Post implements Serializable {
       hidden = true)
   @CreatedDate
   @JsonIgnore
+  @JsonPatchIgnore
   private Instant createdAt;
 
   @Schema(
@@ -96,5 +112,11 @@ public abstract class Post implements Serializable {
       example = "2023-10-25T12:45:20Z",
       hidden = true)
   @LastModifiedDate
+  @JsonIgnore
+  @JsonPatchIgnore
   private Instant updatedAt;
+
+  public Instant getUpdatedDate() {
+    return updatedAt;
+  }
 }

@@ -1,6 +1,7 @@
 package com.inlaco.crewmgrservice.feature.auth.service.impl;
 
 import com.inlaco.crewmgrservice.exceptions.ResourceAlreadyInUseException;
+import com.inlaco.crewmgrservice.exceptions.ResourceNotFoundException;
 import com.inlaco.crewmgrservice.feature.auth.dto.JwtResponse;
 import com.inlaco.crewmgrservice.feature.auth.dto.LoginRequest;
 import com.inlaco.crewmgrservice.feature.auth.dto.LoginResponse;
@@ -13,7 +14,11 @@ import com.inlaco.crewmgrservice.feature.auth.repository.RefreshTokenRepository;
 import com.inlaco.crewmgrservice.feature.auth.service.AuthService;
 import com.inlaco.crewmgrservice.feature.auth.service.RefreshTokenService;
 import com.inlaco.crewmgrservice.feature.notify.NotificationFactory;
+import com.inlaco.crewmgrservice.feature.user.enums.UsernameType;
 import com.inlaco.crewmgrservice.feature.user.model.User;
+import com.inlaco.crewmgrservice.feature.user.model.authorization.Right;
+import com.inlaco.crewmgrservice.feature.user.model.authorization.Role;
+import com.inlaco.crewmgrservice.feature.user.repository.RoleRepository;
 import com.inlaco.crewmgrservice.feature.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AccountExpiredException;
@@ -36,7 +41,8 @@ public record AuthServiceImpl(
     UserService userService,
     AuthenticationManager authenticationManager,
     NotificationFactory notificationFactory,
-    TwoStepVerificationFactory twoStepVerificationFactory)
+    TwoStepVerificationFactory twoStepVerificationFactory,
+    RoleRepository roleRepository)
     implements AuthService {
 
   public void checkUserValid(UserDetails user) {
@@ -89,7 +95,14 @@ public record AuthServiceImpl(
       throw new ResourceAlreadyInUseException(User.class, "username", username);
     }
 
+    log.info("Starting register new user");
+
     var usernameType = request.getUsernameType();
+
+    Role role =
+        roleRepository
+            .findByName("USER")
+            .orElseThrow(() -> new ResourceNotFoundException(Role.class, "name", "ROLE_USER"));
 
     User user =
         userService.saveUser(
@@ -97,10 +110,14 @@ public record AuthServiceImpl(
                 .username(username)
                 .usernameType(usernameType)
                 .password(request.getPassword())
+                .right(new Right(role))
                 .name(request.getName())
                 .build());
 
-    return twoStepVerificationFactory.sendVerificationCode(TwoStepVerificationType.EMAIL, user);
+    if (usernameType == UsernameType.EMAIL) {
+      return twoStepVerificationFactory.sendVerificationCode(TwoStepVerificationType.EMAIL, user);
+    }
+    return null;
   }
 
   @Override

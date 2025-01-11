@@ -20,7 +20,7 @@ public class RegistrationRequest implements Serializable, IMatchPassword {
   @Schema(
       example = "tunggitclone03@gmail.com",
       description = "Username (Phone number or email)",
-      examples = {"+840392211343", "a@gmail.com"})
+      examples = {"tunggitclone03@gmail.com", "+840392211343"})
   @Username
   private String username;
 

@@ -11,4 +11,6 @@ import org.springframework.stereotype.Repository;
 public interface PostRepository extends MongoRepository<Post, String> {
 
   Page<Post> findByAuthorId(ObjectId authorId, Pageable pageable);
+
+  Page<Post> findByDeleted(boolean deleted, Pageable pageable);
 }

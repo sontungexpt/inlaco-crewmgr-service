@@ -13,7 +13,6 @@ import com.inlaco.crewmgrservice.feature.course.service.CourseService;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import com.inlaco.crewmgrservice.utils.JsonMergePatchUtils;
 import com.inlaco.crewmgrservice.utils.PageableUtils;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +34,7 @@ public class CourseServiceImpl implements CourseService {
 
   @Override
   public Page<Course> getCourses(Pageable pageable) {
-    return courseRepository.findByIsDeleted(false, PageableUtils.extendDefaultSort(pageable));
+    return courseRepository.findByDeleted(false, PageableUtils.extendDefaultSort(pageable));
   }
 
   @Override
@@ -56,11 +55,7 @@ public class CourseServiceImpl implements CourseService {
                   "Fetching course tracking with courseId: {} and userId: {}", id, user.getId());
               return courseMemberTrackingRepository
                   .findByCourseIdAndUserId(new ObjectId(id), new ObjectId(user.getId()))
-                  .orElseThrow(
-                      () ->
-                          new ResourceNotFoundException(
-                              CourseMemberTracking.class,
-                              Map.of("courseId", id, "userId", user.getId())));
+                  .orElse(null);
             });
 
     CompletableFuture.allOf(courseFuture, trackingFuture).join();
@@ -87,29 +82,28 @@ public class CourseServiceImpl implements CourseService {
 
   @Override
   public void deleteCourse(String id) {
-    Course course =
-        courseRepository
-            .findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException(Course.class, "id", id));
-    course.setDeleted(true);
-    courseRepository.save(course);
+    courseRepository.shortDeleteById(id);
   }
 
   @Override
   public void updateEmployeeCompletionProgress(String sailorId) {
-    // TODO Auto-generated method stub
     throw new UnsupportedOperationException(
         "Unimplemented method 'updateEmployeeCompletionProgress'");
   }
 
   @Override
   public Page<Course> searchCourseByName(String keyword, Pageable pageable) {
-    return courseRepository.findByIsDeletedAndNameContainingIgnoreCase(
+    return courseRepository.findByDeletedAndNameContainingIgnoreCase(
         false, keyword, PageableUtils.extendDefaultSort(pageable));
   }
 
   @Override
   public Page<CourseEnrollment> getEnrolledCourses(User user, Pageable pageable) {
-    return customCourseRepository.findEnrolledCourses(user.getId(), pageable);
+    return customCourseRepository.findCourseEnrollments(user.getId(), pageable);
+  }
+
+  @Override
+  public Page<Course> getNonExpiredCourses(Pageable pageable) {
+    return customCourseRepository.findByNonExpiredCourses(pageable);
   }
 }

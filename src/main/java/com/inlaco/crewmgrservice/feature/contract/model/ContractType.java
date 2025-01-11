@@ -1,5 +1,6 @@
 package com.inlaco.crewmgrservice.feature.contract.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serializable;
 import org.springframework.lang.Nullable;
@@ -14,6 +15,7 @@ public class ContractType implements Comparable<ContractType>, Serializable {
   @Schema(description = "A contract for employment or labor.")
   public static ContractType LABOR_CONTRACT = new ContractType("LABOR_CONTRACT");
 
+  @JsonCreator
   private ContractType(String name) {
     this.name = name;
   }

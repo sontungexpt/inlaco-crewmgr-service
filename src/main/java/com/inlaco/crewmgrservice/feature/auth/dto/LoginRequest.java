@@ -13,7 +13,8 @@ public class LoginRequest implements Serializable {
 
   @Schema(
       description = "Email or PhoneNumber",
-      examples = {"a@gmail.com", "0392211343"})
+      example = "admin@gmail.com",
+      examples = {"admin@gmail.com", "0392211343"})
   @JsonAlias({"email", "phoneNumber"})
   @NotBlank
   private String username;

@@ -12,6 +12,8 @@ public interface CourseService {
 
   Page<Course> getCourses(Pageable pageable);
 
+  Page<Course> getNonExpiredCourses(Pageable pageable);
+
   Page<CourseEnrollment> getEnrolledCourses(User user, Pageable pageable);
 
   CourseDetail getCourseDetailById(String id, User user);

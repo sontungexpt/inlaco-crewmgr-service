@@ -2,8 +2,9 @@ package com.inlaco.crewmgrservice.feature.notify.mail;
 
 import com.inlaco.crewmgrservice.feature.notify.NotificationService;
 import com.inlaco.crewmgrservice.feature.notify.NotificationType;
-import jakarta.mail.Message;
+import jakarta.mail.Message.RecipientType;
 import jakarta.mail.internet.MimeMessage;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -22,43 +23,47 @@ public class EmailNotificationServiceImpl implements NotificationService<EmailRe
 
   private final JavaMailSender mailSender;
 
-  private void sendSimpleMessage(String sender, String to, String subject, String msg) {
+  private void sendSimpleMessage(String sender, EmailRequest request) {
     SimpleMailMessage message = new SimpleMailMessage();
     message.setFrom(sender);
-    message.setTo(to);
-    message.setSubject(subject);
-    message.setText(msg);
+    message.setTo((String[]) request.getRecipients().toArray());
+    message.setSubject(request.getSubject());
+    message.setText(request.getMessage());
+    message.setCc(request.getCc());
+    message.setBcc(request.getBcc());
 
-    log.info("Sending simple email to {}", to);
+    log.info("Sending simple email to {}", request.getRecipients());
     mailSender.send(message);
   }
 
   @SneakyThrows
-  private void sendHtmlMessage(String sender, String to, String subject, String html) {
+  private void sendHtmlMessage(String sender, EmailRequest request) {
     MimeMessage message = mailSender.createMimeMessage();
     message.setFrom(sender);
-    message.setRecipients(Message.RecipientType.TO, to);
-    message.setSubject(subject);
-    message.setContent(html, "text/html");
+    for (String recipient : request.getRecipients()) {
+      message.addRecipients(RecipientType.TO, recipient);
+    }
+    message.setSubject(request.getSubject());
+    message.setText(request.getMessage(), "UTF-8", "html");
 
-    log.info("Sending http email to {}", to);
+    // message.setContent(request.getMessage(), "text/html");
+
+    log.info("Sending http email to {}", request.getRecipients());
     mailSender.send(message);
   }
 
   @Override
   public void sendNotification(EmailRequest request) {
-    String recipient = request.getRecipient();
-    String subject = request.getSubject();
-    String message = request.getMessage();
+    List<String> recipient = request.getRecipients();
     String sender = request.getSender() != null ? request.getSender() : SENDER;
 
     switch (request.getEmailType()) {
-      case HTML:
-        sendHtmlMessage(sender, recipient, subject, message);
+      case MIME:
+        sendHtmlMessage(sender, request);
         log.info("HTML email sent to {}", recipient);
         break;
       default:
-        sendSimpleMessage(sender, recipient, subject, message);
+        sendSimpleMessage(sender, request);
         log.info("Simple email sent to {}", recipient);
     }
   }

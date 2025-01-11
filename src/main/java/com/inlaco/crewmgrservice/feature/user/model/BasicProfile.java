@@ -1,7 +1,14 @@
 package com.inlaco.crewmgrservice.feature.user.model;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.inlaco.crewmgrservice.annotation.JsonPatchIgnore;
+import com.inlaco.crewmgrservice.validation.annotation.PhoneNumber;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Null;
 import jakarta.validation.constraints.Past;
 import java.io.Serializable;
 import java.time.Instant;
@@ -11,8 +18,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.bson.types.ObjectId;
-import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.format.annotation.DateTimeFormat;
 
 @SuperBuilder
@@ -20,19 +27,36 @@ import org.springframework.format.annotation.DateTimeFormat;
 @Getter
 @Setter
 @AllArgsConstructor
+@JsonIgnoreProperties(
+    value = {"id"},
+    allowGetters = true)
 public class BasicProfile implements Serializable {
 
   @Id
   @Schema(hidden = true)
+  @Null
+  @JsonPatchIgnore
   protected String id;
 
   @Schema(
       description = "The user account id",
       example = "60f1b3b3b3b3b3b3b3b3b3b3",
+      hidden = true,
       requiredMode = RequiredMode.REQUIRED,
       type = "String")
-  @CreatedBy
+  @JsonPatchIgnore
+  @Indexed
   protected ObjectId accountId;
+
+  @JsonGetter("accountId")
+  public String getAccountIdStr() {
+    return accountId.toHexString();
+  }
+
+  @JsonIgnore
+  public ObjectId getAccountId() {
+    return accountId;
+  }
 
   @Schema(
       description = "The birth date of the person",
@@ -55,6 +79,7 @@ public class BasicProfile implements Serializable {
       example = "email@gmail.com",
       requiredMode = RequiredMode.REQUIRED,
       type = "String")
+  @Email
   protected String email;
 
   @Schema(
@@ -62,6 +87,7 @@ public class BasicProfile implements Serializable {
       requiredMode = RequiredMode.REQUIRED,
       example = "+84392211343",
       type = "String")
+  @PhoneNumber
   protected String phoneNumber;
 
   @Schema(

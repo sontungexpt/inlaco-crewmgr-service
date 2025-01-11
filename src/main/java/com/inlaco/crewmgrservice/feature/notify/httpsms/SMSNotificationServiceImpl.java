@@ -35,7 +35,7 @@ public class SMSNotificationServiceImpl implements NotificationService<SMSReques
            "to": "%s"
         }
         """,
-        request.getMessage(), sender, request.getRecipient());
+        request.getMessage(), sender, request.getFirstRecipient());
   }
 
   @Override
@@ -55,7 +55,7 @@ public class SMSNotificationServiceImpl implements NotificationService<SMSReques
     } catch (IOException | InterruptedException e) {
       e.printStackTrace();
       log.warn("Error when sending sms message");
-      throw new SMSNotificationException(request.getRecipient(), request.getMessage());
+      throw new SMSNotificationException(request.getFirstRecipient(), request.getMessage());
     }
   }
 }

@@ -1,5 +1,6 @@
 package com.inlaco.crewmgrservice.feature.course.model.dto;
 
+import com.inlaco.crewmgrservice.common.model.File;
 import com.inlaco.crewmgrservice.feature.course.model.Course;
 import com.inlaco.crewmgrservice.feature.course.model.CourseMemberTracking;
 import com.inlaco.crewmgrservice.feature.course.model.CourseMemberTracking.Status;
@@ -10,6 +11,8 @@ import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 @Data
 @SuperBuilder
@@ -26,6 +29,21 @@ public class CourseEnrollment {
       example = "60f7b3b3b3b3b3b3b3b3b3b3")
   private String reopenedBasedOn;
 
+  @Schema(description = "The training provider name", example = "Công ty TNHH ABC")
+  private String trainingProviderName;
+
+  @Schema(description = "The training provider logo url")
+  private String trainingProviderLogo;
+
+  @Schema(description = "The wallpaper of the course")
+  private File wallpaper;
+
+  @Schema(description = "The archived position of the course", example = "Deck")
+  private String archivedPosition;
+
+  @Schema(description = "Indicates if the course is certified", example = "true")
+  private boolean certified;
+
   @Schema(hidden = true)
   private String slug;
 
@@ -37,6 +55,10 @@ public class CourseEnrollment {
   @Schema(description = "Description of the course", example = "This is the course")
   private String description;
 
+  public String getDescription() {
+    return description != null ? description : "";
+  }
+
   @Schema(description = "The name of the teacher", example = "Nguyễn Văn A")
   private String teacherName;
 
@@ -47,7 +69,8 @@ public class CourseEnrollment {
   private Instant endDate;
 
   @Schema(description = "The status of the course member", example = "IN_PROGRESS")
-  private Status status;
+  @Default
+  private Status status = Status.UNKNOWN;
 
   @Schema(description = "The percent of completion progress in the course", example = "0")
   @Default
@@ -55,6 +78,10 @@ public class CourseEnrollment {
 
   @Schema(description = "The note of the course member", example = "Passed the exam")
   private String note;
+
+  public String getNote() {
+    return note != null ? note : "";
+  }
 
   @Schema(
       description = "The time the course was marked as finished",
@@ -71,6 +98,10 @@ public class CourseEnrollment {
       description = "The enrollment date of the course member",
       example = "2021-09-01T00:00:00Z")
   private Instant enrolledAt;
+
+  public boolean isEnrolled() {
+    return enrolledAt != null;
+  }
 
   @Schema(description = "The created date of the course", example = "2021-08-01T00:00:00Z")
   private Instant createdAt;
@@ -98,27 +129,38 @@ public class CourseEnrollment {
     return forciblyFinishedAt != null;
   }
 
-  public static CourseEnrollment from(Course course, CourseMemberTracking courseMemberTracking) {
-    return CourseEnrollment.builder()
-        .id(course.getId())
-        .name(course.getName())
-        .reopenedBasedOn(course.getReopenedBasedOn().toHexString())
-        .slug(course.getSlug())
-        .limitStudent(course.getLimitStudent())
-        .description(course.getDescription())
-        .teacherName(course.getTeacherName())
-        .startDate(course.getStartDate())
-        .endDate(course.getEndDate())
-        .createdAt(course.getCreatedAt())
-        .updatedAt(course.getUpdatedAt())
-        .status(courseMemberTracking.getStatus())
-        .completionProgress(courseMemberTracking.getCompletionProgress())
-        .note(courseMemberTracking.getNote())
-        .forciblyFinishedAt(courseMemberTracking.getForciblyFinishedAt())
-        .cancelledAt(courseMemberTracking.getCancelledAt())
-        .expiredAt(courseMemberTracking.getExpiredAt())
-        .enrolledAt(courseMemberTracking.getEnrolledAt())
-        .certificateUrl(courseMemberTracking.getCertificateUrl())
-        .build();
+  public static CourseEnrollment from(
+      @NonNull Course course, @Nullable CourseMemberTracking courseMemberTracking) {
+    var result =
+        CourseEnrollment.builder()
+            .id(course.getId())
+            .name(course.getName())
+            .reopenedBasedOn(course.getReopenedBasedOn().toHexString())
+            .slug(course.getSlug())
+            .limitStudent(course.getLimitStudent())
+            .wallpaper(course.getWallpaper())
+            .trainingProviderName(course.getTrainingProviderName())
+            .trainingProviderLogo(course.getTrainingProviderLogo())
+            .certified(course.isCertified())
+            .archivedPosition(course.getAchievedPosition())
+            .description(course.getDescription())
+            .teacherName(course.getTeacherName())
+            .startDate(course.getStartDate())
+            .endDate(course.getEndDate())
+            .createdAt(course.getCreatedAt())
+            .updatedAt(course.getUpdatedAt())
+            .build();
+
+    if (courseMemberTracking != null) {
+      result.status = courseMemberTracking.getStatus();
+      result.completionProgress = courseMemberTracking.getCompletionProgress();
+      result.note = courseMemberTracking.getNote();
+      result.forciblyFinishedAt = courseMemberTracking.getForciblyFinishedAt();
+      result.cancelledAt = courseMemberTracking.getCancelledAt();
+      result.expiredAt = courseMemberTracking.getExpiredAt();
+      result.enrolledAt = courseMemberTracking.getEnrolledAt();
+      result.certificateUrl = courseMemberTracking.getCertificateUrl();
+    }
+    return result;
   }
 }

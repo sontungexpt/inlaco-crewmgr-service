@@ -1,5 +1,7 @@
 package com.inlaco.crewmgrservice.feature.user.dto;
 
+import com.inlaco.crewmgrservice.common.model.File;
+import com.inlaco.crewmgrservice.feature.user.model.Gender;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import lombok.Builder;
@@ -13,13 +15,6 @@ public class BasicProfileDTO {
 
   @Schema(hidden = true)
   protected String id;
-
-  @Schema(
-      description = "The user account id",
-      example = "60f1b3b3b3b3b3b3b3b3b3b3",
-      requiredMode = RequiredMode.REQUIRED,
-      type = "String")
-  protected String accountId;
 
   @Schema(
       description = "The full name of the person",
@@ -48,4 +43,16 @@ public class BasicProfileDTO {
       requiredMode = RequiredMode.REQUIRED,
       type = "String")
   protected String address;
+
+  @Schema(
+      description = "The imporant file of the person",
+      requiredMode = RequiredMode.REQUIRED,
+      type = "File")
+  protected File file;
+
+  @Schema(
+      description = "The gender of the person",
+      requiredMode = RequiredMode.REQUIRED,
+      type = "String")
+  protected Gender gender;
 }

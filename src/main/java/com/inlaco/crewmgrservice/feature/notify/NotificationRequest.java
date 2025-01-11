@@ -1,22 +1,36 @@
 package com.inlaco.crewmgrservice.feature.notify;
 
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
+@SuperBuilder
 public abstract class NotificationRequest<S, R> {
 
   private S sender;
-  private R recipient;
+  private List<R> recipients;
   private String message;
 
+  public R getFirstRecipient() {
+    if (recipients.isEmpty()) {
+      return null;
+    }
+    return recipients.get(0);
+  }
+
   public NotificationRequest(S sender, R recipient, String message) {
-    assert recipient != null;
+    this(sender, List.of(recipient), message);
+  }
+
+  public NotificationRequest(S sender, List<R> recipients, String message) {
+    assert recipients != null;
     assert message != null;
 
     this.sender = sender;
-    this.recipient = recipient;
+    this.recipients = recipients;
     this.message = message;
   }
 }

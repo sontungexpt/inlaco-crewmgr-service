@@ -6,6 +6,8 @@ import com.inlaco.crewmgrservice.common.model.FacetResult;
 import com.inlaco.crewmgrservice.feature.course.model.Course;
 import com.inlaco.crewmgrservice.feature.course.model.CourseMemberTracking;
 import com.inlaco.crewmgrservice.feature.course.model.dto.CourseEnrollment;
+import com.inlaco.crewmgrservice.utils.PageableUtils;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -24,9 +26,9 @@ import org.springframework.stereotype.Repository;
 @Slf4j
 public class CustomCourseRepository {
 
-  private MongoTemplate mongoTemplate;
+  private final MongoTemplate mongoTemplate;
 
-  public Page<CourseEnrollment> getCourseEnrollments(String userId, Pageable pageable) {
+  public Page<CourseEnrollment> findCourseEnrollments(String userId, Pageable pageable) {
     log.debug("Get course enrollments for user {}", userId);
     Aggregation aggregation =
         Aggregation.newAggregation(
@@ -34,7 +36,6 @@ public class CustomCourseRepository {
             Aggregation.facet(Aggregation.count().as("totalCourses"))
                 .as(FacetResult.getCountFacetName())
                 .and(
-                    match(Criteria.where("userId").is(new ObjectId(userId))),
                     lookup(
                         mongoTemplate.getCollectionName(Course.class),
                         "courseId",
@@ -81,16 +82,45 @@ public class CustomCourseRepository {
 
     var result =
         mongoTemplate
-            .aggregate(aggregation, CourseMemberTracking.class, FacetResultCourseEnrollment.class)
+            .aggregate(aggregation, CourseMemberTracking.class, CourseEnrollmentFacetResult.class)
             .getUniqueMappedResult();
 
     return new PageImpl<>(result.getDataFacet(), pageable, result.getCount("totalCourses"));
   }
 
-  class FacetResultCourseEnrollment extends FacetResult<CourseEnrollment> {
+  public Page<Course> findByNonExpiredCourses(Pageable p) {
+    var pageable = PageableUtils.extendDefaultSort(p);
+    log.debug("Fetching non expired courses with pagination");
 
-    public FacetResultCourseEnrollment(
+    Aggregation aggregation =
+        Aggregation.newAggregation(
+            match(Criteria.where("deleted").is(false).and("endDate").gte(Instant.now())),
+            Aggregation.facet(Aggregation.count().as("totalCourses"))
+                .as(FacetResult.getCountFacetName())
+                .and(
+                    sort(pageable.getSort()),
+                    skip(pageable.getOffset()),
+                    limit(pageable.getPageSize()))
+                .as(FacetResult.getDataFacetName()));
+
+    var result =
+        mongoTemplate
+            .aggregate(aggregation, Course.class, CourseFacetResult.class)
+            .getUniqueMappedResult();
+
+    return new PageImpl<>(result.getDatas(), pageable, result.getCount("totalCourses"));
+  }
+
+  class CourseEnrollmentFacetResult extends FacetResult<CourseEnrollment> {
+
+    public CourseEnrollmentFacetResult(
         List<CourseEnrollment> dataFacet, List<Map<String, Object>> countFacet) {
+      super(dataFacet, countFacet);
+    }
+  }
+
+  class CourseFacetResult extends FacetResult<Course> {
+    public CourseFacetResult(List<Course> dataFacet, List<Map<String, Object>> countFacet) {
       super(dataFacet, countFacet);
     }
   }

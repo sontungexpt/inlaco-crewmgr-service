@@ -1,6 +1,5 @@
 package com.inlaco.crewmgrservice.feature.post.controller;
 
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.inlaco.crewmgrservice.annotation.CurrentUser;
 import com.inlaco.crewmgrservice.annotation.PageableQueryParams;
@@ -34,7 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/posts")
 @PublicEndpoint
 @RequiredArgsConstructor
-@Tag(name = "Posts", description = "A collection endpoints to work with posts")
+@Tag(name = "Post", description = "A collection endpoints to work with posts")
 public class PostController {
 
   private final PostService postService;

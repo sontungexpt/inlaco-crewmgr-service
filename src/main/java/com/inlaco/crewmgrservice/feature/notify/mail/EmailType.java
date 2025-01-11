@@ -7,6 +7,6 @@ public enum EmailType {
   @Schema(description = "Simple email type")
   SIMPLE,
 
-  @Schema(description = "HTML email type")
-  HTML,
+  @Schema(description = "Mime email type (HTML, with attachments, ...)")
+  MIME,
 }

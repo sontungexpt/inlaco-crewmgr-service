@@ -4,16 +4,18 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
-@NoArgsConstructor
+@SuperBuilder
 @AllArgsConstructor
-public class Attachment {
-
-  private String name;
+@NoArgsConstructor
+public class File {
 
   private String url;
+
+  private String name;
 
   private String type;
 }

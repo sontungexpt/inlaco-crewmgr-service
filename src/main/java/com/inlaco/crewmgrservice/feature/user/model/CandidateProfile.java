@@ -1,11 +1,20 @@
 package com.inlaco.crewmgrservice.feature.user.model;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.inlaco.crewmgrservice.annotation.JsonPatchIgnore;
+import com.inlaco.crewmgrservice.common.model.File;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
+import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -16,22 +25,76 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 @AllArgsConstructor
 @Document(collection = "candidates")
+@JsonIgnoreProperties(
+    value = {"recruimentPostId", "id", "status", "accountId"},
+    allowGetters = true)
 public class CandidateProfile extends BasicProfile {
 
-  private String resume;
+  @Schema(
+      description = "Recruitment post id",
+      example = "60f3b3b3b3b3b3b3b3b3b3b3",
+      requiredMode = Schema.RequiredMode.REQUIRED,
+      hidden = true,
+      type = "string")
+  private ObjectId recruimentPostId;
 
+  @JsonGetter("recruimentPostId")
+  public String getRecruimentPostIdString() {
+    return recruimentPostId.toString();
+  }
+
+  @JsonIgnore
+  public ObjectId getRecruimentPostId() {
+    return recruimentPostId;
+  }
+
+  @Schema(description = "Resume file", example = "file")
+  private File resume;
+
+  @Schema(description = "Interview score", example = "0")
   private int interviewScore;
 
+  @Schema(description = "Interview feedback", example = "Good")
   public enum Status {
+    @Schema(description = "Applied for the job", example = "APPLIED")
     APPLIED,
+
+    @Schema(description = "Waiting for interview", example = "WAIT_FOR_INTERVIEW")
     WAIT_FOR_INTERVIEW,
+
+    @Schema(description = "Interviewed but was rejected", example = "REJECTED")
     REJECTED,
+
+    @Schema(description = "Hired", example = "HIRED")
     HIRED
   }
 
-  private Status status;
+  @Default
+  @Schema(
+      description = "Candidate status",
+      enumAsRef = true,
+      requiredMode = RequiredMode.REQUIRED,
+      example = "APPLIED")
+  @JsonPatchIgnore
+  private Status status = Status.APPLIED;
 
-  @CreatedDate private Instant appliedAt;
+  @CreatedDate
+  @Schema(hidden = true)
+  @JsonPatchIgnore
+  @JsonIgnore
+  private Instant appliedAt;
 
-  @LastModifiedDate private Instant updatedAt;
+  public Instant getAppliedDate() {
+    return appliedAt;
+  }
+
+  @LastModifiedDate
+  @Schema(hidden = true)
+  @JsonPatchIgnore
+  @JsonIgnore
+  private Instant updatedAt;
+
+  public Instant getUpdatedDate() {
+    return updatedAt;
+  }
 }
