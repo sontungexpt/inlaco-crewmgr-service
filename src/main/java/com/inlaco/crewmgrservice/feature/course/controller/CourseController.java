@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
@@ -99,13 +101,32 @@ Get a course detail
 Create a new course
 
 **Usecase**:
-- UC_admin-tao-khoa-dao-tao-thuyen-vien
+- UC_admin-dong-mo-dang-ky-khoa-dao-tao
 
 """)
   @PostMapping("")
   @RolesAllowed("ADMIN")
-  public Course createNewCourse(@RequestBody Course newCourse) {
-    return courseService.createCourse(newCourse);
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void createNewCourse(@RequestBody Course newCourse) {
+    courseService.createCourse(newCourse);
+  }
+
+  @Operation(
+      summary = "Force cancel a course",
+      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
+      description =
+          """
+Force cancel a course
+
+**Usecase**:
+- UC_admin-ket-thuc-som-khoa-dao-tao
+
+""")
+  @PostMapping("/force-cancel/id")
+  @RolesAllowed("ADMIN")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void forceCancelCourse(@PathVariable("id") String id) {
+    courseService.cancelCourse(id);
   }
 
   @Operation(
@@ -143,5 +164,24 @@ Delete a course
   @RolesAllowed("ADMIN")
   public void deleteCourse(@PathVariable("id") String id) {
     courseService.deleteCourse(id);
+  }
+
+  @Operation(
+      summary = "Cancel registration for a course",
+      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
+      description =
+          """
+Cancel registration for a course
+
+**Usecase**:
+
+- UC_admin-dong-mo-dang-ky-khoa-dao-tao.plantuml
+
+""")
+  @PostMapping("/registration/cancel/{id}")
+  @RolesAllowed("ADMIN")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void cancelRegistration(@PathVariable("id") String id) {
+    courseService.cancelRegistrationOfCourse(id);
   }
 }

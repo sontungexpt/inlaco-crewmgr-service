@@ -20,6 +20,7 @@ import lombok.experimental.SuperBuilder;
 import org.bson.types.ObjectId;
 import org.checkerframework.common.value.qual.MinLen;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.util.Pair;
 import org.springframework.format.annotation.DateTimeFormat;
 
 @SuperBuilder
@@ -64,19 +65,13 @@ public abstract class AbstractContract extends ContractVersion implements Contra
   @Schema(description = "The time that the contract is valid, and active")
   private Instant activationDate;
 
-  @Override
-  public Instant getStartDate() {
-    return activationDate;
-  }
-
   @Schema(description = "The time that the contract expired")
   @Future
   @DateTimeFormat
   private Instant expiredDate;
 
-  @Override
-  public Instant getEndDate() {
-    return expiredDate;
+  public List<Pair<Instant, Instant>> getTimeFrames() {
+    return List.of(Pair.of(activationDate, expiredDate));
   }
 
   @Schema(

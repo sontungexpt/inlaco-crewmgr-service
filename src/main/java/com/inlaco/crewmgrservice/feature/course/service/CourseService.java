@@ -12,6 +12,8 @@ public interface CourseService {
 
   Page<Course> getCourses(Pageable pageable);
 
+  Course getCourseById(String id);
+
   Page<Course> getNonExpiredCourses(Pageable pageable);
 
   Page<CourseEnrollment> getEnrolledCourses(User user, Pageable pageable);
@@ -21,6 +23,10 @@ public interface CourseService {
   Course createCourse(Course newCourse);
 
   Course updateCourse(String id, JsonNode updatedPatch);
+
+  void cancelCourse(String id);
+
+  void cancelRegistrationOfCourse(String id);
 
   void deleteCourse(String id);
 

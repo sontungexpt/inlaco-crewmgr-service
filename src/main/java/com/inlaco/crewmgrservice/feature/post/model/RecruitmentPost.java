@@ -10,11 +10,13 @@ import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import java.time.Instant;
+import java.util.List;
 import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.springframework.data.util.Pair;
 
 @Schema(
     description =
@@ -59,12 +61,7 @@ public class RecruitmentPost extends Post implements TimeFrame {
   private Instant recruitmentEndDate;
 
   @Override
-  public Instant getStartDate() {
-    return recruitmentStartDate;
-  }
-
-  @Override
-  public Instant getEndDate() {
-    return recruitmentEndDate;
+  public List<Pair<Instant, Instant>> getTimeFrames() {
+    return List.of(Pair.of(recruitmentStartDate, recruitmentEndDate));
   }
 }

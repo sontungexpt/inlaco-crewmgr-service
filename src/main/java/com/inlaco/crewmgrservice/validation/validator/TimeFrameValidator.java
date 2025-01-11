@@ -12,19 +12,22 @@ public class TimeFrameValidator
 
   @Override
   public boolean isValid(TimeFrame value, ConstraintValidatorContext context) {
-    if (!value.getStartDate().isBefore(value.getEndDate())) {
-      String msg =
-          "start date: "
-              + value.getStartDate()
-              + " is not before "
-              + "end date: "
-              + value.getEndDate();
-      context
-          .buildConstraintViolationWithTemplate(msg)
-          .addConstraintViolation()
-          .disableDefaultConstraintViolation();
+    if (!value.getTimeFrames().isEmpty()) {
+      for (var pair : value.getTimeFrames()) {
+        if (!pair.getFirst().isBefore(pair.getSecond())) {
+          String msg =
+              "start date: "
+                  + pair.getFirst()
+                  + " is not before "
+                  + "end date: "
+                  + pair.getSecond();
+          context.buildConstraintViolationWithTemplate(msg).addConstraintViolation();
 
-      return false;
+          return false;
+        }
+      }
+
+      context.disableDefaultConstraintViolation();
     }
     return true;
   }

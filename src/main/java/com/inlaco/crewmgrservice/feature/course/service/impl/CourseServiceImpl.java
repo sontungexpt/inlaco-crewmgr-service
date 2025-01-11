@@ -13,6 +13,7 @@ import com.inlaco.crewmgrservice.feature.course.service.CourseService;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import com.inlaco.crewmgrservice.utils.JsonMergePatchUtils;
 import com.inlaco.crewmgrservice.utils.PageableUtils;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import lombok.RequiredArgsConstructor;
@@ -105,5 +106,34 @@ public class CourseServiceImpl implements CourseService {
   @Override
   public Page<Course> getNonExpiredCourses(Pageable pageable) {
     return customCourseRepository.findByNonExpiredCourses(pageable);
+  }
+
+  @Override
+  public void cancelCourse(String id) {
+    Course course = getCourseById(id);
+
+    course.forceCancel();
+    List<CourseMemberTracking> trackings =
+        courseMemberTrackingRepository.findByCourseId(new ObjectId(course.getId()));
+
+    trackings.forEach(
+        (it) -> {
+          it.forceFinished();
+        });
+    courseMemberTrackingRepository.saveAll(trackings);
+  }
+
+  @Override
+  public Course getCourseById(String id) {
+    return courseRepository
+        .findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException(Course.class, "id", id));
+  }
+
+  @Override
+  public void cancelRegistrationOfCourse(String id) {
+    Course course = getCourseById(id);
+    course.disableRegistration();
+    courseRepository.save(course);
   }
 }

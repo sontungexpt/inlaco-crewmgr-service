@@ -13,6 +13,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -27,6 +28,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.util.Pair;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.util.StringUtils;
 
@@ -71,6 +73,15 @@ public class Course implements Sluggable<String>, Cloneable, Serializable, TimeF
   @Schema(description = "Is the course provide an certification", example = "true")
   private boolean certified;
 
+  @Schema(description = "Is the course forcibly canceled", example = "false")
+  @Default
+  private boolean forciblyCanceled = false;
+
+  @Schema(
+      description = "The time the course was forcibly canceled",
+      example = "2021-09-06T00:00:00Z")
+  private Instant forciblyCanceledAt;
+
   public String getTeacherName() {
     if (StringUtils.hasText(teacherName)) {
       return teacherName;
@@ -81,6 +92,11 @@ public class Course implements Sluggable<String>, Cloneable, Serializable, TimeF
 
   public Course clone() throws CloneNotSupportedException {
     return (Course) this.clone();
+  }
+
+  public void forceCancel() {
+    this.forciblyCanceled = true;
+    this.forciblyCanceledAt = Instant.now();
   }
 
   public Course reopenCourse(Instant startDate, Instant endDate) throws CloneNotSupportedException {
@@ -133,20 +149,50 @@ public class Course implements Sluggable<String>, Cloneable, Serializable, TimeF
   @Default
   private Instant startDate = Instant.now();
 
+  @Schema(description = "Is the registration enabled", example = "true")
+  @Default
+  private boolean registrationDisabled = false;
+
+  private Instant registrationDisabledAt;
+
+  public void disableRegistration() {
+    this.registrationDisabled = true;
+    this.registrationDisabledAt = Instant.now();
+  }
+
+  public Instant getRegistrationDisabledAt() {
+    return registrationDisabledAt == null ? endRegistrationAt : registrationDisabledAt;
+  }
+
+  public boolean isRegistrationDisabled() {
+    var now = Instant.now();
+    return !registrationDisabled
+        && now.isAfter(startRegistrationAt)
+        && now.isBefore(endRegistrationAt);
+  }
+
+  @Schema(
+      description = "The start registration date of the course",
+      example = "2021-09-01T00:00:00Z")
+  @FutureOrPresent
+  @DateTimeFormat
+  @Default
+  private Instant startRegistrationAt = Instant.now();
+
+  @Schema(description = "The end registration date of the course", example = "2021-09-01T00:00:00Z")
+  @Future
+  @DateTimeFormat
+  private Instant endRegistrationAt;
+
   @Override
-  public Instant getStartDate() {
-    return startDate;
+  public List<Pair<Instant, Instant>> getTimeFrames() {
+    return List.of(Pair.of(startDate, endDate), Pair.of(startRegistrationAt, endRegistrationAt));
   }
 
   @Schema(description = "The end date of the course", example = "2021-09-01T00:00:00Z")
   @Future
   @DateTimeFormat
   private Instant endDate;
-
-  @Override
-  public Instant getEndDate() {
-    return endDate;
-  }
 
   @Schema(description = "The wallpaper url")
   private File wallpaper;
