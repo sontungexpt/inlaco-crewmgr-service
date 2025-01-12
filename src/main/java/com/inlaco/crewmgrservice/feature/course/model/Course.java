@@ -34,7 +34,7 @@ import org.springframework.util.StringUtils;
 
 @Document(collection = "courses")
 @JsonIgnoreProperties(
-    value = {"id"},
+    value = {"id", "enrolledStudentCount"},
     allowGetters = true)
 @Builder
 @Getter
@@ -125,6 +125,7 @@ public class Course implements Sluggable<String>, Cloneable, Serializable, TimeF
   private boolean deleted = false;
 
   @Schema(description = "The time the course was deleted", example = "2021-09-06T00:00:00Z")
+  @JsonIgnore
   private Instant deletedAt;
 
   public void setDeleted(boolean deleted) {
@@ -138,6 +139,22 @@ public class Course implements Sluggable<String>, Cloneable, Serializable, TimeF
   @Schema(description = "The limit of student in the course", example = "100")
   @Default
   private int limitStudent = Integer.MAX_VALUE;
+
+  @Schema(
+      description = "The count of student enrolled in the course",
+      example = "10",
+      hidden = true)
+  @Default
+  @Min(0)
+  private int enrolledStudentCount = 0;
+
+  public void increaseEnrolledStudentCount() {
+    enrolledStudentCount++;
+  }
+
+  public boolean isFull() {
+    return enrolledStudentCount >= limitStudent;
+  }
 
   @Schema(description = "Description of the course", example = "This is the course")
   @NotBlank
@@ -153,6 +170,7 @@ public class Course implements Sluggable<String>, Cloneable, Serializable, TimeF
   @Default
   private boolean registrationDisabled = false;
 
+  @Schema(description = "The time the registration was disabled", example = "2021-09-06T00:00:00Z")
   private Instant registrationDisabledAt;
 
   public void disableRegistration() {
@@ -164,9 +182,10 @@ public class Course implements Sluggable<String>, Cloneable, Serializable, TimeF
     return registrationDisabledAt == null ? endRegistrationAt : registrationDisabledAt;
   }
 
-  public boolean isRegistrationDisabled() {
+  public boolean isRegistrationEnabled() {
     var now = Instant.now();
     return !registrationDisabled
+        && !isFull()
         && now.isAfter(startRegistrationAt)
         && now.isBefore(endRegistrationAt);
   }
@@ -183,11 +202,6 @@ public class Course implements Sluggable<String>, Cloneable, Serializable, TimeF
   @Future
   @DateTimeFormat
   private Instant endRegistrationAt;
-
-  @Override
-  public List<Pair<Instant, Instant>> getTimeFrames() {
-    return List.of(Pair.of(startDate, endDate), Pair.of(startRegistrationAt, endRegistrationAt));
-  }
 
   @Schema(description = "The end date of the course", example = "2021-09-01T00:00:00Z")
   @Future
@@ -230,5 +244,10 @@ public class Course implements Sluggable<String>, Cloneable, Serializable, TimeF
   @Schema(hidden = true)
   public Instant getUpdatedDate() {
     return updatedAt;
+  }
+
+  @Override
+  public List<Pair<Instant, Instant>> getTimeFrames() {
+    return List.of(Pair.of(startDate, endDate), Pair.of(startRegistrationAt, endRegistrationAt));
   }
 }

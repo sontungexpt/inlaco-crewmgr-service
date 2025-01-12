@@ -120,6 +120,7 @@ This API retrieves a detail candidate profile from the server based on its id.
 
   @Operation(
       summary = "Admin review candidate profile",
+      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
       description =
           """
 Admin review candidate profile based on its id.
@@ -139,5 +140,22 @@ Admin review candidate profile based on its id.
       @RequestParam CandidateProfile.Status status,
       @PathVariable("accountId") String id) {
     candidateService.reviewCandidate(id, status, autoEmail);
+  }
+
+  @Operation(
+      summary = "Get candidate profile of current user",
+      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
+      description =
+          """
+This API retrieves the candidate profile of the current user.
+
+**Use cases:**
+- UC_crew-xem-thong-tin-tai-khoan.
+
+""")
+  @GetMapping("/current/profile")
+  @RolesAllowed("SAILOR")
+  public CandidateProfile getCandidateProfileOfUser(@CurrentUser User user) {
+    return candidateService.getCandidateProfileOfUser(user);
   }
 }

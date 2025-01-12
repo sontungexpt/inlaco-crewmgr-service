@@ -81,4 +81,12 @@ public class CandidateServiceImpl implements CandidateService {
   public void cancelCandidateProfile(String id, User user) {
     throw new UnsupportedOperationException("Unimplemented method 'cancelCandidateProfile'");
   }
+
+  @Override
+  public CandidateProfile getCandidateProfileOfUser(User user) {
+    return candidateProfileRepository
+        .findByAccountId(new ObjectId(user.getId()))
+        .orElseThrow(
+            () -> new ResourceNotFoundException(CandidateProfile.class, "accountId", user.getId()));
+  }
 }

@@ -1,6 +1,7 @@
 package com.inlaco.crewmgrservice.common.payload;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.inlaco.crewmgrservice.utils.HttpServletUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,6 +20,16 @@ public class ApiResponse {
   private String timestamp;
   private String cause;
   private String path;
+
+  public String getPath() {
+    if (path == null) {
+      var request = HttpServletUtils.getRequest().orElse(null);
+      if (request != null) {
+        return request.getRequestURI();
+      }
+    }
+    return "";
+  }
 
   private HttpStatus status;
 

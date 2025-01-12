@@ -20,4 +20,6 @@ public interface CandidateService {
   CandidateProfile updateCandidateProfile(String id, JsonNode patch, User user);
 
   void cancelCandidateProfile(String id, User user);
+
+  CandidateProfile getCandidateProfileOfUser(User user);
 }

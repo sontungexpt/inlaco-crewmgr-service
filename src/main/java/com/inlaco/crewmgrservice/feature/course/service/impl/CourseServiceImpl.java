@@ -1,7 +1,9 @@
 package com.inlaco.crewmgrservice.feature.course.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.inlaco.crewmgrservice.exceptions.ResourceAlreadyInUseException;
 import com.inlaco.crewmgrservice.exceptions.ResourceNotFoundException;
+import com.inlaco.crewmgrservice.feature.course.exception.RegistrationClosedException;
 import com.inlaco.crewmgrservice.feature.course.model.Course;
 import com.inlaco.crewmgrservice.feature.course.model.CourseMemberTracking;
 import com.inlaco.crewmgrservice.feature.course.model.dto.CourseDetail;
@@ -14,6 +16,7 @@ import com.inlaco.crewmgrservice.feature.user.model.User;
 import com.inlaco.crewmgrservice.utils.JsonMergePatchUtils;
 import com.inlaco.crewmgrservice.utils.PageableUtils;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +25,7 @@ import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -134,6 +138,28 @@ public class CourseServiceImpl implements CourseService {
   public void cancelRegistrationOfCourse(String id) {
     Course course = getCourseById(id);
     course.disableRegistration();
+    courseRepository.save(course);
+  }
+
+  @Override
+  @Transactional
+  public void enrollCourse(String courseId, User user) {
+    Course course = getCourseById(courseId);
+
+    ObjectId userIdObj = new ObjectId(user.getId());
+    ObjectId courseIdObj = new ObjectId(courseId);
+
+    if (!course.isRegistrationEnabled()) {
+      throw new RegistrationClosedException("Registration is closed for this course");
+    } else if (courseMemberTrackingRepository.existsByCourseIdAndUserId(courseIdObj, userIdObj)) {
+      throw new ResourceAlreadyInUseException(
+          CourseMemberTracking.class, Map.of("courseId", courseId, "userId", user.getId()));
+    }
+
+    var tracking = CourseMemberTracking.builder().courseId(courseIdObj).userId(userIdObj).build();
+    courseMemberTrackingRepository.save(tracking);
+
+    course.increaseEnrolledStudentCount();
     courseRepository.save(course);
   }
 }

@@ -6,7 +6,6 @@ import com.inlaco.crewmgrservice.feature.auth.dto.JwtResponse;
 import com.inlaco.crewmgrservice.feature.auth.dto.LoginRequest;
 import com.inlaco.crewmgrservice.feature.auth.dto.LoginResponse;
 import com.inlaco.crewmgrservice.feature.auth.dto.RegistrationRequest;
-import com.inlaco.crewmgrservice.feature.auth.dto.ResendTokenResponse;
 import com.inlaco.crewmgrservice.feature.auth.enums.TwoStepVerificationType;
 import com.inlaco.crewmgrservice.feature.auth.jwt.JwtService;
 import com.inlaco.crewmgrservice.feature.auth.model.RefreshToken;
@@ -89,7 +88,7 @@ public record AuthServiceImpl(
 
   @Override
   @Transactional
-  public ResendTokenResponse register(RegistrationRequest request) {
+  public void register(RegistrationRequest request) {
     final String username = request.getUsername();
     if (userService.existsByUsername(username)) {
       throw new ResourceAlreadyInUseException(User.class, "username", username);
@@ -115,9 +114,10 @@ public record AuthServiceImpl(
                 .build());
 
     if (usernameType == UsernameType.EMAIL) {
-      return twoStepVerificationFactory.sendVerificationCode(TwoStepVerificationType.EMAIL, user);
+      twoStepVerificationFactory.sendVerificationCode(TwoStepVerificationType.EMAIL, user);
+    } else if (usernameType == UsernameType.PHONE_NUMBER) {
+
     }
-    return null;
   }
 
   @Override
@@ -134,9 +134,9 @@ public record AuthServiceImpl(
   }
 
   @Override
-  public ResendTokenResponse resend2StepVerification(String identifier) {
+  public void resend2StepVerification(String identifier) {
     User user = userService.findUserByUsername(identifier);
-    return twoStepVerificationFactory.resendVerificationCode(TwoStepVerificationType.EMAIL, user);
+    twoStepVerificationFactory.resendVerificationCode(TwoStepVerificationType.EMAIL, user);
   }
 
   @Override

@@ -11,6 +11,10 @@ import org.springframework.stereotype.Repository;
 public interface CourseMemberTrackingRepository
     extends MongoRepository<CourseMemberTracking, String> {
 
+  long countByCourseId(ObjectId courseId);
+
+  boolean existsByCourseIdAndUserId(ObjectId courseId, ObjectId userId);
+
   Optional<CourseMemberTracking> findByCourseIdAndUserId(ObjectId courseId, ObjectId userId);
 
   List<CourseMemberTracking> findByCourseId(ObjectId courseId);

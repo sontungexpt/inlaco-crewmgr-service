@@ -11,6 +11,11 @@ caching:
   spring:
     userListTTL: 60000
 
+cloudinary:
+  cloud_name: ${CLOUDINARY_CLOUD_NAME:inlaco-db}
+  api_key: ${CLOUDINARY_API_KEY}
+  api_secret: ${CLOUDINARY_API_SECRET}
+
 vonage:
   api-key: ${VONAGE_API_KEY}
   api-secret: ${VONAGE_API_SECRET}

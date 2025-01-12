@@ -1,6 +1,5 @@
 package com.inlaco.crewmgrservice.feature.auth.service.impl;
 
-import com.inlaco.crewmgrservice.feature.auth.dto.ResendTokenResponse;
 import com.inlaco.crewmgrservice.feature.auth.enums.TwoStepVerificationType;
 import com.inlaco.crewmgrservice.feature.auth.exceptions.TwoStepVerificationException;
 import com.inlaco.crewmgrservice.feature.auth.model.EmailVerificationToken;
@@ -59,7 +58,7 @@ public class TwoStepEmailVerificationServiceImpl implements TwoStepVerificationS
 
   @Override
   @Transactional
-  public ResendTokenResponse send(User user) {
+  public void send(User user) {
     var savedToken =
         emailVerificationTokenRepository.save(new EmailVerificationToken(user.getId()));
 
@@ -67,7 +66,6 @@ public class TwoStepEmailVerificationServiceImpl implements TwoStepVerificationS
 
     notificationFactory.sendNotificationAsync(NotificationType.EMAIL, emailRequest);
     log.info("Email verification token sent to user {}", user.getUsername());
-    return generateResendTokenResponse(savedToken);
   }
 
   private EmailVerificationToken refreshToken(EmailVerificationToken unrefreshToken) {
@@ -76,12 +74,8 @@ public class TwoStepEmailVerificationServiceImpl implements TwoStepVerificationS
         (EmailVerificationToken) unrefreshToken.refresh(true));
   }
 
-  private ResendTokenResponse generateResendTokenResponse(EmailVerificationToken token) {
-    return new ResendTokenResponse(token.getToken(), token.getIssuedDate(), token.getIssuedDate());
-  }
-
   @Override
-  public ResendTokenResponse resend(User user) {
+  public void resend(User user) {
     var token = emailVerificationTokenRepository.findByUserId(user.getId()).orElse(null);
     log.debug("Attempt to resend token for user {}", user.getUsername());
     if (token != null) {
@@ -91,9 +85,8 @@ public class TwoStepEmailVerificationServiceImpl implements TwoStepVerificationS
 
       notificationFactory.sendNotificationAsync(NotificationType.EMAIL, emailRequest);
       log.info("Email verification token resent to user {}", user.getUsername());
-      return generateResendTokenResponse(refreshedToken);
     }
-    return send(user);
+    send(user);
   }
 
   @Override

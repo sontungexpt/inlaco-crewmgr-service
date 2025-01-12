@@ -8,6 +8,8 @@ import com.inlaco.crewmgrservice.validation.annotation.PhoneNumber;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
 import jakarta.validation.constraints.Past;
 import java.io.Serializable;
@@ -80,6 +82,7 @@ public class BasicProfile implements Serializable {
       requiredMode = RequiredMode.REQUIRED,
       type = "String")
   @Email
+  @NotBlank
   protected String email;
 
   @Schema(
@@ -103,5 +106,6 @@ public class BasicProfile implements Serializable {
       enumAsRef = true,
       requiredMode = RequiredMode.REQUIRED,
       type = "enum")
+  @NotNull
   protected Gender gender;
 }

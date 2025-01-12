@@ -1,6 +1,5 @@
 package com.inlaco.crewmgrservice.feature.auth.service.impl;
 
-import com.inlaco.crewmgrservice.feature.auth.dto.ResendTokenResponse;
 import com.inlaco.crewmgrservice.feature.auth.service.TwoStepVerificationService;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import java.util.Map;
@@ -20,15 +19,15 @@ public class TwoStepVerificationFactory {
     return twoStepVerificationMap.get(type);
   }
 
-  public ResendTokenResponse sendVerificationCode(String type, User user) {
-    return getTwoStepVerificationService(type).send(user);
+  public void sendVerificationCode(String type, User user) {
+    getTwoStepVerificationService(type).send(user);
   }
 
   public void verifyCode(String type, String code) {
     getTwoStepVerificationService(type).verify(code);
   }
 
-  public ResendTokenResponse resendVerificationCode(String type, User user) {
-    return getTwoStepVerificationService(type).resend(user);
+  public void resendVerificationCode(String type, User user) {
+    getTwoStepVerificationService(type).resend(user);
   }
 }

@@ -10,6 +10,7 @@ import com.inlaco.crewmgrservice.feature.course.model.dto.CourseEnrollment;
 import com.inlaco.crewmgrservice.feature.course.service.CourseService;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.security.RolesAllowed;
@@ -175,13 +176,37 @@ Cancel registration for a course
 
 **Usecase**:
 
-- UC_admin-dong-mo-dang-ky-khoa-dao-tao.plantuml
+- UC_admin-dong-mo-dang-ky-khoa-dao-tao
 
 """)
-  @PostMapping("/registration/cancel/{id}")
+  @PostMapping("/cancellation/{id}")
   @RolesAllowed("ADMIN")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void cancelRegistration(@PathVariable("id") String id) {
     courseService.cancelRegistrationOfCourse(id);
+  }
+
+  @Operation(
+      summary = "Register for a course as a Sailor",
+      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
+      responses = {
+        @ApiResponse(responseCode = "204", description = "Registratoin successfully"),
+        @ApiResponse(responseCode = "404", description = "Course is not found"),
+        @ApiResponse(responseCode = "403", description = "Registration is closed")
+      },
+      description =
+          """
+Register for a course as a Sailor
+
+**Usecase**:
+
+- UC_crew-dang-ky-tham-gia-khoa-dao-tao
+
+""")
+  @PostMapping("/registration/{id}")
+  @RolesAllowed("SAILOR")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void enrollCourse(@CurrentUser User user, @PathVariable("id") String id) {
+    courseService.enrollCourse(id, user);
   }
 }

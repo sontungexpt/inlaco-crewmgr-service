@@ -10,6 +10,7 @@ import com.inlaco.crewmgrservice.feature.auth.dto.RegistrationRequest;
 import com.inlaco.crewmgrservice.feature.auth.service.AuthService;
 import com.inlaco.crewmgrservice.feature.auth.service.RefreshTokenService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.ServletException;
@@ -91,6 +92,12 @@ Retrive a new access token and refresh token
 
   @Operation(
       summary = "Verify the two step verification",
+      responses = {
+        @ApiResponse(responseCode = "204", description = "Verify successfully"),
+        @ApiResponse(responseCode = "400", description = "Request invalid"),
+        @ApiResponse(responseCode = "404", description = "Token expired"),
+        @ApiResponse(responseCode = "500", description = "Internal server error")
+      },
       description =
           """
 Verify the two step verification
@@ -111,6 +118,11 @@ Verify the two step verification
 
   @Operation(
       summary = "Resend the two step verification",
+      responses = {
+        @ApiResponse(responseCode = "204", description = "Resend successfully"),
+        @ApiResponse(responseCode = "400", description = "Bad request"),
+        @ApiResponse(responseCode = "500", description = "Internal server error")
+      },
       description =
           """
 Resend the two step verification
@@ -124,7 +136,8 @@ Resend the two step verification
       name = APIEndpointName.AUTH_REGISTER,
       displayName = "Resend the two step verification",
       description = "Resend the two step verification")
-  public ResponseEntity<?> resendTwoStepVerification(@RequestParam("username") String username) {
-    return ResponseEntity.ok(authService.resend2StepVerification(username));
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void resendTwoStepVerification(@RequestParam("username") String username) {
+    authService.resend2StepVerification(username);
   }
 }

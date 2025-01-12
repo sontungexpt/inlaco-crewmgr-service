@@ -6,7 +6,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import java.time.Instant;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Builder.Default;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
@@ -18,11 +23,15 @@ import org.springframework.data.mongodb.core.mapping.Document;
  * Represents the tracking information for a course member, including progress, status, and key
  * timestamps.
  */
-@Data
 @Document(collection = "course_member_trackings")
 @JsonIgnoreProperties(
     value = {"id", "certificateUrl", "userId", "courseId", "status"},
     allowGetters = true)
+@Builder
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class CourseMemberTracking {
 
   @Id private String id; // Unique identifier for the course member tracking document
@@ -49,11 +58,13 @@ public class CourseMemberTracking {
       ref = "Status",
       hidden = true,
       enumAsRef = true)
-  private Status status;
+  @Default
+  private Status status = Status.PENDING; // The status of the course member
 
   @Schema(hidden = true, description = "The completion percentage of the course", example = "0")
   @Min(0) // Minimum completion progress
   @Max(100) // Maximum completion progress
+  @Default
   private short completionProgress = 0;
 
   @Schema(description = "A note about the course member", example = "Passed the exam")
