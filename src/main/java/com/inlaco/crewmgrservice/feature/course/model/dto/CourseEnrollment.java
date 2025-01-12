@@ -2,8 +2,8 @@ package com.inlaco.crewmgrservice.feature.course.model.dto;
 
 import com.inlaco.crewmgrservice.common.model.File;
 import com.inlaco.crewmgrservice.feature.course.model.Course;
-import com.inlaco.crewmgrservice.feature.course.model.CourseMemberTracking;
-import com.inlaco.crewmgrservice.feature.course.model.CourseMemberTracking.Status;
+import com.inlaco.crewmgrservice.feature.course.model.CourseMember;
+import com.inlaco.crewmgrservice.feature.course.model.CourseMember.Status;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
 import java.time.Instant;
@@ -130,7 +130,7 @@ public class CourseEnrollment {
   }
 
   public static CourseEnrollment from(
-      @NonNull Course course, @Nullable CourseMemberTracking courseMemberTracking) {
+      @NonNull Course course, @Nullable CourseMember courseMemberTracking) {
     var result =
         CourseEnrollment.builder()
             .id(course.getId())

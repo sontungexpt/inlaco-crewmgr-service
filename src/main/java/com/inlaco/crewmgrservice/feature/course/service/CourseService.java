@@ -35,4 +35,6 @@ public interface CourseService {
   Page<Course> searchCourses(String keyword, boolean nonExpired, Pageable pageable);
 
   void enrollCourse(String courseId, User user);
+
+  void markSailorCompletedCourse(String courseId, String userId);
 }

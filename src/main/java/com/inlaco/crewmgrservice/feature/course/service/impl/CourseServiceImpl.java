@@ -5,10 +5,10 @@ import com.inlaco.crewmgrservice.exceptions.ResourceAlreadyInUseException;
 import com.inlaco.crewmgrservice.exceptions.ResourceNotFoundException;
 import com.inlaco.crewmgrservice.feature.course.exception.RegistrationClosedException;
 import com.inlaco.crewmgrservice.feature.course.model.Course;
-import com.inlaco.crewmgrservice.feature.course.model.CourseMemberTracking;
+import com.inlaco.crewmgrservice.feature.course.model.CourseMember;
 import com.inlaco.crewmgrservice.feature.course.model.dto.CourseDetail;
 import com.inlaco.crewmgrservice.feature.course.model.dto.CourseEnrollment;
-import com.inlaco.crewmgrservice.feature.course.repository.CourseMemberTrackingRepository;
+import com.inlaco.crewmgrservice.feature.course.repository.CourseMemberRepository;
 import com.inlaco.crewmgrservice.feature.course.repository.CourseRepository;
 import com.inlaco.crewmgrservice.feature.course.repository.CustomCourseRepository;
 import com.inlaco.crewmgrservice.feature.course.service.CourseService;
@@ -35,7 +35,7 @@ public class CourseServiceImpl implements CourseService {
   private final CustomCourseRepository customCourseRepository;
   private final JsonMergePatchUtils jsonMergePatchUtils;
   private final CourseRepository courseRepository;
-  private final CourseMemberTrackingRepository courseMemberTrackingRepository;
+  private final CourseMemberRepository courseMemberRepository;
 
   @Override
   public Page<Course> getCourses(Pageable pageable) {
@@ -53,21 +53,23 @@ public class CourseServiceImpl implements CourseService {
                   .orElseThrow(() -> new ResourceNotFoundException(Course.class, "id", id));
             });
 
-    CompletableFuture<CourseMemberTracking> trackingFuture =
+    CompletableFuture<CourseMember> courseMemberFuture =
         CompletableFuture.supplyAsync(
             () -> {
               log.info(
-                  "Fetching course tracking with courseId: {} and userId: {}", id, user.getId());
-              return courseMemberTrackingRepository
+                  "Fetching course courseMember with courseId: {} and userId: {}",
+                  id,
+                  user.getId());
+              return courseMemberRepository
                   .findByCourseIdAndUserId(new ObjectId(id), new ObjectId(user.getId()))
                   .orElse(null);
             });
 
-    CompletableFuture.allOf(courseFuture, trackingFuture).join();
+    CompletableFuture.allOf(courseFuture, courseMemberFuture).join();
 
     try {
       Course course = courseFuture.get();
-      CourseMemberTracking courseMemberTracking = trackingFuture.get();
+      CourseMember courseMemberTracking = courseMemberFuture.get();
       return CourseDetail.from(course, courseMemberTracking);
     } catch (InterruptedException | ExecutionException e) {
       throw new RuntimeException("Error fetching course details", e);
@@ -116,14 +118,14 @@ public class CourseServiceImpl implements CourseService {
     Course course = getCourseById(id);
 
     course.forceCancel();
-    List<CourseMemberTracking> trackings =
-        courseMemberTrackingRepository.findByCourseId(new ObjectId(course.getId()));
+    List<CourseMember> courseMembers =
+        courseMemberRepository.findByCourseId(new ObjectId(course.getId()));
 
-    trackings.forEach(
+    courseMembers.forEach(
         (it) -> {
           it.forceFinished();
         });
-    courseMemberTrackingRepository.saveAll(trackings);
+    courseMemberRepository.saveAll(courseMembers);
   }
 
   @Override
@@ -150,15 +152,37 @@ public class CourseServiceImpl implements CourseService {
 
     if (!course.isRegistrationEnabled()) {
       throw new RegistrationClosedException("Registration is closed for this course");
-    } else if (courseMemberTrackingRepository.existsByCourseIdAndUserId(courseIdObj, userIdObj)) {
+    } else if (courseMemberRepository.existsByCourseIdAndUserId(courseIdObj, userIdObj)) {
       throw new ResourceAlreadyInUseException(
-          CourseMemberTracking.class, Map.of("courseId", courseId, "userId", user.getId()));
+          CourseMember.class, Map.of("courseId", courseId, "userId", user.getId()));
     }
 
-    var tracking = CourseMemberTracking.builder().courseId(courseIdObj).userId(userIdObj).build();
-    courseMemberTrackingRepository.save(tracking);
+    var courseMember = CourseMember.builder().courseId(courseIdObj).userId(userIdObj).build();
+    courseMemberRepository.save(courseMember);
 
     course.increaseEnrolledStudentCount();
     courseRepository.save(course);
+  }
+
+  @Override
+  public void markSailorCompletedCourse(String courseId, String userId) {
+    var courseIdObj = new ObjectId(courseId);
+    var userIdObj = new ObjectId(userId);
+    CourseMember courseMember =
+        courseMemberRepository
+            .findByCourseIdAndUserId(courseIdObj, userIdObj)
+            .orElseThrow(
+                () ->
+                    new ResourceNotFoundException(
+                        CourseMember.class,
+                        Map.of(
+                            "courseId", courseId,
+                            "userId", userIdObj)));
+
+    courseMember.complete();
+    courseMemberRepository.save(courseMember);
+
+    // TODO: generate certification
+
   }
 }

@@ -32,7 +32,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CourseMemberTracking {
+public class CourseMember {
 
   @Id private String id; // Unique identifier for the course member tracking document
 
@@ -85,6 +85,8 @@ public class CourseMemberTracking {
   /** Marks the course member as completed and sets the completedAt timestamp. */
   public void complete() {
     this.completedAt = Instant.now();
+    this.status = Status.COMPLETED;
+    this.completionProgress = 100;
   }
 
   @JsonIgnore

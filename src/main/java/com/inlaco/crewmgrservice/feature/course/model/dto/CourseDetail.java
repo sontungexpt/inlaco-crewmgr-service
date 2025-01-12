@@ -1,7 +1,7 @@
 package com.inlaco.crewmgrservice.feature.course.model.dto;
 
 import com.inlaco.crewmgrservice.feature.course.model.Course;
-import com.inlaco.crewmgrservice.feature.course.model.CourseMemberTracking;
+import com.inlaco.crewmgrservice.feature.course.model.CourseMember;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
@@ -18,7 +18,7 @@ public class CourseDetail extends CourseEnrollment {
   }
 
   public static CourseDetail from(
-      @NonNull Course course, @Nullable CourseMemberTracking courseMemberTracking) {
+      @NonNull Course course, @Nullable CourseMember courseMemberTracking) {
     var result =
         CourseDetail.builder()
             .id(course.getId())

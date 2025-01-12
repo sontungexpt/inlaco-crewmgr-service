@@ -232,4 +232,23 @@ Register for a course as a Sailor
   public void enrollCourse(@CurrentUser User user, @PathVariable("id") String id) {
     courseService.enrollCourse(id, user);
   }
+
+  @Operation(
+      summary = "Mark completation for a sailor",
+      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
+      description =
+          """
+Mark completation for a sailor
+
+**Usecase**:
+- UC_admin-danh-dau-thuyen-vien-hoan-thanh-khoa-hoc.
+
+""")
+  @PostMapping("/{courseId}/completation/{userId}")
+  @RolesAllowed("ADMIN")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void markCourseCompletation(
+      @PathVariable("courseId") String courseId, @PathVariable("userId") String userId) {
+    courseService.markSailorCompletedCourse(courseId, userId);
+  }
 }

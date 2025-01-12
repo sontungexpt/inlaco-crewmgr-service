@@ -4,7 +4,7 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
 import com.inlaco.crewmgrservice.common.model.FacetResult;
 import com.inlaco.crewmgrservice.feature.course.model.Course;
-import com.inlaco.crewmgrservice.feature.course.model.CourseMemberTracking;
+import com.inlaco.crewmgrservice.feature.course.model.CourseMember;
 import com.inlaco.crewmgrservice.feature.course.model.dto.CourseEnrollment;
 import com.inlaco.crewmgrservice.utils.PageableUtils;
 import java.time.Instant;
@@ -82,7 +82,7 @@ public class CustomCourseRepository {
 
     var result =
         mongoTemplate
-            .aggregate(aggregation, CourseMemberTracking.class, CourseEnrollmentFacetResult.class)
+            .aggregate(aggregation, CourseMember.class, CourseEnrollmentFacetResult.class)
             .getUniqueMappedResult();
 
     return new PageImpl<>(result.getDataFacet(), pageable, result.getCount("totalCourses"));
