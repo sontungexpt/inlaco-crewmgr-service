@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = TimeFrameValidator.class)
 @Documented
 public @interface TimeFrame {
-  String message() default "The start date must be before the end date";
+  String message() default "TimeFrame is not valid. Start and end time must be in correct order";
 
   Class<?>[] groups() default {};
 

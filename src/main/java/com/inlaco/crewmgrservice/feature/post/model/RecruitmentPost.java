@@ -6,7 +6,6 @@ import com.inlaco.crewmgrservice.common.payload.TimeFrame;
 import com.inlaco.crewmgrservice.feature.post.enums.PostType;
 import com.inlaco.crewmgrservice.validation.annotation.Range;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import java.time.Instant;
@@ -17,6 +16,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.util.Pair;
+import org.springframework.format.annotation.DateTimeFormat;
 
 @Schema(
     description =
@@ -54,14 +54,15 @@ public class RecruitmentPost extends Post implements TimeFrame {
   @Schema(description = "Date when recruitment starts (UTC)", example = "2023-11-01T08:00:00Z")
   @FutureOrPresent
   @Default
-  private Instant recruitmentStartDate = Instant.now();
+  @DateTimeFormat
+  private Instant recruitmentStartDate = Instant.now().plusSeconds(30);
 
   @Schema(description = "Date when recruitment ends (UTC)", example = "2023-11-30T17:00:00Z")
-  @Future
+  @DateTimeFormat
   private Instant recruitmentEndDate;
 
   @Override
-  public List<Pair<Instant, Instant>> getTimeFrames() {
-    return List.of(Pair.of(recruitmentStartDate, recruitmentEndDate));
+  public List<Pair> getTimeFrames() {
+    return List.of(Pair.of(recruitmentStartDate, recruitmentEndDate, true, false));
   }
 }

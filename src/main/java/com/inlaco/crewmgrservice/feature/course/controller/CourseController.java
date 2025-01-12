@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.security.RolesAllowed;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -57,6 +58,29 @@ If `nonExpired` is set to `true`, only non-expired courses will be returned.
       @PageableDefault(page = 0, size = 20) Pageable pageable) {
     if (nonExpired) return courseService.getNonExpiredCourses(pageable);
     return courseService.getCourses(pageable);
+  }
+
+  @Operation(
+      summary = "Search course by keyword in the name or archived position",
+      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
+      description =
+          """
+Search course by keyword in the name or archived position
+
+If `nonExpired` is set to `true`, only non-expired courses will be returned.
+
+**Usecase**:
+- UC_crew-tim-kiem-khoa-dao-tao.
+
+""")
+  @GetMapping("/searching")
+  @PageableQueryParams
+  @RolesAllowed("SAILOR")
+  public Page<Course> searchCourses(
+      @RequestParam String q,
+      @RequestParam(defaultValue = "true") boolean nonExpired,
+      @PageableDefault(page = 0, size = 20) Pageable pageable) {
+    return courseService.searchCourses(q, nonExpired, pageable);
   }
 
   @Operation(
@@ -107,9 +131,8 @@ Create a new course
 """)
   @PostMapping("")
   @RolesAllowed("ADMIN")
-  @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void createNewCourse(@RequestBody Course newCourse) {
-    courseService.createCourse(newCourse);
+  public Course createNewCourse(@Valid @RequestBody Course newCourse) {
+    return courseService.createCourse(newCourse);
   }
 
   @Operation(

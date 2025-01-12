@@ -10,6 +10,7 @@ import com.inlaco.crewmgrservice.feature.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -45,7 +46,7 @@ Change the password for an account
       displayName = "Change password",
       description = "Change the password for an account")
   public JwtResponse changePassword(
-      @BearerToken String refreshToken, @RequestBody NewPasswordRequest newPasswordRequest) {
+      @BearerToken String refreshToken, @Valid @RequestBody NewPasswordRequest newPasswordRequest) {
     return userService.changePassword(refreshToken, newPasswordRequest);
   }
 }

@@ -97,9 +97,8 @@ public class CourseServiceImpl implements CourseService {
   }
 
   @Override
-  public Page<Course> searchCourseByName(String keyword, Pageable pageable) {
-    return courseRepository.findByDeletedAndNameContainingIgnoreCase(
-        false, keyword, PageableUtils.extendDefaultSort(pageable));
+  public Page<Course> searchCourses(String keyword, boolean nonExpired, Pageable pageable) {
+    return customCourseRepository.searchCourse(keyword, nonExpired, pageable);
   }
 
   @Override

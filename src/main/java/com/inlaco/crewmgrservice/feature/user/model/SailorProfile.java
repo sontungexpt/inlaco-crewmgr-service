@@ -101,7 +101,8 @@ public class SailorProfile extends BasicProfile implements TimeFrame {
   protected Instant socialInsuranceEndDate;
 
   @Override
-  public List<Pair<Instant, Instant>> getTimeFrames() {
+  @JsonIgnore
+  public List<Pair> getTimeFrames() {
     return List.of(Pair.of(socialInsuranceStartDate, socialInsuranceEndDate));
   }
 }

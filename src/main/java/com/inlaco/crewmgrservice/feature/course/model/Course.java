@@ -34,7 +34,16 @@ import org.springframework.util.StringUtils;
 
 @Document(collection = "courses")
 @JsonIgnoreProperties(
-    value = {"id", "enrolledStudentCount"},
+    value = {
+      "id",
+      "forciblyCanceledAt",
+      "deleted",
+      "deletedAt",
+      "reopenedBasedOn",
+      "enrolledStudentCount",
+      "manuallyRegistrationDisabled",
+      "manuallyRegistrationDisabledAt",
+    },
     allowGetters = true)
 @Builder
 @Getter
@@ -73,14 +82,17 @@ public class Course implements Sluggable<String>, Cloneable, Serializable, TimeF
   @Schema(description = "Is the course provide an certification", example = "true")
   private boolean certified;
 
-  @Schema(description = "Is the course forcibly canceled", example = "false")
-  @Default
-  private boolean forciblyCanceled = false;
-
-  @Schema(
-      description = "The time the course was forcibly canceled",
-      example = "2021-09-06T00:00:00Z")
+  @Schema(description = "The time the course was forcibly canceled", hidden = true)
   private Instant forciblyCanceledAt;
+
+  public void forceCancel() {
+    this.forciblyCanceledAt = Instant.now();
+  }
+
+  @JsonIgnore
+  public boolean isForciblyCanceled() {
+    return forciblyCanceledAt != null;
+  }
 
   public String getTeacherName() {
     if (StringUtils.hasText(teacherName)) {
@@ -92,11 +104,6 @@ public class Course implements Sluggable<String>, Cloneable, Serializable, TimeF
 
   public Course clone() throws CloneNotSupportedException {
     return (Course) this.clone();
-  }
-
-  public void forceCancel() {
-    this.forciblyCanceled = true;
-    this.forciblyCanceledAt = Instant.now();
   }
 
   public Course reopenCourse(Instant startDate, Instant endDate) throws CloneNotSupportedException {
@@ -121,10 +128,10 @@ public class Course implements Sluggable<String>, Cloneable, Serializable, TimeF
 
   @Default
   @JsonIgnore
-  @Schema(description = "Is the course deleted", hidden = true)
+  @Schema(hidden = true, description = "Is the course deleted")
   private boolean deleted = false;
 
-  @Schema(description = "The time the course was deleted", example = "2021-09-06T00:00:00Z")
+  @Schema(description = "The time the course was deleted", hidden = true)
   @JsonIgnore
   private Instant deletedAt;
 
@@ -140,16 +147,15 @@ public class Course implements Sluggable<String>, Cloneable, Serializable, TimeF
   @Default
   private int limitStudent = Integer.MAX_VALUE;
 
-  @Schema(
-      description = "The count of student enrolled in the course",
-      example = "10",
-      hidden = true)
   @Default
   @Min(0)
+  @Schema(description = "The count of student enrolled in the course", hidden = true)
   private int enrolledStudentCount = 0;
 
   public void increaseEnrolledStudentCount() {
-    enrolledStudentCount++;
+    if (enrolledStudentCount < limitStudent) {
+      enrolledStudentCount++;
+    }
   }
 
   public boolean isFull() {
@@ -160,34 +166,32 @@ public class Course implements Sluggable<String>, Cloneable, Serializable, TimeF
   @NotBlank
   private String description;
 
-  @Schema(description = "The start date of the course", example = "2021-09-01T00:00:00Z")
-  @FutureOrPresent
-  @DateTimeFormat
+  @Schema(description = "Is the registration enabled", hidden = true)
   @Default
-  private Instant startDate = Instant.now();
-
-  @Schema(description = "Is the registration enabled", example = "true")
-  @Default
-  private boolean registrationDisabled = false;
+  private boolean manuallyRegistrationDisabled = false;
 
   @Schema(description = "The time the registration was disabled", example = "2021-09-06T00:00:00Z")
-  private Instant registrationDisabledAt;
+  private Instant manuallyRegistrationDisabledAt;
 
-  public void disableRegistration() {
-    this.registrationDisabled = true;
-    this.registrationDisabledAt = Instant.now();
+  public Instant getManuallyRegistrationDisabledAt() {
+    return manuallyRegistrationDisabledAt == null
+        ? endRegistrationAt
+        : manuallyRegistrationDisabledAt;
   }
 
-  public Instant getRegistrationDisabledAt() {
-    return registrationDisabledAt == null ? endRegistrationAt : registrationDisabledAt;
+  public void manuallyDisableRegistration() {
+    this.manuallyRegistrationDisabled = true;
+    this.manuallyRegistrationDisabledAt = Instant.now();
+  }
+
+  public boolean inRegistrationPeriod() {
+    var now = Instant.now();
+    return now.isAfter(startRegistrationAt)
+        && (endRegistrationAt == null || now.isBefore(endRegistrationAt));
   }
 
   public boolean isRegistrationEnabled() {
-    var now = Instant.now();
-    return !registrationDisabled
-        && !isFull()
-        && now.isAfter(startRegistrationAt)
-        && now.isBefore(endRegistrationAt);
+    return !manuallyRegistrationDisabled && !isFull() && inRegistrationPeriod();
   }
 
   @Schema(
@@ -196,16 +200,22 @@ public class Course implements Sluggable<String>, Cloneable, Serializable, TimeF
   @FutureOrPresent
   @DateTimeFormat
   @Default
-  private Instant startRegistrationAt = Instant.now();
+  private Instant startRegistrationAt = Instant.now().plusSeconds(30);
 
   @Schema(description = "The end registration date of the course", example = "2021-09-01T00:00:00Z")
-  @Future
   @DateTimeFormat
+  @Future
   private Instant endRegistrationAt;
 
-  @Schema(description = "The end date of the course", example = "2021-09-01T00:00:00Z")
+  @Default
+  @Schema(description = "The start date of the course", example = "2021-09-01T00:00:00Z")
+  @FutureOrPresent
+  @DateTimeFormat
+  private Instant startDate = Instant.now().plusSeconds(30);
+
   @Future
   @DateTimeFormat
+  @Schema(description = "The end date of the course", example = "2021-09-01T00:00:00Z")
   private Instant endDate;
 
   @Schema(description = "The wallpaper url")
@@ -216,19 +226,19 @@ public class Course implements Sluggable<String>, Cloneable, Serializable, TimeF
     return endDate.isBefore(Instant.now());
   }
 
-  @Schema(hidden = true)
   @CreatedBy
   @JsonIgnore
+  @Schema(hidden = true)
   private ObjectId createdBy;
 
-  @Schema(hidden = true)
   @LastModifiedBy
   @JsonIgnore
+  @Schema(hidden = true)
   private ObjectId updatedBy;
 
-  @Schema(hidden = true)
   @CreatedDate
   @JsonIgnore
+  @Schema(hidden = true)
   private Instant createdAt;
 
   @Schema(hidden = true)
@@ -236,9 +246,9 @@ public class Course implements Sluggable<String>, Cloneable, Serializable, TimeF
     return createdAt;
   }
 
-  @Schema(hidden = true)
   @LastModifiedDate
   @JsonIgnore
+  @Schema(hidden = true)
   private Instant updatedAt;
 
   @Schema(hidden = true)
@@ -247,7 +257,10 @@ public class Course implements Sluggable<String>, Cloneable, Serializable, TimeF
   }
 
   @Override
-  public List<Pair<Instant, Instant>> getTimeFrames() {
-    return List.of(Pair.of(startDate, endDate), Pair.of(startRegistrationAt, endRegistrationAt));
+  @JsonIgnore
+  @Schema(hidden = true)
+  public List<Pair> getTimeFrames() {
+    return List.of(
+        Pair.of(startDate, endDate), Pair.of(startRegistrationAt, endRegistrationAt, true, false));
   }
 }

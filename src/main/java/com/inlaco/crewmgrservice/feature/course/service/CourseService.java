@@ -32,7 +32,7 @@ public interface CourseService {
 
   void updateEmployeeCompletionProgress(String sailorId);
 
-  Page<Course> searchCourseByName(String keyword, Pageable pageable);
+  Page<Course> searchCourses(String keyword, boolean nonExpired, Pageable pageable);
 
   void enrollCourse(String courseId, User user);
 }

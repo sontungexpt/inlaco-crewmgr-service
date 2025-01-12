@@ -1,5 +1,6 @@
 package com.inlaco.crewmgrservice.feature.contract.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.inlaco.crewmgrservice.common.model.File;
 import com.inlaco.crewmgrservice.common.payload.TimeFrame;
@@ -70,10 +71,6 @@ public abstract class AbstractContract extends ContractVersion implements Contra
   @DateTimeFormat
   private Instant expiredDate;
 
-  public List<Pair<Instant, Instant>> getTimeFrames() {
-    return List.of(Pair.of(activationDate, expiredDate));
-  }
-
   @Schema(
       description = "The template id of the contract",
       type = "String",
@@ -102,4 +99,10 @@ public abstract class AbstractContract extends ContractVersion implements Contra
       enumAsRef = true,
       requiredMode = RequiredMode.REQUIRED)
   private ContractType type;
+
+  @Override
+  @JsonIgnore
+  public List<Pair> getTimeFrames() {
+    return List.of(Pair.of(activationDate, expiredDate));
+  }
 }

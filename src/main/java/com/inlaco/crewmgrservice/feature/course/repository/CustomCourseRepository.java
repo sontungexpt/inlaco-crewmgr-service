@@ -111,6 +111,40 @@ public class CustomCourseRepository {
     return new PageImpl<>(result.getDatas(), pageable, result.getCount("totalCourses"));
   }
 
+  public Page<Course> searchCourse(String keyword, boolean nonExpired, Pageable p) {
+    var pageable = PageableUtils.extendDefaultSort(p);
+    log.debug("Searching course by name with pagination");
+
+    var query =
+        Criteria.where("deleted")
+            .is(false)
+            .orOperator(
+                Criteria.where("name").regex(keyword, "i"),
+                Criteria.where("achievedPosition").regex(keyword, "i"));
+
+    if (nonExpired) {
+      query.and("endDate").gte(Instant.now());
+    }
+
+    Aggregation aggregation =
+        Aggregation.newAggregation(
+            match(query),
+            Aggregation.facet(Aggregation.count().as("totalCourses"))
+                .as(FacetResult.getCountFacetName())
+                .and(
+                    sort(pageable.getSort()),
+                    skip(pageable.getOffset()),
+                    limit(pageable.getPageSize()))
+                .as(FacetResult.getDataFacetName()));
+
+    var result =
+        mongoTemplate
+            .aggregate(aggregation, Course.class, CourseFacetResult.class)
+            .getUniqueMappedResult();
+
+    return new PageImpl<>(result.getDatas(), pageable, result.getCount("totalCourses"));
+  }
+
   class CourseEnrollmentFacetResult extends FacetResult<CourseEnrollment> {
 
     public CourseEnrollmentFacetResult(
