@@ -4,7 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
 
+@Slf4j
 public class ConsoleUtils {
 
   private static ObjectMapper objectMapper = new ObjectMapper();
@@ -55,5 +58,9 @@ public class ConsoleUtils {
 
   public static void log(Object... objects) {
     prettyPrint(objects);
+  }
+
+  public static Logger logger() {
+    return log;
   }
 }

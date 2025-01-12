@@ -1,5 +1,9 @@
 debug: false
 
+admin:
+  username: ${ADMIN_USERNAME}
+  password: ${ADMIN_PASSWORD}
+
 server:
   port: 8080
 
@@ -78,14 +82,15 @@ inlaco:
     max-request-size: ${INLACO_UPLOAD_MAX_REQUEST_SIZE:5MB}
     file-size-threshold: ${INLACO_UPLOAD_FILE_SIZE_THRESHOLD:0}
 
-  url: ${INLACO_URL:http://localhost:${server.port}}
+  server:
+    port: ${server.port}
+    base-url: ${INLACO_SERVER_BASE_URL:http://localhost:${server.port}}
+    api:
+      url:
+        v1: ${${inlaco.server.base-url}/api/v1}
 
   client:
-    base:
-      url: http://localhost:3000
-      endpoint:
-        login: ${inlaco.client.base.url}/login
-        error: ${inlaco.client.base.url}/error
-  api:
-    url:
-      v1: ${INLACO_API_V1_URL:${inlaco.url}/api/v1}
+    base-url: ${CLIENT_BASE_URL:http://localhost:3000}
+    endpoint:
+      login: ${inlaco.client.base-url}/login
+      error: ${inlaco.client.base-url}/error

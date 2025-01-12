@@ -12,6 +12,7 @@ import com.inlaco.crewmgrservice.feature.notify.mail.EmailRequest;
 import com.inlaco.crewmgrservice.feature.notify.mail.EmailType;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import com.inlaco.crewmgrservice.feature.user.service.UserService;
+import com.inlaco.crewmgrservice.utils.Base64EncryptionUtils;
 import com.inlaco.crewmgrservice.utils.HttpServletUtils;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -28,23 +29,20 @@ import org.yaml.snakeyaml.util.UriEncoder;
 @Slf4j
 public class TwoStepEmailVerificationServiceImpl implements TwoStepVerificationService {
   private String SUBJECT = "Inlaco - Verify your email";
+  private String EMAIL_TEMPLATE_PATH =
+      "src/main/resources/templates/email/html/two-step-verification.html";
 
   private final EmailVerificationTokenRepository emailVerificationTokenRepository;
   private final UserService userService;
   private final NotificationFactory notificationFactory;
 
-  @Value("${inlaco.api.url.v1}")
-  private String API_V1_URL;
-
-  @Value("${inlaco.client.base.endpoint.login}")
+  @Value("${inlaco.client.endpoint.login}")
   private String LOGIN_CLIENT_URL;
 
   private EmailRequest generateEmailRequest(User user, EmailVerificationToken token) {
     try {
       String link = generateVerificationLink(token);
-      String html =
-          Files.readString(
-              Paths.get("src/main/resources/templates/email/html/two-step-verification.html"));
+      String html = Files.readString(Paths.get(EMAIL_TEMPLATE_PATH));
 
       return EmailRequest.builder(
               user.getUsername(),
@@ -53,6 +51,7 @@ public class TwoStepEmailVerificationServiceImpl implements TwoStepVerificationS
           .emailType(EmailType.MIME)
           .build();
     } catch (IOException e) {
+      log.error("Failed to generate email request");
       e.printStackTrace();
     }
     throw new RuntimeException("Failed to generate email request");
@@ -84,8 +83,10 @@ public class TwoStepEmailVerificationServiceImpl implements TwoStepVerificationS
   @Override
   public ResendTokenResponse resend(User user) {
     var token = emailVerificationTokenRepository.findByUserId(user.getId()).orElse(null);
+    log.debug("Attempt to resend token for user {}", user.getUsername());
     if (token != null) {
       var refreshedToken = refreshToken(token);
+      log.debug("Refreshed token: {}", refreshedToken.getToken());
       var emailRequest = generateEmailRequest(user, refreshedToken);
 
       notificationFactory.sendNotificationAsync(NotificationType.EMAIL, emailRequest);
@@ -97,34 +98,58 @@ public class TwoStepEmailVerificationServiceImpl implements TwoStepVerificationS
 
   @Override
   public void verify(String unCheckedToken) {
+
+    log.info("Verifying email token");
+    var decodedToken = Base64EncryptionUtils.decodeBetter(unCheckedToken);
+    log.debug("Decoded token: {}", decodedToken);
+
     var token =
         emailVerificationTokenRepository
-            .findByToken(unCheckedToken)
+            .findByToken(decodedToken)
             .orElseThrow(() -> new TwoStepVerificationException("Token expired"));
 
-    log.info("Email verification token verified for user {}", token.getUserId());
     var user = userService.findUserById(token.getUserId());
+    log.info("Email verification token verified for user {}", user.getName());
+
     user.activate();
     userService.saveUser(user);
+    log.info("User {} activated", user.getName());
+
     emailVerificationTokenRepository.deleteById(token.getId());
+    log.debug("Deleted token ID: {}", token.getId());
 
     HttpServletUtils.getResponse()
         .ifPresent(
             (response) -> {
               try {
+                log.info("Redirecting user to login URL: {}", LOGIN_CLIENT_URL);
                 response.sendRedirect(LOGIN_CLIENT_URL);
               } catch (IOException e) {
+                log.error("Failed to redirect user to login URL: {}", LOGIN_CLIENT_URL);
                 e.printStackTrace();
               }
             });
   }
 
+  private String getServerBaseUrl() {
+    return HttpServletUtils.getRequest()
+        .map(
+            (request) -> {
+              String scheme = request.getScheme(); // http or https
+              String host = request.getServerName(); // host name
+              int port = request.getServerPort(); // Port
+              return scheme + "://" + host + ":" + port;
+            })
+        .orElse("");
+  }
+
   private String generateVerificationLink(EmailVerificationToken emailVerificationToken) {
     String link =
-        API_V1_URL
-            + "/auth/two-step-verification?token="
-            + UriEncoder.encode(emailVerificationToken.getToken());
-    log.info("Generated verification link: {}", link);
+        getServerBaseUrl()
+            + "/api/v1/auth/two-step-verification?token="
+            + UriEncoder.encode(
+                Base64EncryptionUtils.encodeBetter(emailVerificationToken.getToken(), 15));
+    log.debug("Generated verification link: {}", link);
     return link;
   }
 }

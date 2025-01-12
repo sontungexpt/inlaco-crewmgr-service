@@ -9,6 +9,7 @@ import com.inlaco.crewmgrservice.feature.user.repository.UserRepository;
 import java.util.HashSet;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -17,6 +18,13 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 @RequiredArgsConstructor
 public class RoleInit implements CommandLineRunner {
+
+  @Value("${admin.username}")
+  private String ADMIN_USERNAME;
+
+  @Value("${admin.password}")
+  private String ADMIN_PASSWORD;
+
   private final RoleRepository roleRepository;
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
@@ -37,13 +45,12 @@ public class RoleInit implements CommandLineRunner {
   }
 
   public void initAdminAccount() {
-    String adminUsername = "admin@gmail.com";
-    User user = userRepository.findByUsername(adminUsername).orElse(null);
+    User user = userRepository.findByUsername(ADMIN_USERNAME).orElse(null);
     if (user == null) {
       User admin =
           User.builder()
-              .username(adminUsername)
-              .password(passwordEncoder.encode("Admin123"))
+              .username(ADMIN_USERNAME)
+              .password(passwordEncoder.encode(ADMIN_PASSWORD))
               .build();
 
       var roles = roleRepository.findAll();
