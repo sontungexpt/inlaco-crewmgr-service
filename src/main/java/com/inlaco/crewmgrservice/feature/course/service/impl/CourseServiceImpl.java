@@ -136,7 +136,7 @@ public class CourseServiceImpl implements CourseService {
   @Override
   public void cancelRegistrationOfCourse(String id) {
     Course course = getCourseById(id);
-    course.disableRegistration();
+    course.manuallyDisableRegistration();
     courseRepository.save(course);
   }
 

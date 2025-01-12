@@ -23,7 +23,6 @@ public class CourseDetail extends CourseEnrollment {
         CourseDetail.builder()
             .id(course.getId())
             .name(course.getName())
-            .reopenedBasedOn(course.getReopenedBasedOn().toHexString())
             .slug(course.getSlug())
             .limitStudent(course.getLimitStudent())
             .description(course.getDescription())

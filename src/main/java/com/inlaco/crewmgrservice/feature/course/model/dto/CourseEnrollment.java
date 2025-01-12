@@ -135,7 +135,6 @@ public class CourseEnrollment {
         CourseEnrollment.builder()
             .id(course.getId())
             .name(course.getName())
-            .reopenedBasedOn(course.getReopenedBasedOn().toHexString())
             .slug(course.getSlug())
             .limitStudent(course.getLimitStudent())
             .wallpaper(course.getWallpaper())

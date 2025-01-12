@@ -1,8 +1,11 @@
 package com.inlaco.crewmgrservice.feature.contract.model;
 
-import com.inlaco.crewmgrservice.common.model.Address;
+import com.esotericsoftware.kryo.serializers.FieldSerializer.NotNull;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
@@ -10,6 +13,13 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @Setter
 @SuperBuilder
+@JsonTypeInfo(
+    include = JsonTypeInfo.As.PROPERTY,
+    visible = true,
+    use = JsonTypeInfo.Id.NAME,
+    property = "type",
+    defaultImpl = DynamicParty.class)
+@JsonTypeName(PartyType.Fields.STATIC)
 public class Party {
 
   @Schema(
@@ -18,11 +28,8 @@ public class Party {
   @NotBlank
   private String partyName;
 
-  @Schema(description = "The account of the contract", example = "123456")
-  private String account;
-
   @Schema(description = "The employee name of the contract", example = "John Doe")
-  private String name;
+  private String fullName;
 
   @Schema(description = "The employee email of the contract", example = " [email protected]")
   private String email;
@@ -31,17 +38,13 @@ public class Party {
   private String phone;
 
   @Schema(description = "The address of the contract")
-  private Address address;
+  private String address;
 
   @Schema(description = "The represent of the contract", example = "John Doe")
   private String represent;
 
-  @Schema(description = "The tax code of the contract", example = "123456")
-  private String taxCode;
-
-  @Schema(description = "The bank account of the contract", example = "123456")
-  private String bankAccount;
-
-  @Schema(description = "The bank name of the contract", example = "ACB")
-  private String bankName;
+  @Default
+  @Schema(description = "The type of the party", example = "STATIC")
+  @NotNull
+  private PartyType type = PartyType.STATIC;
 }

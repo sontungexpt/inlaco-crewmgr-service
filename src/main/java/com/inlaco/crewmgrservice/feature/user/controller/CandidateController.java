@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.inlaco.crewmgrservice.annotation.CurrentUser;
 import com.inlaco.crewmgrservice.annotation.PageableQueryParams;
 import com.inlaco.crewmgrservice.config.OpenApiConfig;
+import com.inlaco.crewmgrservice.feature.user.dto.BasicProfileDTO;
 import com.inlaco.crewmgrservice.feature.user.model.CandidateProfile;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import com.inlaco.crewmgrservice.feature.user.service.CandidateService;
@@ -12,6 +13,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -102,6 +104,42 @@ This API retrieves a list of candidate profiles from the server.
   }
 
   @Operation(
+      summary = "Search candidates profiles by candidate name",
+      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
+      description =
+          """
+This API retrieves a list of candidate profiles from the server based on the candidate name.
+
+If you want to filter by some fields, you can pass the filter object as a JSON object in the request body.
+
+**Use cases:**
+- UC_admin-xem-ho-so-ung-tuyen-thuyen-vien.
+
+**Notes:**
+- Pagination is required.
+- Sorting is optional but can be applied.
+
+""")
+  @GetMapping("/searching")
+  @ResponseStatus(HttpStatus.OK)
+  @PageableQueryParams
+  @RolesAllowed("ADMIN")
+  public Page<BasicProfileDTO> searchCandidates(
+      @RequestParam String q,
+      @io.swagger.v3.oas.annotations.parameters.RequestBody(
+              content =
+                  @io.swagger.v3.oas.annotations.media.Content(
+                      schema =
+                          @io.swagger.v3.oas.annotations.media.Schema(
+                              type = "object",
+                              example = "{\"status\": \"APPLIED\"}")))
+          @RequestBody(required = false)
+          Map<String, Object> filters,
+      @PageableDefault(size = 10, page = 0) Pageable pageable) {
+    return candidateService.searchCandidates(q, filters, pageable);
+  }
+
+  @Operation(
       summary = "Retrieve a detail candidate profile from the server by id",
       description =
           """
@@ -114,7 +152,7 @@ This API retrieves a detail candidate profile from the server based on its id.
   @GetMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)
   @RolesAllowed("ADMIN")
-  public CandidateProfile getCandidateProfile(@PathVariable("accountId") String id) {
+  public CandidateProfile getCandidateProfile(@PathVariable("id") String id) {
     return candidateService.getCandidateProfileById(id);
   }
 
@@ -138,7 +176,7 @@ Admin review candidate profile based on its id.
   public void adminReviewCandidate(
       @RequestParam(defaultValue = "true") boolean autoEmail,
       @RequestParam CandidateProfile.Status status,
-      @PathVariable("accountId") String id) {
+      @PathVariable("id") String id) {
     candidateService.reviewCandidate(id, status, autoEmail);
   }
 

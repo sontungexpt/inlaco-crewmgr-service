@@ -1,0 +1,13 @@
+package com.inlaco.crewmgrservice.feature.contract.model;
+
+import lombok.experimental.FieldNameConstants;
+
+@FieldNameConstants
+public enum PartyType {
+  @FieldNameConstants.Include
+  DYNAMIC,
+  @FieldNameConstants.Include
+  STATIC,
+  @FieldNameConstants.Include
+  LABOR,
+}

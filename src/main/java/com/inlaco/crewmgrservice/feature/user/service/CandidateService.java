@@ -4,12 +4,16 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.inlaco.crewmgrservice.feature.user.dto.BasicProfileDTO;
 import com.inlaco.crewmgrservice.feature.user.model.CandidateProfile;
 import com.inlaco.crewmgrservice.feature.user.model.User;
+import java.util.Map;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface CandidateService {
 
   Page<BasicProfileDTO> getAllCandidates(CandidateProfile.Status status, Pageable pageable);
+
+  Page<BasicProfileDTO> searchCandidates(
+      String query, Map<String, Object> filters, Pageable pageable);
 
   CandidateProfile getCandidateProfileById(String candidateId);
 

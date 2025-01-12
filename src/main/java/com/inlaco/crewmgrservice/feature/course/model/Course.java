@@ -39,7 +39,6 @@ import org.springframework.util.StringUtils;
       "forciblyCanceledAt",
       "deleted",
       "deletedAt",
-      "reopenedBasedOn",
       "enrolledStudentCount",
       "manuallyRegistrationDisabled",
       "manuallyRegistrationDisabledAt",
@@ -51,21 +50,14 @@ import org.springframework.util.StringUtils;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class Course implements Sluggable<String>, Cloneable, Serializable, TimeFrame {
-  @Schema(hidden = true)
+public class Course implements Sluggable<String>, Serializable, TimeFrame {
   @Id
+  @Schema(hidden = true)
   private String id;
 
   @Schema(description = "The name of the course", example = "Cách xử lí khi có cháy trên thuyền")
   @NotBlank
   private String name;
-
-  @Schema(
-      description = "The ID of the course that this course is reopened based on",
-      example = "null",
-      hidden = true,
-      examples = {"60f7b3b3b3b3b3b3b3b3b3b3", "null"})
-  private ObjectId reopenedBasedOn;
 
   @Schema(description = "The training provider name", example = "Công ty TNHH ABC")
   private String trainingProviderName;
@@ -102,26 +94,6 @@ public class Course implements Sluggable<String>, Cloneable, Serializable, TimeF
     }
   }
 
-  public Course clone() throws CloneNotSupportedException {
-    return (Course) this.clone();
-  }
-
-  public Course reopenCourse(Instant startDate, Instant endDate) throws CloneNotSupportedException {
-    Course reopenedCourse = this.clone();
-    reopenedCourse.reopenedBasedOn = new ObjectId(this.id);
-    reopenedCourse.startDate = startDate;
-    reopenedCourse.endDate = endDate;
-
-    // reset some fields to null to make sure that field will be auto gen by mongodb
-    reopenedCourse.id = null;
-    reopenedCourse.slug = null;
-    reopenedCourse.createdAt = null;
-    reopenedCourse.updatedAt = null;
-    reopenedCourse.createdBy = null;
-    reopenedCourse.updatedBy = null;
-    return reopenedCourse;
-  }
-
   @AutoSlugify(fields = "name")
   @Schema(hidden = true)
   private String slug;
@@ -135,11 +107,14 @@ public class Course implements Sluggable<String>, Cloneable, Serializable, TimeF
   @JsonIgnore
   private Instant deletedAt;
 
+  public void delete() {
+    this.deleted = true;
+    this.deletedAt = Instant.now();
+  }
+
   public void setDeleted(boolean deleted) {
     this.deleted = deleted;
-    if (deleted) {
-      deletedAt = Instant.now();
-    }
+    if (deleted) deletedAt = Instant.now();
   }
 
   @Min(1)
@@ -161,6 +136,9 @@ public class Course implements Sluggable<String>, Cloneable, Serializable, TimeF
   public boolean isFull() {
     return enrolledStudentCount >= limitStudent;
   }
+
+  @Schema(description = "The wallpaper url")
+  private File wallpaper;
 
   @Schema(description = "Description of the course", example = "This is the course")
   @NotBlank
@@ -218,12 +196,13 @@ public class Course implements Sluggable<String>, Cloneable, Serializable, TimeF
   @Schema(description = "The end date of the course", example = "2021-09-01T00:00:00Z")
   private Instant endDate;
 
-  @Schema(description = "The wallpaper url")
-  private File wallpaper;
-
   @Schema(description = "Is the course expired", example = "false", hidden = true)
   public boolean isExpired() {
     return endDate.isBefore(Instant.now());
+  }
+
+  public boolean isLearnable() {
+    return !isForciblyCanceled() && !isExpired();
   }
 
   @CreatedBy

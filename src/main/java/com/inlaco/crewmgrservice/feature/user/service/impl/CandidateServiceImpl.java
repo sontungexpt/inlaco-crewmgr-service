@@ -9,6 +9,7 @@ import com.inlaco.crewmgrservice.feature.user.dto.BasicProfileDTO;
 import com.inlaco.crewmgrservice.feature.user.model.CandidateProfile;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import com.inlaco.crewmgrservice.feature.user.repository.CandidateProfileRepository;
+import com.inlaco.crewmgrservice.feature.user.repository.CustomCandidateRepository;
 import com.inlaco.crewmgrservice.feature.user.service.CandidateService;
 import com.inlaco.crewmgrservice.feature.user.service.state.candidate.ReviewServiceFactory;
 import com.inlaco.crewmgrservice.utils.JsonMergePatchUtils;
@@ -24,25 +25,28 @@ import org.springframework.stereotype.Service;
 public class CandidateServiceImpl implements CandidateService {
 
   private final CandidateProfileRepository candidateProfileRepository;
+  private final CustomCandidateRepository customCandidateRepository;
   private final ReviewServiceFactory reviewServiceFactory;
   private final PostService postService;
   private final JsonMergePatchUtils jsonMergePatchUtils;
+
+  private BasicProfileDTO toBasicProfileDTO(CandidateProfile candidateProfile) {
+    return BasicProfileDTO.builder()
+        .id(candidateProfile.getId())
+        .fullName(candidateProfile.getFullName())
+        .email(candidateProfile.getEmail())
+        .address(candidateProfile.getAddress())
+        .file(candidateProfile.getResume())
+        .phoneNumber(candidateProfile.getPhoneNumber())
+        .gender(candidateProfile.getGender())
+        .build();
+  }
 
   @Override
   public Page<BasicProfileDTO> getAllCandidates(CandidateProfile.Status status, Pageable pageable) {
     return candidateProfileRepository
         .findByStatus(status, pageable)
-        .map(
-            it ->
-                BasicProfileDTO.builder()
-                    .id(it.getId())
-                    .fullName(it.getFullName())
-                    .email(it.getEmail())
-                    .address(it.getAddress())
-                    .file(it.getResume())
-                    .phoneNumber(it.getPhoneNumber())
-                    .gender(it.getGender())
-                    .build());
+        .map(it -> toBasicProfileDTO(it));
   }
 
   @Override
@@ -88,5 +92,13 @@ public class CandidateServiceImpl implements CandidateService {
         .findByAccountId(new ObjectId(user.getId()))
         .orElseThrow(
             () -> new ResourceNotFoundException(CandidateProfile.class, "accountId", user.getId()));
+  }
+
+  @Override
+  public Page<BasicProfileDTO> searchCandidates(
+      String query, Map<String, Object> filters, Pageable pageable) {
+    return customCandidateRepository
+        .searchCandidates(query, filters, pageable)
+        .map(it -> toBasicProfileDTO(it));
   }
 }

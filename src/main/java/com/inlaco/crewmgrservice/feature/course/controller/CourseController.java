@@ -140,13 +140,13 @@ Create a new course
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
       description =
           """
-Force cancel a course
+Force cancel a course by id
 
 **Usecase**:
 - UC_admin-ket-thuc-som-khoa-dao-tao
 
 """)
-  @PostMapping("/force-cancel/id")
+  @PostMapping("/force-cancel/{id}")
   @RolesAllowed("ADMIN")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void forceCancelCourse(@PathVariable("id") String id) {
@@ -158,7 +158,7 @@ Force cancel a course
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
       description =
           """
-Update a course
+Update a course by id
 
 **Usecase**:
 
@@ -177,7 +177,7 @@ Update a course
       description =
           """
 
-Delete a course
+Delete a course by id
 
 **Usecase**:
 
