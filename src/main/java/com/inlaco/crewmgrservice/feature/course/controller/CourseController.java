@@ -9,6 +9,7 @@ import com.inlaco.crewmgrservice.feature.course.model.dto.CourseDetail;
 import com.inlaco.crewmgrservice.feature.course.model.dto.CourseEnrollment;
 import com.inlaco.crewmgrservice.feature.course.service.CourseService;
 import com.inlaco.crewmgrservice.feature.user.model.User;
+import com.inlaco.crewmgrservice.validation.annotation.ObjectId;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -115,7 +116,8 @@ Get a course detail
 
 """)
   @GetMapping("/{id}")
-  public CourseDetail getCourseDetail(@CurrentUser User user, @PathVariable("id") String id) {
+  public CourseDetail getCourseDetail(
+      @CurrentUser User user, @ObjectId @PathVariable("id") String id) {
     return courseService.getCourseDetailById(id, user);
   }
 
@@ -150,7 +152,7 @@ Force cancel a course by id
   @PostMapping("/force-cancel/{id}")
   @RolesAllowed("ADMIN")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void forceCancelCourse(@PathVariable("id") String id) {
+  public void forceCancelCourse(@ObjectId @PathVariable("id") String id) {
     courseService.cancelCourse(id);
   }
 
@@ -168,7 +170,7 @@ Update a course by id
 """)
   @PatchMapping(value = "/{id}", consumes = "application/merge-patch+json")
   @RolesAllowed("ADMIN")
-  public Course updateCourse(@PathVariable("id") String id, @RequestBody JsonNode patch) {
+  public Course updateCourse(@PathVariable("id") @ObjectId String id, @RequestBody JsonNode patch) {
     return courseService.updateCourse(id, patch);
   }
 
@@ -191,7 +193,8 @@ Get all sailors enrolled in a course
 """)
   @RolesAllowed("ADMIN")
   @GetMapping("/{courseId}/members")
-  public ResponseEntity<?> getCourseMembers(String courseId, Pageable pageable) {
+  public ResponseEntity<?> getCourseMembers(
+      @ObjectId @PathVariable("courseId") String courseId, Pageable pageable) {
     return ResponseEntity.ok(courseService.getCourseMembers(courseId, pageable));
   }
 
@@ -210,7 +213,7 @@ Delete a course by id
 """)
   @PatchMapping("/{id}")
   @RolesAllowed("ADMIN")
-  public void deleteCourse(@PathVariable("id") String id) {
+  public void deleteCourse(@PathVariable("id") @ObjectId String id) {
     courseService.deleteCourse(id);
   }
 
@@ -229,7 +232,7 @@ Cancel registration for a course
   @PostMapping("/cancellation/{id}")
   @RolesAllowed("ADMIN")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void cancelRegistration(@PathVariable("id") String id) {
+  public void cancelRegistration(@PathVariable("id") @ObjectId String id) {
     courseService.cancelCourseRegistration(id);
   }
 
@@ -253,7 +256,7 @@ Register for a course as a Sailor
   @PostMapping("/registration/{id}")
   @RolesAllowed("SAILOR")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void enrollCourse(@CurrentUser User user, @PathVariable("id") String id) {
+  public void enrollCourse(@CurrentUser User user, @ObjectId @PathVariable("id") String id) {
     courseService.enrollCourse(id, user);
   }
 
@@ -272,7 +275,8 @@ Mark completation for a sailor
   @RolesAllowed("ADMIN")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void markCourseCompletation(
-      @PathVariable("courseId") String courseId, @PathVariable("userId") String userId) {
+      @ObjectId @PathVariable("courseId") String courseId,
+      @ObjectId @PathVariable("userId") String userId) {
     courseService.markSailorCompletedCourse(courseId, userId);
   }
 }

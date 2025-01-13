@@ -1,8 +1,12 @@
 package com.inlaco.crewmgrservice.feature.contract.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serializable;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.data.convert.ReadingConverter;
+import org.springframework.data.convert.WritingConverter;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
@@ -15,7 +19,6 @@ public class ContractType implements Comparable<ContractType>, Serializable {
   @Schema(description = "A contract for employment or labor.")
   public static ContractType LABOR_CONTRACT = new ContractType("LABOR_CONTRACT");
 
-  @JsonCreator
   private ContractType(String name) {
     this.name = name;
   }
@@ -42,6 +45,7 @@ public class ContractType implements Comparable<ContractType>, Serializable {
    * @param name the method value as a String
    * @return the corresponding {@code ContractType}
    */
+  @JsonCreator
   public static ContractType valueOf(String name) {
     Assert.notNull(name, "Type must not be null");
     return switch (name) {
@@ -51,6 +55,7 @@ public class ContractType implements Comparable<ContractType>, Serializable {
     };
   }
 
+  @JsonValue
   /** Return the name of this type, e.g. "SUPPLY_CONTRACT", "LABOR_CONTRACT". */
   public String name() {
     return this.name;
@@ -85,5 +90,22 @@ public class ContractType implements Comparable<ContractType>, Serializable {
   @Override
   public int compareTo(ContractType o) {
     return this.name.compareTo(o.name);
+  }
+
+  @ReadingConverter
+  public static class ContractTypeReadingConverter implements Converter<String, ContractType> {
+    @Override
+    public ContractType convert(String source) {
+      return ContractType.valueOf(source);
+    }
+  }
+
+  @WritingConverter
+  public static class ContractTypeWritingConverter implements Converter<ContractType, String> {
+
+    @Override
+    public String convert(ContractType source) {
+      return source.name();
+    }
   }
 }

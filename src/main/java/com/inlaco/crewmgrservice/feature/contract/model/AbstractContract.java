@@ -2,6 +2,7 @@ package com.inlaco.crewmgrservice.feature.contract.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.inlaco.crewmgrservice.annotation.JsonPatchIgnore;
 import com.inlaco.crewmgrservice.common.model.File;
 import com.inlaco.crewmgrservice.common.payload.TimeFrame;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -24,13 +25,13 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.util.Pair;
 import org.springframework.format.annotation.DateTimeFormat;
 
-@SuperBuilder
 @Getter
 @Setter
 @JsonIgnoreProperties(
-    value = {"id", "version", "createdAt", "updatedAt", "prevVersion"},
+    value = {"id", "version", "createdAt", "updatedAt", "prevVersion", "signed"},
     allowGetters = true)
 @Document("contracts")
+@SuperBuilder
 public abstract class AbstractContract extends ContractVersion implements Contract, TimeFrame {
 
   @NotBlank
@@ -39,6 +40,12 @@ public abstract class AbstractContract extends ContractVersion implements Contra
       example = "The title of the contract",
       requiredMode = RequiredMode.REQUIRED)
   private String title;
+
+  @Schema(
+      description = "The description of the contract",
+      example = "The description of the contract",
+      requiredMode = RequiredMode.REQUIRED)
+  private List<ObjectId> partyAccountIds;
 
   @MinLen(2)
   private List<Party> parties;
@@ -60,6 +67,14 @@ public abstract class AbstractContract extends ContractVersion implements Contra
       requiredMode = RequiredMode.REQUIRED)
   @NotEmpty
   private List<@NotBlank String> terms;
+
+  @JsonPatchIgnore
+  @Schema(description = "The contract is signed or not", hidden = true)
+  private boolean signed;
+
+  @Schema(description = "The user id who signed the contract", hidden = true)
+  @JsonPatchIgnore
+  private ObjectId signedBy;
 
   @DateTimeFormat
   @FutureOrPresent

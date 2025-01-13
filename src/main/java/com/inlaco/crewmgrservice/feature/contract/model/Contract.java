@@ -22,5 +22,7 @@ public interface Contract {
 
   boolean isFreeze();
 
+  boolean isSigned();
+
   ContractType getType();
 }

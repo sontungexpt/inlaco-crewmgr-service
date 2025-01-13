@@ -3,6 +3,7 @@ package com.inlaco.crewmgrservice.feature.contract.model;
 import com.esotericsoftware.kryo.serializers.FieldSerializer.NotNull;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.inlaco.crewmgrservice.validation.annotation.ObjectId;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Builder.Default;
@@ -42,6 +43,9 @@ public class Party {
 
   @Schema(description = "The represent of the contract", example = "John Doe")
   private String represent;
+
+  @Schema(description = "The account id of the party", example = "5f9b1b7b7f7b7b7b7b7b7b7b")
+  private ObjectId accountId;
 
   @Default
   @Schema(description = "The type of the party", example = "STATIC")

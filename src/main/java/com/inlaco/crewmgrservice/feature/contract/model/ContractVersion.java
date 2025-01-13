@@ -45,36 +45,46 @@ public abstract class ContractVersion implements Versionable<String, Integer> {
       requiredMode = RequiredMode.REQUIRED)
   private String changeLog;
 
-  @CreatedDate private Instant createdAt;
+  @CreatedDate
+  @Schema(hidden = true)
+  private Instant createdAt;
 
-  @LastModifiedDate private Instant updatedAt;
+  @Schema(hidden = true)
+  @LastModifiedDate
+  private Instant updatedAt;
 
   @Override
+  @Schema(hidden = true)
   public String getId() {
     return id;
   }
 
   @Override
+  @Schema(hidden = true)
   public Integer getVersion() {
     return version;
   }
 
   @Override
+  @Schema(hidden = true)
   public String getChangeLog() {
     return changeLog;
   }
 
   @Override
+  @Schema(hidden = true)
   public Integer getPrevVersion() {
     return prevVersion;
   }
 
   @Override
+  @Schema(hidden = true)
   public Instant getCreatedAt() {
     return createdAt;
   }
 
   @Override
+  @Schema(hidden = true)
   public Instant getUpdatedAt() {
     return updatedAt;
   }

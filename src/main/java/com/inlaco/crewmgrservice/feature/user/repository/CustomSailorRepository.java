@@ -9,6 +9,8 @@ import com.inlaco.crewmgrservice.common.model.FacetResult;
 import com.inlaco.crewmgrservice.feature.user.model.CandidateProfile;
 import com.inlaco.crewmgrservice.feature.user.model.SailorProfile;
 import com.inlaco.crewmgrservice.utils.PageableUtils;
+import com.inlaco.crewmgrservice.utils.PhoneNumberValidatorUtils;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -31,28 +33,46 @@ public class CustomSailorRepository {
   private final MongoTemplate mongoTemplate;
 
   public Page<SailorProfile> searchSailors(String keyword, String sailorPositionId, Pageable p) {
-
-    Criteria query;
+    List<Criteria> criteriaList = new ArrayList<>();
     if (ObjectId.isValid(keyword)) {
-      query =
-          new Criteria()
-              .orOperator(
-                  Criteria.where("accountId").is(new ObjectId(keyword)),
-                  Criteria.where("fullName").regex(keyword, "i"),
-                  Criteria.where("email").regex(keyword, "i"),
-                  Criteria.where("phone").regex(keyword, "i"));
+      criteriaList.add(Criteria.where("accountId").is(new ObjectId(keyword)));
+    } else if (PhoneNumberValidatorUtils.isPotentialPhoneNumber(keyword)) {
+      criteriaList.add(Criteria.where("phone").regex(keyword, "i"));
     } else {
-      query =
-          new Criteria()
-              .orOperator(
-                  Criteria.where("fullName").regex(keyword, "i"),
-                  Criteria.where("email").regex(keyword, "i"),
-                  Criteria.where("phone").regex(keyword, "i"));
+      criteriaList.add(Criteria.where("fullName").regex(keyword, "i"));
+      criteriaList.add(Criteria.where("email").regex(keyword, "i"));
     }
+
+    var query = new Criteria().orOperator(criteriaList);
 
     if (StringUtils.hasText(sailorPositionId)) {
       query.and("sailorPositionId").is(new ObjectId(sailorPositionId));
     }
+
+    var pageable = PageableUtils.extendDefaultSort(p);
+    log.debug("Fetching non expired courses with pagination");
+
+    Aggregation aggregation =
+        Aggregation.newAggregation(
+            match(query),
+            Aggregation.facet(Aggregation.count().as("totalSailors"))
+                .as(FacetResult.getCountFacetName())
+                .and(
+                    sort(pageable.getSort()),
+                    skip(pageable.getOffset()),
+                    limit(pageable.getPageSize()))
+                .as(FacetResult.getDataFacetName()));
+
+    var result =
+        mongoTemplate
+            .aggregate(aggregation, CandidateProfile.class, CandidateProfileFacetResult.class)
+            .getUniqueMappedResult();
+
+    return new PageImpl<>(result.getDatas(), pageable, result.getCount("totalSailors"));
+  }
+
+  public Page<SailorProfile> fetchAllSailors(Map<String, Object> filters, Pageable p) {
+    var query = new Criteria();
 
     var pageable = PageableUtils.extendDefaultSort(p);
     log.debug("Fetching non expired courses with pagination");

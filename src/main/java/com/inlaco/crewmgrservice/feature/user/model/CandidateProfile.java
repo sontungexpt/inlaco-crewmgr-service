@@ -16,7 +16,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.bson.types.ObjectId;
+import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -104,4 +106,16 @@ public class CandidateProfile extends BasicProfile {
   public Instant getUpdatedDate() {
     return updatedAt;
   }
+
+  @Schema(hidden = true)
+  @JsonIgnore
+  @JsonPatchIgnore
+  @CreatedBy
+  private ObjectId createdBy;
+
+  @LastModifiedBy
+  @JsonIgnore
+  @JsonPatchIgnore
+  @Schema(hidden = true)
+  private ObjectId updatedBy;
 }

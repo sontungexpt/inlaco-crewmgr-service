@@ -1,5 +1,6 @@
 package com.inlaco.crewmgrservice.feature.user.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.inlaco.crewmgrservice.annotation.CurrentUser;
 import com.inlaco.crewmgrservice.annotation.PageableQueryParams;
 import com.inlaco.crewmgrservice.config.OpenApiConfig;
@@ -7,16 +8,19 @@ import com.inlaco.crewmgrservice.feature.user.dto.BasicProfileDTO;
 import com.inlaco.crewmgrservice.feature.user.model.SailorProfile;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import com.inlaco.crewmgrservice.feature.user.service.SailorService;
+import com.inlaco.crewmgrservice.validation.annotation.ObjectId;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.security.RolesAllowed;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -44,8 +48,26 @@ This API is used to get the sailor profile by id.
 """)
   @GetMapping("/{id}")
   @RolesAllowed("ADMIN")
-  public SailorProfile findSailorById(String sailorId) {
+  public SailorProfile findSailorById(@ObjectId @PathVariable("id") String sailorId) {
     return sailorService.findSailorProfileById(sailorId);
+  }
+
+  @Operation(
+      summary = "Find sailor profile by id",
+      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
+      description =
+          """
+This API is used to get the sailor profile by id.
+
+**Usecase**:
+- UC_admin-xem-thong-tin-chi-tiet-thuyen-vien.
+
+""")
+  @PatchMapping(value = "/{id}", consumes = "application/json-patch+json")
+  @RolesAllowed("ADMIN")
+  public SailorProfile updateSailorProfile(
+      @PathVariable("id") @ObjectId String sailorId, @RequestBody JsonNode patch) {
+    return sailorService.updateSailorProfile(sailorId, patch);
   }
 
   @Operation(
@@ -136,7 +158,8 @@ And sign the contract to activate the permissions.
   @PostMapping("/{candidateId}")
   @RolesAllowed("ADMIN")
   public SailorProfile createSailor(
-      @PathVariable("candidateId") String candidateId, @RequestBody SailorProfile profile) {
+      @PathVariable("candidateId") @ObjectId String candidateId,
+      @Valid @RequestBody SailorProfile profile) {
     return sailorService.addSailor(candidateId, profile);
   }
 }

@@ -1,5 +1,6 @@
 package com.inlaco.crewmgrservice.feature.course.model.dto;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.inlaco.crewmgrservice.feature.course.model.CourseMember;
 import com.inlaco.crewmgrservice.feature.user.dto.SailorProfileDTO;
@@ -14,8 +15,18 @@ public class CourseMemberInfo {
   @Schema(description = "The ID of the course associated with this tracking record")
   private ObjectId courseId;
 
+  @JsonGetter("courseId")
+  public String getCourseIdStr() {
+    return courseId.toHexString();
+  }
+
   @Schema(description = "The ID of the user associated with this tracking record")
   private ObjectId userId;
+
+  @JsonGetter("userId")
+  public String getUserIdSrt() {
+    return userId.toHexString();
+  }
 
   @Schema(description = "The current status of the course member", ref = "Status", enumAsRef = true)
   private CourseMember.Status status;

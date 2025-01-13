@@ -1,5 +1,6 @@
 package com.inlaco.crewmgrservice.feature.user.model;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.inlaco.crewmgrservice.annotation.JsonPatchIgnore;
@@ -16,7 +17,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.bson.types.ObjectId;
+import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -32,9 +35,14 @@ import org.springframework.format.annotation.DateTimeFormat;
     allowGetters = true)
 public class SailorProfile extends BasicProfile implements TimeFrame {
 
-  @JsonPatchIgnore
   @Schema(hidden = true, description = "The contract ifacet d of the sailor")
-  protected String contractId;
+  @JsonPatchIgnore
+  protected ObjectId contractId;
+
+  @JsonGetter("contractId")
+  public String getContractIdStr() {
+    return contractId.toString();
+  }
 
   @Schema(
       description = "The contract signed date of the sailor",
@@ -44,6 +52,10 @@ public class SailorProfile extends BasicProfile implements TimeFrame {
   @Future
   @DateTimeFormat
   protected Instant contractSignedAt;
+
+  public boolean hasContract() {
+    return contractId != null;
+  }
 
   @Schema(description = "The candidate id of the sailor", hidden = true, type = "String")
   @JsonPatchIgnore
@@ -122,6 +134,18 @@ public class SailorProfile extends BasicProfile implements TimeFrame {
   @JsonPatchIgnore
   @Schema(hidden = true)
   private Instant createdAt;
+
+  @Schema(hidden = true)
+  @JsonIgnore
+  @JsonPatchIgnore
+  @CreatedBy
+  private ObjectId createdBy;
+
+  @LastModifiedBy
+  @JsonIgnore
+  @JsonPatchIgnore
+  @Schema(hidden = true)
+  private ObjectId updatedBy;
 
   @Override
   @JsonIgnore

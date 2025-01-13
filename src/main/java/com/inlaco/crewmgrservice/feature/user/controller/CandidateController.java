@@ -8,6 +8,7 @@ import com.inlaco.crewmgrservice.feature.user.dto.BasicProfileDTO;
 import com.inlaco.crewmgrservice.feature.user.model.CandidateProfile;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import com.inlaco.crewmgrservice.feature.user.service.CandidateService;
+import com.inlaco.crewmgrservice.validation.annotation.ObjectId;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -52,8 +53,7 @@ Apply for a job with the given job id.
   @ResponseStatus(HttpStatus.CREATED)
   @RolesAllowed("USER")
   public CandidateProfile applyCandidate(
-      @com.inlaco.crewmgrservice.validation.annotation.ObjectId @PathVariable("postId")
-          String postId,
+      @ObjectId @PathVariable("postId") String postId,
       @CurrentUser User user,
       @RequestBody @Valid CandidateProfile candidateProfile) {
     return candidateService.applyCandidate(postId, candidateProfile, user);
@@ -74,7 +74,9 @@ Update a candidate profile with the given id.
   @ResponseStatus(HttpStatus.OK)
   @RolesAllowed("USER")
   public CandidateProfile updateCandidateProfile(
-      @CurrentUser User user, @PathVariable("id") String id, @RequestBody JsonNode patch) {
+      @CurrentUser User user,
+      @ObjectId @PathVariable("id") String id,
+      @RequestBody JsonNode patch) {
     return candidateService.updateCandidateProfile(id, patch, user);
   }
 
@@ -152,7 +154,7 @@ This API retrieves a detail candidate profile from the server based on its id.
   @GetMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)
   @RolesAllowed("ADMIN")
-  public CandidateProfile getCandidateProfile(@PathVariable("id") String id) {
+  public CandidateProfile getCandidateProfile(@ObjectId @PathVariable("id") String id) {
     return candidateService.getCandidateProfileById(id);
   }
 
@@ -176,7 +178,7 @@ Admin review candidate profile based on its id.
   public void adminReviewCandidate(
       @RequestParam(defaultValue = "true") boolean autoEmail,
       @RequestParam CandidateProfile.Status status,
-      @PathVariable("id") String id) {
+      @ObjectId @PathVariable("id") String id) {
     candidateService.reviewCandidate(id, status, autoEmail);
   }
 

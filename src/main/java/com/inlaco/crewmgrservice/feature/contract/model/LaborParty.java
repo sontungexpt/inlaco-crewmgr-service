@@ -11,9 +11,6 @@ import lombok.experimental.SuperBuilder;
 @JsonTypeName(PartyType.Fields.DYNAMIC)
 public class LaborParty extends DynamicParty {
 
-  @Schema(description = "The account of the contract", example = "123456")
-  private String account;
-
   @Schema(description = "The tax code of the contract", example = "123456")
   private String taxCode;
 
