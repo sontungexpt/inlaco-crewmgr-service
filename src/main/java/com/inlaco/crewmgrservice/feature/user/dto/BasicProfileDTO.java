@@ -4,13 +4,15 @@ import com.inlaco.crewmgrservice.common.model.File;
 import com.inlaco.crewmgrservice.feature.user.model.Gender;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
-import lombok.Builder;
+import java.time.Instant;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
+import org.bson.types.ObjectId;
 
 @Getter
 @Setter
-@Builder
+@SuperBuilder
 public class BasicProfileDTO {
 
   @Schema(hidden = true)
@@ -55,4 +57,19 @@ public class BasicProfileDTO {
       requiredMode = RequiredMode.REQUIRED,
       type = "String")
   protected Gender gender;
+
+  @Schema(
+      description = "The user account id",
+      example = "60f1b3b3b3b3b3b3b3b3b3b3",
+      hidden = true,
+      requiredMode = RequiredMode.REQUIRED,
+      type = "String")
+  protected ObjectId accountId;
+
+  @Schema(
+      description = "The birth date of the person",
+      example = "2000-01-01T00:00:00Z",
+      requiredMode = RequiredMode.REQUIRED,
+      type = "String")
+  protected Instant birthDate;
 }

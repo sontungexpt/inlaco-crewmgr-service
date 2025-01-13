@@ -120,7 +120,7 @@ If you want to filter by some fields, you can pass the filter object as a JSON o
 - Sorting is optional but can be applied.
 
 """)
-  @GetMapping("/searching")
+  @GetMapping("/search")
   @ResponseStatus(HttpStatus.OK)
   @PageableQueryParams
   @RolesAllowed("ADMIN")
@@ -191,9 +191,9 @@ This API retrieves the candidate profile of the current user.
 - UC_crew-xem-thong-tin-tai-khoan.
 
 """)
-  @GetMapping("/current/profile")
+  @GetMapping("/profile/me")
   @RolesAllowed("SAILOR")
-  public CandidateProfile getCandidateProfileOfUser(@CurrentUser User user) {
-    return candidateService.getCandidateProfileOfUser(user);
+  public CandidateProfile getMyCandidateProfile(@CurrentUser User user) {
+    return candidateService.getMyCandidateProfile(user);
   }
 }

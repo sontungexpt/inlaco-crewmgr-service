@@ -20,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -73,7 +74,7 @@ If `nonExpired` is set to `true`, only non-expired courses will be returned.
 - UC_crew-tim-kiem-khoa-dao-tao.
 
 """)
-  @GetMapping("/searching")
+  @GetMapping("/search")
   @PageableQueryParams
   @RolesAllowed("SAILOR")
   public Page<Course> searchCourses(
@@ -172,6 +173,29 @@ Update a course by id
   }
 
   @Operation(
+      summary = "Get all sailors enrolled in a course",
+      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
+      description =
+          """
+Get all sailors enrolled in a course
+
+**Usecase**:
+
+- UC_admin-xem-danh-sach-cac-thuyen-vien-dang-hoc.
+
+**NOTE**:
+- This API is only accessible by the admin.
+- The response is paginated.
+- The default page size is 20.
+
+""")
+  @RolesAllowed("ADMIN")
+  @GetMapping("/{courseId}/members")
+  public ResponseEntity<?> getCourseMembers(String courseId, Pageable pageable) {
+    return ResponseEntity.ok(courseService.getCourseMembers(courseId, pageable));
+  }
+
+  @Operation(
       summary = "Delete a course",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
       description =
@@ -206,7 +230,7 @@ Cancel registration for a course
   @RolesAllowed("ADMIN")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void cancelRegistration(@PathVariable("id") String id) {
-    courseService.cancelRegistrationOfCourse(id);
+    courseService.cancelCourseRegistration(id);
   }
 
   @Operation(

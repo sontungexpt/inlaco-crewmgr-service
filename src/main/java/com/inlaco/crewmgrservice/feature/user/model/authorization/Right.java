@@ -3,6 +3,7 @@ package com.inlaco.crewmgrservice.feature.user.model.authorization;
 import com.inlaco.crewmgrservice.endpoint.APIEndpointName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.AllArgsConstructor;
@@ -28,8 +29,8 @@ public class Right {
   @Schema(description = "Excluded endpoints", requiredMode = RequiredMode.NOT_REQUIRED)
   private Set<APIEndpointName> excludedEndpoints = Set.of();
 
-  public Right(Set<Role> roles) {
-    this.roles = roles;
+  public Right(Collection<Role> roles) {
+    this.roles = new HashSet<>(roles);
   }
 
   public Right(Role role) {

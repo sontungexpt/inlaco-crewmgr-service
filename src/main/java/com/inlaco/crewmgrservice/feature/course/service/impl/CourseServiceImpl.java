@@ -8,6 +8,7 @@ import com.inlaco.crewmgrservice.feature.course.model.Course;
 import com.inlaco.crewmgrservice.feature.course.model.CourseMember;
 import com.inlaco.crewmgrservice.feature.course.model.dto.CourseDetail;
 import com.inlaco.crewmgrservice.feature.course.model.dto.CourseEnrollment;
+import com.inlaco.crewmgrservice.feature.course.model.dto.CourseMemberInfo;
 import com.inlaco.crewmgrservice.feature.course.repository.CourseMemberRepository;
 import com.inlaco.crewmgrservice.feature.course.repository.CourseRepository;
 import com.inlaco.crewmgrservice.feature.course.repository.CustomCourseRepository;
@@ -136,7 +137,7 @@ public class CourseServiceImpl implements CourseService {
   }
 
   @Override
-  public void cancelRegistrationOfCourse(String id) {
+  public void cancelCourseRegistration(String id) {
     Course course = getCourseById(id);
     course.manuallyDisableRegistration();
     courseRepository.save(course);
@@ -181,8 +182,12 @@ public class CourseServiceImpl implements CourseService {
 
     courseMember.complete();
     courseMemberRepository.save(courseMember);
-
     // TODO: generate certification
 
+  }
+
+  @Override
+  public Page<CourseMemberInfo> getCourseMembers(String courseId, Pageable pageable) {
+    return customCourseRepository.findEnrolledCourseSailors(courseId, pageable);
   }
 }

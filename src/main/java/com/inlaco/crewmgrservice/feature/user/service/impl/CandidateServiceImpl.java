@@ -87,7 +87,7 @@ public class CandidateServiceImpl implements CandidateService {
   }
 
   @Override
-  public CandidateProfile getCandidateProfileOfUser(User user) {
+  public CandidateProfile getMyCandidateProfile(User user) {
     return candidateProfileRepository
         .findByAccountId(new ObjectId(user.getId()))
         .orElseThrow(

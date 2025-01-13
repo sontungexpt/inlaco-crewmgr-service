@@ -6,6 +6,8 @@ import com.inlaco.crewmgrservice.common.model.FacetResult;
 import com.inlaco.crewmgrservice.feature.course.model.Course;
 import com.inlaco.crewmgrservice.feature.course.model.CourseMember;
 import com.inlaco.crewmgrservice.feature.course.model.dto.CourseEnrollment;
+import com.inlaco.crewmgrservice.feature.course.model.dto.CourseMemberInfo;
+import com.inlaco.crewmgrservice.feature.user.model.SailorProfile;
 import com.inlaco.crewmgrservice.utils.PageableUtils;
 import java.time.Instant;
 import java.util.List;
@@ -145,8 +147,43 @@ public class CustomCourseRepository {
     return new PageImpl<>(result.getDatas(), pageable, result.getCount("totalCourses"));
   }
 
-  class CourseEnrollmentFacetResult extends FacetResult<CourseEnrollment> {
+  public Page<CourseMemberInfo> findEnrolledCourseSailors(String courseId, Pageable p) {
+    var pageable = PageableUtils.extendDefaultSort(p);
+    log.debug("Fetching non expired courses with pagination");
 
+    Aggregation aggregation =
+        Aggregation.newAggregation(
+            match(Criteria.where("courseId").is(new ObjectId(courseId))),
+            Aggregation.facet(Aggregation.count().as("totalSailors"))
+                .as(FacetResult.getCountFacetName())
+                .and(
+                    lookup(
+                        mongoTemplate.getCollectionName(SailorProfile.class),
+                        "accountId",
+                        "userId",
+                        "sailor"),
+                    project().and("sailor").arrayElementAt(0).as("sailorProfile"),
+                    sort(pageable.getSort()),
+                    skip(pageable.getOffset()),
+                    limit(pageable.getPageSize()))
+                .as(FacetResult.getDataFacetName()));
+
+    var result =
+        mongoTemplate
+            .aggregate(aggregation, CourseMember.class, CourseMemberInfoFacetResult.class)
+            .getUniqueMappedResult();
+
+    return new PageImpl<>(result.getDatas(), pageable, result.getCount("totalSailors"));
+  }
+
+  class CourseMemberInfoFacetResult extends FacetResult<CourseMemberInfo> {
+    public CourseMemberInfoFacetResult(
+        List<CourseMemberInfo> dataFacet, List<Map<String, Object>> countFacet) {
+      super(dataFacet, countFacet);
+    }
+  }
+
+  class CourseEnrollmentFacetResult extends FacetResult<CourseEnrollment> {
     public CourseEnrollmentFacetResult(
         List<CourseEnrollment> dataFacet, List<Map<String, Object>> countFacet) {
       super(dataFacet, countFacet);

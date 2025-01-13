@@ -48,6 +48,7 @@ public class BasicProfile implements Serializable {
       type = "String")
   @JsonPatchIgnore
   @Indexed
+  @JsonIgnore
   protected ObjectId accountId;
 
   @JsonGetter("accountId")

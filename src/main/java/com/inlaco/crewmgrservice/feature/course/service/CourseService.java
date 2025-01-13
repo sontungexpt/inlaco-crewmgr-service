@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.inlaco.crewmgrservice.feature.course.model.Course;
 import com.inlaco.crewmgrservice.feature.course.model.dto.CourseDetail;
 import com.inlaco.crewmgrservice.feature.course.model.dto.CourseEnrollment;
+import com.inlaco.crewmgrservice.feature.course.model.dto.CourseMemberInfo;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,7 +27,7 @@ public interface CourseService {
 
   void cancelCourse(String id);
 
-  void cancelRegistrationOfCourse(String id);
+  void cancelCourseRegistration(String id);
 
   void deleteCourse(String id);
 
@@ -37,4 +38,6 @@ public interface CourseService {
   void enrollCourse(String courseId, User user);
 
   void markSailorCompletedCourse(String courseId, String userId);
+
+  Page<CourseMemberInfo> getCourseMembers(String courseId, Pageable pageable);
 }

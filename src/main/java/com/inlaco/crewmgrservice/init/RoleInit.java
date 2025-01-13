@@ -6,7 +6,6 @@ import com.inlaco.crewmgrservice.feature.user.model.authorization.Right;
 import com.inlaco.crewmgrservice.feature.user.model.authorization.Role;
 import com.inlaco.crewmgrservice.feature.user.repository.RoleRepository;
 import com.inlaco.crewmgrservice.feature.user.repository.UserRepository;
-import java.util.HashSet;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -51,12 +50,9 @@ public class RoleInit implements CommandLineRunner {
           User.builder()
               .username(ADMIN_USERNAME)
               .password(passwordEncoder.encode(ADMIN_PASSWORD))
+              .status(UserStatus.ACTIVE)
+              .right(new Right(roleRepository.findAll()))
               .build();
-
-      var roles = roleRepository.findAll();
-      Right right = new Right(new HashSet<>(roles));
-      admin.setStatus(UserStatus.ACTIVE);
-      admin.setRight(right);
 
       userRepository.save(admin);
     }

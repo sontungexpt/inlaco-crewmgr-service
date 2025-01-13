@@ -25,5 +25,5 @@ public interface CandidateService {
 
   void cancelCandidateProfile(String id, User user);
 
-  CandidateProfile getCandidateProfileOfUser(User user);
+  CandidateProfile getMyCandidateProfile(User user);
 }
