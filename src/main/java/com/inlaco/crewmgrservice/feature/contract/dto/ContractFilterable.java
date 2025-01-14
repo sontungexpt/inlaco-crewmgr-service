@@ -8,7 +8,7 @@ import lombok.Getter;
 
 @Builder
 @Getter
-public class ContractFilterRequest implements Filterable {
+public class ContractFilterable implements Filterable {
   private ContractType type;
   private Instant activationDateStart;
   private Instant activationDateEnd;

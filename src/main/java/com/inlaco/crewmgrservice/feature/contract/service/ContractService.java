@@ -1,7 +1,7 @@
 package com.inlaco.crewmgrservice.feature.contract.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.inlaco.crewmgrservice.feature.contract.dto.ContractFilterRequest;
+import com.inlaco.crewmgrservice.feature.contract.dto.ContractFilterable;
 import com.inlaco.crewmgrservice.feature.contract.model.AbstractContract;
 import com.inlaco.crewmgrservice.feature.contract.model.Contract;
 import com.inlaco.crewmgrservice.feature.contract.model.ContractVersion;
@@ -15,7 +15,7 @@ public interface ContractService {
 
   Page<? extends Contract> getSailorContracts(String sailorId, Pageable pageable);
 
-  Page<? extends Contract> getAllContracts(ContractFilterRequest filterRequest, Pageable pageable);
+  Page<? extends Contract> getAllContracts(ContractFilterable filterRequest, Pageable pageable);
 
   Contract updateContract(String id, JsonNode patch);
 
@@ -24,6 +24,8 @@ public interface ContractService {
   Contract saveContract(AbstractContract contract);
 
   Contract createSailorLaborContract(String sailorId, AbstractContract contract, User creator);
+
+  Contract createSupplierContract(AbstractContract contract, User creator);
 
   ContractVersion getContractVersionById(String id);
 

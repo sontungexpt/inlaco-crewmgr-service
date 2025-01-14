@@ -2,7 +2,7 @@ package com.inlaco.crewmgrservice.feature.contract.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.inlaco.crewmgrservice.annotation.CurrentUser;
-import com.inlaco.crewmgrservice.feature.contract.dto.ContractFilterRequest;
+import com.inlaco.crewmgrservice.feature.contract.dto.ContractFilterable;
 import com.inlaco.crewmgrservice.feature.contract.model.Contract;
 import com.inlaco.crewmgrservice.feature.contract.model.ContractType;
 import com.inlaco.crewmgrservice.feature.contract.model.LaborContract;
@@ -58,7 +58,7 @@ This API is used to get all contracts with short information.
       @RequestParam(required = false) Boolean signed,
       @PageableDefault(page = 0, size = 20) Pageable pageable) {
     return contractService.getAllContracts(
-        ContractFilterRequest.builder()
+        ContractFilterable.builder()
             .type(type)
             .activationDateStart(activationDateStart)
             .activationDateEnd(activationDateEnd)

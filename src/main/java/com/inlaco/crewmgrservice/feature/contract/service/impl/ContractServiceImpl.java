@@ -2,7 +2,7 @@ package com.inlaco.crewmgrservice.feature.contract.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.inlaco.crewmgrservice.exceptions.ResourceNotFoundException;
-import com.inlaco.crewmgrservice.feature.contract.dto.ContractFilterRequest;
+import com.inlaco.crewmgrservice.feature.contract.dto.ContractFilterable;
 import com.inlaco.crewmgrservice.feature.contract.dto.ShortContract;
 import com.inlaco.crewmgrservice.feature.contract.exception.FreezeContractUpdateException;
 import com.inlaco.crewmgrservice.feature.contract.model.AbstractContract;
@@ -10,6 +10,7 @@ import com.inlaco.crewmgrservice.feature.contract.model.Contract;
 import com.inlaco.crewmgrservice.feature.contract.model.ContractVersion;
 import com.inlaco.crewmgrservice.feature.contract.repository.ContractRepository;
 import com.inlaco.crewmgrservice.feature.contract.repository.ContractVersionRepository;
+import com.inlaco.crewmgrservice.feature.contract.repository.CustomContractRepository;
 import com.inlaco.crewmgrservice.feature.contract.service.ContractService;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import com.inlaco.crewmgrservice.feature.user.service.SailorService;
@@ -30,6 +31,7 @@ public class ContractServiceImpl implements ContractService {
   private final ContractVersionRepository contractVersionRepository;
   private final SailorService sailorService;
   private final JsonMergePatchUtils jsonMergePatch;
+  private final CustomContractRepository customContractRepository;
 
   @Override
   public AbstractContract getContractById(String id) {
@@ -109,9 +111,25 @@ public class ContractServiceImpl implements ContractService {
   }
 
   @Override
-  public Page<ShortContract> getAllContracts(
-      ContractFilterRequest filterRequest, Pageable pageable) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'getContracts'");
+  public Page<? extends Contract> getAllContracts(
+      ContractFilterable filterRequest, Pageable pageable) {
+    return customContractRepository
+        .findAllContracts(filterRequest, pageable)
+        .map(
+            it ->
+                ShortContract.builder()
+                    .id(it.getId())
+                    .title(it.getTitle())
+                    .type(it.getType())
+                    .freezedAt(it.getFreezeDate())
+                    .createdAt(it.getCreatedAt())
+                    .updatedAt(it.getUpdatedAt())
+                    .signed(it.isSigned())
+                    .build());
+  }
+
+  @Override
+  public Contract createSupplierContract(AbstractContract contract, User creator) {
+    throw new UnsupportedOperationException("Unimplemented method 'createSupplierContract'");
   }
 }
