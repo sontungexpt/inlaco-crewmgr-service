@@ -1,15 +1,16 @@
 package com.inlaco.crewmgrservice.feature.contract.model;
 
-import com.esotericsoftware.kryo.serializers.FieldSerializer.NotNull;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.inlaco.crewmgrservice.validation.annotation.ObjectId;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.index.CompoundIndexes;
 
 @Getter
 @Setter
@@ -21,6 +22,9 @@ import lombok.experimental.SuperBuilder;
     property = "type",
     defaultImpl = DynamicParty.class)
 @JsonTypeName(PartyType.Fields.STATIC)
+@CompoundIndexes({
+  @CompoundIndex(name = "party_search_index", def = "{'phone': 1, 'email': 1, 'representer': 1}")
+})
 public class Party {
 
   @Schema(
@@ -30,7 +34,7 @@ public class Party {
   private String partyName;
 
   @Schema(description = "The employee name of the contract", example = "John Doe")
-  private String fullName;
+  private String representer;
 
   @Schema(description = "The employee email of the contract", example = " [email protected]")
   private String email;
@@ -41,11 +45,9 @@ public class Party {
   @Schema(description = "The address of the contract")
   private String address;
 
-  @Schema(description = "The represent of the contract", example = "John Doe")
-  private String represent;
-
-  @Schema(description = "The account id of the party", example = "5f9b1b7b7f7b7b7b7b7b7b7b")
-  private ObjectId accountId;
+  // @Schema(description = "The account id of the party", example = "5f9b1b7b7f7b7b7b7b7b7b7b")
+  // @Indexed
+  // private ObjectId accountId;
 
   @Default
   @Schema(description = "The type of the party", example = "STATIC")

@@ -1,11 +1,13 @@
-package com.inlaco.crewmgrservice.feature.contract.model;
+package com.inlaco.crewmgrservice.feature.contract.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.inlaco.crewmgrservice.annotation.JsonPatchIgnore;
 import com.inlaco.crewmgrservice.common.model.File;
 import com.inlaco.crewmgrservice.common.payload.TimeFrame;
+import com.inlaco.crewmgrservice.feature.contract.model.Contract;
+import com.inlaco.crewmgrservice.feature.contract.model.ContractType;
+import com.inlaco.crewmgrservice.feature.contract.model.PaperContract;
+import com.inlaco.crewmgrservice.feature.contract.model.Party;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import jakarta.validation.constraints.Future;
@@ -15,97 +17,53 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.Builder.Default;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.bson.types.ObjectId;
 import org.checkerframework.common.value.qual.MinLen;
-import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.format.annotation.DateTimeFormat;
 
-@Getter
-@Setter
-@JsonIgnoreProperties(
-    value = {"id", "version", "partyAccountIds", "createdAt", "updatedAt", "prevVersion", "signed"},
-    allowGetters = true)
-@Document("contracts")
 @SuperBuilder
-@JsonTypeInfo(
-    include = JsonTypeInfo.As.PROPERTY,
-    visible = true,
-    use = JsonTypeInfo.Id.NAME,
-    property = "type",
-    defaultImpl = DynamicContract.class)
-public abstract class AbstractContract extends ContractVersion implements Contract, TimeFrame {
+@Getter
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+public abstract class AbstractContractRequest implements Contract, TimeFrame {
+
+  public abstract Contract toModel();
 
   @NotBlank
   @Schema(
       description = "The title of the contract",
       example = "The title of the contract",
       requiredMode = RequiredMode.REQUIRED)
-  private String title;
-
-  @Schema(
-      description = "The description of the contract",
-      example = "The description of the contract",
-      requiredMode = RequiredMode.REQUIRED)
-  private List<ObjectId> partyAccountIds = new ArrayList<>();
+  protected String title;
 
   @MinLen(2)
-  private List<Party> parties;
-
-  @Schema(
-      description = "The list of paper contracts",
-      requiredMode = RequiredMode.REQUIRED,
-      example = "[{\"page\": 1, \"imageUrl\": \"https://...\"}]")
-  private List<PaperContract> paperContracts;
-
-  @Schema(
-      description = "The description of the contract",
-      example = "{\"name\":\"Hop dong\", \"url\": \"https://....\"}")
-  private List<File> attachments;
+  protected List<Party> parties;
 
   @Schema(
       description = "The list of term of the contract",
       example = "The term 1 of the contract",
       requiredMode = RequiredMode.REQUIRED)
   @NotEmpty
-  private List<@NotBlank String> terms;
-
-  @JsonPatchIgnore
-  @Schema(description = "The contract is signed or not", hidden = true)
-  private boolean signed = false;
-
-  public void sign() {
-    this.signed = true;
-    this.signedAt = Instant.now();
-  }
-
-  @DateTimeFormat
-  @FutureOrPresent
-  @Schema(description = "The time that the contract is signed")
-  @JsonIgnore
-  @JsonPatchIgnore
-  private Instant signedAt;
+  protected List<@NotBlank String> terms;
 
   @DateTimeFormat
   @FutureOrPresent
   @Schema(description = "The time that the contract is valid, and active")
-  private Instant activationDate;
+  protected Instant activationDate;
 
   @Schema(description = "The time that the contract expired")
   @Future
   @DateTimeFormat
-  private Instant expiredDate;
+  protected Instant expiredDate;
 
   @Schema(
       description = "The template id of the contract",
       type = "String",
       requiredMode = RequiredMode.REQUIRED)
-  private ObjectId templateId;
+  protected ObjectId templateId;
 
   @Schema(
       description =
@@ -116,27 +74,63 @@ public abstract class AbstractContract extends ContractVersion implements Contra
       example = "10")
   @Min(0)
   @Default
-  private int contractFreezeDelay = 10;
-
-  @JsonIgnore
-  public boolean isFreezed() {
-    return isSigned() && Instant.now().isAfter(getFreezeDate());
-  }
-
-  public Instant getFreezeDate() {
-    return activationDate.plusSeconds(contractFreezeDelay * 60);
-  }
+  protected int contractFreezeDelay = 10;
 
   @NotNull
   @Schema(
       description = "The type of the contract",
       enumAsRef = true,
       requiredMode = RequiredMode.REQUIRED)
-  private ContractType type;
+  protected ContractType type;
 
   @Override
   @JsonIgnore
   public List<Pair> getTimeFrames() {
     return List.of(Pair.of(activationDate, expiredDate));
+  }
+
+  @Override
+  public String getTitle() {
+    return title;
+  }
+
+  @Override
+  public List<Party> getParties() {
+    return parties;
+  }
+
+  @Override
+  public List<PaperContract> getPaperContracts() {
+    return null;
+  }
+
+  @Override
+  public List<File> getAttachments() {
+    return null;
+  }
+
+  @Override
+  public List<String> getTerms() {
+    return terms;
+  }
+
+  @Override
+  public Instant getActivationDate() {
+    return activationDate;
+  }
+
+  @Override
+  public Instant getExpiredDate() {
+    return expiredDate;
+  }
+
+  @Override
+  public boolean isSigned() {
+    return false;
+  }
+
+  @Override
+  public ContractType getType() {
+    return type;
   }
 }

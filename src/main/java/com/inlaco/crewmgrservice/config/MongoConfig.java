@@ -3,7 +3,6 @@ package com.inlaco.crewmgrservice.config;
 import com.inlaco.crewmgrservice.endpoint.APIEndpointNameCodeReadingConverter;
 import com.inlaco.crewmgrservice.endpoint.APIEndpointNameStrReadingConverter;
 import com.inlaco.crewmgrservice.endpoint.APIEndpointNameWritingConverter;
-import com.inlaco.crewmgrservice.feature.contract.model.ContractType;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import java.util.List;
 import java.util.Optional;
@@ -30,8 +29,6 @@ public class MongoConfig {
   public MongoCustomConversions customConversions() {
     return new MongoCustomConversions(
         List.of(
-            new ContractType.ContractTypeWritingConverter(),
-            new ContractType.ContractTypeReadingConverter(),
             apiEndpointNameWritingConverter,
             apiEndpointNameReadingConverter,
             apiEndpointNameCodeReadingConverter));

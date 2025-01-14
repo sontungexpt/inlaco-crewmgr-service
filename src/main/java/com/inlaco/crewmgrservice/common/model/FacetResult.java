@@ -20,6 +20,10 @@ public class FacetResult<T> {
     this.countFacet = countFacet;
   }
 
+  public static final String getCountKey() {
+    return "facetResultCount";
+  }
+
   public static final String getDataFacetName() {
     return "dataFacet";
   }
@@ -42,5 +46,9 @@ public class FacetResult<T> {
       }
       return (int) count;
     }
+  }
+
+  public int getCount() {
+    return getCount(getCountKey());
   }
 }

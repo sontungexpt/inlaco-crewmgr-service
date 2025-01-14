@@ -1,7 +1,7 @@
 package com.inlaco.crewmgrservice.feature.schedule.dto;
 
 import com.inlaco.crewmgrservice.common.model.Address;
-import com.inlaco.crewmgrservice.feature.schedule.model.ShipInfo;
+import com.inlaco.crewmgrservice.common.model.ShipInfo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import java.time.Instant;

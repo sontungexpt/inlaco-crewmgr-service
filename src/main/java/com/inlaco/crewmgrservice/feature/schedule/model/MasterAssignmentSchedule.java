@@ -3,6 +3,7 @@ package com.inlaco.crewmgrservice.feature.schedule.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.inlaco.crewmgrservice.common.model.Address;
+import com.inlaco.crewmgrservice.common.model.ShipInfo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import jakarta.validation.constraints.Future;

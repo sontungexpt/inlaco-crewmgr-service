@@ -1,4 +1,4 @@
-package com.inlaco.crewmgrservice.feature.schedule.model;
+package com.inlaco.crewmgrservice.common.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
@@ -13,10 +13,6 @@ import lombok.Setter;
 @Builder
 @Schema(description = "Detailed information about the ship")
 public class ShipInfo implements Serializable {
-
-  @Schema(description = "Unique identifier for the ship", example = "ship_12345", required = true)
-  @NotBlank
-  private String id;
 
   @Schema(
       description = "IMO number of the ship (International Maritime Organization)",
@@ -33,6 +29,12 @@ public class ShipInfo implements Serializable {
   private String registrationNumber;
 
   @Schema(
+      description = "Ship's country of registration (ISO 3166-1 alpha-2 code).",
+      example = "US",
+      required = true)
+  private String countryISO;
+
+  @Schema(
       description = "Name of the ship",
       example = "Ever Given",
       requiredMode = RequiredMode.REQUIRED)
@@ -45,5 +47,8 @@ public class ShipInfo implements Serializable {
   @Schema(
       description = "URL to an image of the ship",
       example = "https://example.com/images/ship.jpg")
-  private String imageUrl;
+  private File imageUrl;
+
+  @Schema(description = "Type of the ship")
+  private String shipType;
 }

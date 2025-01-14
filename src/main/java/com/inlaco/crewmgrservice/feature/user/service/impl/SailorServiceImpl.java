@@ -36,6 +36,14 @@ public class SailorServiceImpl implements SailorService {
     sailorProfile.setAccountId(candidateProfile.getAccountId());
     sailorProfile.setCandidateId(new ObjectId(candidateId));
 
+    if (sailorProfile.getExperiences() == null || sailorProfile.getExperiences().isEmpty()) {
+      sailorProfile.setExperiences(candidateProfile.getExperiences());
+    }
+
+    if (sailorProfile.getLanguageSkills() == null || sailorProfile.getLanguageSkills().isEmpty()) {
+      sailorProfile.setLanguageSkills(candidateProfile.getLanguageSkills());
+    }
+
     return sailorProfileRepository.save(sailorProfile);
   }
 
@@ -87,8 +95,21 @@ public class SailorServiceImpl implements SailorService {
   @Override
   public SailorProfile findMySailorProfile(User user) {
     return sailorProfileRepository
-        .findByAccountId(user.getId())
+        .findByAccountId(new ObjectId(user.getId()))
         .orElseThrow(
             () -> new ResourceNotFoundException(SailorProfile.class, "accountId", user.getId()));
+  }
+
+  @Override
+  public SailorProfile saveSailorProfile(SailorProfile sailorProfile) {
+    return sailorProfileRepository.save(sailorProfile);
+  }
+
+  @Override
+  public SailorProfile findSailorProfileByAccountId(String accountId) {
+    return sailorProfileRepository
+        .findByAccountId(new ObjectId(accountId))
+        .orElseThrow(
+            () -> new ResourceNotFoundException(SailorProfile.class, "accountId", accountId));
   }
 }

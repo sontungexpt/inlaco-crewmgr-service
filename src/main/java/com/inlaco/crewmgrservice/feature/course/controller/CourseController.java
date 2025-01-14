@@ -134,6 +134,7 @@ Create a new course
 """)
   @PostMapping("")
   @RolesAllowed("ADMIN")
+  @ResponseStatus(HttpStatus.CREATED)
   public Course createNewCourse(@Valid @RequestBody Course newCourse) {
     return courseService.createCourse(newCourse);
   }

@@ -9,8 +9,11 @@ import java.time.Instant;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.bson.types.ObjectId;
+import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -30,6 +33,7 @@ public abstract class ContractVersion implements Versionable<String, Integer> {
   private String id;
 
   @Schema(description = "The version number of the contract", hidden = true)
+  @JsonPatchIgnore
   private int version = 1;
 
   @Schema(
@@ -37,21 +41,35 @@ public abstract class ContractVersion implements Versionable<String, Integer> {
           "The previous version number of the contract."
               + " If it is the first version, it will be null.",
       hidden = true)
+  @JsonPatchIgnore
   private Integer prevVersion = null;
 
   @Schema(
       description = "The short change log of this version",
       example = "Change the title",
       requiredMode = RequiredMode.REQUIRED)
+  @JsonPatchIgnore
   private String changeLog;
 
   @CreatedDate
   @Schema(hidden = true)
+  @JsonPatchIgnore
   private Instant createdAt;
 
   @Schema(hidden = true)
   @LastModifiedDate
+  @JsonPatchIgnore
   private Instant updatedAt;
+
+  @Schema(hidden = true)
+  @CreatedBy
+  @JsonPatchIgnore
+  private ObjectId createdBy;
+
+  @Schema(hidden = true)
+  @LastModifiedBy
+  @JsonPatchIgnore
+  private ObjectId updatedBy;
 
   @Override
   @Schema(hidden = true)
@@ -87,5 +105,15 @@ public abstract class ContractVersion implements Versionable<String, Integer> {
   @Schema(hidden = true)
   public Instant getUpdatedAt() {
     return updatedAt;
+  }
+
+  @Override
+  public ObjectId getCreatedBy() {
+    return createdBy;
+  }
+
+  @Override
+  public ObjectId getUpdatedBy() {
+    return updatedBy;
   }
 }

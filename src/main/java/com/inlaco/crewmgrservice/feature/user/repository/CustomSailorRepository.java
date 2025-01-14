@@ -36,12 +36,12 @@ public class CustomSailorRepository {
     List<Criteria> criteriaList = new ArrayList<>();
     if (ObjectId.isValid(keyword)) {
       criteriaList.add(Criteria.where("accountId").is(new ObjectId(keyword)));
-    } else if (PhoneNumberValidatorUtils.isPotentialPhoneNumber(keyword)) {
-      criteriaList.add(Criteria.where("phone").regex(keyword, "i"));
-    } else {
-      criteriaList.add(Criteria.where("fullName").regex(keyword, "i"));
-      criteriaList.add(Criteria.where("email").regex(keyword, "i"));
     }
+    if (PhoneNumberValidatorUtils.isPotentialPhoneNumber(keyword)) {
+      criteriaList.add(Criteria.where("phone").regex(keyword, "i"));
+    }
+    criteriaList.add(Criteria.where("fullName").regex(keyword, "i"));
+    criteriaList.add(Criteria.where("email").regex(keyword, "i"));
 
     var query = new Criteria().orOperator(criteriaList);
 

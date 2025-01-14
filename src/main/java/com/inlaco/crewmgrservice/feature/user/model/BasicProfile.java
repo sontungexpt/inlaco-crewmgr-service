@@ -47,7 +47,7 @@ public class BasicProfile implements Serializable {
       requiredMode = RequiredMode.REQUIRED,
       type = "String")
   @JsonPatchIgnore
-  @Indexed
+  @Indexed(unique = true)
   @JsonIgnore
   protected ObjectId accountId;
 

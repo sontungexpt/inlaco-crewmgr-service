@@ -1,6 +1,7 @@
 package com.inlaco.crewmgrservice.common.model;
 
 import java.time.Instant;
+import org.bson.types.ObjectId;
 
 public interface Versionable<ID, VT> {
 
@@ -15,4 +16,8 @@ public interface Versionable<ID, VT> {
   Instant getCreatedAt();
 
   Instant getUpdatedAt();
+
+  ObjectId getCreatedBy();
+
+  ObjectId getUpdatedBy();
 }

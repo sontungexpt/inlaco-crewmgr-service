@@ -19,12 +19,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -140,6 +142,27 @@ This API is used to get the sailor profile of the current user.
   }
 
   @Operation(
+      summary = "Find sailor profile of user with account id",
+      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
+      description =
+          """
+This API is used to get the sailor profile of the user with account id.
+
+**Usecase**:
+- UC_admin-xem-thong-tin-chi-tiet-thuyen-vien.
+
+**NOTE**:
+- This API is only accessible by the admin.
+
+""")
+  @GetMapping("/users/{id}")
+  @RolesAllowed("ADMIN")
+  public SailorProfile findSailorProfileByAccountId(
+      @PathVariable("id") @ObjectId String accountId) {
+    return sailorService.findSailorProfileById(accountId);
+  }
+
+  @Operation(
       summary = "Add new sailor",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
       description =
@@ -157,6 +180,7 @@ And sign the contract to activate the permissions.
 """)
   @PostMapping("/{candidateId}")
   @RolesAllowed("ADMIN")
+  @ResponseStatus(HttpStatus.CREATED)
   public SailorProfile createSailor(
       @PathVariable("candidateId") @ObjectId String candidateId,
       @Valid @RequestBody SailorProfile profile) {

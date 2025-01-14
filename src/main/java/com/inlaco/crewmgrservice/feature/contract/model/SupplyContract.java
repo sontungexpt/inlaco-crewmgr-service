@@ -1,12 +1,8 @@
 package com.inlaco.crewmgrservice.feature.contract.model;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-@Getter
-@Setter
+@JsonTypeName(ContractType.Fields.SUPPLY_CONTRACT)
 @SuperBuilder
-@JsonTypeName(ContractType.Fields.LABOR_CONTRACT)
-public class LaborContract extends DynamicContract {}
+public class SupplyContract extends DynamicContract {}

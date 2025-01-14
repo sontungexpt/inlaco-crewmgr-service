@@ -20,6 +20,8 @@ import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter
@@ -31,6 +33,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @JsonIgnoreProperties(
     value = {"recruimentPostId", "id", "status", "accountId"},
     allowGetters = true)
+@CompoundIndexes({
+  @CompoundIndex(
+      name = "profile_search_index",
+      def = "{'fullName': 1, 'email': 1, 'phoneNumber': 1}")
+})
 public class CandidateProfile extends BasicProfile {
 
   @Schema(description = "The language skills of the sailor", type = "List<String>")

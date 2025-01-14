@@ -3,7 +3,9 @@ package com.inlaco.crewmgrservice.feature.contract.model;
 import com.inlaco.crewmgrservice.common.model.File;
 import java.time.Instant;
 import java.util.List;
+import org.springframework.data.mongodb.core.mapping.Document;
 
+@Document
 public interface Contract {
 
   String getTitle();
@@ -19,8 +21,6 @@ public interface Contract {
   Instant getActivationDate();
 
   Instant getExpiredDate();
-
-  boolean isFreeze();
 
   boolean isSigned();
 

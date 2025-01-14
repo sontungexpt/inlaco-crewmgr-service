@@ -10,8 +10,11 @@ import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import lombok.AllArgsConstructor;
+import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -21,6 +24,9 @@ import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.index.CompoundIndexes;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -33,15 +39,22 @@ import org.springframework.format.annotation.DateTimeFormat;
 @JsonIgnoreProperties(
     value = {"id", "cardId", "contractId", "joinedAt", "updatedAt", "candidateId"},
     allowGetters = true)
+@CompoundIndexes({
+  @CompoundIndex(
+      name = "profile_search_index",
+      def = "{'fullName': 1, 'email': 1, 'phoneNumber': 1}")
+})
 public class SailorProfile extends BasicProfile implements TimeFrame {
 
-  @Schema(hidden = true, description = "The contract ifacet d of the sailor")
+  @Default
+  @JsonIgnore
   @JsonPatchIgnore
-  protected ObjectId contractId;
+  @Schema(hidden = true, description = "The contract ids of the sailor", type = "List<String>")
+  protected Set<ObjectId> contractIds = new HashSet<>();
 
-  @JsonGetter("contractId")
-  public String getContractIdStr() {
-    return contractId.toString();
+  @JsonGetter("contractIds")
+  public List<String> getContractIdsStr() {
+    return contractIds.stream().map(ObjectId::toHexString).toList();
   }
 
   @Schema(
@@ -52,10 +65,6 @@ public class SailorProfile extends BasicProfile implements TimeFrame {
   @Future
   @DateTimeFormat
   protected Instant contractSignedAt;
-
-  public boolean hasContract() {
-    return contractId != null;
-  }
 
   @Schema(description = "The candidate id of the sailor", hidden = true, type = "String")
   @JsonPatchIgnore
@@ -79,6 +88,7 @@ public class SailorProfile extends BasicProfile implements TimeFrame {
       requiredMode = RequiredMode.REQUIRED,
       type = "string")
   @JsonPatchIgnore
+  @Indexed(unique = true)
   protected String cardId;
 
   @Schema(

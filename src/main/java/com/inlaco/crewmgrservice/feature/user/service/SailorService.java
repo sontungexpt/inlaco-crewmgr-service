@@ -15,6 +15,8 @@ public interface SailorService {
 
   SailorProfile updateSailorProfile(String sailorId, JsonNode patch);
 
+  SailorProfile saveSailorProfile(SailorProfile sailorProfile);
+
   String generateSailorCardId();
 
   SailorProfile addSailor(String candidateId, SailorProfile profile);
@@ -26,6 +28,8 @@ public interface SailorService {
    * @return the sailor profile
    */
   SailorProfile findSailorProfileById(String sailorId);
+
+  SailorProfile findSailorProfileByAccountId(String accountId);
 
   /**
    * Find current sailor profile of user.
