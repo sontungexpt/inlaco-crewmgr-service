@@ -1,6 +1,5 @@
 package com.inlaco.crewmgrservice.feature.user.dto;
 
-import com.inlaco.crewmgrservice.feature.user.model.SailorPosition;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import java.time.Instant;
@@ -14,7 +13,7 @@ public class SailorProfileDTO extends BasicProfileDTO {
   protected String contractId;
 
   @Schema(description = "The position of the sailor", requiredMode = RequiredMode.REQUIRED)
-  private SailorPosition position;
+  private String professionalPosition;
 
   @Schema(
       description = "The date the sailor joined the company",

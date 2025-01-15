@@ -6,6 +6,8 @@ import com.inlaco.crewmgrservice.feature.auth.dto.NewPasswordRequest;
 import com.inlaco.crewmgrservice.feature.auth.model.RefreshToken;
 import com.inlaco.crewmgrservice.feature.auth.service.RefreshTokenService;
 import com.inlaco.crewmgrservice.feature.user.model.User;
+import com.inlaco.crewmgrservice.feature.user.model.authorization.Role;
+import com.inlaco.crewmgrservice.feature.user.repository.RoleRepository;
 import com.inlaco.crewmgrservice.feature.user.repository.UserRepository;
 import com.inlaco.crewmgrservice.feature.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Service;
 public record UserServiceImpl(
     RefreshTokenService refreshTokenService,
     UserRepository userRepository,
+    RoleRepository roleRepository,
     UserDetailsPasswordService userDetailsPasswordService,
     PasswordEncoder passwordEncoder)
     implements UserService {
@@ -77,5 +80,17 @@ public record UserServiceImpl(
     return userRepository
         .findById(userId)
         .orElseThrow(() -> new ResourceNotFoundException(User.class, "id", userId));
+  }
+
+  @Override
+  public User updateToSailor(String userId) {
+    User user = findUserById(userId);
+    Role sailorRole =
+        roleRepository
+            .findByName("SAILOR")
+            .orElseThrow(() -> new ResourceNotFoundException(Role.class, "name", "SAILOR"));
+    user.promoteJobState();
+    user.getRight().addRole(sailorRole);
+    return userRepository.save(user);
   }
 }

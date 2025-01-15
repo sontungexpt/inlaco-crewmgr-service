@@ -6,11 +6,16 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.inlaco.crewmgrservice.common.model.File;
 import com.inlaco.crewmgrservice.common.model.ShipInfo;
 import com.inlaco.crewmgrservice.feature.crewhiring.enums.CrewRentalRequestStatus;
+import com.inlaco.crewmgrservice.validation.annotation.PhoneNumber;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+
 import java.time.Instant;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -56,39 +61,41 @@ public class CrewRentalRequest {
   @Schema(
       description = "Name of the company requesting the service.",
       example = "Global Shipping Ltd.",
-      required = true)
+      requiredMode = RequiredMode.REQUIRED)
   @NotBlank
   private String companyName;
 
   @Schema(
       description = "Address of the company.",
       example = "123 Maritime Ave, Port City",
-      required = true)
+      requiredMode = RequiredMode.REQUIRED)
   @NotBlank
   private String companyAddress;
 
   @Schema(description = "Phone number of the company.", example = "+1234567890", required = true)
   @NotBlank
+  @PhoneNumber
   private String companyPhone;
 
   @Schema(
       description = "Email address of the company.",
       example = "contact@shippingcompany.com",
-      required = true)
+      requiredMode = RequiredMode.REQUIRED)
+  @Email
   @NotBlank
   private String companyEmail;
 
   @Schema(
       description = "Name of the company's representative.",
       example = "John Doe",
-      required = true)
+      requiredMode = RequiredMode.REQUIRED)
   @NotBlank
   private String representativeName;
 
   @Schema(
       description = "Title of the company's representative.",
       example = "Operations Manager",
-      required = true)
+      requiredMode = RequiredMode.REQUIRED)
   @NotBlank
   private String representativeTitle;
 
@@ -96,7 +103,7 @@ public class CrewRentalRequest {
   @Schema(
       description = "Estimated departure time.",
       example = "2025-01-14T10:00:00Z",
-      required = true)
+      requiredMode = RequiredMode.REQUIRED)
   @NotNull
   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
   @Future
@@ -105,21 +112,30 @@ public class CrewRentalRequest {
   @Schema(
       description = "Estimated arrival time.",
       example = "2025-01-20T18:00:00Z",
-      required = true)
+      requiredMode = RequiredMode.REQUIRED)
   @NotNull
   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
   @Future
   private Instant estimatedArrivalTime;
 
-  @Schema(description = "Departure point.", example = "Port of Los Angeles", required = true)
+  @Schema(
+      description = "Departure point.",
+      example = "Port of Los Angeles",
+      requiredMode = RequiredMode.REQUIRED)
   @NotBlank
   private String departurePoint;
 
-  @Schema(description = "Arrival point.", example = "Port of Tokyo", required = true)
+  @Schema(
+      description = "Arrival point.",
+      example = "Port of Tokyo",
+      requiredMode = RequiredMode.REQUIRED)
   @NotBlank
   private String arrivalPoint;
 
-  @Schema(description = "UN/LOCODE for the departure point.", example = "USLAX", required = true)
+  @Schema(
+      description = "UN/LOCODE for the departure point.",
+      example = "USLAX",
+      requiredMode = RequiredMode.REQUIRED)
   @NotBlank
   private String departureUNLOCODE;
 

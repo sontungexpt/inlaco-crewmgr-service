@@ -5,6 +5,8 @@ import com.inlaco.crewmgrservice.feature.notify.NotificationFactory;
 import com.inlaco.crewmgrservice.feature.post.service.PostService;
 import com.inlaco.crewmgrservice.feature.user.model.CandidateProfile;
 import com.inlaco.crewmgrservice.feature.user.repository.CandidateProfileRepository;
+import com.inlaco.crewmgrservice.feature.user.service.UserService;
+
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -12,6 +14,7 @@ public abstract class CandidateReviewStragegy {
   protected final CandidateProfileRepository candidateProfileRepository;
   protected final NotificationFactory notificationFactory;
   protected final PostService postService;
+  protected final UserService userService;
 
   public abstract void review(String candidateId, boolean autoEmail);
 

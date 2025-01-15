@@ -18,5 +18,7 @@ public interface UserService {
 
   User findUserById(String userId);
 
+  User updateToSailor(String userId);
+
   JwtResponse changePassword(String refreshToken, NewPasswordRequest newPasswordRequest);
 }

@@ -2,11 +2,14 @@ package com.inlaco.crewmgrservice.feature.schedule.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.inlaco.crewmgrservice.common.model.Address;
+import com.inlaco.crewmgrservice.annotation.JsonPatchIgnore;
 import com.inlaco.crewmgrservice.common.model.ShipInfo;
+import com.inlaco.crewmgrservice.validation.annotation.PhoneNumber;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -15,62 +18,129 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.bson.types.ObjectId;
+import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.format.annotation.DateTimeFormat;
 
 @Builder
-@Document(collection = "master_assignment_schedules")
 @Getter
 @Setter
 @JsonIgnoreProperties(
-    value = {"id", "createdAt", "updatedAt"},
+    value = {"id", "createdAt", "updatedAt", "totalSailors"},
     allowGetters = true)
+@Document(collection = "master_assignment_schedules")
 public class MasterAssignmentSchedule implements Serializable {
 
   @Id
   @Schema(hidden = true)
+  @JsonPatchIgnore
   private String id;
 
   @Schema(description = "The name of the partner company", requiredMode = RequiredMode.REQUIRED)
   @NotBlank
   private String partnerName;
 
-  // NOTE: This is not implemented in the current version of the application
-  // Because of the lack of information about the partner company
-  private ObjectId partnerId;
+  @Schema(description = "Phone number of the company.", example = "+1234567890", required = true)
+  @NotBlank
+  @PhoneNumber
+  private String partnerPhone;
+
+  @Schema(
+      description = "Email address of the company.",
+      example = "contact@shippingcompany.com",
+      requiredMode = RequiredMode.REQUIRED)
+  @Email
+  @NotBlank
+  private String partnerEmail;
+
+  @Schema(
+      description = "Address of the company.",
+      example = "123 Maritime Ave, Port City",
+      requiredMode = RequiredMode.REQUIRED)
+  @NotBlank
+  private String partnerAddress;
+
+  @Schema(description = "Total number of crew members needed.", example = "10", required = true)
+  @NotNull
+  @Min(1)
+  private Integer totalSailors;
+
+  @Schema(
+      description = "Departure point.",
+      example = "Port of Los Angeles",
+      requiredMode = RequiredMode.REQUIRED)
+  @NotBlank
+  private String departurePoint;
+
+  @Schema(
+      description = "Arrival point.",
+      example = "Port of Tokyo",
+      requiredMode = RequiredMode.REQUIRED)
+  @NotBlank
+  private String arrivalPoint;
+
+  @Schema(
+      description = "UN/LOCODE for the departure point.",
+      example = "USLAX",
+      requiredMode = RequiredMode.REQUIRED)
+  @NotBlank
+  private String departureUNLOCODE;
+
+  @Schema(description = "UN/LOCODE for the arrival point.", example = "JPTYO", required = true)
+  @NotBlank
+  private String arrivalUNLOCODE;
 
   @NotNull
   @Schema(description = "The information of the ship", requiredMode = RequiredMode.REQUIRED)
   private ShipInfo shipInfo;
 
-  @Schema(description = "The start date of the work schedule")
-  @DateTimeFormat
+  @Schema(
+      description = "The start date of the work schedule",
+      example = "2025-01-14T10:00:00Z",
+      requiredMode = RequiredMode.REQUIRED)
+  @NotNull
+  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
   @Future
   private Instant startDate;
 
   @Schema(
-      description = "The estimated completion time of the work schedule",
+      description = "Estimated arrival time.",
+      example = "2025-01-20T18:00:00Z",
       requiredMode = RequiredMode.REQUIRED)
-  @DateTimeFormat
+  @NotNull
+  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
   @Future
   private Instant estimatedEndTime;
-
-  @Schema(description = "The start location of the work schedule")
-  private Address startLocation;
-
-  @Schema(description = "The end location of the work schedule")
-  private Address endLocation;
 
   @CreatedDate
   @JsonIgnore
   @Schema(hidden = true)
+  @JsonPatchIgnore
   private Instant createdAt;
 
   @JsonIgnore
   @Schema(hidden = true)
   @LastModifiedDate
+  @JsonPatchIgnore
   private Instant updatedAt;
+
+  public Instant getUpdatedDate() {
+    return updatedAt;
+  }
+
+  @CreatedBy
+  @JsonIgnore
+  @Schema(hidden = true)
+  @JsonPatchIgnore
+  private ObjectId createdBy;
+
+  @JsonIgnore
+  @Schema(hidden = true)
+  @LastModifiedBy
+  @JsonPatchIgnore
+  private ObjectId updatedBy;
 }

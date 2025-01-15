@@ -3,13 +3,14 @@ package com.inlaco.crewmgrservice.feature.user.service.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.inlaco.crewmgrservice.exceptions.ResourceNotFoundException;
 import com.inlaco.crewmgrservice.feature.user.dto.BasicProfileDTO;
+import com.inlaco.crewmgrservice.feature.user.dto.SailorFilterable;
 import com.inlaco.crewmgrservice.feature.user.model.CandidateProfile;
 import com.inlaco.crewmgrservice.feature.user.model.SailorProfile;
 import com.inlaco.crewmgrservice.feature.user.model.User;
+import com.inlaco.crewmgrservice.feature.user.repository.CustomSailorRepository;
 import com.inlaco.crewmgrservice.feature.user.repository.SailorProfileRepository;
 import com.inlaco.crewmgrservice.feature.user.service.CandidateService;
 import com.inlaco.crewmgrservice.feature.user.service.SailorService;
-import com.inlaco.crewmgrservice.feature.user.service.UserService;
 import com.inlaco.crewmgrservice.utils.JsonMergePatchUtils;
 import java.time.Year;
 import lombok.RequiredArgsConstructor;
@@ -24,10 +25,10 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class SailorServiceImpl implements SailorService {
 
-  private final UserService userService;
   private final SailorProfileRepository sailorProfileRepository;
   private final JsonMergePatchUtils jsonMergePatchUtils;
   private final CandidateService candidateService;
+  private final CustomSailorRepository customSailorRepository;
 
   @Override
   public SailorProfile addSailor(String candidateId, SailorProfile sailorProfile) {
@@ -50,7 +51,7 @@ public class SailorServiceImpl implements SailorService {
   @Override
   public String generateSailorCardId() {
     String currentYear = String.format("%04d", Year.now().getValue());
-    String currentIndex = String.format("%05d", sailorProfileRepository.count() + 1);
+    String currentIndex = String.format("%05d", customSailorRepository.countSailorHasCardId() + 1);
     var cardId = currentYear + currentIndex;
     log.debug("Generated sailor card id: {}", cardId);
     return cardId;
@@ -69,8 +70,10 @@ public class SailorServiceImpl implements SailorService {
   }
 
   @Override
-  public Page<BasicProfileDTO> getAllSailors(Pageable pageable) {
-    return sailorProfileRepository.findAll(pageable).map(it -> toBasicProfileDTO(it));
+  public Page<BasicProfileDTO> getAllSailors(SailorFilterable filterable, Pageable pageable) {
+    return customSailorRepository
+        .fetchAllSailors(filterable, pageable)
+        .map(this::toBasicProfileDTO);
   }
 
   @Override
@@ -83,8 +86,10 @@ public class SailorServiceImpl implements SailorService {
 
   @Override
   public Page<BasicProfileDTO> searchSailors(
-      String query, String sailorPositionId, Pageable pageable) {
-    throw new UnsupportedOperationException("Unimplemented method 'searchSailors'");
+      String query, SailorFilterable filterable, Pageable pageable) {
+    return customSailorRepository
+        .searchSailors(query, filterable, pageable)
+        .map(this::toBasicProfileDTO);
   }
 
   @Override

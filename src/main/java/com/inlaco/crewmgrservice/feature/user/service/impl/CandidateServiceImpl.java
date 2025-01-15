@@ -67,7 +67,6 @@ public class CandidateServiceImpl implements CandidateService {
 
     candidateProfile.setRecruimentPostId(new ObjectId(postId));
     candidateProfile.setAccountId(new ObjectId(user.getId()));
-
     return candidateProfileRepository.save(candidateProfile);
   }
 

@@ -57,22 +57,13 @@ public class SailorProfile extends BasicProfile implements TimeFrame {
     return contractIds.stream().map(ObjectId::toHexString).toList();
   }
 
-  @Schema(
-      description = "The contract signed date of the sailor",
-      requiredMode = RequiredMode.REQUIRED,
-      hidden = true,
-      type = "Date")
-  @Future
-  @DateTimeFormat
-  protected Instant contractSignedAt;
-
   @Schema(description = "The candidate id of the sailor", hidden = true, type = "String")
   @JsonPatchIgnore
   protected ObjectId candidateId;
 
   @NotNull
   @Schema(description = "The position of the sailor", requiredMode = RequiredMode.REQUIRED)
-  private SailorPosition position;
+  private String professionalPosition;
 
   @Schema(
       description = "The date the sailor joined the company",

@@ -79,8 +79,14 @@ public abstract class AbstractContract extends ContractVersion implements Contra
   @Schema(description = "The contract is signed or not", hidden = true)
   private boolean signed = false;
 
-  public void sign() {
+  @JsonPatchIgnore
+  @JsonIgnore
+  @Schema(description = "The user who signed the contract", hidden = true)
+  private ObjectId signedBy;
+
+  public void sign(ObjectId signedBy) {
     this.signed = true;
+    this.signedBy = signedBy;
     this.signedAt = Instant.now();
   }
 

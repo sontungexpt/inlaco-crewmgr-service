@@ -7,7 +7,9 @@ import com.inlaco.crewmgrservice.feature.post.model.RecruitmentPost;
 import com.inlaco.crewmgrservice.feature.post.service.PostService;
 import com.inlaco.crewmgrservice.feature.user.model.CandidateProfile;
 import com.inlaco.crewmgrservice.feature.user.model.CandidateProfile.Status;
+import com.inlaco.crewmgrservice.feature.user.model.User;
 import com.inlaco.crewmgrservice.feature.user.repository.CandidateProfileRepository;
+import com.inlaco.crewmgrservice.feature.user.service.UserService;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -24,13 +26,15 @@ public class CandidateRejectedService extends CandidateReviewStragegy {
   public CandidateRejectedService(
       CandidateProfileRepository candidateProfileRepository,
       NotificationFactory notificationFactory,
-      PostService postService) {
-    super(candidateProfileRepository, notificationFactory, postService);
+      PostService postService,
+      UserService userService) {
+    super(candidateProfileRepository, notificationFactory, postService, userService);
   }
 
   @Override
   public void review(String candidateId, boolean autoEmail) {
     CandidateProfile profile = getCandidateProfile(candidateId);
+
     log.info("Reject candidate: {}", profile.getFullName());
 
     if (autoEmail) {
@@ -52,6 +56,9 @@ public class CandidateRejectedService extends CandidateReviewStragegy {
   public void updateProfileStatus(CandidateProfile profile) {
     profile.setStatus(Status.REJECTED);
     candidateProfileRepository.save(profile);
+    User user = userService.findUserById(profile.getAccountId().toHexString());
+    user.demoteJobState();
+    userService.saveUser(user);
   }
 
   @Nullable

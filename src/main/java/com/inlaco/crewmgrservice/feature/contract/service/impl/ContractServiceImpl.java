@@ -4,27 +4,34 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.inlaco.crewmgrservice.exceptions.ResourceNotFoundException;
 import com.inlaco.crewmgrservice.feature.contract.dto.ContractFilterable;
 import com.inlaco.crewmgrservice.feature.contract.dto.ShortContract;
+import com.inlaco.crewmgrservice.feature.contract.event.ContractActivedEvent;
 import com.inlaco.crewmgrservice.feature.contract.exception.FreezeContractUpdateException;
 import com.inlaco.crewmgrservice.feature.contract.model.AbstractContract;
 import com.inlaco.crewmgrservice.feature.contract.model.Contract;
 import com.inlaco.crewmgrservice.feature.contract.model.ContractVersion;
+import com.inlaco.crewmgrservice.feature.contract.model.LaborContract;
+import com.inlaco.crewmgrservice.feature.contract.model.SupplyContract;
 import com.inlaco.crewmgrservice.feature.contract.repository.ContractRepository;
 import com.inlaco.crewmgrservice.feature.contract.repository.ContractVersionRepository;
 import com.inlaco.crewmgrservice.feature.contract.repository.CustomContractRepository;
 import com.inlaco.crewmgrservice.feature.contract.service.ContractService;
+import com.inlaco.crewmgrservice.feature.crewhiring.enums.CrewRentalRequestStatus;
+import com.inlaco.crewmgrservice.feature.crewhiring.service.CrewRentalRequestService;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import com.inlaco.crewmgrservice.feature.user.service.SailorService;
 import com.inlaco.crewmgrservice.utils.JsonMergePatchUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
+@RequiredArgsConstructor
 public class ContractServiceImpl implements ContractService {
 
   private final ContractRepository contractRepository;
@@ -32,12 +39,26 @@ public class ContractServiceImpl implements ContractService {
   private final SailorService sailorService;
   private final JsonMergePatchUtils jsonMergePatch;
   private final CustomContractRepository customContractRepository;
+  private final CrewRentalRequestService crewRentalRequestService;
+  private final ApplicationEventPublisher eventPublisher;
 
   @Override
   public AbstractContract getContractById(String id) {
     return contractRepository
         .findById(id)
         .orElseThrow(() -> new ResourceNotFoundException(AbstractContract.class, "id", id));
+  }
+
+  private ShortContract toShortContract(AbstractContract contract) {
+    return ShortContract.builder()
+        .id(contract.getId())
+        .title(contract.getTitle())
+        .type(contract.getType())
+        .freezedAt(contract.getFreezeDate())
+        .createdAt(contract.getCreatedAt())
+        .updatedAt(contract.getUpdatedAt())
+        .signed(contract.isSigned())
+        .build();
   }
 
   @Override
@@ -48,22 +69,7 @@ public class ContractServiceImpl implements ContractService {
     }
     return contractRepository
         .findByPartyAccountIdsContains(sailor.getAccountId(), pageable)
-        .map(
-            it ->
-                ShortContract.builder()
-                    .id(it.getId())
-                    .title(it.getTitle())
-                    .type(it.getType())
-                    .freezedAt(it.getFreezeDate())
-                    .createdAt(it.getCreatedAt())
-                    .updatedAt(it.getUpdatedAt())
-                    .signed(it.isSigned())
-                    .build());
-  }
-
-  @Override
-  public Contract addContract(AbstractContract contract) {
-    throw new UnsupportedOperationException("Unimplemented method 'addContract'");
+        .map(this::toShortContract);
   }
 
   @Override
@@ -77,12 +83,13 @@ public class ContractServiceImpl implements ContractService {
   }
 
   @Override
-  public Contract createSailorLaborContract(
-      String sailorId, AbstractContract contract, User creator) {
+  @Transactional
+  public Contract createLaborContract(String sailorId, LaborContract contract, User creator) {
     var sailorProfile = sailorService.findSailorProfileById(sailorId);
 
     contract.getPartyAccountIds().add(sailorProfile.getAccountId());
     contract.getPartyAccountIds().add(new ObjectId(creator.getId()));
+    contract.setEmployeeId(sailorProfile.getAccountId());
 
     var newContract = contractRepository.save(contract);
 
@@ -90,10 +97,13 @@ public class ContractServiceImpl implements ContractService {
 
     sailorService.saveSailorProfile(sailorProfile);
 
+    log.info("Created labor contract for sailor with id: {}", sailorId);
+
     return newContract;
   }
 
   @Override
+  @Transactional
   public Contract updateContract(String id, JsonNode patch) {
     AbstractContract contract = getContractById(id);
     if (contract.isFreezed()) {
@@ -115,21 +125,37 @@ public class ContractServiceImpl implements ContractService {
       ContractFilterable filterRequest, Pageable pageable) {
     return customContractRepository
         .findAllContracts(filterRequest, pageable)
-        .map(
-            it ->
-                ShortContract.builder()
-                    .id(it.getId())
-                    .title(it.getTitle())
-                    .type(it.getType())
-                    .freezedAt(it.getFreezeDate())
-                    .createdAt(it.getCreatedAt())
-                    .updatedAt(it.getUpdatedAt())
-                    .signed(it.isSigned())
-                    .build());
+        .map(this::toShortContract);
   }
 
   @Override
-  public Contract createSupplierContract(AbstractContract contract, User creator) {
-    throw new UnsupportedOperationException("Unimplemented method 'createSupplierContract'");
+  @Transactional
+  public Contract createSupplyContract(
+      String crewRentalRequestId, SupplyContract contract, User creator) {
+    var crewRentalRequest = crewRentalRequestService.getRequestById(crewRentalRequestId);
+
+    contract.getPartyAccountIds().add(crewRentalRequest.getCreatedBy());
+    contract.getPartyAccountIds().add(new ObjectId(creator.getId()));
+    contract.setRentalRequestId(new ObjectId(crewRentalRequest.getId()));
+
+    var newContract = contractRepository.save(contract);
+
+    crewRentalRequest.setContractId(new ObjectId(newContract.getId()));
+    crewRentalRequest.setStatus(CrewRentalRequestStatus.SIGNING);
+
+    crewRentalRequestService.saveRequest(crewRentalRequest);
+    log.info("Created supply contract for crew rental request with id: {}", crewRentalRequestId);
+
+    return newContract;
+  }
+
+  @Override
+  @Transactional
+  public Contract activeContract(String contractId, User activer) {
+    var contract = getContractById(contractId);
+    contract.sign(new ObjectId(activer.getId()));
+    eventPublisher.publishEvent(new ContractActivedEvent(this, contract));
+    log.info("Actived contract with id: {}", contractId);
+    return contractRepository.save(contract);
   }
 }

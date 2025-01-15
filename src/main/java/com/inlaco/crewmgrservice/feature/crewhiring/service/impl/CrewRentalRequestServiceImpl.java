@@ -54,4 +54,9 @@ public class CrewRentalRequestServiceImpl implements CrewRentalRequestService {
   public Page<CrewRentalRequest> findAllRequest(CrewRentalRequestFilter filter, Pageable pageable) {
     return customCrewRentalRequestRepository.findAllRequests(filter, pageable);
   }
+
+  @Override
+  public CrewRentalRequest saveRequest(CrewRentalRequest request) {
+    return crewRentalRequestRepository.save(request);
+  }
 }

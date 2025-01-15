@@ -5,6 +5,8 @@ import com.inlaco.crewmgrservice.feature.contract.dto.ContractFilterable;
 import com.inlaco.crewmgrservice.feature.contract.model.AbstractContract;
 import com.inlaco.crewmgrservice.feature.contract.model.Contract;
 import com.inlaco.crewmgrservice.feature.contract.model.ContractVersion;
+import com.inlaco.crewmgrservice.feature.contract.model.LaborContract;
+import com.inlaco.crewmgrservice.feature.contract.model.SupplyContract;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,13 +21,13 @@ public interface ContractService {
 
   Contract updateContract(String id, JsonNode patch);
 
-  Contract addContract(AbstractContract contract);
-
   Contract saveContract(AbstractContract contract);
 
-  Contract createSailorLaborContract(String sailorId, AbstractContract contract, User creator);
+  Contract createLaborContract(String sailorId, LaborContract contract, User creator);
 
-  Contract createSupplierContract(AbstractContract contract, User creator);
+  Contract createSupplyContract(String crewRentalRequestId, SupplyContract contract, User creator);
+
+  Contract activeContract(String contractId, User activer);
 
   ContractVersion getContractVersionById(String id);
 

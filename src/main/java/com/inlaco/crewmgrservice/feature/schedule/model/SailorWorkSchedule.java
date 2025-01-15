@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Null;
 import java.time.Instant;
 import lombok.Data;
@@ -44,8 +45,8 @@ public class SailorWorkSchedule {
       type = "String",
       example = "5f7f1b3b7f4b7b001f3b3b7f",
       requiredMode = RequiredMode.REQUIRED)
-  @Null
-  private ObjectId sailorPositionId;
+  @NotBlank
+  private String sailorPosition;
 
   @Schema(description = "The ID of the master assignment schedule", hidden = true)
   @Null

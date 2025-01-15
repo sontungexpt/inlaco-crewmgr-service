@@ -3,6 +3,8 @@ package com.inlaco.crewmgrservice.feature.crewhiring.service;
 import com.inlaco.crewmgrservice.feature.crewhiring.dto.CrewRentalRequestFilter;
 import com.inlaco.crewmgrservice.feature.crewhiring.model.CrewRentalRequest;
 import com.inlaco.crewmgrservice.feature.user.model.User;
+
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -11,6 +13,8 @@ public interface CrewRentalRequestService {
   CrewRentalRequest createRequest(CrewRentalRequest request);
 
   CrewRentalRequest getRequestById(String requestId);
+
+  CrewRentalRequest saveRequest(CrewRentalRequest request);
 
   Page<CrewRentalRequest> findAllRequest(CrewRentalRequestFilter filter, Pageable pageable);
 

@@ -6,6 +6,7 @@ import com.inlaco.crewmgrservice.feature.contract.dto.ContractFilterable;
 import com.inlaco.crewmgrservice.feature.contract.model.Contract;
 import com.inlaco.crewmgrservice.feature.contract.model.ContractType;
 import com.inlaco.crewmgrservice.feature.contract.model.LaborContract;
+import com.inlaco.crewmgrservice.feature.contract.model.SupplyContract;
 import com.inlaco.crewmgrservice.feature.contract.service.ContractService;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import com.inlaco.crewmgrservice.validation.annotation.ObjectId;
@@ -37,6 +38,22 @@ public class ContractController {
   private final ContractService contractService;
 
   @Operation(
+      summary = "Get contract detail",
+      description =
+          """
+This API is used to get contract detail.
+
+**Usecase**:
+- UC_admin-tim-kiem-loc-hop-dong.
+
+""")
+  @RolesAllowed("ADMIN")
+  @GetMapping("/{id}")
+  public Contract getContractById(@ObjectId @PathVariable("id") String id) {
+    return contractService.getContractById(id);
+  }
+
+  @Operation(
       summary = "Get all conrtacts",
       description =
           """
@@ -55,7 +72,7 @@ This API is used to get all contracts with short information.
       @RequestParam(required = false) Instant activationDateEnd,
       @RequestParam(required = false) Instant expiredDateStart,
       @RequestParam(required = false) Instant expiredDateEnd,
-      @RequestParam(required = false) Boolean signed,
+      @RequestParam(defaultValue = "true") boolean signed,
       @PageableDefault(page = 0, size = 20) Pageable pageable) {
     return contractService.getAllContracts(
         ContractFilterable.builder()
@@ -96,7 +113,7 @@ Get all contracts of sailor.
 - UC_admin-tim-kiem-loc-hop-dong.
 
 """)
-  @GetMapping("/sailors/{id}")
+  @GetMapping("/labors/{id}")
   @RolesAllowed({"ADMIN", "SAILOR"})
   public Page<? extends Contract> getSailorContracts(
       @ObjectId @PathVariable("id") String id,
@@ -114,13 +131,49 @@ Add contract for sailor.
 - UC_admin-tao-hop-dong-theo-template.
 
 """)
-  @PostMapping("/sailors/{id}")
+  @PostMapping("/labors/{id}")
   @RolesAllowed("ADMIN")
   @ResponseStatus(HttpStatus.CREATED)
-  public void createSailorLaborContract(
+  public void createLaborContract(
       @ObjectId @PathVariable("id") String id,
       @CurrentUser User user,
       @RequestBody LaborContract contract) {
-    contractService.createSailorLaborContract(id, contract, user);
+    contractService.createLaborContract(id, contract, user);
+  }
+
+  @Operation(
+      summary = "Add supply contract",
+      description =
+          """
+Add supply contract
+
+**Usecase**:
+- UC_admin-tao-hop-dong-theo-template.
+
+""")
+  @PostMapping("/supplies/{id}")
+  @RolesAllowed("ADMIN")
+  @ResponseStatus(HttpStatus.CREATED)
+  public void createSupplyContract(
+      @ObjectId @PathVariable("id") String id,
+      @CurrentUser User user,
+      @RequestBody SupplyContract contract) {
+    contractService.createSupplyContract(id, contract, user);
+  }
+
+  @Operation(
+      summary = "Active an contract by id",
+      description =
+          """
+Active an contract by id.
+
+**Usecase**:
+- UC_admin-tao-hop-dong-theo-template.
+
+""")
+  @PostMapping("/active/{id}")
+  @RolesAllowed("ADMIN")
+  public void activeContract(@ObjectId @PathVariable("id") String id, @CurrentUser User user) {
+    contractService.activeContract(id, user);
   }
 }
