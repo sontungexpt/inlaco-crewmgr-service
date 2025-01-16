@@ -29,8 +29,8 @@ public class SailorWorkScheduleResponse {
       description = "The position of the sailor",
       type = "String",
       requiredMode = RequiredMode.REQUIRED)
-  private SailorPositionResponse position;
+  private String professionalPosition;
 
-  @Schema(description = "The ID of the master assignment schedule", hidden = true)
-  private MasterAssignementScheduleResponse detail;
+  // @Schema(description = "The ID of the master assignment schedule", hidden = true)
+  // private MasterAssignementScheduleResponse detail;
 }

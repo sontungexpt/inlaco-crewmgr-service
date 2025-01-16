@@ -2,7 +2,7 @@ package com.inlaco.crewmgrservice.feature.schedule.controller;
 
 import com.inlaco.crewmgrservice.annotation.CurrentUser;
 import com.inlaco.crewmgrservice.config.OpenApiConfig;
-import com.inlaco.crewmgrservice.feature.schedule.model.Schedule;
+import com.inlaco.crewmgrservice.feature.schedule.model.AssigmentSchedule;
 import com.inlaco.crewmgrservice.feature.schedule.service.ScheduleService;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import io.swagger.v3.oas.annotations.Operation;
@@ -39,7 +39,8 @@ Create a new schedule with the given data.
   @PostMapping("")
   @RolesAllowed("ADMIN")
   @ResponseStatus(HttpStatus.CREATED)
-  public Schedule createSchedule(@CurrentUser User user, @RequestBody @Valid Schedule schedule) {
+  public AssigmentSchedule createSchedule(
+      @CurrentUser User user, @RequestBody @Valid AssigmentSchedule schedule) {
     return scheduleService.createSchedule(schedule);
   }
 }

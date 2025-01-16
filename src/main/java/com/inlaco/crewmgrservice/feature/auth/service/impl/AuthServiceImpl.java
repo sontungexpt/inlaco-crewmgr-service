@@ -28,6 +28,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,6 +40,7 @@ public record AuthServiceImpl(
     JwtService jwtService,
     UserService userService,
     AuthenticationManager authenticationManager,
+    PasswordEncoder passwordEncoder,
     NotificationFactory notificationFactory,
     TwoStepVerificationFactory twoStepVerificationFactory,
     RoleRepository roleRepository)
@@ -109,7 +111,7 @@ public record AuthServiceImpl(
             User.builder()
                 .username(username)
                 .usernameType(usernameType)
-                .password(request.getPassword())
+                .password(passwordEncoder.encode(request.getPassword()))
                 .right(new Right(role))
                 .name(request.getName())
                 .build());

@@ -36,7 +36,7 @@ import org.springframework.format.annotation.DateTimeFormat;
     value = {"id", "createdAt", "updatedAt", "totalSailors"},
     allowGetters = true)
 @Document(collection = "master_assignment_schedules")
-public class Schedule implements Serializable {
+public class AssigmentSchedule implements Serializable {
 
   @Schema(description = "The status of the schedule")
   public enum Status {
@@ -132,7 +132,7 @@ public class Schedule implements Serializable {
   @NotNull
   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
   @Future
-  private Instant estimatedEndTime;
+  private Instant estimatedEndDate;
 
   @Data
   public static class CrewMember {

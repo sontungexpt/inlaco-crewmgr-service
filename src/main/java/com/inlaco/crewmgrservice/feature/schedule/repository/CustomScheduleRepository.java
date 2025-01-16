@@ -6,7 +6,9 @@ import static org.springframework.data.mongodb.core.query.Query.*;
 
 import com.inlaco.crewmgrservice.common.model.FacetResult;
 import com.inlaco.crewmgrservice.feature.schedule.dto.ScheduleFilterable;
-import com.inlaco.crewmgrservice.feature.schedule.model.Schedule;
+import com.inlaco.crewmgrservice.feature.schedule.model.AssigmentSchedule;
+import java.time.*;
+import java.time.temporal.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +20,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -27,54 +30,93 @@ public class CustomScheduleRepository {
 
   private final MongoTemplate mongoTemplate;
 
-  public Page<Schedule> findAllSchedules(ScheduleFilterable filterable, Pageable pageable) {
+  private ScheduleFilterable defaultWeekStartEndFilter(ScheduleFilterable filterable) {
+    if (filterable == null) return null;
+    else if (filterable.getStartDate() == null && filterable.getEstimatedEndDate() == null) {
+      Instant now = Instant.now();
+
+      ZoneId zoneId = ZoneId.systemDefault();
+      ZonedDateTime zonedNow = now.atZone(zoneId);
+
+      ZonedDateTime startOfWeek =
+          zonedNow.with(DayOfWeek.MONDAY).toLocalDate().atStartOfDay(zoneId);
+
+      ZonedDateTime endOfWeek =
+          zonedNow.with(DayOfWeek.SUNDAY).toLocalDate().atTime(LocalTime.MAX).atZone(zoneId);
+
+      filterable.setStartDate(startOfWeek.toInstant());
+      filterable.setEstimatedEndDate(endOfWeek.toInstant());
+    }
+    return filterable;
+  }
+
+  public List<AssigmentSchedule> findAllSchedules(ScheduleFilterable filterable) {
+    return mongoTemplate.find(
+        new Query().addCriteria(buildFilterableCriteria(defaultWeekStartEndFilter(filterable))),
+        AssigmentSchedule.class);
+  }
+
+  public Page<AssigmentSchedule> findAllSchedules(
+      ScheduleFilterable filterable, Pageable pageable) {
     List<AggregationOperation> operations = new ArrayList<>();
 
-    if (filterable.getStatus() != null) {
-      var criteria = buildFilterCriteria(filterable);
-      operations.add(match(criteria));
+    if (filterable != null && filterable.getStatus() != null) {
+      operations.add(match(buildFilterableCriteria(filterable)));
     }
 
     operations.add(buildSimplePaginationOperation(pageable));
 
-    Aggregation aggregation = Aggregation.newAggregation(operations);
-
     var result =
         mongoTemplate
-            .aggregate(aggregation, Schedule.class, ScheduleFacetResult.class)
+            .aggregate(
+                newAggregation(operations), AssigmentSchedule.class, ScheduleFacetResult.class)
             .getUniqueMappedResult();
 
     return result.toPage(pageable);
   }
 
-  public Page<Schedule> findScheduleByCardId(
+  public Page<AssigmentSchedule> findScheduleByCardId(
       String cardId, ScheduleFilterable filterable, Pageable pageable) {
     List<AggregationOperation> operations = new ArrayList<>();
 
     var criteria = Criteria.where("crewMembers.cardId").is(cardId);
 
-    if (filterable.getStatus() != null) {
-      criteria.andOperator(buildFilterCriteria(filterable));
+    if (filterable != null && filterable.getStatus() != null) {
+      criteria.andOperator(buildFilterableCriteria(filterable));
     }
 
     operations.add(match(criteria));
     operations.add(buildSimplePaginationOperation(pageable));
 
-    Aggregation aggregation = Aggregation.newAggregation(operations);
-
     var result =
         mongoTemplate
-            .aggregate(aggregation, Schedule.class, ScheduleFacetResult.class)
+            .aggregate(
+                newAggregation(operations), AssigmentSchedule.class, ScheduleFacetResult.class)
             .getUniqueMappedResult();
 
     return result.toPage(pageable);
   }
 
-  private Criteria buildFilterCriteria(ScheduleFilterable filterable) {
+  private Criteria buildFilterableCriteria(ScheduleFilterable filterable) {
+
     Criteria criteria = new Criteria();
 
     if (filterable.getStatus() != null) {
       criteria.and("status").is(filterable.getStatus());
+    }
+
+    if (filterable.getStartDate() != null) {
+      Criteria criteria1 = criteria.and("startDate").gte(filterable.getStartDate());
+      if (filterable.getEstimatedEndDate() != null) {
+        criteria = criteria1.and("estimatedEndDate").lte(filterable.getEstimatedEndDate());
+      }
+    }
+
+    if (filterable.getEstimatedEndDate() != null) {
+      Criteria criteria2 = criteria.and("estimatedEndDate").lte(filterable.getEstimatedEndDate());
+      if (filterable.getStartDate() != null) {
+        criteria = criteria2.and("startDate").gte(filterable.getStartDate());
+      }
     }
 
     return criteria;
@@ -87,8 +129,9 @@ public class CustomScheduleRepository {
         .as(FacetResult.getDataFacetName());
   }
 
-  private class ScheduleFacetResult extends FacetResult<Schedule> {
-    public ScheduleFacetResult(List<Schedule> dataFacet, List<Map<String, Object>> countFacet) {
+  private class ScheduleFacetResult extends FacetResult<AssigmentSchedule> {
+    public ScheduleFacetResult(
+        List<AssigmentSchedule> dataFacet, List<Map<String, Object>> countFacet) {
       super(dataFacet, countFacet);
     }
   }
