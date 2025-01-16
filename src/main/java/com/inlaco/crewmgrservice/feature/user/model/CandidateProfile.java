@@ -9,10 +9,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import java.time.Instant;
 import java.util.List;
-import lombok.AllArgsConstructor;
 import lombok.Builder.Default;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.bson.types.ObjectId;
@@ -27,11 +25,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Getter
 @Setter
 @SuperBuilder
-@NoArgsConstructor
-@AllArgsConstructor
 @Document(collection = "candidates")
 @JsonIgnoreProperties(
-    value = {"recruimentPostId", "id", "status", "accountId"},
+    value = {"id", "recruimentPostId", "status", "accountId"},
     allowGetters = true)
 @CompoundIndexes({
   @CompoundIndex(
@@ -49,19 +45,14 @@ public class CandidateProfile extends BasicProfile {
   @Schema(
       description = "Recruitment post id",
       example = "60f3b3b3b3b3b3b3b3b3b3b3",
-      requiredMode = Schema.RequiredMode.REQUIRED,
+      requiredMode = RequiredMode.REQUIRED,
       hidden = true,
       type = "string")
   private ObjectId recruimentPostId;
 
   @JsonGetter("recruimentPostId")
   public String getRecruimentPostIdString() {
-    return recruimentPostId.toString();
-  }
-
-  @JsonIgnore
-  public ObjectId getRecruimentPostId() {
-    return recruimentPostId;
+    return recruimentPostId.toHexString();
   }
 
   @Schema(description = "Resume file", example = "file")
@@ -85,12 +76,12 @@ public class CandidateProfile extends BasicProfile {
     HIRED
   }
 
-  @Default
   @Schema(
       description = "Candidate status",
       enumAsRef = true,
       requiredMode = RequiredMode.REQUIRED,
       example = "APPLIED")
+  @Default
   @JsonPatchIgnore
   private Status status = Status.APPLIED;
 
@@ -104,10 +95,10 @@ public class CandidateProfile extends BasicProfile {
     return appliedAt;
   }
 
-  @LastModifiedDate
-  @Schema(hidden = true)
   @JsonPatchIgnore
   @JsonIgnore
+  @LastModifiedDate
+  @Schema(hidden = true)
   private Instant updatedAt;
 
   public Instant getUpdatedDate() {

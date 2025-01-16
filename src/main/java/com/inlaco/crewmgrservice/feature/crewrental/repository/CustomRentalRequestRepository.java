@@ -1,4 +1,4 @@
-package com.inlaco.crewmgrservice.feature.crewhiring.repository;
+package com.inlaco.crewmgrservice.feature.crewrental.repository;
 
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.limit;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
@@ -6,8 +6,8 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.skip
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.sort;
 
 import com.inlaco.crewmgrservice.common.model.FacetResult;
-import com.inlaco.crewmgrservice.feature.crewhiring.dto.CrewRentalRequestFilter;
-import com.inlaco.crewmgrservice.feature.crewhiring.model.CrewRentalRequest;
+import com.inlaco.crewmgrservice.feature.crewrental.dto.RentalRequestFilterable;
+import com.inlaco.crewmgrservice.feature.crewrental.model.RentalRequest;
 import com.inlaco.crewmgrservice.utils.PageableUtils;
 import com.inlaco.crewmgrservice.utils.PhoneNumberValidatorUtils;
 import java.util.ArrayList;
@@ -16,7 +16,6 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
@@ -27,7 +26,7 @@ import org.springframework.stereotype.Repository;
 @Slf4j
 @Repository
 @RequiredArgsConstructor
-public class CustomCrewRentalRequestRepository {
+public class CustomRentalRequestRepository {
 
   private final MongoTemplate mongoTemplate;
 
@@ -38,8 +37,8 @@ public class CustomCrewRentalRequestRepository {
         .as(FacetResult.getDataFacetName());
   }
 
-  public Page<CrewRentalRequest> searchRequests(
-      String keyword, CrewRentalRequestFilter filter, Pageable p) {
+  public Page<RentalRequest> searchRequests(
+      String keyword, RentalRequestFilterable filter, Pageable p) {
     List<Criteria> criteriaList = new ArrayList<>();
     if (PhoneNumberValidatorUtils.isPotentialPhoneNumber(keyword)) {
       criteriaList.add(Criteria.where("companyPhone").regex(keyword, "i"));
@@ -58,10 +57,10 @@ public class CustomCrewRentalRequestRepository {
     var pageable = PageableUtils.extendDefaultSort(p);
     Aggregation aggregation =
         Aggregation.newAggregation(match(query), buildPaginationOperation(pageable));
-    return executeAggregation(aggregation, pageable, CrewRentalRequest.class);
+    return executeAggregation(aggregation, pageable, RentalRequest.class);
   }
 
-  public Criteria buildFilterCriteria(CrewRentalRequestFilter filter) {
+  public Criteria buildFilterCriteria(RentalRequestFilterable filter) {
     List<Criteria> criteriaList = new ArrayList<>();
     if (filter.getStatus() != null) {
       criteriaList.add(Criteria.where("status").is(filter.getStatus()));
@@ -69,35 +68,33 @@ public class CustomCrewRentalRequestRepository {
     return new Criteria().andOperator(criteriaList);
   }
 
-  public Page<CrewRentalRequest> findAllRequests(CrewRentalRequestFilter filter, Pageable p) {
-
+  public Page<RentalRequest> findAllRequests(RentalRequestFilterable filterable, Pageable p) {
     var pageable = PageableUtils.extendDefaultSort(p);
-    log.debug("Fetching rental requests with filter: {}", filter);
+    log.debug("Fetching rental requests with filter: {}", filterable);
 
     List<AggregationOperation> operations = new ArrayList<>();
-    if (filter.isFilterable()) {
-      operations.add(match(buildFilterCriteria(filter)));
+
+    if (filterable != null && filterable.isFilterable()) {
+      operations.add(match(buildFilterCriteria(filterable)));
     }
     operations.add(buildPaginationOperation(pageable));
 
-    Aggregation aggregation =
-        Aggregation.newAggregation(operations.toArray(new AggregationOperation[0]));
-    return executeAggregation(aggregation, pageable, CrewRentalRequest.class);
+    Aggregation aggregation = Aggregation.newAggregation(operations);
+    return executeAggregation(aggregation, pageable, RentalRequest.class);
   }
 
-  private Page<CrewRentalRequest> executeAggregation(
-      Aggregation aggregation, Pageable pageable, Class<CrewRentalRequest> clazz) {
+  private Page<RentalRequest> executeAggregation(
+      Aggregation aggregation, Pageable pageable, Class<RentalRequest> clazz) {
     var result =
         mongoTemplate
             .aggregate(aggregation, clazz, CrewRentalRequestFacetResult.class)
             .getUniqueMappedResult();
-    return new PageImpl<>(result.getDatas(), pageable, result.getCount());
+    return result.toPage(pageable);
   }
 
-  private static class CrewRentalRequestFacetResult extends FacetResult<CrewRentalRequest> {
-
+  private class CrewRentalRequestFacetResult extends FacetResult<RentalRequest> {
     public CrewRentalRequestFacetResult(
-        List<CrewRentalRequest> dataFacet, List<Map<String, Object>> countFacet) {
+        List<RentalRequest> dataFacet, List<Map<String, Object>> countFacet) {
       super(dataFacet, countFacet);
     }
   }

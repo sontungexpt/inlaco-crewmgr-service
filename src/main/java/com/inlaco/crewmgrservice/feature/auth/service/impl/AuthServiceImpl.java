@@ -83,6 +83,7 @@ public record AuthServiceImpl(
     return LoginResponse.builder()
         .name(user.getName())
         .jwt(new JwtResponse(accessToken, refreshToken.getToken()))
+        .roles(user.getRight().getRoles().stream().map(Role::getName).toList())
         .build();
   }
 

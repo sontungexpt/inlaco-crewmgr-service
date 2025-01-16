@@ -8,10 +8,10 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.bson.types.ObjectId;
 
-@SuperBuilder
 @Getter
-@JsonTypeName(ContractType.Fields.SUPPLY_CONTRACT)
 @Setter
+@SuperBuilder
+@JsonTypeName(ContractType.Fields.SUPPLY_CONTRACT)
 public class SupplyContract extends DynamicContract {
 
   @JsonIgnore

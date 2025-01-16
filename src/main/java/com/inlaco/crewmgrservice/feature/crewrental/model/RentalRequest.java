@@ -1,11 +1,11 @@
-package com.inlaco.crewmgrservice.feature.crewhiring.model;
+package com.inlaco.crewmgrservice.feature.crewrental.model;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.inlaco.crewmgrservice.common.model.File;
 import com.inlaco.crewmgrservice.common.model.ShipInfo;
-import com.inlaco.crewmgrservice.feature.crewhiring.enums.CrewRentalRequestStatus;
+import com.inlaco.crewmgrservice.feature.crewrental.enums.RentalRequestStatus;
 import com.inlaco.crewmgrservice.validation.annotation.PhoneNumber;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
@@ -14,13 +14,11 @@ import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-
 import java.time.Instant;
-import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
@@ -32,13 +30,13 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 @Getter
 @Setter
-@Builder
+@SuperBuilder
 @Document("crew_rental_requests")
 @Schema(description = "Model representing a request for crew rental services.")
 @JsonIgnoreProperties(
     value = {"id", "contractId", "status"},
     allowGetters = true)
-public class CrewRentalRequest {
+public class RentalRequest {
 
   @Id
   @Schema(hidden = true)
@@ -156,7 +154,7 @@ public class CrewRentalRequest {
   @Schema(description = "The status of the request.")
   @NotNull
   @Default
-  private CrewRentalRequestStatus status = CrewRentalRequestStatus.PENDING;
+  private RentalRequestStatus status = RentalRequestStatus.PENDING;
 
   @CreatedBy
   @Schema(hidden = true)

@@ -36,7 +36,7 @@ public class CustomSailorRepository {
 
   public long countSailorHasCardId() {
     Query query = new Query();
-    query.addCriteria(Criteria.where("cardId").exists(true).and("cardId").ne(""));
+    query.addCriteria(Criteria.where("cardId").exists(true).ne(""));
     return mongoTemplate.count(query, SailorProfile.class);
   }
 
@@ -75,6 +75,9 @@ public class CustomSailorRepository {
     var criteria = new Criteria();
     if (filterable.getProfessionalPosition() != null) {
       criteria.and("professionalPosition").is(filterable.getProfessionalPosition());
+    }
+    if (filterable.getWorkStatus() != null) {
+      criteria.and("cardId").exists(true).ne("").and("workStatus").is(filterable.getWorkStatus());
     }
     return criteria;
   }

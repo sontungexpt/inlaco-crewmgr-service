@@ -1,6 +1,7 @@
 package com.inlaco.crewmgrservice.feature.user.repository;
 
 import com.inlaco.crewmgrservice.feature.user.model.SailorProfile;
+import java.util.List;
 import java.util.Optional;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -12,4 +13,6 @@ public interface SailorProfileRepository extends MongoRepository<SailorProfile, 
   Optional<SailorProfile> findByAccountId(ObjectId accountId);
 
   Optional<SailorProfile> findByCardId(String cardId);
+
+  List<SailorProfile> findByCardIdIn(List<String> cardIds);
 }

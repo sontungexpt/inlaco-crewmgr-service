@@ -22,6 +22,10 @@ public class ShortContract implements Contract {
 
   private String title;
 
+  private List<Party> signedPartners;
+
+  private Party initiator;
+
   private File file;
 
   private ContractType type;
@@ -33,11 +37,6 @@ public class ShortContract implements Contract {
   private Instant updatedAt;
 
   private boolean signed;
-
-  @Override
-  public List<Party> getParties() {
-    return null;
-  }
 
   @Override
   public List<PaperContract> getPaperContracts() {
@@ -62,5 +61,15 @@ public class ShortContract implements Contract {
   @Override
   public Instant getExpiredDate() {
     return updatedAt;
+  }
+
+  @Override
+  public Party getInitiator() {
+    return initiator;
+  }
+
+  @Override
+  public List<Party> getSignedPartners() {
+    return signedPartners;
   }
 }

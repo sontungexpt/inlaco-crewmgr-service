@@ -115,10 +115,8 @@ Get all contracts of sailor.
 """)
   @GetMapping("/labors/{id}")
   @RolesAllowed({"ADMIN", "SAILOR"})
-  public Page<? extends Contract> getSailorContracts(
-      @ObjectId @PathVariable("id") String id,
-      @PageableDefault(page = 0, size = 20) Pageable pageable) {
-    return contractService.getSailorContracts(id, pageable);
+  public Contract getLaborContractByEmployeeId(@ObjectId @PathVariable("id") String id) {
+    return contractService.getLaborContractByEmployeeId(id);
   }
 
   @Operation(

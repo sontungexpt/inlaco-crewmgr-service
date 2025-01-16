@@ -9,9 +9,11 @@ public enum ContractType {
   @FieldNameConstants.Include
   @Schema(description = "A contract for the supply of dynamic goods or services.")
   DYNAMIC_CONTRACT,
+
   @FieldNameConstants.Include
   @Schema(description = "A contract for the supply of goods or services.")
   SUPPLY_CONTRACT,
+
   @FieldNameConstants.Include
   @Schema(description = "A contract for employment or labor.")
   LABOR_CONTRACT;

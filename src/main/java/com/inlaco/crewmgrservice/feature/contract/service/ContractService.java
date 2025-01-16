@@ -15,9 +15,9 @@ public interface ContractService {
 
   AbstractContract getContractById(String id);
 
-  Page<? extends Contract> getSailorContracts(String sailorId, Pageable pageable);
-
   Page<? extends Contract> getAllContracts(ContractFilterable filterRequest, Pageable pageable);
+
+  Contract getLaborContractByEmployeeId(String employeeId);
 
   Contract updateContract(String id, JsonNode patch);
 

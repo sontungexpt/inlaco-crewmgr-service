@@ -1,9 +1,9 @@
-package com.inlaco.crewmgrservice.feature.crewhiring.enums;
+package com.inlaco.crewmgrservice.feature.crewrental.enums;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "Status of the request.")
-public enum CrewRentalRequestStatus {
+public enum RentalRequestStatus {
   @Schema(description = "The request is pending approval.")
   PENDING,
   @Schema(description = "The request has been approved.")

@@ -10,7 +10,9 @@ public interface Contract {
 
   String getTitle();
 
-  List<Party> getParties();
+  Party getInitiator();
+
+  List<Party> getSignedPartners();
 
   List<PaperContract> getPaperContracts();
 

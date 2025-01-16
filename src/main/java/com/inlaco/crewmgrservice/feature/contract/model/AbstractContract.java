@@ -15,7 +15,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.Builder.Default;
 import lombok.Getter;
@@ -49,13 +48,16 @@ public abstract class AbstractContract extends ContractVersion implements Contra
   private String title;
 
   @Schema(
-      description = "The description of the contract",
-      example = "The description of the contract",
+      description = "The initiator of the contract (our company)",
       requiredMode = RequiredMode.REQUIRED)
-  private List<ObjectId> partyAccountIds = new ArrayList<>();
+  @NotNull
+  private Party initiator;
 
-  @MinLen(2)
-  private List<Party> parties;
+  @Schema(
+      description = "The list of signed partners (example sailor)",
+      requiredMode = RequiredMode.REQUIRED)
+  @MinLen(1)
+  private List<@NotNull Party> signedPartners;
 
   @Schema(
       description = "The list of paper contracts",
@@ -90,21 +92,21 @@ public abstract class AbstractContract extends ContractVersion implements Contra
     this.signedAt = Instant.now();
   }
 
-  @DateTimeFormat
   @FutureOrPresent
   @Schema(description = "The time that the contract is signed")
   @JsonIgnore
   @JsonPatchIgnore
+  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
   private Instant signedAt;
 
-  @DateTimeFormat
   @FutureOrPresent
   @Schema(description = "The time that the contract is valid, and active")
+  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
   private Instant activationDate;
 
   @Schema(description = "The time that the contract expired")
   @Future
-  @DateTimeFormat
+  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
   private Instant expiredDate;
 
   @Schema(
@@ -118,11 +120,11 @@ public abstract class AbstractContract extends ContractVersion implements Contra
           "The activation grace period in minutes after the contract is created. In this time, the"
               + " contract is not really active and the user can update it easily. After this"
               + " period, the contract is activated and the user can't update it anymore. If they"
-              + " want to update the contract it will save the older version (default: 10 minutes)",
-      example = "10")
+              + " want to update the contract it will save the older version (default: 5 minutes)",
+      example = "5")
   @Min(0)
   @Default
-  private int contractFreezeDelay = 10;
+  private int contractFreezeDelay = 5;
 
   @JsonIgnore
   public boolean isFreezed() {
@@ -133,11 +135,11 @@ public abstract class AbstractContract extends ContractVersion implements Contra
     return activationDate.plusSeconds(contractFreezeDelay * 60);
   }
 
-  @NotNull
   @Schema(
       description = "The type of the contract",
       enumAsRef = true,
       requiredMode = RequiredMode.REQUIRED)
+  @NotNull
   private ContractType type;
 
   @Override

@@ -14,7 +14,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.Set;
 import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.bson.types.ObjectId;
@@ -23,6 +25,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -33,7 +36,22 @@ import org.springframework.format.annotation.DateTimeFormat;
     value = {"id", "createdAt", "updatedAt", "totalSailors"},
     allowGetters = true)
 @Document(collection = "master_assignment_schedules")
-public class MasterAssignmentSchedule implements Serializable {
+public class Schedule implements Serializable {
+
+  @Schema(description = "The status of the schedule")
+  public enum Status {
+    @Schema(description = "The schedule is pending")
+    PENDING,
+
+    @Schema(description = "The schedule is in progress")
+    IN_PROGRESS,
+
+    @Schema(description = "The schedule is completed")
+    COMPLETED
+  }
+
+  @Schema(description = "The status of the schedule", requiredMode = RequiredMode.REQUIRED)
+  private Status status;
 
   @Id
   @Schema(hidden = true)
@@ -115,6 +133,35 @@ public class MasterAssignmentSchedule implements Serializable {
   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
   @Future
   private Instant estimatedEndTime;
+
+  @Data
+  public static class CrewMember {
+
+    @Indexed
+    @Schema(description = "The ID of the crew member's card", requiredMode = RequiredMode.REQUIRED)
+    private String cardId;
+
+    @Schema(description = "The name of the crew member", requiredMode = RequiredMode.REQUIRED)
+    private String professionalPosition;
+
+    @Override
+    public int hashCode() {
+      return cardId.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj) return true;
+      else if (obj instanceof CrewMember that) {
+        return this.cardId.equals(that.cardId);
+      }
+      return false;
+    }
+  }
+
+  private Set<CrewMember> crewMembers;
+
+  private boolean done;
 
   @CreatedDate
   @JsonIgnore

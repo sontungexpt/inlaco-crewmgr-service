@@ -5,18 +5,15 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.inlaco.crewmgrservice.annotation.JsonPatchIgnore;
 import com.inlaco.crewmgrservice.common.payload.TimeFrame;
+import com.inlaco.crewmgrservice.feature.user.enums.WorkStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import lombok.AllArgsConstructor;
-import lombok.Builder.Default;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.bson.types.ObjectId;
@@ -30,12 +27,8 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.format.annotation.DateTimeFormat;
 
-@SuperBuilder
 @Getter
 @Setter
-@Document(collection = "sailors")
-@NoArgsConstructor
-@AllArgsConstructor
 @JsonIgnoreProperties(
     value = {"id", "cardId", "contractId", "joinedAt", "updatedAt", "candidateId"},
     allowGetters = true)
@@ -44,24 +37,28 @@ import org.springframework.format.annotation.DateTimeFormat;
       name = "profile_search_index",
       def = "{'fullName': 1, 'email': 1, 'phoneNumber': 1}")
 })
+@Document(collection = "sailors")
+@SuperBuilder
 public class SailorProfile extends BasicProfile implements TimeFrame {
 
-  @Default
-  @JsonIgnore
+  @Schema(
+      description = "The work status of the sailor",
+      requiredMode = RequiredMode.REQUIRED,
+      type = "String")
   @JsonPatchIgnore
-  @Schema(hidden = true, description = "The contract ids of the sailor", type = "List<String>")
-  protected Set<ObjectId> contractIds = new HashSet<>();
-
-  @JsonGetter("contractIds")
-  public List<String> getContractIdsStr() {
-    return contractIds.stream().map(ObjectId::toHexString).toList();
-  }
+  @JsonIgnore
+  private WorkStatus workStatus;
 
   @Schema(description = "The candidate id of the sailor", hidden = true, type = "String")
   @JsonPatchIgnore
   protected ObjectId candidateId;
 
-  @NotNull
+  @JsonGetter("candidateId")
+  public String getCandidateIdStr() {
+    return candidateId != null ? candidateId.toHexString() : null;
+  }
+
+  @NotBlank
   @Schema(description = "The position of the sailor", requiredMode = RequiredMode.REQUIRED)
   private String professionalPosition;
 
@@ -71,7 +68,7 @@ public class SailorProfile extends BasicProfile implements TimeFrame {
       type = "Date")
   @JsonIgnore
   @JsonPatchIgnore
-  private Instant joinedAt;
+  private Instant joinedCompanyAt;
 
   @Schema(
       description = "The card id (Year-STT)",
@@ -136,10 +133,10 @@ public class SailorProfile extends BasicProfile implements TimeFrame {
   @Schema(hidden = true)
   private Instant createdAt;
 
-  @Schema(hidden = true)
   @JsonIgnore
   @JsonPatchIgnore
   @CreatedBy
+  @Schema(hidden = true)
   private ObjectId createdBy;
 
   @LastModifiedBy

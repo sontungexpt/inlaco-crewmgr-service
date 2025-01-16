@@ -1,11 +1,11 @@
-package com.inlaco.crewmgrservice.feature.crewhiring.controller;
+package com.inlaco.crewmgrservice.feature.crewrental.controller;
 
 import com.inlaco.crewmgrservice.annotation.CurrentUser;
 import com.inlaco.crewmgrservice.config.OpenApiConfig;
-import com.inlaco.crewmgrservice.feature.crewhiring.dto.CrewRentalRequestFilter;
-import com.inlaco.crewmgrservice.feature.crewhiring.enums.CrewRentalRequestStatus;
-import com.inlaco.crewmgrservice.feature.crewhiring.model.CrewRentalRequest;
-import com.inlaco.crewmgrservice.feature.crewhiring.service.CrewRentalRequestService;
+import com.inlaco.crewmgrservice.feature.crewrental.dto.RentalRequestFilterable;
+import com.inlaco.crewmgrservice.feature.crewrental.enums.RentalRequestStatus;
+import com.inlaco.crewmgrservice.feature.crewrental.model.RentalRequest;
+import com.inlaco.crewmgrservice.feature.crewrental.service.RentalRequestService;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import com.inlaco.crewmgrservice.validation.annotation.ObjectId;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,9 +25,9 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/crew-rental-requests")
 @RequiredArgsConstructor
 @Tag(name = "Crew Rental Request", description = "APIs for managing crew rental requests")
-public class CrewRentalRequestController {
+public class RentalRequestController {
 
-  private CrewRentalRequestService crewRentalRequestService;
+  private RentalRequestService crewRentalRequestService;
 
   @PostMapping("")
   @RolesAllowed("USER")
@@ -42,9 +42,8 @@ Create a new crew rental request
 - UC_general-user-gui-yeu-cau-thuyen-vien.
 """,
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
-  public ResponseEntity<CrewRentalRequest> createRequest(
-      @Valid @RequestBody CrewRentalRequest request) {
-    CrewRentalRequest createdRequest = crewRentalRequestService.createRequest(request);
+  public ResponseEntity<RentalRequest> createRequest(@Valid @RequestBody RentalRequest request) {
+    RentalRequest createdRequest = crewRentalRequestService.createRequest(request);
     return new ResponseEntity<>(createdRequest, HttpStatus.CREATED);
   }
 
@@ -82,11 +81,11 @@ Find all requests
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   @RolesAllowed("ADMIN")
   @GetMapping("")
-  public Page<CrewRentalRequest> findAllRequests(
-      @RequestParam(required = false) CrewRentalRequestStatus status,
+  public Page<RentalRequest> findAllRequests(
+      @RequestParam(required = false) RentalRequestStatus status,
       @PageableDefault(page = 0, size = 20) Pageable pageable) {
-    return crewRentalRequestService.findAllRequest(
-        CrewRentalRequestFilter.builder().status(status).build(), pageable);
+    return crewRentalRequestService.findAllRequests(
+        RentalRequestFilterable.builder().status(status).build(), pageable);
   }
 
   @Operation(
@@ -102,7 +101,7 @@ Find a request by id
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   @RolesAllowed("ADMIN")
   @GetMapping("/{id}")
-  public CrewRentalRequest findRequestById(@PathVariable("id") @ObjectId String id) {
+  public RentalRequest findRequestById(@PathVariable("id") @ObjectId String id) {
     return crewRentalRequestService.getRequestById(id);
   }
 }

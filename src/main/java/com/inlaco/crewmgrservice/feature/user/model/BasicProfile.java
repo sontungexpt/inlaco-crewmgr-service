@@ -1,7 +1,6 @@
 package com.inlaco.crewmgrservice.feature.user.model;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.inlaco.crewmgrservice.annotation.JsonPatchIgnore;
 import com.inlaco.crewmgrservice.validation.annotation.PhoneNumber;
@@ -16,7 +15,6 @@ import java.io.Serializable;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.bson.types.ObjectId;
@@ -24,20 +22,19 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.format.annotation.DateTimeFormat;
 
-@SuperBuilder
-@NoArgsConstructor
 @Getter
 @Setter
 @AllArgsConstructor
 @JsonIgnoreProperties(
-    value = {"id"},
+    value = {"id", "accountId"},
     allowGetters = true)
+@SuperBuilder
 public class BasicProfile implements Serializable {
 
   @Id
-  @Schema(hidden = true)
   @Null
   @JsonPatchIgnore
+  @Schema(hidden = true)
   protected String id;
 
   @Schema(
@@ -48,17 +45,11 @@ public class BasicProfile implements Serializable {
       type = "String")
   @JsonPatchIgnore
   @Indexed(unique = true)
-  @JsonIgnore
   protected ObjectId accountId;
 
   @JsonGetter("accountId")
   public String getAccountIdStr() {
     return accountId.toHexString();
-  }
-
-  @JsonIgnore
-  public ObjectId getAccountId() {
-    return accountId;
   }
 
   @Schema(

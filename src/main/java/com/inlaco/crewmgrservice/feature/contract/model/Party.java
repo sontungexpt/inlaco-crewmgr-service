@@ -2,13 +2,15 @@ package com.inlaco.crewmgrservice.feature.contract.model;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.inlaco.crewmgrservice.validation.annotation.PhoneNumber;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
 
@@ -37,20 +39,20 @@ public class Party {
   private String representer;
 
   @Schema(description = "The employee email of the contract", example = " [email protected]")
+  @Email
   private String email;
 
   @Schema(description = "The employee phone of the contract", example = "0123456789")
+  @PhoneNumber
   private String phone;
 
   @Schema(description = "The address of the contract")
   private String address;
 
-  // @Schema(description = "The account id of the party", example = "5f9b1b7b7f7b7b7b7b7b7b7b")
-  // @Indexed
-  // private ObjectId accountId;
+  @Schema(description = "The account id of the party", example = "5f9b1b7b7f7b7b7b7b7b7b7b")
+  private ObjectId accountId;
 
-  @Default
-  @Schema(description = "The type of the party", example = "STATIC")
   @NotNull
-  private PartyType type = PartyType.STATIC;
+  @Schema(description = "The type of the party", example = "STATIC")
+  private PartyType type;
 }
