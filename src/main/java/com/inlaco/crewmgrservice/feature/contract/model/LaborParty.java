@@ -1,6 +1,5 @@
 package com.inlaco.crewmgrservice.feature.contract.model;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Past;
@@ -8,7 +7,6 @@ import java.time.Instant;
 import lombok.experimental.SuperBuilder;
 
 @SuperBuilder
-@JsonTypeName(PartyType.Fields.DYNAMIC)
 public class LaborParty extends DynamicParty {
 
   @Schema(description = "The tax code of the contract", example = "123456")

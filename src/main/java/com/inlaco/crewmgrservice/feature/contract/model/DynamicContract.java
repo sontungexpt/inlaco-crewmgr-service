@@ -1,6 +1,5 @@
 package com.inlaco.crewmgrservice.feature.contract.model;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.inlaco.crewmgrservice.common.model.DynamicAttribute;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
@@ -13,7 +12,6 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @Getter
 @Setter
-@JsonTypeName(ContractType.Fields.DYNAMIC_CONTRACT)
 public class DynamicContract extends AbstractContract {
 
   @Schema(

@@ -1,7 +1,7 @@
 package com.inlaco.crewmgrservice.feature.contract.model;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.inlaco.crewmgrservice.validation.annotation.PhoneNumber;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
@@ -17,13 +17,12 @@ import org.springframework.data.mongodb.core.index.CompoundIndexes;
 @Getter
 @Setter
 @SuperBuilder
-@JsonTypeInfo(
-    include = JsonTypeInfo.As.PROPERTY,
-    visible = true,
-    use = JsonTypeInfo.Id.NAME,
-    property = "type",
-    defaultImpl = DynamicParty.class)
-@JsonTypeName(PartyType.Fields.STATIC)
+@JsonTypeInfo(include = JsonTypeInfo.As.PROPERTY, use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonSubTypes({
+  @JsonSubTypes.Type(value = Party.class, name = PartyType.Fields.STATIC),
+  @JsonSubTypes.Type(value = DynamicParty.class, name = PartyType.Fields.DYNAMIC),
+  @JsonSubTypes.Type(value = LaborParty.class, name = PartyType.Fields.LABOR),
+})
 @CompoundIndexes({
   @CompoundIndex(name = "party_search_index", def = "{'phone': 1, 'email': 1, 'representer': 1}")
 })

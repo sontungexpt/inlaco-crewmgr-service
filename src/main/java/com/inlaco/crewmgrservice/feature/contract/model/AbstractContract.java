@@ -2,6 +2,7 @@ package com.inlaco.crewmgrservice.feature.contract.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.inlaco.crewmgrservice.annotation.JsonPatchIgnore;
 import com.inlaco.crewmgrservice.common.model.File;
@@ -32,12 +33,12 @@ import org.springframework.format.annotation.DateTimeFormat;
     allowGetters = true)
 @Document("contracts")
 @SuperBuilder
-@JsonTypeInfo(
-    include = JsonTypeInfo.As.PROPERTY,
-    visible = true,
-    use = JsonTypeInfo.Id.NAME,
-    property = "type",
-    defaultImpl = DynamicContract.class)
+@JsonTypeInfo(include = JsonTypeInfo.As.PROPERTY, use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonSubTypes({
+  @JsonSubTypes.Type(value = DynamicContract.class, name = ContractType.Fields.DYNAMIC_CONTRACT),
+  @JsonSubTypes.Type(value = LaborContract.class, name = ContractType.Fields.LABOR_CONTRACT),
+  @JsonSubTypes.Type(value = SupplyContract.class, name = ContractType.Fields.SUPPLY_CONTRACT)
+})
 public abstract class AbstractContract extends ContractVersion implements Contract, TimeFrame {
 
   @NotBlank

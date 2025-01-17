@@ -1,9 +1,7 @@
 package com.inlaco.crewmgrservice.feature.post.model;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.inlaco.crewmgrservice.common.model.Address;
 import com.inlaco.crewmgrservice.common.payload.TimeFrame;
-import com.inlaco.crewmgrservice.feature.post.enums.PostType;
 import com.inlaco.crewmgrservice.validation.annotation.Range;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.FutureOrPresent;
@@ -15,14 +13,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.springframework.data.util.Pair;
 import org.springframework.format.annotation.DateTimeFormat;
 
 @Schema(
     description =
         "Details of a recruitment post with expected salary, work location, and recruitment"
             + " period.")
-@JsonTypeName(PostType.Fields.RECRUITMENT)
 @SuperBuilder
 @NoArgsConstructor
 @Getter

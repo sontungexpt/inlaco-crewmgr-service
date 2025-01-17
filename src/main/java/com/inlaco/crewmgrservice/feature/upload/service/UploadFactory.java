@@ -8,9 +8,9 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UploadFactory {
 
-  private final Map<String, UploadService> uploadServiceMap;
+  private final Map<String, UploadServiceStragegy> uploadServiceMap;
 
-  public UploadService getUploadService(String type) {
+  public UploadServiceStragegy getUploadService(String type) {
     if (uploadServiceMap.containsKey(type)) {
       return uploadServiceMap.get(type);
     }

@@ -1,5 +1,6 @@
 package com.inlaco.crewmgrservice.feature.schedule.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.inlaco.crewmgrservice.annotation.CurrentUser;
 import com.inlaco.crewmgrservice.config.OpenApiConfig;
 import com.inlaco.crewmgrservice.feature.schedule.dto.SailorScheduleResponse;
@@ -21,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -195,10 +197,6 @@ If estimatedEndDate is provided, adjust the filter to include schedules that mat
 
 Find schedule detail by id.
 
-If status is provided, filter the schedules by the given status.
-If startDate is set, filter schedules that start from the specified startDate to future dates.
-If estimatedEndDate is provided, adjust the filter to include schedules that match the estimated end date.
-
 **Usecase**:
 
 - UC_admin-xem-danh-sach-cac-dieu-dong.
@@ -209,5 +207,25 @@ If estimatedEndDate is provided, adjust the filter to include schedules that mat
   @RolesAllowed({"ADMIN", "SAILOR"})
   public ScheduleResponse findDetailSchedule(@ObjectId @PathVariable("id") String id) {
     return scheduleService.findDetailScheduleById(id);
+  }
+
+  @Operation(
+      summary = "Update schedule by id",
+      description =
+          """
+
+Update schedule by id.
+
+**Usecase**:
+
+- UC_admin-xem-danh-sach-cac-dieu-dong.
+
+""",
+      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
+  @PatchMapping("/{id}")
+  @RolesAllowed({"ADMIN"})
+  public ScheduleResponse updateSchedule(
+      @ObjectId @PathVariable("id") String id, @RequestBody JsonNode patch) {
+    return scheduleService.updateSchedule(id, patch);
   }
 }

@@ -2,10 +2,12 @@ package com.inlaco.crewmgrservice.feature.post.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.inlaco.crewmgrservice.annotation.JsonPatchIgnore;
 import com.inlaco.crewmgrservice.common.model.File;
 import com.inlaco.crewmgrservice.feature.post.enums.PostType;
+import io.swagger.v3.oas.annotations.media.DiscriminatorMapping;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import java.io.Serializable;
@@ -23,13 +25,12 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Schema(description = "Represents a post with details such as title, content, author, etc.")
-@JsonTypeInfo(
-    include = JsonTypeInfo.As.PROPERTY,
-    visible = true,
-    use = JsonTypeInfo.Id.NAME,
-    property = "type",
-    defaultImpl = NewsPost.class)
+@JsonTypeInfo(include = JsonTypeInfo.As.PROPERTY, use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonSubTypes({
+  @JsonSubTypes.Type(value = NewsPost.class, name = PostType.Fields.NEWS),
+  @JsonSubTypes.Type(value = RecruitmentPost.class, name = PostType.Fields.RECRUITMENT),
+  @JsonSubTypes.Type(value = EventPost.class, name = PostType.Fields.EVENT)
+})
 @JsonIgnoreProperties(
     value = {"id", "authorId", "createdAt", "updatedAt"},
     allowGetters = true)
@@ -38,6 +39,14 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @SuperBuilder
 @Getter
 @Setter
+@Schema(
+    description = "Represents a post with details such as title, content, author, etc.",
+    discriminatorProperty = "type",
+    discriminatorMapping = {
+      @DiscriminatorMapping(value = PostType.Fields.NEWS, schema = NewsPost.class),
+      @DiscriminatorMapping(value = PostType.Fields.RECRUITMENT, schema = RecruitmentPost.class),
+      @DiscriminatorMapping(value = PostType.Fields.EVENT, schema = EventPost.class)
+    })
 public abstract class Post implements Serializable {
 
   @Schema(
@@ -69,7 +78,7 @@ public abstract class Post implements Serializable {
 
   @Schema(
       description = "URL of the image associated with the post",
-      example = "https://example.com/image.jpg")
+      example = "{ \"url\": \"https://example.com/image.jpg\" }")
   protected File image;
 
   @Schema(description = "Name of the company associated with the post", example = "Inlaco")

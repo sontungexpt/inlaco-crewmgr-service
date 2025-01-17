@@ -1,5 +1,6 @@
 package com.inlaco.crewmgrservice.feature.schedule.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.inlaco.crewmgrservice.feature.schedule.dto.SailorScheduleResponse;
 import com.inlaco.crewmgrservice.feature.schedule.dto.ScheduleFilterable;
 import com.inlaco.crewmgrservice.feature.schedule.dto.ScheduleResponse;
@@ -11,6 +12,8 @@ import org.springframework.data.domain.Pageable;
 public interface ScheduleService {
 
   AssigmentSchedule createSchedule(AssigmentSchedule schedule);
+
+  ScheduleResponse updateSchedule(String id, JsonNode patch);
 
   ScheduleResponse findDetailScheduleById(String id);
 

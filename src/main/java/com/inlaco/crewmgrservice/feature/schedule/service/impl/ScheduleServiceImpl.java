@@ -1,5 +1,6 @@
 package com.inlaco.crewmgrservice.feature.schedule.service.impl;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.inlaco.crewmgrservice.feature.schedule.dto.SailorScheduleResponse;
 import com.inlaco.crewmgrservice.feature.schedule.dto.ScheduleFilterable;
 import com.inlaco.crewmgrservice.feature.schedule.dto.ScheduleResponse;
@@ -7,6 +8,7 @@ import com.inlaco.crewmgrservice.feature.schedule.model.AssigmentSchedule;
 import com.inlaco.crewmgrservice.feature.schedule.repository.AssignmentScheduleRepository;
 import com.inlaco.crewmgrservice.feature.schedule.repository.CustomScheduleRepository;
 import com.inlaco.crewmgrservice.feature.schedule.service.ScheduleService;
+import com.inlaco.crewmgrservice.utils.JsonMergePatchUtils;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +23,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 
   private final AssignmentScheduleRepository scheduleRepository;
   private final CustomScheduleRepository customScheduleRepository;
+  private final JsonMergePatchUtils jsonMergePatch;
 
   @Override
   public AssigmentSchedule createSchedule(AssigmentSchedule schedule) {
@@ -72,6 +75,12 @@ public class ScheduleServiceImpl implements ScheduleService {
 
   @Override
   public ScheduleResponse findDetailScheduleById(String id) {
+    return customScheduleRepository.findDetailSchedule(id);
+  }
+
+  @Override
+  public ScheduleResponse updateSchedule(String id, JsonNode patch) {
+    jsonMergePatch.patch(id, AssigmentSchedule.class, patch);
     return customScheduleRepository.findDetailSchedule(id);
   }
 }
