@@ -87,9 +87,10 @@ public abstract class Post implements Serializable {
   @Schema(description = "Type of the post", enumAsRef = true)
   protected PostType type;
 
-  @Schema(description = "Indicates if the post is deleted", example = "true")
   @Default
   @JsonPatchIgnore
+  @JsonIgnore
+  @Schema(description = "Indicates if the post is deleted", example = "true", hidden = true)
   private boolean deleted = false;
 
   @Schema(
@@ -97,6 +98,7 @@ public abstract class Post implements Serializable {
       example = "5f8d0d55b54764421b7156a2",
       hidden = true)
   @JsonPatchIgnore
+  @JsonIgnore
   private ObjectId deletedBy;
 
   @Schema(
