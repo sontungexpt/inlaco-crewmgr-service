@@ -1,14 +1,13 @@
 package com.inlaco.crewmgrservice.feature.schedule.repository;
 
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
-import static org.springframework.data.mongodb.core.query.Criteria.*;
-import static org.springframework.data.mongodb.core.query.Query.*;
 
 import com.inlaco.crewmgrservice.common.model.FacetResult;
 import com.inlaco.crewmgrservice.feature.schedule.dto.ScheduleFilterable;
+import com.inlaco.crewmgrservice.feature.schedule.dto.ScheduleResponse;
 import com.inlaco.crewmgrservice.feature.schedule.model.AssigmentSchedule;
+import com.inlaco.crewmgrservice.feature.user.model.SailorProfile;
 import java.time.*;
-import java.time.temporal.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +28,22 @@ import org.springframework.stereotype.Repository;
 public class CustomScheduleRepository {
 
   private final MongoTemplate mongoTemplate;
+
+  public ScheduleResponse findDetailSchedule(String id) {
+
+    Aggregation aggregation =
+        newAggregation(
+            match(Criteria.where("_id").is(id)),
+            lookup(
+                mongoTemplate.getCollectionName(SailorProfile.class),
+                "cardId",
+                "crewMembers.cardId",
+                "crewMembers"));
+
+    return mongoTemplate
+        .aggregate(aggregation, AssigmentSchedule.class, ScheduleResponse.class)
+        .getUniqueMappedResult();
+  }
 
   private ScheduleFilterable defaultWeekStartEndFilter(ScheduleFilterable filterable) {
     if (filterable == null) return null;
@@ -75,7 +90,21 @@ public class CustomScheduleRepository {
     return result.toPage(pageable);
   }
 
-  public Page<AssigmentSchedule> findScheduleByCardId(
+  public List<AssigmentSchedule> findSchedulesByCardId(
+      String cardId, ScheduleFilterable filterable) {
+    List<AggregationOperation> operations = new ArrayList<>();
+    var criteria = Criteria.where("crewMembers.cardId").is(cardId);
+
+    if (filterable != null && filterable.getStatus() != null) {
+      criteria.andOperator(buildFilterableCriteria(filterable));
+    }
+
+    operations.add(match(criteria));
+
+    return mongoTemplate.find(new Query().addCriteria(criteria), AssigmentSchedule.class);
+  }
+
+  public Page<AssigmentSchedule> findPaginationSchedulesByCardId(
       String cardId, ScheduleFilterable filterable, Pageable pageable) {
     List<AggregationOperation> operations = new ArrayList<>();
 
