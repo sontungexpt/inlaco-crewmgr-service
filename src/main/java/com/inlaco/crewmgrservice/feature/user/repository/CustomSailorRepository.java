@@ -43,16 +43,19 @@ public class CustomSailorRepository {
   public Page<SailorProfile> searchSailors(
       String keyword, SailorFilterable filterable, Pageable p) {
     List<Criteria> criteriaList = new ArrayList<>();
+
     if (ObjectId.isValid(keyword)) {
       criteriaList.add(Criteria.where("accountId").is(new ObjectId(keyword)));
     }
+
     if (PhoneNumberValidatorUtils.isPotentialPhoneNumber(keyword)) {
       criteriaList.add(Criteria.where("phone").regex(keyword, "i"));
     }
+
     criteriaList.add(Criteria.where("fullName").regex(keyword, "i"));
     criteriaList.add(Criteria.where("email").regex(keyword, "i"));
 
-    var query = buildOfficialSailorCriteria().orOperator(criteriaList);
+    var query = new Criteria().orOperator(criteriaList);
     if (filterable.isFilterable()) {
       query.andOperator(buildFilterableCriteria(filterable));
     }
@@ -71,12 +74,16 @@ public class CustomSailorRepository {
     return new PageImpl<>(result.getDatas(), pageable, result.getCount());
   }
 
-  private Criteria buildOfficialSailorCriteria() {
-    return Criteria.where("cardId").exists(true).ne("");
+  private Criteria buildOfficialSailorCriteria(boolean official) {
+    if (official) return Criteria.where("cardId").exists(true).ne("");
+    else return Criteria.where("cardId").exists(false).orOperator(Criteria.where("cardId").is(""));
   }
 
   private Criteria buildFilterableCriteria(SailorFilterable filterable) {
     var criteria = new Criteria();
+    if (filterable.getOfficial() != null) {
+      criteria.andOperator(buildOfficialSailorCriteria(filterable.getOfficial()));
+    }
     if (filterable.getProfessionalPosition() != null) {
       criteria.and("professionalPosition").is(filterable.getProfessionalPosition());
     }
@@ -98,12 +105,9 @@ public class CustomSailorRepository {
     log.debug("Fetching non expired courses with pagination");
     List<AggregationOperation> operations = new ArrayList<>();
 
-    Criteria query = buildOfficialSailorCriteria();
-
     if (filterable.isFilterable()) {
-      query.andOperator(buildFilterableCriteria(filterable));
+      operations.add(match(buildFilterableCriteria(filterable)));
     }
-    operations.add(match(query));
     operations.add(buildPaginationOperation(pageable));
 
     var aggregation = Aggregation.newAggregation(operations);

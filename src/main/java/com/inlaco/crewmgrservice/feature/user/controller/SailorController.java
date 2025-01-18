@@ -96,10 +96,12 @@ This API is used to get all sailor profiles.
   public Page<BasicProfileDTO> getAllSailors(
       @RequestParam(required = false) String professionalPosition,
       @RequestParam(required = false) WorkStatus workStatus,
+      @RequestParam(required = false) Boolean official,
       @PageableDefault(page = 0, size = 20) Pageable pageable) {
     return sailorService.getAllSailors(
         SailorFilterable.builder()
             .workStatus(workStatus)
+            .official(official)
             .professionalPosition(professionalPosition)
             .build(),
         pageable);
@@ -129,9 +131,17 @@ Can be filtered by position
   public Page<BasicProfileDTO> searchSailors(
       @RequestParam String q,
       @RequestParam(required = false) String professionalPosition,
+      @RequestParam(required = false) WorkStatus workStatus,
+      @RequestParam(required = false) Boolean official,
       @PageableDefault(page = 0, size = 20) Pageable pageable) {
     return sailorService.searchSailors(
-        q, SailorFilterable.builder().professionalPosition(professionalPosition).build(), pageable);
+        q,
+        SailorFilterable.builder()
+            .workStatus(workStatus)
+            .official(official)
+            .professionalPosition(professionalPosition)
+            .build(),
+        pageable);
   }
 
   @Operation(

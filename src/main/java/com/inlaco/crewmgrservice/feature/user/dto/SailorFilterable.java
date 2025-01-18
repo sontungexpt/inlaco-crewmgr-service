@@ -11,5 +11,7 @@ public class SailorFilterable implements Filterable {
 
   private String professionalPosition;
 
+  private Boolean official;
+
   private WorkStatus workStatus;
 }
