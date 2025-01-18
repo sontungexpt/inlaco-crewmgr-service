@@ -6,6 +6,7 @@ import com.inlaco.crewmgrservice.annotation.PageableQueryParams;
 import com.inlaco.crewmgrservice.config.OpenApiConfig;
 import com.inlaco.crewmgrservice.feature.user.dto.BasicProfileDTO;
 import com.inlaco.crewmgrservice.feature.user.dto.SailorFilterable;
+import com.inlaco.crewmgrservice.feature.user.enums.WorkStatus;
 import com.inlaco.crewmgrservice.feature.user.model.SailorProfile;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import com.inlaco.crewmgrservice.feature.user.service.SailorService;
@@ -94,9 +95,14 @@ This API is used to get all sailor profiles.
   @PageableQueryParams
   public Page<BasicProfileDTO> getAllSailors(
       @RequestParam(required = false) String professionalPosition,
+      @RequestParam(required = false) WorkStatus workStatus,
       @PageableDefault(page = 0, size = 20) Pageable pageable) {
     return sailorService.getAllSailors(
-        SailorFilterable.builder().professionalPosition(professionalPosition).build(), pageable);
+        SailorFilterable.builder()
+            .workStatus(workStatus)
+            .professionalPosition(professionalPosition)
+            .build(),
+        pageable);
   }
 
   @Operation(

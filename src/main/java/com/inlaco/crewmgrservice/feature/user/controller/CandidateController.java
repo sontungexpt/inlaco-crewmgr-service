@@ -10,7 +10,6 @@ import com.inlaco.crewmgrservice.feature.user.model.User;
 import com.inlaco.crewmgrservice.feature.user.service.CandidateService;
 import com.inlaco.crewmgrservice.validation.annotation.ObjectId;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.security.RolesAllowed;
@@ -179,8 +178,7 @@ Admin review candidate profile based on its id.
   @RolesAllowed("ADMIN")
   public void adminReviewCandidate(
       @RequestParam(defaultValue = "true") boolean autoEmail,
-      @Schema(allowableValues = {"WAIT_FOR_INTERVIEW", "HIRED", "REJECTED"}) @RequestParam
-          CandidateProfile.Status status,
+      @RequestParam CandidateProfile.Status status,
       @ObjectId @PathVariable("candidateId") String id) {
     candidateService.reviewCandidate(id, status, autoEmail);
   }

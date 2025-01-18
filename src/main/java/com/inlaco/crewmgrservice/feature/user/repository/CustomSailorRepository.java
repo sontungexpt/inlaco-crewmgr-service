@@ -52,7 +52,7 @@ public class CustomSailorRepository {
     criteriaList.add(Criteria.where("fullName").regex(keyword, "i"));
     criteriaList.add(Criteria.where("email").regex(keyword, "i"));
 
-    var query = new Criteria().orOperator(criteriaList);
+    var query = buildOfficialSailorCriteria().orOperator(criteriaList);
     if (filterable.isFilterable()) {
       query.andOperator(buildFilterableCriteria(filterable));
     }
@@ -71,13 +71,17 @@ public class CustomSailorRepository {
     return new PageImpl<>(result.getDatas(), pageable, result.getCount());
   }
 
+  private Criteria buildOfficialSailorCriteria() {
+    return Criteria.where("cardId").exists(true).ne("");
+  }
+
   private Criteria buildFilterableCriteria(SailorFilterable filterable) {
     var criteria = new Criteria();
     if (filterable.getProfessionalPosition() != null) {
       criteria.and("professionalPosition").is(filterable.getProfessionalPosition());
     }
     if (filterable.getWorkStatus() != null) {
-      criteria.and("cardId").exists(true).ne("").and("workStatus").is(filterable.getWorkStatus());
+      criteria.and("workStatus").is(filterable.getWorkStatus());
     }
     return criteria;
   }
@@ -94,9 +98,12 @@ public class CustomSailorRepository {
     log.debug("Fetching non expired courses with pagination");
     List<AggregationOperation> operations = new ArrayList<>();
 
+    Criteria query = buildOfficialSailorCriteria();
+
     if (filterable.isFilterable()) {
-      operations.add(match(buildFilterableCriteria(filterable)));
+      query.andOperator(buildFilterableCriteria(filterable));
     }
+    operations.add(match(query));
     operations.add(buildPaginationOperation(pageable));
 
     var aggregation = Aggregation.newAggregation(operations);
