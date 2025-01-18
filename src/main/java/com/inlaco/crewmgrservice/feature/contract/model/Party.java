@@ -17,7 +17,11 @@ import org.springframework.data.mongodb.core.index.CompoundIndexes;
 @Getter
 @Setter
 @SuperBuilder
-@JsonTypeInfo(include = JsonTypeInfo.As.PROPERTY, use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonTypeInfo(
+    include = JsonTypeInfo.As.EXISTING_PROPERTY,
+    visible = true,
+    use = JsonTypeInfo.Id.NAME,
+    property = "type")
 @JsonSubTypes({
   @JsonSubTypes.Type(value = Party.class, name = PartyType.Fields.STATIC),
   @JsonSubTypes.Type(value = DynamicParty.class, name = PartyType.Fields.DYNAMIC),

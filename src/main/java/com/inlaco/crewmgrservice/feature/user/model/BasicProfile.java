@@ -15,9 +15,11 @@ import java.io.Serializable;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.bson.types.ObjectId;
+import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -29,6 +31,7 @@ import org.springframework.format.annotation.DateTimeFormat;
     value = {"id", "accountId"},
     allowGetters = true)
 @SuperBuilder
+@NoArgsConstructor
 public class BasicProfile implements Serializable {
 
   @Id
@@ -45,6 +48,7 @@ public class BasicProfile implements Serializable {
       type = "String")
   @JsonPatchIgnore
   @Indexed(unique = true)
+  @CreatedBy
   protected ObjectId accountId;
 
   @JsonGetter("accountId")

@@ -3,6 +3,7 @@ package com.inlaco.crewmgrservice.feature.user.service.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.inlaco.crewmgrservice.exceptions.ResourceNotFoundException;
 import com.inlaco.crewmgrservice.feature.post.enums.PostType;
+import com.inlaco.crewmgrservice.feature.post.exception.PostInactiveException;
 import com.inlaco.crewmgrservice.feature.post.model.Post;
 import com.inlaco.crewmgrservice.feature.post.service.PostService;
 import com.inlaco.crewmgrservice.feature.user.dto.BasicProfileDTO;
@@ -63,10 +64,12 @@ public class CandidateServiceImpl implements CandidateService {
     if (post.getType() != PostType.RECRUITMENT) {
       throw new ResourceNotFoundException(
           Post.class, Map.of("id", postId, "type", PostType.RECRUITMENT));
+    } else if (!post.isActive()) {
+      throw new PostInactiveException("The registration post is close");
     }
 
     candidateProfile.setRecruimentPostId(new ObjectId(postId));
-    candidateProfile.setAccountId(new ObjectId(user.getId()));
+
     return candidateProfileRepository.save(candidateProfile);
   }
 

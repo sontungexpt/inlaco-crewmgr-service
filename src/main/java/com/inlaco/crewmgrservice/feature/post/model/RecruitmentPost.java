@@ -1,6 +1,5 @@
 package com.inlaco.crewmgrservice.feature.post.model;
 
-import com.inlaco.crewmgrservice.common.model.Address;
 import com.inlaco.crewmgrservice.common.payload.TimeFrame;
 import com.inlaco.crewmgrservice.validation.annotation.Range;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -38,6 +37,8 @@ public class RecruitmentPost extends Post implements TimeFrame {
   @Default
   private boolean disabled = false;
 
+  @Override
+  @Schema(hidden = true)
   public boolean isActive() {
     return !disabled
         && recruitmentStartDate.isBefore(Instant.now())
@@ -45,19 +46,20 @@ public class RecruitmentPost extends Post implements TimeFrame {
   }
 
   @Schema(description = "Work location for the position")
-  private Address workLocation;
+  private String workLocation;
 
   @Schema(description = "Date when recruitment starts (UTC)", example = "2023-11-01T08:00:00Z")
   @FutureOrPresent
   @Default
-  @DateTimeFormat
+  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
   private Instant recruitmentStartDate = Instant.now().plusSeconds(30);
 
   @Schema(description = "Date when recruitment ends (UTC)", example = "2023-11-30T17:00:00Z")
-  @DateTimeFormat
+  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
   private Instant recruitmentEndDate;
 
   @Override
+  @Schema(hidden = true)
   public List<Pair> getTimeFrames() {
     return List.of(Pair.of(recruitmentStartDate, recruitmentEndDate, true, false));
   }

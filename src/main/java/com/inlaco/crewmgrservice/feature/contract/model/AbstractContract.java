@@ -33,7 +33,11 @@ import org.springframework.format.annotation.DateTimeFormat;
     allowGetters = true)
 @Document("contracts")
 @SuperBuilder
-@JsonTypeInfo(include = JsonTypeInfo.As.PROPERTY, use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonTypeInfo(
+    include = JsonTypeInfo.As.EXISTING_PROPERTY,
+    visible = true,
+    use = JsonTypeInfo.Id.NAME,
+    property = "type")
 @JsonSubTypes({
   @JsonSubTypes.Type(value = DynamicContract.class, name = ContractType.Fields.DYNAMIC_CONTRACT),
   @JsonSubTypes.Type(value = LaborContract.class, name = ContractType.Fields.LABOR_CONTRACT),

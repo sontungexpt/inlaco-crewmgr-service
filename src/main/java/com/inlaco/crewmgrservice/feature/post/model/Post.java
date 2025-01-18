@@ -25,7 +25,11 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@JsonTypeInfo(include = JsonTypeInfo.As.PROPERTY, use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonTypeInfo(
+    include = JsonTypeInfo.As.EXISTING_PROPERTY,
+    visible = true,
+    use = JsonTypeInfo.Id.NAME,
+    property = "type")
 @JsonSubTypes({
   @JsonSubTypes.Type(value = NewsPost.class, name = PostType.Fields.NEWS),
   @JsonSubTypes.Type(value = RecruitmentPost.class, name = PostType.Fields.RECRUITMENT),
@@ -69,6 +73,11 @@ public abstract class Post implements Serializable {
 
   @Schema(description = "Brief description of the post", example = "A quick guide on Spring Boot.")
   protected String description;
+
+  @Schema(hidden = true)
+  public boolean isActive() {
+    return true;
+  }
 
   @Schema(
       description = "List of tags associated with the post",
@@ -127,6 +136,7 @@ public abstract class Post implements Serializable {
   @JsonPatchIgnore
   private Instant updatedAt;
 
+  @Schema(hidden = true)
   public Instant getUpdatedDate() {
     return updatedAt;
   }

@@ -9,8 +9,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import java.time.Instant;
 import java.util.List;
+import lombok.AllArgsConstructor;
 import lombok.Builder.Default;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.bson.types.ObjectId;
@@ -34,6 +36,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
       name = "profile_search_index",
       def = "{'fullName': 1, 'email': 1, 'phoneNumber': 1}")
 })
+@NoArgsConstructor
+@AllArgsConstructor
 public class CandidateProfile extends BasicProfile {
 
   @Schema(description = "The language skills of the sailor", type = "List<String>")
