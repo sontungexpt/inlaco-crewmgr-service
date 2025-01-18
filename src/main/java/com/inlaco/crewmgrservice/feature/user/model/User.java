@@ -67,6 +67,9 @@ public class User implements UserDetails, Persistable<String> {
   @Username
   private String username;
 
+  @Schema(description = "The avatar of the account")
+  private String avatar;
+
   @NotNull
   @Schema(description = "The type of the username", requiredMode = RequiredMode.REQUIRED)
   private UsernameType usernameType;
@@ -118,7 +121,9 @@ public class User implements UserDetails, Persistable<String> {
     SAILOR
   }
 
-  private JobState jobState;
+  @Default
+  @Schema(description = "The job state of the account")
+  private JobState jobState = JobState.CAN_APPLY;
 
   public void promoteJobState() {
     new CircleJobStateContext(this).promote();

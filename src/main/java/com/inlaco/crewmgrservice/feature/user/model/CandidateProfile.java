@@ -1,8 +1,9 @@
 package com.inlaco.crewmgrservice.feature.user.model;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.inlaco.crewmgrservice.annotation.JsonPatchIgnore;
 import com.inlaco.crewmgrservice.common.model.File;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -29,7 +30,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @SuperBuilder
 @Document(collection = "candidates")
 @JsonIgnoreProperties(
-    value = {"id", "recruimentPostId", "status", "accountId"},
+    value = {"id", "recruitmentPostId", "status", "accountId"},
     allowGetters = true)
 @CompoundIndexes({
   @CompoundIndex(
@@ -52,12 +53,8 @@ public class CandidateProfile extends BasicProfile {
       requiredMode = RequiredMode.REQUIRED,
       hidden = true,
       type = "string")
-  private ObjectId recruimentPostId;
-
-  @JsonGetter("recruimentPostId")
-  public String getRecruimentPostIdString() {
-    return recruimentPostId.toHexString();
-  }
+  @JsonSerialize(using = ToStringSerializer.class)
+  private ObjectId recruitmentPostId;
 
   @Schema(description = "Resume file", example = "file")
   private File resume;
@@ -66,7 +63,7 @@ public class CandidateProfile extends BasicProfile {
   private int interviewScore;
 
   @Schema(description = "Interview feedback", example = "Good")
-  public enum Status {
+  public static enum Status {
     @Schema(description = "Applied for the job", example = "APPLIED")
     APPLIED,
 
@@ -95,6 +92,7 @@ public class CandidateProfile extends BasicProfile {
   @JsonIgnore
   private Instant appliedAt;
 
+  @Schema(hidden = true)
   public Instant getAppliedDate() {
     return appliedAt;
   }
@@ -105,6 +103,7 @@ public class CandidateProfile extends BasicProfile {
   @Schema(hidden = true)
   private Instant updatedAt;
 
+  @Schema(hidden = true)
   public Instant getUpdatedDate() {
     return updatedAt;
   }

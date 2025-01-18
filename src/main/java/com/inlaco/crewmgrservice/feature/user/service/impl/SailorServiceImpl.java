@@ -66,6 +66,7 @@ public class SailorServiceImpl implements SailorService {
         // .file(sailorProfile.get())
         .phoneNumber(sailorProfile.getPhoneNumber())
         .gender(sailorProfile.getGender())
+        .birthDate(sailorProfile.getBirthDate())
         .build();
   }
 

@@ -5,6 +5,7 @@ import com.inlaco.crewmgrservice.feature.auth.dto.JwtResponse;
 import com.inlaco.crewmgrservice.feature.auth.dto.NewPasswordRequest;
 import com.inlaco.crewmgrservice.feature.auth.model.RefreshToken;
 import com.inlaco.crewmgrservice.feature.auth.service.RefreshTokenService;
+import com.inlaco.crewmgrservice.feature.user.dto.UserProfile;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import com.inlaco.crewmgrservice.feature.user.model.authorization.Role;
 import com.inlaco.crewmgrservice.feature.user.repository.RoleRepository;
@@ -92,5 +93,14 @@ public record UserServiceImpl(
     user.promoteJobState();
     user.getRight().addRole(sailorRole);
     return userRepository.save(user);
+  }
+
+  @Override
+  public UserProfile fetchRoles(User currentUser) {
+    return UserProfile.builder()
+        .name(currentUser.getName())
+        .avatar(currentUser.getAvatar())
+        .roles(currentUser.getRight().getRoles().stream().map(Role::getName).toList())
+        .build();
   }
 }

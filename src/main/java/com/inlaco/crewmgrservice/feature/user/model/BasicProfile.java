@@ -1,7 +1,8 @@
 package com.inlaco.crewmgrservice.feature.user.model;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.inlaco.crewmgrservice.annotation.JsonPatchIgnore;
 import com.inlaco.crewmgrservice.validation.annotation.PhoneNumber;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -19,7 +20,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.bson.types.ObjectId;
-import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -48,13 +48,8 @@ public class BasicProfile implements Serializable {
       type = "String")
   @JsonPatchIgnore
   @Indexed(unique = true)
-  @CreatedBy
+  @JsonSerialize(using = ToStringSerializer.class)
   protected ObjectId accountId;
-
-  @JsonGetter("accountId")
-  public String getAccountIdStr() {
-    return accountId.toHexString();
-  }
 
   @Schema(
       description = "The birth date of the person",
@@ -62,7 +57,7 @@ public class BasicProfile implements Serializable {
       requiredMode = RequiredMode.REQUIRED,
       type = "String")
   @Past
-  @DateTimeFormat
+  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
   protected Instant birthDate;
 
   @Schema(

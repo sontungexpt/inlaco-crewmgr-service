@@ -3,6 +3,7 @@ package com.inlaco.crewmgrservice.feature.user.service.state.candidate;
 import com.inlaco.crewmgrservice.feature.notify.NotificationFactory;
 import com.inlaco.crewmgrservice.feature.notify.NotificationType;
 import com.inlaco.crewmgrservice.feature.notify.mail.EmailRequest;
+import com.inlaco.crewmgrservice.feature.notify.mail.EmailType;
 import com.inlaco.crewmgrservice.feature.post.model.RecruitmentPost;
 import com.inlaco.crewmgrservice.feature.post.service.PostService;
 import com.inlaco.crewmgrservice.feature.user.model.CandidateProfile;
@@ -40,6 +41,27 @@ public class CandidateHiredService extends CandidateReviewStragegy {
     userService.saveUser(user);
   }
 
+  @Override
+  public void review(CandidateProfile profile, boolean autoEmail) {
+    if (profile.getStatus() == Status.HIRED) return;
+    log.info("Hire candidate: {}", profile.getFullName());
+    if (autoEmail) {
+      RecruitmentPost post =
+          (RecruitmentPost) postService.getPost(profile.getRecruitmentPostId().toHexString());
+
+      String email = createHtmlEmail(profile.getFullName(), post.getPosition());
+
+      EmailRequest emailRequest =
+          EmailRequest.builder(profile.getEmail(), email, EMAIL_SUBJECT)
+              .emailType(EmailType.MIME)
+              .build();
+
+      notificationFactory.sendNotificationAsync(NotificationType.EMAIL, emailRequest);
+      log.info("Send email to candidate: {}", profile.getFullName());
+    }
+    updateProfileStatus(profile);
+  }
+
   @Nullable
   private String createHtmlEmail(String candidate_name, String position) {
     try {
@@ -53,23 +75,5 @@ public class CandidateHiredService extends CandidateReviewStragegy {
       e.printStackTrace();
     }
     return null;
-  }
-
-  @Override
-  public void review(String candidateId, boolean autoEmail) {
-    CandidateProfile profile = getCandidateProfile(candidateId);
-    log.info("Hire candidate: {}", profile.getFullName());
-    if (autoEmail) {
-      RecruitmentPost post =
-          (RecruitmentPost) postService.getPost(profile.getRecruimentPostId().toHexString());
-
-      String email = createHtmlEmail(profile.getFullName(), post.getPosition());
-
-      EmailRequest emailRequest = new EmailRequest(profile.getEmail(), email, EMAIL_SUBJECT);
-
-      notificationFactory.sendNotificationAsync(NotificationType.EMAIL, emailRequest);
-      log.info("Send email to candidate: {}", profile.getFullName());
-    }
-    updateProfileStatus(profile);
   }
 }

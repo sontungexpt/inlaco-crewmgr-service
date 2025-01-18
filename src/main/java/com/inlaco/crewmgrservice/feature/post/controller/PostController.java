@@ -123,7 +123,7 @@ This API retrieves a list of posts from the server based on the specified page n
       description =
           "This API retrieves a list of posts from the server based on the specified page number"
               + " and size.")
-  public Page<?> getPagePosts(@PageableDefault(size = 10, page = 0) Pageable pageable) {
+  public Page<Post> getPagePosts(@PageableDefault(size = 10, page = 0) Pageable pageable) {
     return postService.getPagePosts(pageable);
   }
 

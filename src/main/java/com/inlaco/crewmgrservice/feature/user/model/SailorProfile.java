@@ -13,7 +13,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.List;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.bson.types.ObjectId;
@@ -30,7 +32,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 @Getter
 @Setter
 @JsonIgnoreProperties(
-    value = {"id", "cardId", "contractId", "joinedAt", "updatedAt", "candidateId"},
+    value = {"id", "cardId", "accountId", "contractId", "joinedAt", "updatedAt", "candidateId"},
     allowGetters = true)
 @CompoundIndexes({
   @CompoundIndex(
@@ -39,6 +41,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 })
 @Document(collection = "sailors")
 @SuperBuilder
+@AllArgsConstructor
+@NoArgsConstructor
 public class SailorProfile extends BasicProfile implements TimeFrame {
 
   @Schema(

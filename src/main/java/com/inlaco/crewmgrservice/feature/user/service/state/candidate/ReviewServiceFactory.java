@@ -22,21 +22,24 @@ public class ReviewServiceFactory {
     getState(state).review(id);
   }
 
-  public void review(CandidateProfile.Status status, String id, boolean autoEmail) {
-    String state;
+  public String getServiceName(CandidateProfile.Status status) {
     switch (status) {
-      case REJECTED:
-        state = ReviewService.REJECTED;
-        break;
       case HIRED:
-        state = ReviewService.HIRED;
-        break;
+        return ReviewService.HIRED;
+      case REJECTED:
+        return ReviewService.REJECTED;
       case WAIT_FOR_INTERVIEW:
-        state = ReviewService.WAIT_INTERVIEW;
-        break;
+        return ReviewService.WAIT_INTERVIEW;
       default:
         throw new IllegalArgumentException("Invalid status: " + status);
     }
-    getState(state).review(id, autoEmail);
+  }
+
+  public void review(CandidateProfile.Status status, CandidateProfile profile, boolean autoEmail) {
+    getState(getServiceName(status)).review(profile, autoEmail);
+  }
+
+  public void review(CandidateProfile.Status status, String id, boolean autoEmail) {
+    getState(getServiceName(status)).review(id, autoEmail);
   }
 }

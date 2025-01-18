@@ -172,13 +172,13 @@ Admin review candidate profile based on its id.
 - Admin can choose to auto send an email to the candidate or not.
 
 """)
-  @PostMapping("/review/{id}")
+  @PostMapping("/review/{candidateId}")
   @ResponseStatus(HttpStatus.OK)
   @RolesAllowed("ADMIN")
   public void adminReviewCandidate(
       @RequestParam(defaultValue = "true") boolean autoEmail,
       @RequestParam CandidateProfile.Status status,
-      @ObjectId @PathVariable("id") String id) {
+      @ObjectId @PathVariable("candidateId") String id) {
     candidateService.reviewCandidate(id, status, autoEmail);
   }
 
