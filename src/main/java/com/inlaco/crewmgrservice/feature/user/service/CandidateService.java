@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.inlaco.crewmgrservice.feature.user.dto.BasicProfileDTO;
 import com.inlaco.crewmgrservice.feature.user.model.CandidateProfile;
 import com.inlaco.crewmgrservice.feature.user.model.User;
+import java.util.List;
 import java.util.Map;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,5 +26,5 @@ public interface CandidateService {
 
   void cancelCandidateProfile(String id, User user);
 
-  CandidateProfile getMyCandidateProfile(User user);
+  List<CandidateProfile> getMyCandidateProfile(User user);
 }

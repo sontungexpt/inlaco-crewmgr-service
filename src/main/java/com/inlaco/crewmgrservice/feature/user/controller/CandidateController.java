@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
+import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -197,7 +198,7 @@ This API retrieves the candidate profile of the current user.
 """)
   @GetMapping("/profile/me")
   @RolesAllowed("SAILOR")
-  public CandidateProfile getMyCandidateProfile(@CurrentUser User user) {
+  public List<CandidateProfile> getMyCandidateProfile(@CurrentUser User user) {
     return candidateService.getMyCandidateProfile(user);
   }
 }

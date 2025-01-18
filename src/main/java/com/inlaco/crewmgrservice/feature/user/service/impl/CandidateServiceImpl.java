@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Year;
+import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
@@ -136,11 +137,8 @@ public class CandidateServiceImpl implements CandidateService {
   }
 
   @Override
-  public CandidateProfile getMyCandidateProfile(User user) {
-    return candidateProfileRepository
-        .findByAccountId(new ObjectId(user.getId()))
-        .orElseThrow(
-            () -> new ResourceNotFoundException(CandidateProfile.class, "accountId", user.getId()));
+  public List<CandidateProfile> getMyCandidateProfile(User user) {
+    return candidateProfileRepository.findByAccountId(new ObjectId(user.getId()));
   }
 
   @Override
