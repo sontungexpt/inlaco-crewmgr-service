@@ -33,9 +33,16 @@ public class SailorServiceImpl implements SailorService {
   @Override
   public SailorProfile addSailor(String candidateId, SailorProfile sailorProfile) {
     CandidateProfile candidateProfile = candidateService.getCandidateProfileById(candidateId);
+    ObjectId candidateIdObj = new ObjectId(candidateId);
+
+    if (candidateProfile.getStatus() == CandidateProfile.Status.WAIT_FOR_INTERVIEW
+        || (candidateProfile.getStatus() == CandidateProfile.Status.HIRED
+            && !sailorProfileRepository.existsByCandidateId(candidateIdObj))) {
+      sailorProfile.setCardId(generateSailorCardId());
+    }
 
     sailorProfile.setAccountId(candidateProfile.getAccountId());
-    sailorProfile.setCandidateId(new ObjectId(candidateId));
+    sailorProfile.setCandidateId(candidateIdObj);
 
     if (sailorProfile.getExperiences() == null || sailorProfile.getExperiences().isEmpty()) {
       sailorProfile.setExperiences(candidateProfile.getExperiences());

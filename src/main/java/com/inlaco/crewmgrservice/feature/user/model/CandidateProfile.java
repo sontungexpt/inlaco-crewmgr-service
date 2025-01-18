@@ -62,8 +62,8 @@ public class CandidateProfile extends BasicProfile {
   @Schema(description = "Interview score", example = "0")
   private int interviewScore;
 
-  @Schema(description = "Interview feedback", example = "Good")
-  public static enum Status {
+  @Schema(description = "Interview feedback")
+  public enum Status {
     @Schema(description = "Applied for the job", example = "APPLIED")
     APPLIED,
 

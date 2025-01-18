@@ -10,6 +10,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SailorProfileRepository extends MongoRepository<SailorProfile, String> {
 
+  boolean existsByCandidateId(ObjectId candidateId);
+
   Optional<SailorProfile> findByAccountId(ObjectId accountId);
 
   Optional<SailorProfile> findByCardId(String cardId);
