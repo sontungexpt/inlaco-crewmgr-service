@@ -36,7 +36,7 @@ public class CustomSailorRepository {
 
   public long countSailorHasCardId() {
     Query query = new Query();
-    query.addCriteria(Criteria.where("cardId").exists(true).ne(""));
+    query.addCriteria(buildOfficialSailorCriteria(true));
     return mongoTemplate.count(query, SailorProfile.class);
   }
 
@@ -75,15 +75,16 @@ public class CustomSailorRepository {
   }
 
   private Criteria buildOfficialSailorCriteria(boolean official) {
-    if (official) return Criteria.where("cardId").exists(true).ne("");
-    else return Criteria.where("cardId").exists(false).orOperator(Criteria.where("cardId").is(""));
+    return Criteria.where("cardId").exists(official);
   }
 
   private Criteria buildFilterableCriteria(SailorFilterable filterable) {
     var criteria = new Criteria();
+
     if (filterable.getOfficial() != null) {
       criteria.andOperator(buildOfficialSailorCriteria(filterable.getOfficial()));
     }
+
     if (filterable.getProfessionalPosition() != null) {
       criteria.and("professionalPosition").is(filterable.getProfessionalPosition());
     }
