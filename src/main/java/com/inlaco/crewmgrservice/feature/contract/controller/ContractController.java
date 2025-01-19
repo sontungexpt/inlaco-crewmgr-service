@@ -2,6 +2,7 @@ package com.inlaco.crewmgrservice.feature.contract.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.inlaco.crewmgrservice.annotation.CurrentUser;
+import com.inlaco.crewmgrservice.config.OpenApiConfig;
 import com.inlaco.crewmgrservice.feature.contract.dto.ContractFilterable;
 import com.inlaco.crewmgrservice.feature.contract.model.Contract;
 import com.inlaco.crewmgrservice.feature.contract.model.ContractType;
@@ -11,6 +12,7 @@ import com.inlaco.crewmgrservice.feature.contract.service.ContractService;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import com.inlaco.crewmgrservice.validation.annotation.ObjectId;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.security.RolesAllowed;
 import java.time.Instant;
@@ -39,6 +41,7 @@ public class ContractController {
 
   @Operation(
       summary = "Get contract detail",
+      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
       description =
           """
 This API is used to get contract detail.
@@ -55,6 +58,7 @@ This API is used to get contract detail.
 
   @Operation(
       summary = "Get all conrtacts",
+      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
       description =
           """
 This API is used to get all contracts with short information.
@@ -88,6 +92,7 @@ This API is used to get all contracts with short information.
 
   @Operation(
       summary = "Update contract",
+      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
       description =
           """
 Update contract if it is not freezed.
@@ -104,6 +109,7 @@ Update contract if it is not freezed.
 
   @Operation(
       summary = "Get all contracts of sailor",
+      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
       description =
           """
 Get all contracts of sailor.
@@ -121,6 +127,7 @@ Get all contracts of sailor.
 
   @Operation(
       summary = "Add contract for sailor",
+      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
       description =
           """
 Add contract for sailor.
@@ -141,6 +148,7 @@ Add contract for sailor.
 
   @Operation(
       summary = "Add supply contract",
+      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
       description =
           """
 Add supply contract
@@ -161,6 +169,7 @@ Add supply contract
 
   @Operation(
       summary = "Active an contract by id",
+      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
       description =
           """
 Active an contract by id.
