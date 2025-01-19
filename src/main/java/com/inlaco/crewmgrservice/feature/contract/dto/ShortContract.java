@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.inlaco.crewmgrservice.common.model.File;
 import com.inlaco.crewmgrservice.feature.contract.model.Contract;
 import com.inlaco.crewmgrservice.feature.contract.model.ContractType;
-import com.inlaco.crewmgrservice.feature.contract.model.PaperContract;
 import com.inlaco.crewmgrservice.feature.contract.model.Party;
 import java.time.Instant;
 import java.util.List;
@@ -39,7 +38,7 @@ public class ShortContract implements Contract {
   private boolean signed;
 
   @Override
-  public List<PaperContract> getPaperContracts() {
+  public File getContractFile() {
     return null;
   }
 
