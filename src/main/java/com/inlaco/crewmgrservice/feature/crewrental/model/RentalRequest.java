@@ -17,6 +17,7 @@ import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
 import lombok.Builder.Default;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.bson.types.ObjectId;
@@ -36,6 +37,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 @JsonIgnoreProperties(
     value = {"id", "contractId", "status"},
     allowGetters = true)
+@NoArgsConstructor
 public class RentalRequest {
 
   @Id
@@ -47,11 +49,7 @@ public class RentalRequest {
   @Min(1)
   private Integer totalCrewNeeded;
 
-  @Schema(
-      description = "File containing detailed positions and required crew counts.",
-      example =
-          "{ \"fileName\": \"crew_details.pdf\", \"url\":"
-              + " \"https://example.com/files/crew_details.pdf\" }")
+  @Schema(description = "File containing detailed positions and required crew counts.")
   @NotNull
   private File positionDetail;
 
