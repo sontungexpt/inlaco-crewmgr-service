@@ -26,12 +26,12 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @JsonIgnoreProperties(
     value = {"id", "accountId"},
     allowGetters = true)
 @SuperBuilder
 @NoArgsConstructor
+@AllArgsConstructor
 public class BasicProfile implements Serializable {
 
   @Id

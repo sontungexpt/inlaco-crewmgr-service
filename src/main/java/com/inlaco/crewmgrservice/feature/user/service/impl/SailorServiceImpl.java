@@ -1,6 +1,7 @@
 package com.inlaco.crewmgrservice.feature.user.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.inlaco.crewmgrservice.exceptions.ResourceAlreadyInUseException;
 import com.inlaco.crewmgrservice.exceptions.ResourceNotFoundException;
 import com.inlaco.crewmgrservice.feature.user.dto.BasicProfileDTO;
 import com.inlaco.crewmgrservice.feature.user.dto.SailorFilterable;
@@ -33,12 +34,15 @@ public class SailorServiceImpl implements SailorService {
   @Override
   public SailorProfile addSailor(String candidateId, SailorProfile sailorProfile) {
     CandidateProfile candidateProfile = candidateService.getCandidateProfileById(candidateId);
-    ObjectId candidateIdObj = new ObjectId(candidateId);
+    if (candidateProfile.getStatus() != CandidateProfile.Status.WAIT_FOR_INTERVIEW
+        && candidateProfile.getStatus() != CandidateProfile.Status.HIRED) {
+      throw new ResourceNotFoundException(
+          CandidateProfile.class, "status", candidateProfile.getStatus().name());
+    }
 
-    if (candidateProfile.getStatus() == CandidateProfile.Status.WAIT_FOR_INTERVIEW
-        || (candidateProfile.getStatus() == CandidateProfile.Status.HIRED
-            && !sailorProfileRepository.existsByCandidateId(candidateIdObj))) {
-      sailorProfile.setCardId(generateSailorCardId());
+    ObjectId candidateIdObj = new ObjectId(candidateId);
+    if (sailorProfileRepository.existsByCandidateId(candidateIdObj)) {
+      throw new ResourceAlreadyInUseException(SailorProfile.class, "candidateId", candidateId);
     }
 
     sailorProfile.setAccountId(candidateProfile.getAccountId());

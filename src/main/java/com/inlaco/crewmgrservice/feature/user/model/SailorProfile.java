@@ -1,8 +1,9 @@
 package com.inlaco.crewmgrservice.feature.user.model;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.inlaco.crewmgrservice.annotation.JsonPatchIgnore;
 import com.inlaco.crewmgrservice.common.payload.TimeFrame;
 import com.inlaco.crewmgrservice.feature.user.enums.WorkStatus;
@@ -41,8 +42,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 })
 @Document(collection = "sailors")
 @SuperBuilder
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class SailorProfile extends BasicProfile implements TimeFrame {
 
   @Schema(
@@ -55,15 +56,11 @@ public class SailorProfile extends BasicProfile implements TimeFrame {
 
   @Schema(description = "The candidate id of the sailor", hidden = true, type = "String")
   @JsonPatchIgnore
+  @JsonSerialize(using = ToStringSerializer.class)
   protected ObjectId candidateId;
 
-  @JsonGetter("candidateId")
-  public String getCandidateIdStr() {
-    return candidateId != null ? candidateId.toHexString() : null;
-  }
-
-  @NotBlank
   @Schema(description = "The position of the sailor", requiredMode = RequiredMode.REQUIRED)
+  @NotBlank
   private String professionalPosition;
 
   @Schema(
@@ -76,8 +73,9 @@ public class SailorProfile extends BasicProfile implements TimeFrame {
 
   @Schema(
       description = "The card id (Year-STT)",
-      example = "2022-00001",
+      example = "202200001",
       requiredMode = RequiredMode.REQUIRED,
+      hidden = true,
       type = "string")
   @JsonPatchIgnore
   @Indexed(unique = true)
@@ -114,7 +112,7 @@ public class SailorProfile extends BasicProfile implements TimeFrame {
       requiredMode = RequiredMode.REQUIRED,
       type = "Date")
   @Future
-  @DateTimeFormat
+  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
   protected Instant socialInsuranceStartDate;
 
   @Schema(
@@ -122,7 +120,7 @@ public class SailorProfile extends BasicProfile implements TimeFrame {
       requiredMode = RequiredMode.REQUIRED,
       type = "Date")
   @Future
-  @DateTimeFormat
+  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
   protected Instant socialInsuranceEndDate;
 
   @JsonIgnore
