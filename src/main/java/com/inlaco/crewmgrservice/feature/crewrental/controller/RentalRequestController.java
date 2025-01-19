@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Crew Rental Request", description = "APIs for managing crew rental requests")
 public class RentalRequestController {
 
-  private RentalRequestService crewRentalRequestService;
+  private final RentalRequestService rentalRequestService;
 
   @PostMapping("")
   @RolesAllowed("USER")
@@ -43,7 +43,7 @@ Create a new crew rental request
 """,
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   public ResponseEntity<RentalRequest> createRequest(@Valid @RequestBody RentalRequest request) {
-    RentalRequest createdRequest = crewRentalRequestService.createRequest(request);
+    RentalRequest createdRequest = rentalRequestService.createRequest(request);
     return new ResponseEntity<>(createdRequest, HttpStatus.CREATED);
   }
 
@@ -65,7 +65,7 @@ Admin review a new crew rental request
       @ObjectId @PathVariable("id") String id,
       @CurrentUser User reviewer,
       @RequestParam boolean accepted) {
-    crewRentalRequestService.reviewRequest(id, accepted, reviewer);
+    rentalRequestService.reviewRequest(id, accepted, reviewer);
   }
 
   @Operation(
@@ -84,7 +84,7 @@ Find all requests
   public Page<RentalRequest> findAllRequests(
       @RequestParam(required = false) RentalRequestStatus status,
       @PageableDefault(page = 0, size = 20) Pageable pageable) {
-    return crewRentalRequestService.findAllRequests(
+    return rentalRequestService.findAllRequests(
         RentalRequestFilterable.builder().status(status).build(), pageable);
   }
 
@@ -102,6 +102,6 @@ Find a request by id
   @RolesAllowed("ADMIN")
   @GetMapping("/{id}")
   public RentalRequest findRequestById(@PathVariable("id") @ObjectId String id) {
-    return crewRentalRequestService.getRequestById(id);
+    return rentalRequestService.getRequestById(id);
   }
 }
