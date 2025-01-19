@@ -97,7 +97,7 @@ Update contract if it is not freezed.
 
 """)
   @RolesAllowed("ADMIN")
-  @PatchMapping("/{id}")
+  @PatchMapping(value = "/{id}", consumes = "application/merge-patch+json")
   public void updateContract(@ObjectId @PathVariable("id") String id, @RequestBody JsonNode patch) {
     contractService.updateContract(id, patch);
   }
