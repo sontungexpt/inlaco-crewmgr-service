@@ -5,12 +5,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.inlaco.crewmgrservice.annotation.JsonPatchIgnore;
-import com.inlaco.crewmgrservice.common.payload.TimeFrame;
+import com.inlaco.crewmgrservice.common.model.File;
 import com.inlaco.crewmgrservice.feature.user.enums.WorkStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
-import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.List;
@@ -28,7 +26,6 @@ import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.format.annotation.DateTimeFormat;
 
 @Getter
 @Setter
@@ -44,7 +41,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SailorProfile extends BasicProfile implements TimeFrame {
+public class SailorProfile extends BasicProfile {
 
   @Schema(
       description = "The work status of the sailor",
@@ -60,7 +57,6 @@ public class SailorProfile extends BasicProfile implements TimeFrame {
   protected ObjectId candidateId;
 
   @Schema(description = "The position of the sailor", requiredMode = RequiredMode.REQUIRED)
-  @NotBlank
   private String professionalPosition;
 
   @Schema(
@@ -108,20 +104,22 @@ public class SailorProfile extends BasicProfile implements TimeFrame {
   protected String socialInsuranceCode;
 
   @Schema(
-      description = "The social insurance start date of the sailor",
+      description = "The social insurance image of the sailor",
       requiredMode = RequiredMode.REQUIRED,
-      type = "Date")
-  @Future
-  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-  protected Instant socialInsuranceStartDate;
+      type = "List<File>")
+  protected List<File> socialInsuranceImages;
 
   @Schema(
-      description = "The social insurance end date of the sailor",
+      description = "The health insurance code of the sailor",
       requiredMode = RequiredMode.REQUIRED,
-      type = "Date")
-  @Future
-  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-  protected Instant socialInsuranceEndDate;
+      type = "String")
+  protected String accidentInsuranceCode;
+
+  @Schema(
+      description = "The health insurance image of the sailor",
+      requiredMode = RequiredMode.REQUIRED,
+      type = "List<File>")
+  protected List<File> accidentInsuranceImages;
 
   @JsonIgnore
   @JsonPatchIgnore
@@ -146,11 +144,4 @@ public class SailorProfile extends BasicProfile implements TimeFrame {
   @JsonPatchIgnore
   @Schema(hidden = true)
   private ObjectId updatedBy;
-
-  @Override
-  @JsonIgnore
-  @Schema(hidden = true)
-  public List<Pair> getTimeFrames() {
-    return List.of(Pair.of(socialInsuranceStartDate, socialInsuranceEndDate));
-  }
 }

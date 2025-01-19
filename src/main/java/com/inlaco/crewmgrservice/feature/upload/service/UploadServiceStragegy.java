@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface UploadServiceStragegy {
 
-  UploadOptions getUploadOptions(UploadType type);
+  UploadOptions getUploadOptions(String id, UploadType type);
 
   void uploadFile(List<UploadToken> uploadTokens);
 }

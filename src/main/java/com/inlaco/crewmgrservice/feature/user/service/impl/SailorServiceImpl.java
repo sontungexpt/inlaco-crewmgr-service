@@ -3,6 +3,8 @@ package com.inlaco.crewmgrservice.feature.user.service.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.inlaco.crewmgrservice.exceptions.ResourceAlreadyInUseException;
 import com.inlaco.crewmgrservice.exceptions.ResourceNotFoundException;
+import com.inlaco.crewmgrservice.feature.post.model.RecruitmentPost;
+import com.inlaco.crewmgrservice.feature.post.service.PostService;
 import com.inlaco.crewmgrservice.feature.user.dto.BasicProfileDTO;
 import com.inlaco.crewmgrservice.feature.user.dto.SailorFilterable;
 import com.inlaco.crewmgrservice.feature.user.model.CandidateProfile;
@@ -20,6 +22,7 @@ import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +33,7 @@ public class SailorServiceImpl implements SailorService {
   private final JsonMergePatchUtils jsonMergePatchUtils;
   private final CandidateService candidateService;
   private final CustomSailorRepository customSailorRepository;
+  private final PostService postService;
 
   @Override
   public SailorProfile addSailor(String candidateId, SailorProfile sailorProfile) {
@@ -50,6 +54,13 @@ public class SailorServiceImpl implements SailorService {
 
     if (sailorProfile.getExperiences() == null || sailorProfile.getExperiences().isEmpty()) {
       sailorProfile.setExperiences(candidateProfile.getExperiences());
+    }
+
+    if (!StringUtils.hasText(sailorProfile.getProfessionalPosition())) {
+      RecruitmentPost recruitmentPost =
+          (RecruitmentPost)
+              postService.getPost(candidateProfile.getRecruitmentPostId().toHexString());
+      sailorProfile.setProfessionalPosition(recruitmentPost.getPosition());
     }
 
     if (sailorProfile.getLanguageSkills() == null || sailorProfile.getLanguageSkills().isEmpty()) {
