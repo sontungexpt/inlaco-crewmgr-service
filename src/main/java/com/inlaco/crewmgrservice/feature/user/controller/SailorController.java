@@ -67,7 +67,7 @@ This API is used to get the sailor profile by id.
 - UC_admin-xem-thong-tin-chi-tiet-thuyen-vien.
 
 """)
-  @PatchMapping(value = "/{id}", consumes = "application/json-patch+json")
+  @PatchMapping(value = "/{id}", consumes = "application/merge-patch+json")
   @RolesAllowed("ADMIN")
   public SailorProfile updateSailorProfile(
       @PathVariable("id") @ObjectId String sailorId, @RequestBody JsonNode patch) {
