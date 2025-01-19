@@ -30,7 +30,7 @@ public class RawJsonConvertor {
 
                 @Override
                 public Boolean isIgnorableType(AnnotatedClass ac) {
-                  return null;
+                  return false;
                 }
 
                 @Override // since 2.12

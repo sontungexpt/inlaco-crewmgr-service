@@ -72,7 +72,7 @@ public class JsonPatchUtilsTest {
   @Test
   void testGetJsonPatchIgnoreAsPath() {
     JsonNode ignoredFields =
-        jsonMergePatchUtils.removeJsonPatchIgnoreFields(inputNode, ParentClass.class);
+        jsonMergePatchUtils.removeAnnotatedIgnoreFields(inputNode, ParentClass.class);
     assertTrue(ignoredFields.has("includedField"));
     assertTrue(ignoredFields.has("nestedObject"));
     assertFalse(ignoredFields.has("ignoredField"));

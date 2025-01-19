@@ -5,6 +5,7 @@ import com.inlaco.crewmgrservice.feature.upload.dto.UploadToken;
 import com.inlaco.crewmgrservice.feature.upload.dto.UploadType;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,10 +23,11 @@ public class UploadFactory {
   }
 
   public UploadOptions getUploadOptions(UploadType type, String id) {
-    return getUploadService(type.getType()).getUploadOptions(type, id);
+    return getUploadService(type.getName()).getUploadOptions(type, id);
   }
 
   void uploadFile(UploadType type, List<UploadToken> uploadTokens) {
-    getUploadService(type.getType()).uploadFile(type, uploadTokens);
+    CompletableFuture.runAsync(
+        () -> getUploadService(type.getName()).uploadFile(uploadTokens, type.getNestedType()));
   }
 }

@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.feature.upload.repository;
 
-import com.inlaco.crewmgrservice.feature.upload.dto.UploadToken;
+import java.util.Optional;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Repository;
@@ -18,23 +18,23 @@ public class UploadTokenRepository {
     this.valueOperations = redisTemplate.opsForValue();
   }
 
-  private String getKey(UploadToken token) {
-    return KEY_PREFIX + token.getToken();
+  private String getKey(String token) {
+    return KEY_PREFIX + token;
   }
 
-  public void save(UploadToken token, Object id) {
+  public void save(String token, Object id) {
     valueOperations.set(getKey(token), id);
   }
 
-  public void delete(UploadToken token) {
+  public void delete(String token) {
     redisTemplate.delete(getKey(token));
   }
 
-  public boolean exists(UploadToken token) {
+  public boolean exists(String token) {
     return redisTemplate.hasKey(getKey(token));
   }
 
-  public Object findByToken(UploadToken token) {
-    return valueOperations.get(getKey(token));
+  public Optional<Object> findByToken(String token) {
+    return Optional.ofNullable(valueOperations.get(getKey(token)));
   }
 }

@@ -43,6 +43,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @AllArgsConstructor
 public class SailorProfile extends BasicProfile {
 
+  public enum UploadableType {
+    SOCIAL_INSURANCE,
+    ACCIDENT_INSURANCE
+  }
+
   @Schema(
       description = "The work status of the sailor",
       requiredMode = RequiredMode.REQUIRED,
@@ -137,11 +142,13 @@ public class SailorProfile extends BasicProfile {
   @JsonPatchIgnore
   @CreatedBy
   @Schema(hidden = true)
+  @JsonSerialize(using = ToStringSerializer.class)
   private ObjectId createdBy;
 
-  @LastModifiedBy
   @JsonIgnore
-  @JsonPatchIgnore
   @Schema(hidden = true)
+  @LastModifiedBy
+  @JsonPatchIgnore
+  @JsonSerialize(using = ToStringSerializer.class)
   private ObjectId updatedBy;
 }

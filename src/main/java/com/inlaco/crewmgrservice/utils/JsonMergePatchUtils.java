@@ -9,12 +9,17 @@ import com.inlaco.crewmgrservice.annotation.JsonPatchIgnore;
 import com.inlaco.crewmgrservice.annotation.JsonPatchIgnoreProperties;
 import com.inlaco.crewmgrservice.exceptions.ResourceNotFoundException;
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 
@@ -71,7 +76,7 @@ public class JsonMergePatchUtils {
     Class<?> clazz = origin.getClass();
     return apply(
         origin,
-        removeJsonPatchIgnoreFields(patchRequest, clazz),
+        removeAnnotatedIgnoreFields(patchRequest, clazz),
         getJsonPatchIgnoreProperties(clazz));
   }
 
@@ -128,14 +133,15 @@ public class JsonMergePatchUtils {
   }
 
   /**
-   * Removes fields from the JSON node that are annotated with {@link JsonPatchIgnore}. This method
-   * will recursively check nested fields to ensure all ignored fields are excluded from the patch.
+   * Removes fields from the JSON node that are listed in the provided field paths. This method will
+   * recursively check nested fields to ensure all specified fields are excluded from the patch.
    *
    * @param node The JSON node representing the patch request.
-   * @param clazz The class of the original object being patched.
-   * @return A new JSON node with the ignored fields removed.
+   * @param fieldPaths The paths of fields to be removed.
+   * @return A new JSON node with the specified fields removed.
    */
-  public JsonNode removeJsonPatchIgnoreFields(JsonNode node, Class<?> clazz) {
+  public JsonNode removeAnnotatedFields(
+      JsonNode node, Class<?> clazz, List<Class<? extends Annotation>> annotations) {
     List<String> removedFields = new ArrayList<>();
     node.fields()
         .forEachRemaining(
@@ -143,19 +149,21 @@ public class JsonMergePatchUtils {
               String fieldName = entry.getKey();
               Field field = ReflectionUtils.getDeclaredField(clazz, fieldName);
               if (field != null) {
-                JsonPatchIgnore jsonPatchIgnore = field.getAnnotation(JsonPatchIgnore.class);
-                if (jsonPatchIgnore != null) {
+                boolean isAnnotated =
+                    annotations.stream()
+                        .anyMatch(annotation -> field.getAnnotation(annotation) != null);
+                if (isAnnotated) {
                   removedFields.add(fieldName);
                 } else {
                   JsonNode fieldNode = entry.getValue();
                   Class<?> fieldType = field.getType();
                   if (!ReflectionUtils.isPrimitiveTypeOrString(field) && fieldNode.isObject()) {
-                    removeJsonPatchIgnoreFields(fieldNode, fieldType);
+                    removeAnnotatedFields(fieldNode, fieldType, annotations);
                   } else if (fieldNode.isArray() && fieldType.isArray()) {
                     fieldNode.forEach(
                         item -> {
                           if (item.isObject()) {
-                            removeJsonPatchIgnoreFields(item, fieldType);
+                            removeAnnotatedFields(item, fieldType, annotations);
                           }
                         });
                   }
@@ -167,6 +175,42 @@ public class JsonMergePatchUtils {
       removedFields.forEach(((ObjectNode) node)::remove);
     }
     return node;
+  }
+
+  /**
+   * Removes fields from the JSON node that are annotated with the specified annotation. This method
+   * will recursively check nested fields to ensure all annotated fields are excluded from the
+   * patch.
+   *
+   * @param node The JSON node representing the patch request.
+   * @param clazz The class of the original object being patched.
+   * @param annotation The annotation to check for on the fields.
+   * @return A new JSON node with the annotated fields removed.
+   */
+  public JsonNode removeAnnotatedFields(
+      JsonNode node, Class<?> clazz, Class<? extends Annotation> annotation) {
+    return removeAnnotatedFields(node, clazz, List.of(annotation));
+  }
+
+  /**
+   * Removes fields from the JSON node that are annotated with the {@link JsonPatchIgnore}
+   * annotation, as well as the {@link CreatedBy}, {@link LastModifiedBy}, {@link CreatedDate}, and
+   * {@link LastModifiedDate} annotations.
+   *
+   * @param node The JSON node representing the patch request.
+   * @param clazz The class of the original object being patched.
+   * @return A new JSON node with the ignored fields removed.
+   */
+  public JsonNode removeAnnotatedIgnoreFields(JsonNode node, Class<?> clazz) {
+    return removeAnnotatedFields(
+        node,
+        clazz,
+        List.of(
+            JsonPatchIgnore.class,
+            CreatedBy.class,
+            LastModifiedBy.class,
+            CreatedDate.class,
+            LastModifiedDate.class));
   }
 
   /**
