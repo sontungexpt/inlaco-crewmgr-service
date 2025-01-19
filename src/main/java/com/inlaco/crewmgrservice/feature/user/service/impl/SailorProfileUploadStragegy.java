@@ -18,12 +18,6 @@ public class SailorProfileUploadStragegy implements UploadServiceStragegy {
 
   @Override
   public UploadOptions getUploadOptions(UploadType type, String id) {
-
-    // SailorProfile
-
-    // return UploadOptions.builder()
-    //     .uploadToken(sailorService.getSailorProfileUploadToken(id))
-    //     .build();
     throw new UnsupportedOperationException("Unimplemented method 'uploadFile'");
   }
 

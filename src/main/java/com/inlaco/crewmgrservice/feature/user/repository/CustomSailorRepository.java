@@ -7,7 +7,6 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.sort
 
 import com.inlaco.crewmgrservice.common.model.FacetResult;
 import com.inlaco.crewmgrservice.feature.user.dto.SailorFilterable;
-import com.inlaco.crewmgrservice.feature.user.model.CandidateProfile;
 import com.inlaco.crewmgrservice.feature.user.model.SailorProfile;
 import com.inlaco.crewmgrservice.utils.PageableUtils;
 import com.inlaco.crewmgrservice.utils.PhoneNumberValidatorUtils;
@@ -68,7 +67,7 @@ public class CustomSailorRepository {
 
     var result =
         mongoTemplate
-            .aggregate(aggregation, CandidateProfile.class, CandidateProfileFacetResult.class)
+            .aggregate(aggregation, SailorProfile.class, SailorProfileFacetResult.class)
             .getUniqueMappedResult();
 
     return new PageImpl<>(result.getDatas(), pageable, result.getCount());
@@ -114,14 +113,14 @@ public class CustomSailorRepository {
     var aggregation = Aggregation.newAggregation(operations);
     var result =
         mongoTemplate
-            .aggregate(aggregation, CandidateProfile.class, CandidateProfileFacetResult.class)
+            .aggregate(aggregation, SailorProfile.class, SailorProfileFacetResult.class)
             .getUniqueMappedResult();
 
     return new PageImpl<>(result.getDatas(), pageable, result.getCount());
   }
 
-  private static class CandidateProfileFacetResult extends FacetResult<SailorProfile> {
-    public CandidateProfileFacetResult(
+  private static class SailorProfileFacetResult extends FacetResult<SailorProfile> {
+    public SailorProfileFacetResult(
         List<SailorProfile> dataFacet, List<Map<String, Object>> countFacet) {
       super(dataFacet, countFacet);
     }

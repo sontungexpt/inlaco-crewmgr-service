@@ -6,7 +6,6 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.skip
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.sort;
 
 import com.inlaco.crewmgrservice.common.model.FacetResult;
-import com.inlaco.crewmgrservice.feature.course.model.Course;
 import com.inlaco.crewmgrservice.feature.user.model.CandidateProfile;
 import com.inlaco.crewmgrservice.utils.PageableUtils;
 import java.util.List;
@@ -55,7 +54,7 @@ public class CustomCandidateRepository {
 
     var result =
         mongoTemplate
-            .aggregate(aggregation, Course.class, CandidateProfileFacetResult.class)
+            .aggregate(aggregation, CandidateProfile.class, CandidateProfileFacetResult.class)
             .getUniqueMappedResult();
 
     return new PageImpl<>(result.getDatas(), pageable, result.getCount("totalCandidates"));
