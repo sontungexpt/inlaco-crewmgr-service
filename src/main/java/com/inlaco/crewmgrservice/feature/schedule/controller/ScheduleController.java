@@ -2,6 +2,7 @@ package com.inlaco.crewmgrservice.feature.schedule.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.inlaco.crewmgrservice.annotation.CurrentUser;
+import com.inlaco.crewmgrservice.annotation.PageableQueryParams;
 import com.inlaco.crewmgrservice.config.OpenApiConfig;
 import com.inlaco.crewmgrservice.feature.schedule.dto.SailorScheduleResponse;
 import com.inlaco.crewmgrservice.feature.schedule.dto.ScheduleFilterable;
@@ -77,6 +78,7 @@ If estimatedEndDate is provided, adjust the filter to include schedules that mat
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   @GetMapping("/pagination")
   @RolesAllowed("ADMIN")
+  @PageableQueryParams
   public Page<AssigmentSchedule> fetchPaginationSchedules(
       @RequestParam(required = false) AssigmentSchedule.Status status,
       @RequestParam(required = false) Instant startDate,

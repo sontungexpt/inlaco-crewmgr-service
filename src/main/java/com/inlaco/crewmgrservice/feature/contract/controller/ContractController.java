@@ -2,6 +2,7 @@ package com.inlaco.crewmgrservice.feature.contract.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.inlaco.crewmgrservice.annotation.CurrentUser;
+import com.inlaco.crewmgrservice.annotation.PageableQueryParams;
 import com.inlaco.crewmgrservice.config.OpenApiConfig;
 import com.inlaco.crewmgrservice.feature.contract.dto.ContractFilterable;
 import com.inlaco.crewmgrservice.feature.contract.model.Contract;
@@ -56,6 +57,41 @@ This API is used to get contract detail.
     return contractService.getContractById(id);
   }
 
+  //   @Operation(
+  //       summary = "Search conrtacts",
+  //       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
+  //       description =
+  //           """
+  // This API is used to search contracts.
+  //
+  // **Usecase**:
+  // - UC_admin-tim-kiem-loc-hop-dong.
+
+  // """)
+  //   @RolesAllowed("ADMIN")
+  //   @GetMapping("/search")
+  //   @PageableQueryParams
+  //   public Page<? extends Contract> searchConrtacts(
+  //       @RequestParam String q,
+  //       @RequestParam(required = false) ContractType type,
+  //       @RequestParam(required = false) Instant activationDateStart,
+  //       @RequestParam(required = false) Instant activationDateEnd,
+  //       @RequestParam(required = false) Instant expiredDateStart,
+  //       @RequestParam(required = false) Instant expiredDateEnd,
+  //       @RequestParam(defaultValue = "true") boolean signed,
+  //       @PageableDefault(page = 0, size = 20) Pageable pageable) {
+  //     return contractService.search(
+  //         ContractFilterable.builder()
+  //             .type(type)
+  //             .activationDateStart(activationDateStart)
+  //             .activationDateEnd(activationDateEnd)
+  //             .expiredDateStart(expiredDateStart)
+  //             .expiredDateEnd(expiredDateEnd)
+  //             .signed(signed)
+  //             .build(),
+  //         pageable);
+  //   }
+
   @Operation(
       summary = "Get all conrtacts",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
@@ -69,8 +105,8 @@ This API is used to get all contracts with short information.
 """)
   @RolesAllowed("ADMIN")
   @GetMapping("")
+  @PageableQueryParams
   public Page<? extends Contract> getAllContracts(
-      @ObjectId @PathVariable("id") String id,
       @RequestParam(required = false) ContractType type,
       @RequestParam(required = false) Instant activationDateStart,
       @RequestParam(required = false) Instant activationDateEnd,

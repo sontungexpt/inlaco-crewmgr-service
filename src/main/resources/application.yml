@@ -29,7 +29,7 @@ httpsms:
 jwt:
   # inlaco.JWT-secret-key
   secret-key: ${JWT_SECRET_KEY}
-  access-token-expiration: 3000000 # 5 mins
+  access-token-expiration: 300000000 # 5 mins
   refresh-token-expiration: 2592000000 # 30 days
 
 spring:
