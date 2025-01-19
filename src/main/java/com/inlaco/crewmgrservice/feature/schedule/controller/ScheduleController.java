@@ -112,6 +112,7 @@ If estimatedEndDate is provided, adjust the filter to include schedules that mat
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   @GetMapping("")
   @RolesAllowed("ADMIN")
+  @PageableQueryParams
   public List<AssigmentSchedule> fetchSchedules(
       @RequestParam(required = false) AssigmentSchedule.Status status,
       @RequestParam(required = false) Instant startDate,
@@ -143,6 +144,7 @@ If estimatedEndDate is provided, adjust the filter to include schedules that mat
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   @GetMapping("/sailors/{cardId}/pagination")
   @RolesAllowed({"ADMIN", "SAILOR"})
+  @PageableQueryParams
   public Page<SailorScheduleResponse> fetchPaginationSchedulesByCardId(
       @PathVariable("cardId") String cardId,
       @RequestParam(required = false) AssigmentSchedule.Status status,
@@ -224,7 +226,7 @@ Update schedule by id.
 
 """,
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
-  @PatchMapping("/{id}")
+  @PatchMapping(value = "/{id}", consumes = "application/merge-patch+json")
   @RolesAllowed({"ADMIN"})
   public ScheduleResponse updateSchedule(
       @ObjectId @PathVariable("id") String id, @RequestBody JsonNode patch) {
