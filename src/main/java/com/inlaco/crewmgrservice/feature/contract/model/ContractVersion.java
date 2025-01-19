@@ -2,6 +2,8 @@ package com.inlaco.crewmgrservice.feature.contract.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.inlaco.crewmgrservice.annotation.JsonPatchIgnore;
 import com.inlaco.crewmgrservice.common.model.File;
 import com.inlaco.crewmgrservice.common.model.Versionable;
@@ -72,11 +74,13 @@ public abstract class ContractVersion implements Versionable<String, Integer> {
   @Schema(hidden = true)
   @CreatedBy
   @JsonPatchIgnore
+  @JsonSerialize(using = ToStringSerializer.class)
   private ObjectId createdBy;
 
   @Schema(hidden = true)
   @LastModifiedBy
   @JsonPatchIgnore
+  @JsonSerialize(using = ToStringSerializer.class)
   private ObjectId updatedBy;
 
   @Override

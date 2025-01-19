@@ -4,12 +4,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.Valid;
 import java.time.Instant;
 import java.util.List;
+import lombok.NoArgsConstructor;
 import org.springframework.data.util.Pair;
 
 @Valid
 @com.inlaco.crewmgrservice.validation.annotation.TimeFrame
 public interface TimeFrame {
 
+  @NoArgsConstructor
   public static class Pair {
     private Instant start;
     private Instant end;

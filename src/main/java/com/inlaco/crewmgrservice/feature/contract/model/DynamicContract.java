@@ -18,6 +18,10 @@ public class DynamicContract extends AbstractContract {
     super(ContractType.DYNAMIC_CONTRACT);
   }
 
+  public DynamicContract(ContractType type) {
+    super(type);
+  }
+
   @Schema(
       description = "The list of custom attributes of the contract",
       example = "[{\"name\":\"custom1\", \"value\": \"value1\"}]")

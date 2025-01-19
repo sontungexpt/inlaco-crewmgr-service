@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.inlaco.crewmgrservice.annotation.JsonPatchIgnore;
 import com.inlaco.crewmgrservice.common.model.File;
 import com.inlaco.crewmgrservice.common.payload.TimeFrame;
@@ -16,6 +18,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,15 +48,12 @@ import org.springframework.format.annotation.DateTimeFormat;
   @JsonSubTypes.Type(value = LaborContract.class, name = ContractType.Fields.LABOR_CONTRACT),
   @JsonSubTypes.Type(value = SupplyContract.class, name = ContractType.Fields.SUPPLY_CONTRACT)
 })
-public abstract class AbstractContract extends ContractVersion implements Contract, TimeFrame {
+public abstract class AbstractContract extends ContractVersion
+    implements Contract, TimeFrame, Serializable {
 
   public AbstractContract(ContractType type) {
     super();
     this.type = type;
-  }
-
-  public AbstractContract(ContractVersionBuilder<?, ?> b) {
-    super(b);
   }
 
   @NotBlank
@@ -94,6 +94,7 @@ public abstract class AbstractContract extends ContractVersion implements Contra
   @JsonPatchIgnore
   @JsonIgnore
   @Schema(description = "The user who signed the contract", hidden = true)
+  @JsonSerialize(using = ToStringSerializer.class)
   private ObjectId signedBy;
 
   public void sign(ObjectId signedBy) {
@@ -124,6 +125,7 @@ public abstract class AbstractContract extends ContractVersion implements Contra
       type = "String",
       hidden = true,
       requiredMode = RequiredMode.REQUIRED)
+  @JsonSerialize(using = ToStringSerializer.class)
   private ObjectId templateId;
 
   @Schema(
@@ -145,7 +147,7 @@ public abstract class AbstractContract extends ContractVersion implements Contra
 
   @Schema(hidden = true)
   public Instant getFreezeDate() {
-    return activationDate.plusSeconds(contractFreezeDelay * 60);
+    return activationDate == null ? null : activationDate.plusSeconds(contractFreezeDelay * 60);
   }
 
   @Schema(

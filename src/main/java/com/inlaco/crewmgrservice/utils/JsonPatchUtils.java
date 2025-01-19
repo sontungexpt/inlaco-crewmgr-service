@@ -2,6 +2,7 @@ package com.inlaco.crewmgrservice.utils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.fge.jackson.JacksonUtils;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
 import java.io.IOException;
@@ -11,6 +12,8 @@ import org.springframework.stereotype.Service;
 @Service
 @Lazy
 public class JsonPatchUtils {
+
+  private ObjectMapper DEFAULT_MAPPER = JacksonUtils.newMapper();
 
   // private MongoTemplate mongoTemplate;
   @SuppressWarnings("unchecked")

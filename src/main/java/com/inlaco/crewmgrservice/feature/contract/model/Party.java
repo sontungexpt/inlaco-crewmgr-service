@@ -2,6 +2,8 @@ package com.inlaco.crewmgrservice.feature.contract.model;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.inlaco.crewmgrservice.validation.annotation.PhoneNumber;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
@@ -60,6 +62,7 @@ public class Party {
   private String address;
 
   @Schema(description = "The account id of the party", example = "5f9b1b7b7f7b7b7b7b7b7b7b")
+  @JsonSerialize(using = ToStringSerializer.class)
   private ObjectId accountId;
 
   @NotNull

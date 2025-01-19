@@ -100,12 +100,15 @@ public class ContractServiceImpl implements ContractService {
         throw new FreezeContractUpdateException(
             "Contract is freezed, please create a new contract or add sub terms");
       } else {
+        contractVersionRepository.save(contract);
+        contractRepository.deleteById(contract.getId());
+
         AbstractContract updateContract = jsonMergePatch.apply(contract, patch);
 
-        contractVersionRepository.save(updateContract);
+        return contractRepository.save(updateContract);
       }
     }
-    return contractRepository.save((AbstractContract) jsonMergePatch.apply(contract, patch));
+    return contractRepository.save(jsonMergePatch.apply(contract, patch));
   }
 
   @Override
