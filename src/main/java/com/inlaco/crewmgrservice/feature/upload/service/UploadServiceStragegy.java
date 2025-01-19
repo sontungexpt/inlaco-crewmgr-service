@@ -1,6 +1,7 @@
 package com.inlaco.crewmgrservice.feature.upload.service;
 
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
+import com.inlaco.crewmgrservice.exceptions.ResourceNotFoundException;
 import com.inlaco.crewmgrservice.feature.upload.dto.UploadOptions;
 import com.inlaco.crewmgrservice.feature.upload.dto.UploadToken;
 import com.inlaco.crewmgrservice.feature.upload.dto.UploadType;
@@ -19,6 +20,12 @@ public abstract class UploadServiceStragegy {
     String token = NanoIdUtils.randomNanoId();
     uploadTokenRepository.save(token, id);
     return token;
+  }
+
+  public Object getIdFromToken(String token) {
+    return uploadTokenRepository
+        .findByToken(token)
+        .orElseThrow(() -> new ResourceNotFoundException(UploadToken.class, "token", token));
   }
 
   public abstract UploadOptions getUploadOptions(UploadType type, @Nullable String id);

@@ -140,4 +140,9 @@ public class SailorServiceImpl implements SailorService {
         .orElseThrow(
             () -> new ResourceNotFoundException(SailorProfile.class, "accountId", accountId));
   }
+
+  @Override
+  public boolean existsSailorProfileById(String sailorId) {
+    return sailorProfileRepository.existsById(sailorId);
+  }
 }

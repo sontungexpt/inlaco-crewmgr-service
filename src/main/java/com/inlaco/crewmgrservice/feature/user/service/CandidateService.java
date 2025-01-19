@@ -27,4 +27,6 @@ public interface CandidateService {
   void cancelCandidateProfile(String id, User user);
 
   List<CandidateProfile> getMyCandidateProfile(User user);
+
+  boolean existsById(String id);
 }

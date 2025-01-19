@@ -139,8 +139,11 @@ Update contract if it is not freezed.
 """)
   @RolesAllowed("ADMIN")
   @PatchMapping(value = "/{id}", consumes = "application/merge-patch+json")
-  public void updateContract(@ObjectId @PathVariable("id") String id, @RequestBody JsonNode patch) {
-    contractService.updateContract(id, patch);
+  public Contract updateContract(
+      @RequestParam(defaultValue = "false") boolean newVersion,
+      @ObjectId @PathVariable("id") String id,
+      @RequestBody JsonNode patch) {
+    return contractService.updateContract(id, patch, newVersion);
   }
 
   @Operation(
@@ -175,11 +178,11 @@ Add contract for sailor.
   @PostMapping("/labors/{id}")
   @RolesAllowed("ADMIN")
   @ResponseStatus(HttpStatus.CREATED)
-  public void createLaborContract(
+  public Contract createLaborContract(
       @ObjectId @PathVariable("id") String id,
       @CurrentUser User user,
       @RequestBody LaborContract contract) {
-    contractService.createLaborContract(id, contract, user);
+    return contractService.createLaborContract(id, contract, user);
   }
 
   @Operation(
@@ -196,11 +199,11 @@ Add supply contract
   @PostMapping("/supplies/{id}")
   @RolesAllowed("ADMIN")
   @ResponseStatus(HttpStatus.CREATED)
-  public void createSupplyContract(
+  public Contract createSupplyContract(
       @ObjectId @PathVariable("id") String id,
       @CurrentUser User user,
       @RequestBody SupplyContract contract) {
-    contractService.createSupplyContract(id, contract, user);
+    return contractService.createSupplyContract(id, contract, user);
   }
 
   @Operation(
@@ -216,7 +219,7 @@ Active an contract by id.
 """)
   @PostMapping("/active/{id}")
   @RolesAllowed("ADMIN")
-  public void activeContract(@ObjectId @PathVariable("id") String id, @CurrentUser User user) {
-    contractService.activeContract(id, user);
+  public Contract activeContract(@ObjectId @PathVariable("id") String id, @CurrentUser User user) {
+    return contractService.activeContract(id, user);
   }
 }

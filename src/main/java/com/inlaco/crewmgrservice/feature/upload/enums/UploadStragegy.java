@@ -3,10 +3,9 @@ package com.inlaco.crewmgrservice.feature.upload.enums;
 import lombok.experimental.FieldNameConstants;
 
 @FieldNameConstants
-public enum UploadTypeStragegy {
+public enum UploadStragegy implements IUploadStragegy {
   @FieldNameConstants.Include
-  SAILOR_PROFILE,
-
+  SAILOR,
   @FieldNameConstants.Include
-  CANDIDATE_PROFILE,
+  CANDIDATE,
 }

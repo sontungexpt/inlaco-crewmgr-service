@@ -8,6 +8,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.bson.types.ObjectId;
@@ -21,6 +22,7 @@ import org.springframework.data.mongodb.core.index.CompoundIndexes;
     include = JsonTypeInfo.As.EXISTING_PROPERTY,
     visible = true,
     use = JsonTypeInfo.Id.NAME,
+    defaultImpl = DynamicParty.class,
     property = "type")
 @JsonSubTypes({
   @JsonSubTypes.Type(value = Party.class, name = PartyType.Fields.STATIC),
@@ -30,7 +32,12 @@ import org.springframework.data.mongodb.core.index.CompoundIndexes;
 @CompoundIndexes({
   @CompoundIndex(name = "party_search_index", def = "{'phone': 1, 'email': 1, 'representer': 1}")
 })
+@NoArgsConstructor
 public class Party {
+
+  public Party(PartyType type) {
+    this.type = type;
+  }
 
   @Schema(
       description = "The name of the party",

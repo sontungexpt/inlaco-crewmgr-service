@@ -1,17 +1,18 @@
 package com.inlaco.crewmgrservice.feature.upload.dto;
 
+import com.inlaco.crewmgrservice.feature.upload.enums.IUploadStragegy;
 import lombok.Data;
 
 @Data
 public class UploadType {
 
-  private String name;
+  private IUploadStragegy stragegy;
 
   private UploadType nestedType;
 
   @Override
   public int hashCode() {
-    return name.hashCode();
+    return stragegy.hashCode();
   }
 
   @Override
@@ -19,9 +20,9 @@ public class UploadType {
     if (obj == null) return false;
     else if (obj == this) return true;
     else if (obj instanceof UploadType that) {
-      return this.name.equals(that.name);
+      return this.stragegy.equals(that.stragegy);
     } else if (obj instanceof String that) {
-      return this.name.equals(that);
+      return this.stragegy.equals(that);
     }
     return false;
   }

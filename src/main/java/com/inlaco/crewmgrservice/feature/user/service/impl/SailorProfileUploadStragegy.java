@@ -4,17 +4,19 @@ import com.inlaco.crewmgrservice.exceptions.ResourceNotFoundException;
 import com.inlaco.crewmgrservice.feature.upload.dto.UploadOptions;
 import com.inlaco.crewmgrservice.feature.upload.dto.UploadToken;
 import com.inlaco.crewmgrservice.feature.upload.dto.UploadType;
-import com.inlaco.crewmgrservice.feature.upload.enums.UploadTypeStragegy;
+import com.inlaco.crewmgrservice.feature.upload.enums.IUploadStragegy;
+import com.inlaco.crewmgrservice.feature.upload.enums.UploadStragegy;
 import com.inlaco.crewmgrservice.feature.upload.model.CloudinarySignParams;
 import com.inlaco.crewmgrservice.feature.upload.repository.UploadTokenRepository;
 import com.inlaco.crewmgrservice.feature.upload.service.CloudinaryService;
 import com.inlaco.crewmgrservice.feature.upload.service.UploadServiceStragegy;
+import com.inlaco.crewmgrservice.feature.user.enums.SailorUploadStragegy;
 import com.inlaco.crewmgrservice.feature.user.model.SailorProfile;
 import com.inlaco.crewmgrservice.feature.user.service.SailorService;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
-@Service(UploadTypeStragegy.Fields.SAILOR_PROFILE)
+@Service(UploadStragegy.Fields.SAILOR)
 public class SailorProfileUploadStragegy extends UploadServiceStragegy {
 
   private final SailorService sailorService;
@@ -31,6 +33,10 @@ public class SailorProfileUploadStragegy extends UploadServiceStragegy {
   }
 
   public UploadOptions getSocialInsurranceImageUploadOptions(String id) {
+    if (id != null && !sailorService.existsSailorProfileById(id)) {
+      throw new ResourceNotFoundException(SailorProfile.class, "id", id);
+    }
+
     String token = randomToken(id != null ? id : true);
 
     CloudinarySignParams signParams =
@@ -55,21 +61,14 @@ public class SailorProfileUploadStragegy extends UploadServiceStragegy {
 
   @Override
   public UploadOptions getUploadOptions(UploadType type, String id) {
-    String t = type.getName();
-    if (t.equals(SailorProfile.UploadableType.SOCIAL_INSURANCE.name())) {
+    IUploadStragegy stragegy = type.getStragegy();
+    if (stragegy.equals(SailorUploadStragegy.SOCIAL_INSURANCE)) {
       return getSocialInsurranceImageUploadOptions(id);
-    } else if (t.equals(SailorProfile.UploadableType.ACCIDENT_INSURANCE.name())) {
+    } else if (stragegy.equals(SailorUploadStragegy.ACCIDENT_INSURANCE)) {
       return getAccidentInsurranceImageUploadOptions(id);
     } else {
       throw new UnsupportedOperationException("Unimplemented method 'getUploadOptions'");
     }
-  }
-
-  private String getIdFromToken(String token) {
-    return (String)
-        uploadTokenRepository
-            .findByToken(token)
-            .orElseThrow(() -> new ResourceNotFoundException(UploadToken.class, "token", token));
   }
 
   @Override
@@ -80,14 +79,13 @@ public class SailorProfileUploadStragegy extends UploadServiceStragegy {
 
     for (UploadToken uploadToken : uploadTokens) {
       String token = uploadToken.getToken();
-      String id = getIdFromToken(token);
+      String id = (String) getIdFromToken(token);
       SailorProfile sailorProfile = sailorService.findSailorProfileById(id);
 
-      if (nestedType.getName().equals(SailorProfile.UploadableType.SOCIAL_INSURANCE.name())) {
+      IUploadStragegy stragegy = nestedType.getStragegy();
+      if (stragegy.equals(SailorUploadStragegy.SOCIAL_INSURANCE)) {
         sailorProfile.setSocialInsuranceImages(uploadToken.getFiles());
-      } else if (nestedType
-          .getName()
-          .equals(SailorProfile.UploadableType.ACCIDENT_INSURANCE.name())) {
+      } else if (stragegy.equals(SailorUploadStragegy.ACCIDENT_INSURANCE)) {
         sailorProfile.setAccidentInsuranceImages(uploadToken.getFiles());
       } else {
         throw new UnsupportedOperationException("Unimplemented method 'uploadFile'");

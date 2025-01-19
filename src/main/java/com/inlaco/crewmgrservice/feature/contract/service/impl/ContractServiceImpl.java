@@ -93,11 +93,17 @@ public class ContractServiceImpl implements ContractService {
 
   @Override
   @Transactional
-  public Contract updateContract(String id, JsonNode patch) {
+  public Contract updateContract(String id, JsonNode patch, boolean newVersion) {
     AbstractContract contract = getContractById(id);
     if (contract.isFreezed()) {
-      throw new FreezeContractUpdateException(
-          "Contract is freezed, please create a new contract or add sub terms");
+      if (newVersion) {
+        throw new FreezeContractUpdateException(
+            "Contract is freezed, please create a new contract or add sub terms");
+      } else {
+        AbstractContract updateContract = jsonMergePatch.apply(contract, patch);
+
+        contractVersionRepository.save(updateContract);
+      }
     }
     return contractRepository.save((AbstractContract) jsonMergePatch.apply(contract, patch));
   }

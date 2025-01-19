@@ -3,11 +3,13 @@ package com.inlaco.crewmgrservice.feature.contract.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.inlaco.crewmgrservice.annotation.JsonPatchIgnore;
+import com.inlaco.crewmgrservice.common.model.File;
 import com.inlaco.crewmgrservice.common.model.Versionable;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import java.time.Instant;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.bson.types.ObjectId;
@@ -25,6 +27,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
     value = {"id", "version", "createdAt", "updatedAt", "prevVersion"},
     allowGetters = true)
 @Document(collection = "contract_versions")
+@NoArgsConstructor
 /** The document to save all versions of contract */
 public abstract class ContractVersion implements Versionable<String, Integer> {
 
@@ -44,6 +47,10 @@ public abstract class ContractVersion implements Versionable<String, Integer> {
       hidden = true)
   @JsonPatchIgnore
   private Integer prevVersion = null;
+
+  @JsonPatchIgnore
+  @Schema(description = "The change log file of this version", hidden = true)
+  private File changeLogFile;
 
   @Schema(
       description = "The short change log of this version",

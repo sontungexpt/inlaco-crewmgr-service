@@ -39,4 +39,6 @@ public interface SailorService {
    * @return the sailor profile
    */
   SailorProfile findMySailorProfile(User user);
+
+  boolean existsSailorProfileById(String sailorId);
 }

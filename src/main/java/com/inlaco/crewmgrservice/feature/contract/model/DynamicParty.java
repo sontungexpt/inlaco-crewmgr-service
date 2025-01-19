@@ -11,5 +11,13 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class DynamicParty extends Party {
 
+  public DynamicParty() {
+    super(PartyType.DYNAMIC);
+  }
+
+  public DynamicParty(PartyType type) {
+    super(type);
+  }
+
   private List<DynamicAttribute> customAttributes;
 }

@@ -14,7 +14,7 @@ public interface Contract {
 
   List<Party> getSignedPartners();
 
-  List<PaperContract> getPaperContracts();
+  File getContractFile();
 
   List<File> getAttachments();
 

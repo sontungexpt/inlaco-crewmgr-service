@@ -19,7 +19,7 @@ public interface ContractService {
 
   Contract getLaborContractByEmployeeId(String employeeId);
 
-  Contract updateContract(String id, JsonNode patch);
+  Contract updateContract(String id, JsonNode patch, boolean newVersion);
 
   Contract saveContract(AbstractContract contract);
 

@@ -9,6 +9,7 @@ import com.inlaco.crewmgrservice.common.model.File;
 import com.inlaco.crewmgrservice.common.payload.TimeFrame;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.Min;
@@ -16,6 +17,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Builder.Default;
 import lombok.Getter;
@@ -45,6 +47,15 @@ import org.springframework.format.annotation.DateTimeFormat;
 })
 public abstract class AbstractContract extends ContractVersion implements Contract, TimeFrame {
 
+  public AbstractContract(ContractType type) {
+    super();
+    this.type = type;
+  }
+
+  public AbstractContract(ContractVersionBuilder<?, ?> b) {
+    super(b);
+  }
+
   @NotBlank
   @Schema(
       description = "The title of the contract",
@@ -62,23 +73,17 @@ public abstract class AbstractContract extends ContractVersion implements Contra
       description = "The list of signed partners (example sailor)",
       requiredMode = RequiredMode.REQUIRED)
   @MinLen(1)
-  private List<@NotNull Party> signedPartners;
+  private List<@Valid Party> signedPartners;
 
-  @Schema(
-      description = "The list of paper contracts",
-      requiredMode = RequiredMode.REQUIRED,
-      example = "[{\"page\": 1, \"imageUrl\": \"https://...\"}]")
-  private List<PaperContract> paperContracts;
+  @Schema(description = "The list of paper contracts", requiredMode = RequiredMode.REQUIRED)
+  private File contractFile;
 
   @Schema(
       description = "The description of the contract",
-      example = "{\"name\":\"Hop dong\", \"url\": \"https://....\"}")
-  private List<File> attachments;
+      example = "[{\"name\":\"Hop dong\", \"url\": \"https://....\"}]")
+  private List<@Valid File> attachments = new ArrayList<>();
 
-  @Schema(
-      description = "The list of term of the contract",
-      example = "The term 1 of the contract",
-      requiredMode = RequiredMode.REQUIRED)
+  @Schema(description = "The list of term of the contract", requiredMode = RequiredMode.REQUIRED)
   @NotEmpty
   private List<@NotBlank String> terms;
 
@@ -117,6 +122,7 @@ public abstract class AbstractContract extends ContractVersion implements Contra
   @Schema(
       description = "The template id of the contract",
       type = "String",
+      hidden = true,
       requiredMode = RequiredMode.REQUIRED)
   private ObjectId templateId;
 
@@ -132,10 +138,12 @@ public abstract class AbstractContract extends ContractVersion implements Contra
   private int contractFreezeDelay = 5;
 
   @JsonIgnore
+  @Schema(hidden = true)
   public boolean isFreezed() {
     return isSigned() && Instant.now().isAfter(getFreezeDate());
   }
 
+  @Schema(hidden = true)
   public Instant getFreezeDate() {
     return activationDate.plusSeconds(contractFreezeDelay * 60);
   }
@@ -145,6 +153,7 @@ public abstract class AbstractContract extends ContractVersion implements Contra
       enumAsRef = true,
       requiredMode = RequiredMode.REQUIRED)
   @NotNull
+  @JsonPatchIgnore
   private ContractType type;
 
   @Override

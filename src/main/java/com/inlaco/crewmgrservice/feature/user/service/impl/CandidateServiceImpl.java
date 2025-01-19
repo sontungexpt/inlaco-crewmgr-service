@@ -148,4 +148,9 @@ public class CandidateServiceImpl implements CandidateService {
         .searchCandidates(query, filters, pageable)
         .map(it -> toBasicProfileDTO(it));
   }
+
+  @Override
+  public boolean existsById(String id) {
+    return candidateProfileRepository.existsById(id);
+  }
 }

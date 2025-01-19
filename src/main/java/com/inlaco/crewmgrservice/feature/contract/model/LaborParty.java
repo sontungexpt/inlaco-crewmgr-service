@@ -9,6 +9,10 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class LaborParty extends DynamicParty {
 
+  public LaborParty() {
+    super(PartyType.LABOR);
+  }
+
   @Schema(description = "The tax code of the contract", example = "123456")
   private String taxCode;
 

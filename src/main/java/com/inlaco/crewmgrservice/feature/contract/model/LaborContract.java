@@ -13,6 +13,11 @@ import org.bson.types.ObjectId;
 @SuperBuilder
 public class LaborContract extends DynamicContract {
 
+  public LaborContract() {
+    super();
+    setType(ContractType.LABOR_CONTRACT);
+  }
+
   @Schema(description = "Employee ID", hidden = true)
   @JsonIgnore
   @JsonPatchIgnore

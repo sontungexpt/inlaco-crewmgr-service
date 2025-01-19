@@ -23,11 +23,13 @@ public class UploadFactory {
   }
 
   public UploadOptions getUploadOptions(UploadType type, String id) {
-    return getUploadService(type.getName()).getUploadOptions(type, id);
+    return getUploadService(type.getStragegy().name()).getUploadOptions(type, id);
   }
 
-  void uploadFile(UploadType type, List<UploadToken> uploadTokens) {
+  public void uploadFile(UploadType type, List<UploadToken> uploadTokens) {
     CompletableFuture.runAsync(
-        () -> getUploadService(type.getName()).uploadFile(uploadTokens, type.getNestedType()));
+        () ->
+            getUploadService(type.getStragegy().name())
+                .uploadFile(uploadTokens, type.getNestedType()));
   }
 }

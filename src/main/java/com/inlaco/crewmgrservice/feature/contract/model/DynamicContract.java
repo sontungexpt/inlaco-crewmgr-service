@@ -14,6 +14,10 @@ import lombok.experimental.SuperBuilder;
 @Setter
 public class DynamicContract extends AbstractContract {
 
+  public DynamicContract() {
+    super(ContractType.DYNAMIC_CONTRACT);
+  }
+
   @Schema(
       description = "The list of custom attributes of the contract",
       example = "[{\"name\":\"custom1\", \"value\": \"value1\"}]")
