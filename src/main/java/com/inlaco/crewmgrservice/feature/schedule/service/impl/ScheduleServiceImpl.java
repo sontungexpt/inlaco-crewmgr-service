@@ -36,7 +36,7 @@ public class ScheduleServiceImpl implements ScheduleService {
   private String CLIENT_HOME_PAGE_LINK;
 
   private String SAILOR_WORK_EMAIL_NOTIFICATION_PATH =
-      "src/main/resources/templates/schedule/sailor-work-notification.html";
+      "src/main/resources/templates/email/html/schedule/sailor-work-notification.html";
 
   private final AssignmentScheduleRepository scheduleRepository;
   private final CustomScheduleRepository customScheduleRepository;
@@ -100,22 +100,23 @@ public class ScheduleServiceImpl implements ScheduleService {
   @Override
   public Page<SailorScheduleResponse> findPaginationSchedulesByCardId(
       String cardId, ScheduleFilterable filterable, Pageable pageable) {
+    var profile = sailorService.findSailorProfileByCardId(cardId);
     return customScheduleRepository
         .findPaginationSchedulesByCardId(cardId, filterable, pageable)
-        .map(it -> toSailorScheduleResponse(it, cardId));
+        .map(it -> toSailorScheduleResponse(it, cardId, profile));
   }
 
   private SailorScheduleResponse toSailorScheduleResponse(
-      AssigmentSchedule schedule, String cardId) {
+      AssigmentSchedule schedule, String cardId, SailorProfile profile) {
     return SailorScheduleResponse.builder()
         .startDate(schedule.getStartDate())
         .estimatedEndDate(schedule.getEstimatedEndDate())
-        .professionalPosition(
-            schedule.getCrewMembers().stream()
-                .filter(crew -> crew.getCardId().equals(cardId))
-                .toList()
-                .get(-1)
-                .getProfessionalPosition())
+        .professionalPosition(profile.getProfessionalPosition())
+        // schedule.getCrewMembers().stream()
+        //     .filter(crew -> crew.getCardId().equals(cardId))
+        //     .toList()
+        //     .get(0)
+        //     .getProfessionalPosition())
         .cardId(cardId)
         .detail(schedule)
         .build();
@@ -124,8 +125,9 @@ public class ScheduleServiceImpl implements ScheduleService {
   @Override
   public List<SailorScheduleResponse> findSchedulesByCardId(
       String cardId, ScheduleFilterable filterable) {
+    var profile = sailorService.findSailorProfileByCardId(cardId);
     return customScheduleRepository.findSchedulesByCardId(cardId, filterable).stream()
-        .map(it -> toSailorScheduleResponse(it, cardId))
+        .map(it -> toSailorScheduleResponse(it, cardId, profile))
         .toList();
   }
 

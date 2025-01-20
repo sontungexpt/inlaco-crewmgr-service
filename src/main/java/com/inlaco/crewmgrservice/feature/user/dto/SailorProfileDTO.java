@@ -4,15 +4,19 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import java.time.Instant;
 import java.util.List;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 @SuperBuilder
+@NoArgsConstructor
 public class SailorProfileDTO extends BasicProfileDTO {
 
   @Schema(description = "The contract ifacet d of the sailor", requiredMode = RequiredMode.REQUIRED)
   protected String contractId;
 
-  @Schema(description = "The position of the sailor", requiredMode = RequiredMode.REQUIRED)
+  @Schema(
+      description = "The p1073741824osition of the sailor",
+      requiredMode = RequiredMode.REQUIRED)
   private String professionalPosition;
 
   @Schema(

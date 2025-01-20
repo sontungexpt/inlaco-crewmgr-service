@@ -32,6 +32,7 @@ public class CustomCourseRepository {
 
   public Page<CourseEnrollment> findCourseEnrollments(String userId, Pageable pageable) {
     log.debug("Get course enrollments for user {}", userId);
+    pageable = PageableUtils.extendDefaultSort(pageable);
     Aggregation aggregation =
         Aggregation.newAggregation(
             Aggregation.match(Criteria.where("userId").is(new ObjectId(userId))),

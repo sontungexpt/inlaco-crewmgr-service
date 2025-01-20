@@ -1,32 +1,29 @@
 package com.inlaco.crewmgrservice.feature.course.model.dto;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.inlaco.crewmgrservice.feature.course.model.CourseMember;
 import com.inlaco.crewmgrservice.feature.user.dto.SailorProfileDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
 
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class CourseMemberInfo {
 
   @Schema(description = "The ID of the course associated with this tracking record")
+  @JsonSerialize(using = ToStringSerializer.class)
   private ObjectId courseId;
 
-  @JsonGetter("courseId")
-  public String getCourseIdStr() {
-    return courseId.toHexString();
-  }
-
   @Schema(description = "The ID of the user associated with this tracking record")
+  @JsonSerialize(using = ToStringSerializer.class)
   private ObjectId userId;
-
-  @JsonGetter("userId")
-  public String getUserIdSrt() {
-    return userId.toHexString();
-  }
 
   @Schema(description = "The current status of the course member", ref = "Status", enumAsRef = true)
   private CourseMember.Status status;

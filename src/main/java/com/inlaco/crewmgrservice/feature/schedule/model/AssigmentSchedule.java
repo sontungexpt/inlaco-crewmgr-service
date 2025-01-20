@@ -147,9 +147,9 @@ public class AssigmentSchedule implements Serializable {
     @NotBlank
     private String cardId;
 
-    @Schema(description = "The name of the crew member", requiredMode = RequiredMode.REQUIRED)
-    @NotBlank
-    private String professionalPosition;
+    // @Schema(description = "The name of the crew member", requiredMode = RequiredMode.REQUIRED)
+    // @NotBlank
+    // private String professionalPosition;
 
     @Override
     public int hashCode() {

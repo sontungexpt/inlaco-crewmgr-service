@@ -175,4 +175,11 @@ public class SailorServiceImpl implements SailorService {
   public List<SailorProfile> findSailorProfilesByCardIds(Iterable<String> sailorIds) {
     return sailorProfileRepository.findByCardIdIn(sailorIds);
   }
+
+  @Override
+  public SailorProfile findSailorProfileByCardId(String cardId) {
+    return sailorProfileRepository
+        .findByCardId(cardId)
+        .orElseThrow(() -> new ResourceNotFoundException(SailorProfile.class, "cardId", cardId));
+  }
 }

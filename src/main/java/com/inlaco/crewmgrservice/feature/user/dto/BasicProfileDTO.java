@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import java.time.Instant;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.bson.types.ObjectId;
@@ -13,6 +14,7 @@ import org.bson.types.ObjectId;
 @Getter
 @Setter
 @SuperBuilder
+@NoArgsConstructor
 public class BasicProfileDTO {
 
   @Schema(hidden = true)

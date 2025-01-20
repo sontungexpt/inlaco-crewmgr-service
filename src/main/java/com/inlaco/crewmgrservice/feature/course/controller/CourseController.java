@@ -86,11 +86,11 @@ If `nonExpired` is set to `true`, only non-expired courses will be returned.
   }
 
   @Operation(
-      summary = "Get all courses enrolled by a user",
+      summary = "Get all my courses",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
       description =
           """
-Get all courses enrolled by a user
+Get all courses enrolled by the current user
 
 **Usecase**:
 - UC_crew-xem-khoa-dao-tao (View course list)
@@ -98,7 +98,7 @@ Get all courses enrolled by a user
 """)
   @GetMapping("/enrolled")
   @PageableQueryParams
-  public Page<CourseEnrollment> getAllCourses(
+  public Page<CourseEnrollment> getMyAllCourses(
       @CurrentUser User user, @PageableDefault(page = 0, size = 20) Pageable pageable) {
     return courseService.getEnrolledCourses(user, pageable);
   }
@@ -194,6 +194,7 @@ Get all sailors enrolled in a course
 """)
   @RolesAllowed("ADMIN")
   @GetMapping("/{courseId}/members")
+  @PageableQueryParams
   public ResponseEntity<?> getCourseMembers(
       @ObjectId @PathVariable("courseId") String courseId, Pageable pageable) {
     return ResponseEntity.ok(courseService.getCourseMembers(courseId, pageable));

@@ -47,4 +47,6 @@ public interface SailorService {
   boolean existsSailorProfileById(String sailorId);
 
   List<SailorProfile> findSailorProfilesByCardIds(Iterable<String> sailorCardIds);
+
+  SailorProfile findSailorProfileByCardId(String cardId);
 }
