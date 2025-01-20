@@ -99,12 +99,14 @@ public abstract class ContractVersion implements Versionable<String, Integer> {
   @CreatedBy
   @JsonPatchIgnore
   @JsonSerialize(using = ToStringSerializer.class)
+  @JsonIgnore
   private ObjectId createdBy;
 
   @Schema(hidden = true)
   @LastModifiedBy
   @JsonPatchIgnore
   @JsonSerialize(using = ToStringSerializer.class)
+  @JsonIgnore
   private ObjectId updatedBy;
 
   @Override

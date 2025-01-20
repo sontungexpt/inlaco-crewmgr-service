@@ -1,6 +1,7 @@
 package com.inlaco.crewmgrservice.common.payload;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.NullSerializer;
 import jakarta.validation.Valid;
 import java.time.Instant;
 import java.util.List;
@@ -60,6 +61,6 @@ public interface TimeFrame {
     }
   }
 
-  @JsonIgnore
+  @JsonSerialize(using = NullSerializer.class)
   List<Pair> getTimeFrames();
 }
