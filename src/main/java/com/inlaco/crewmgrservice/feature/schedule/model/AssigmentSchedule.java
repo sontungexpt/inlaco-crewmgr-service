@@ -7,19 +7,22 @@ import com.inlaco.crewmgrservice.common.model.ShipInfo;
 import com.inlaco.crewmgrservice.validation.annotation.PhoneNumber;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.Set;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.bson.types.ObjectId;
+import org.checkerframework.common.value.qual.MinLen;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
@@ -33,9 +36,11 @@ import org.springframework.format.annotation.DateTimeFormat;
 @Getter
 @Setter
 @JsonIgnoreProperties(
-    value = {"id", "createdAt", "updatedAt", "totalSailors"},
+    value = {"id", "status", "createdAt", "updatedAt", "totalSailors"},
     allowGetters = true)
 @Document(collection = "master_assignment_schedules")
+@NoArgsConstructor
+@AllArgsConstructor
 public class AssigmentSchedule implements Serializable {
 
   @Schema(description = "The status of the schedule")
@@ -50,7 +55,8 @@ public class AssigmentSchedule implements Serializable {
     COMPLETED
   }
 
-  @Schema(description = "The status of the schedule", requiredMode = RequiredMode.REQUIRED)
+  @Schema(description = "The status of the schedule", hidden = true)
+  @JsonPatchIgnore
   private Status status;
 
   @Id
@@ -82,11 +88,6 @@ public class AssigmentSchedule implements Serializable {
   @NotBlank
   private String partnerAddress;
 
-  @Schema(description = "Total number of crew members needed.", example = "10", required = true)
-  @NotNull
-  @Min(1)
-  private Integer totalSailors;
-
   @Schema(
       description = "Departure point.",
       example = "Port of Los Angeles",
@@ -116,10 +117,7 @@ public class AssigmentSchedule implements Serializable {
   @Schema(description = "The information of the ship", requiredMode = RequiredMode.REQUIRED)
   private ShipInfo shipInfo;
 
-  @Schema(
-      description = "The start date of the work schedule",
-      example = "2025-01-14T10:00:00Z",
-      requiredMode = RequiredMode.REQUIRED)
+  @Schema(description = "The start date of the work schedule", requiredMode = RequiredMode.REQUIRED)
   @NotNull
   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
   @Future
@@ -134,14 +132,23 @@ public class AssigmentSchedule implements Serializable {
   @Future
   private Instant estimatedEndDate;
 
+  public int getTotalSailors() {
+    if (crewMembers == null) {
+      return 0;
+    }
+    return crewMembers.size();
+  }
+
   @Data
   public static class CrewMember {
 
     @Indexed
     @Schema(description = "The ID of the crew member's card", requiredMode = RequiredMode.REQUIRED)
+    @NotBlank
     private String cardId;
 
     @Schema(description = "The name of the crew member", requiredMode = RequiredMode.REQUIRED)
+    @NotBlank
     private String professionalPosition;
 
     @Override
@@ -159,7 +166,9 @@ public class AssigmentSchedule implements Serializable {
     }
   }
 
-  private Set<CrewMember> crewMembers;
+  @Schema(description = "The crew members assigned to the schedule")
+  @MinLen(1)
+  private Set<@Valid CrewMember> crewMembers;
 
   @CreatedDate
   @JsonIgnore
@@ -173,6 +182,7 @@ public class AssigmentSchedule implements Serializable {
   @JsonPatchIgnore
   private Instant updatedAt;
 
+  @Schema(hidden = true)
   public Instant getUpdatedDate() {
     return updatedAt;
   }
