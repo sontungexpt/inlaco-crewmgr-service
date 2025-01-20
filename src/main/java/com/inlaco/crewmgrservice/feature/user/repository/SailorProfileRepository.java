@@ -16,5 +16,5 @@ public interface SailorProfileRepository extends MongoRepository<SailorProfile, 
 
   Optional<SailorProfile> findByCardId(String cardId);
 
-  List<SailorProfile> findByCardIdIn(List<String> cardIds);
+  List<SailorProfile> findByCardIdIn(Iterable<String> cardIds);
 }

@@ -20,6 +20,7 @@ import com.inlaco.crewmgrservice.feature.user.service.UserService;
 import com.inlaco.crewmgrservice.utils.JsonMergePatchUtils;
 import java.time.Instant;
 import java.time.Year;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
@@ -168,5 +169,10 @@ public class SailorServiceImpl implements SailorService {
 
     userService.updateToSailor(sailorAccountId);
     applicationEventPublisher.publishEvent(contract);
+  }
+
+  @Override
+  public List<SailorProfile> findSailorProfilesByCardIds(Iterable<String> sailorIds) {
+    return sailorProfileRepository.findByCardIdIn(sailorIds);
   }
 }

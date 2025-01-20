@@ -39,5 +39,9 @@ public class EmailRequest extends NotificationRequest<String, String> {
     public B recipient(String recipient) {
       return self().recipients(List.of(recipient));
     }
+
+    public B htmlMessage() {
+      return emailType(EmailType.MIME);
+    }
   }
 }

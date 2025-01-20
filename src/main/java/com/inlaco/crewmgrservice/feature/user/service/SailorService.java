@@ -6,6 +6,7 @@ import com.inlaco.crewmgrservice.feature.user.dto.BasicProfileDTO;
 import com.inlaco.crewmgrservice.feature.user.dto.SailorFilterable;
 import com.inlaco.crewmgrservice.feature.user.model.SailorProfile;
 import com.inlaco.crewmgrservice.feature.user.model.User;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -44,4 +45,6 @@ public interface SailorService {
   SailorProfile findMySailorProfile(User user);
 
   boolean existsSailorProfileById(String sailorId);
+
+  List<SailorProfile> findSailorProfilesByCardIds(Iterable<String> sailorCardIds);
 }
