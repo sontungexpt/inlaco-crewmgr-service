@@ -4,7 +4,7 @@ import java.util.Map;
 
 public class HtmlEmailVariable {
 
-  private String htmlContent;
+  private StringBuilder htmlContentBuilder;
   private Case convertTo = Case.CUSTOM_CASE;
 
   private Map<Case, AbstractCaseConverter> caseConverters =
@@ -31,7 +31,7 @@ public class HtmlEmailVariable {
   }
 
   public HtmlEmailVariable(String htmlContent) {
-    this.htmlContent = htmlContent;
+    this.htmlContentBuilder = new StringBuilder(htmlContent);
   }
 
   public HtmlEmailVariable var(String key, String value) {
@@ -41,7 +41,12 @@ public class HtmlEmailVariable {
   }
 
   private void replace(String key, String value) {
-    htmlContent = htmlContent.replace(formatKey(key), value);
+    key = formatKey(key);
+    int index = htmlContentBuilder.indexOf(key);
+    while (index != -1) {
+      htmlContentBuilder.replace(index, index + key.length(), value);
+      index = htmlContentBuilder.indexOf(key, value.length());
+    }
   }
 
   private String formatKey(String key) {
@@ -54,7 +59,7 @@ public class HtmlEmailVariable {
   }
 
   public String buildHtml() {
-    return htmlContent;
+    return htmlContentBuilder.toString();
   }
 
   public enum Case {
