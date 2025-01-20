@@ -15,6 +15,10 @@ import org.bson.types.ObjectId;
 @SuperBuilder
 public class SupplyContract extends DynamicContract {
 
+  public SupplyContract() {
+    super(ContractType.SUPPLY_CONTRACT);
+  }
+
   @JsonIgnore
   @Schema(description = "The rental request id that this contract is created from", hidden = true)
   @JsonSerialize(using = ToStringSerializer.class)
