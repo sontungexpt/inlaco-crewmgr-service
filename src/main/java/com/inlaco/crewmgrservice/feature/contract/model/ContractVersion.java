@@ -43,7 +43,7 @@ public abstract class ContractVersion implements Versionable<String, Integer> {
   private String firstVersionId;
 
   public boolean isFirstVersion() {
-    return firstVersionId == null;
+    return prevVersionId == null;
   }
 
   private String currentVersionId;
@@ -56,9 +56,17 @@ public abstract class ContractVersion implements Versionable<String, Integer> {
   @JsonPatchIgnore
   private String nextVersionId;
 
+  public boolean hasNextVersion() {
+    return nextVersionId != null;
+  }
+
   @Schema(description = "The id of the previous version", hidden = true)
   @JsonPatchIgnore
   private String prevVersionId;
+
+  public boolean hasPrevVersion() {
+    return prevVersionId != null;
+  }
 
   @Schema(description = "The version number of the contract", hidden = true)
   @JsonPatchIgnore
