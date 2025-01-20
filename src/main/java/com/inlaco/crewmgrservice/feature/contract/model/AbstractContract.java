@@ -112,7 +112,7 @@ public abstract class AbstractContract extends ContractVersion
 
   @FutureOrPresent
   @Schema(description = "The time that the contract is valid, and active")
-  @DateTimeFormat
+  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
   private Instant activationDate;
 
   @JsonIgnore
@@ -126,7 +126,7 @@ public abstract class AbstractContract extends ContractVersion
 
   @Schema(description = "The time that the contract expired")
   @Future
-  @DateTimeFormat
+  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
   private Instant expiredDate;
 
   @Schema(

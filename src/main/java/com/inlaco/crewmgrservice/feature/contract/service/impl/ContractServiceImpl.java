@@ -1,6 +1,7 @@
 package com.inlaco.crewmgrservice.feature.contract.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.inlaco.crewmgrservice.exceptions.ResourceAlreadyInUseException;
 import com.inlaco.crewmgrservice.exceptions.ResourceNotFoundException;
 import com.inlaco.crewmgrservice.feature.contract.dto.ContractFilterable;
 import com.inlaco.crewmgrservice.feature.contract.dto.ShortContract;
@@ -80,6 +81,11 @@ public class ContractServiceImpl implements ContractService {
   public Contract createLaborContract(String sailorId, LaborContract contract, User creator) {
     var sailorProfile = sailorService.findSailorProfileById(sailorId);
 
+    if (customLaborContractRepository.existsLaborContractByEmployeeId(
+        sailorProfile.getAccountId().toHexString())) {
+      throw new ResourceAlreadyInUseException(
+          LaborContract.class, "employeeId", sailorProfile.getAccountId().toHexString());
+    }
     contract.setEmployeeId(sailorProfile.getAccountId());
 
     var newContract = contractRepository.save(contract);
