@@ -9,8 +9,6 @@ import com.inlaco.crewmgrservice.feature.contract.model.SupplyContract;
 import com.inlaco.crewmgrservice.feature.crewrental.enums.RentalRequestStatus;
 import com.inlaco.crewmgrservice.feature.crewrental.model.RentalRequest;
 import com.inlaco.crewmgrservice.feature.crewrental.service.RentalRequestService;
-import com.inlaco.crewmgrservice.feature.user.enums.WorkStatus;
-import com.inlaco.crewmgrservice.feature.user.model.SailorProfile;
 import com.inlaco.crewmgrservice.feature.user.service.SailorService;
 import com.inlaco.crewmgrservice.feature.user.service.UserService;
 import java.time.Instant;
@@ -39,6 +37,7 @@ public class ContractTimerTask {
     var query = new Query();
     query.addCriteria(
         Criteria.where("activated").is(false).and("activationDate").lte(Instant.now()));
+
     log.debug(query.toString());
 
     List<AbstractContract> contracts = mongoTemplate.find(query, AbstractContract.class);
@@ -54,19 +53,21 @@ public class ContractTimerTask {
     CompletableFuture.runAsync(
         () -> {
           log.info("Activating contract {}", contract.getTitle());
-          if (contract instanceof SupplyContract that) {
+          if (contract instanceof SupplyContract supplyContract) {
             RentalRequest request =
-                rentalRequestService.getRequestById(that.getRentalRequestId().toHexString());
+                rentalRequestService.getRequestById(
+                    supplyContract.getRentalRequestId().toHexString());
             request.setStatus(RentalRequestStatus.ACTIVE);
             rentalRequestService.saveRequest(request);
-          } else if (contract instanceof LaborContract that) {
-            SailorProfile sailorProfile =
-                sailorService.findSailorProfileByAccountId(that.getEmployeeId().toHexString());
-            sailorProfile.setCardId(sailorService.generateSailorCardId());
-            sailorProfile.setWorkStatus(WorkStatus.AVAILABLE);
-            sailorProfile.setJoinedCompanyAt(Instant.now());
-            sailorService.saveSailorProfile(sailorProfile);
-            userService.updateToSailor(that.getEmployeeId().toHexString());
+          } else if (contract instanceof LaborContract laborContract) {
+            sailorService.makeSailorOfficial(laborContract);
+            // SailorProfile sailorProfile =
+            //     sailorService.findSailorProfileByAccountId(that.getEmployeeId().toHexString());
+            // sailorProfile.setCardId(sailorService.generateSailorCardId());
+            // sailorProfile.setWorkStatus(WorkStatus.AVAILABLE);
+            // sailorProfile.setJoinedCompanyAt(Instant.now());
+            // sailorService.saveSailorProfile(sailorProfile);
+            // userService.updateToSailor(that.getEmployeeId().toHexString());
           }
           log.info("Contract {} activated", contract.getTitle());
         });

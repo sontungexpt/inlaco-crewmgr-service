@@ -3,10 +3,12 @@ package com.inlaco.crewmgrservice.feature.user.service.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.inlaco.crewmgrservice.exceptions.ResourceAlreadyInUseException;
 import com.inlaco.crewmgrservice.exceptions.ResourceNotFoundException;
+import com.inlaco.crewmgrservice.feature.contract.model.LaborContract;
 import com.inlaco.crewmgrservice.feature.post.model.RecruitmentPost;
 import com.inlaco.crewmgrservice.feature.post.service.PostService;
 import com.inlaco.crewmgrservice.feature.user.dto.BasicProfileDTO;
 import com.inlaco.crewmgrservice.feature.user.dto.SailorFilterable;
+import com.inlaco.crewmgrservice.feature.user.enums.WorkStatus;
 import com.inlaco.crewmgrservice.feature.user.model.CandidateProfile;
 import com.inlaco.crewmgrservice.feature.user.model.SailorProfile;
 import com.inlaco.crewmgrservice.feature.user.model.User;
@@ -14,14 +16,18 @@ import com.inlaco.crewmgrservice.feature.user.repository.CustomSailorRepository;
 import com.inlaco.crewmgrservice.feature.user.repository.SailorProfileRepository;
 import com.inlaco.crewmgrservice.feature.user.service.CandidateService;
 import com.inlaco.crewmgrservice.feature.user.service.SailorService;
+import com.inlaco.crewmgrservice.feature.user.service.UserService;
 import com.inlaco.crewmgrservice.utils.JsonMergePatchUtils;
+import java.time.Instant;
 import java.time.Year;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 @Service
@@ -29,11 +35,13 @@ import org.springframework.util.StringUtils;
 @Slf4j
 public class SailorServiceImpl implements SailorService {
 
+  private final UserService userService;
   private final SailorProfileRepository sailorProfileRepository;
   private final JsonMergePatchUtils jsonMergePatchUtils;
   private final CandidateService candidateService;
   private final CustomSailorRepository customSailorRepository;
   private final PostService postService;
+  private final ApplicationEventPublisher applicationEventPublisher;
 
   @Override
   public SailorProfile addSailor(String candidateId, SailorProfile sailorProfile) {
@@ -144,5 +152,21 @@ public class SailorServiceImpl implements SailorService {
   @Override
   public boolean existsSailorProfileById(String sailorId) {
     return sailorProfileRepository.existsById(sailorId);
+  }
+
+  @Override
+  @Transactional
+  public void makeSailorOfficial(LaborContract contract) {
+    String sailorAccountId = contract.getEmployeeId().toHexString();
+    SailorProfile sailorProfile = findSailorProfileByAccountId(sailorAccountId);
+    sailorProfile.setCardId(generateSailorCardId());
+    sailorProfile.setWorkStatus(WorkStatus.AVAILABLE);
+    sailorProfile.setJoinedCompanyAt(Instant.now());
+    saveSailorProfile(sailorProfile);
+    candidateService.reviewCandidate(
+        sailorProfile.getCandidateId().toHexString(), CandidateProfile.Status.HIRED, true);
+
+    userService.updateToSailor(sailorAccountId);
+    applicationEventPublisher.publishEvent(contract);
   }
 }
