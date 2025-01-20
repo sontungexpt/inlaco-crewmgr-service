@@ -7,6 +7,8 @@ public interface Versionable<ID, VT> {
 
   ID getId();
 
+  ID getCurrentVersionId();
+
   ID getFirstVersionId();
 
   ID getPrevVersionId();

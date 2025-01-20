@@ -132,6 +132,8 @@ public class CustomScheduleRepository {
 
   private Criteria buildFilterableCriteria(ScheduleFilterable filterable) {
 
+    List<Criteria> criteriaList = new ArrayList<>();
+
     Criteria criteria = new Criteria();
 
     if (filterable.getStatus() != null) {
@@ -139,20 +141,23 @@ public class CustomScheduleRepository {
     }
 
     if (filterable.getStartDate() != null) {
-      Criteria criteria1 = criteria.and("startDate").gte(filterable.getStartDate());
+      Criteria criteria1 = Criteria.where("startDate").gte(filterable.getStartDate());
       if (filterable.getEstimatedEndDate() != null) {
-        criteria = criteria1.and("estimatedEndDate").lte(filterable.getEstimatedEndDate());
+        criteria1.and("estimatedEndDate").lte(filterable.getEstimatedEndDate());
       }
+      criteriaList.add(criteria1);
     }
 
     if (filterable.getEstimatedEndDate() != null) {
-      Criteria criteria2 = criteria.and("estimatedEndDate").lte(filterable.getEstimatedEndDate());
+      Criteria criteria2 = Criteria.where("estimatedEndDate").lte(filterable.getEstimatedEndDate());
       if (filterable.getStartDate() != null) {
-        criteria = criteria2.and("startDate").gte(filterable.getStartDate());
+        criteria2.and("startDate").gte(filterable.getStartDate());
       }
+      criteriaList.add(criteria2);
     }
 
-    return criteria;
+    criteriaList.add(criteria);
+    return criteria.andOperator(criteriaList);
   }
 
   private AggregationOperation buildSimplePaginationOperation(Pageable pageable) {

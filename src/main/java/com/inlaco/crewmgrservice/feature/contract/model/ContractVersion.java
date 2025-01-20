@@ -46,6 +46,12 @@ public abstract class ContractVersion implements Versionable<String, Integer> {
     return firstVersionId == null;
   }
 
+  private String currentVersionId;
+
+  public String getCurrentVersionId() {
+    return currentVersionId;
+  }
+
   @Schema(description = "The id of the next version", hidden = true)
   @JsonPatchIgnore
   private String nextVersionId;
