@@ -38,6 +38,22 @@ public abstract class ContractVersion implements Versionable<String, Integer> {
   @JsonPatchIgnore
   private String id;
 
+  @Schema(description = "The id of the first version", hidden = true)
+  @JsonPatchIgnore
+  private String firstVersionId;
+
+  public boolean isFirstVersion() {
+    return firstVersionId == null;
+  }
+
+  @Schema(description = "The id of the next version", hidden = true)
+  @JsonPatchIgnore
+  private String nextVersionId;
+
+  @Schema(description = "The id of the previous version", hidden = true)
+  @JsonPatchIgnore
+  private String prevVersionId;
+
   @Schema(description = "The version number of the contract", hidden = true)
   @JsonPatchIgnore
   private int version = 1;
@@ -49,6 +65,14 @@ public abstract class ContractVersion implements Versionable<String, Integer> {
       hidden = true)
   @JsonPatchIgnore
   private Integer prevVersion = null;
+
+  @Schema(
+      description =
+          "The next version number of the contract."
+              + " If it is the last version, it will be null.",
+      hidden = true)
+  @JsonPatchIgnore
+  private Integer nextVersion = null;
 
   @JsonPatchIgnore
   @Schema(description = "The change log file of this version", hidden = true)
@@ -131,5 +155,25 @@ public abstract class ContractVersion implements Versionable<String, Integer> {
   @JsonIgnore
   public ObjectId getUpdatedBy() {
     return updatedBy;
+  }
+
+  @Override
+  public Integer getNextVersion() {
+    return nextVersion;
+  }
+
+  @Override
+  public String getFirstVersionId() {
+    return firstVersionId;
+  }
+
+  @Override
+  public String getPrevVersionId() {
+    return prevVersionId;
+  }
+
+  @Override
+  public String getNextVersionId() {
+    return nextVersionId;
   }
 }

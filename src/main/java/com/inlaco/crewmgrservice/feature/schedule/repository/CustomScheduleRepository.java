@@ -7,6 +7,7 @@ import com.inlaco.crewmgrservice.feature.schedule.dto.ScheduleFilterable;
 import com.inlaco.crewmgrservice.feature.schedule.dto.ScheduleResponse;
 import com.inlaco.crewmgrservice.feature.schedule.model.AssigmentSchedule;
 import com.inlaco.crewmgrservice.feature.user.model.SailorProfile;
+import com.inlaco.crewmgrservice.utils.PageableUtils;
 import java.time.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -79,6 +80,7 @@ public class CustomScheduleRepository {
       operations.add(match(buildFilterableCriteria(filterable)));
     }
 
+    pageable = PageableUtils.extendDefaultSort(pageable, AssigmentSchedule.class);
     operations.add(buildSimplePaginationOperation(pageable));
 
     var result =
@@ -115,6 +117,8 @@ public class CustomScheduleRepository {
     }
 
     operations.add(match(criteria));
+
+    pageable = PageableUtils.extendDefaultSort(pageable, AssigmentSchedule.class);
     operations.add(buildSimplePaginationOperation(pageable));
 
     var result =

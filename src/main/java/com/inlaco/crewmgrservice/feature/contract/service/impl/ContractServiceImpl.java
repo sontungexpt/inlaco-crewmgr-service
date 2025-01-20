@@ -102,16 +102,25 @@ public class ContractServiceImpl implements ContractService {
   public Contract updateContract(String id, JsonNode patch, boolean newVersion) {
     AbstractContract contract = getContractById(id);
     if (contract.isFreezed()) {
-      if (newVersion) {
+      if (!newVersion) {
         throw new FreezeContractUpdateException(
             "Contract is freezed, please create a new contract or add sub terms");
       } else {
-        contractVersionRepository.save(contract);
-        contractRepository.deleteById(contract.getId());
+        Integer newVersionNumber = contract.getVersion() + 1;
+        contract.setNextVersion(newVersionNumber);
 
-        AbstractContract updateContract = jsonMergePatch.apply(contract, patch);
+        AbstractContract oldContract = contractVersionRepository.save(contract);
 
-        return contractRepository.save(updateContract);
+        AbstractContract newContract = jsonMergePatch.apply(contract, patch);
+
+        if (oldContract.isFirstVersion()) {
+          newContract.setFirstVersionId(oldContract.getId());
+        }
+
+        newContract.setPrevVersion(oldContract.getVersion());
+        newContract.setVersion(oldContract.getVersion() + 1);
+
+        return contractRepository.save(newContract);
       }
     }
     return contractRepository.save(jsonMergePatch.apply(contract, patch));

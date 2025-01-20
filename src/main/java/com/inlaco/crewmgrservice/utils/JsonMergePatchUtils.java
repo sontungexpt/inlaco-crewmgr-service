@@ -149,10 +149,7 @@ public class JsonMergePatchUtils {
               String fieldName = entry.getKey();
               Field field = ReflectionUtils.getDeclaredField(clazz, fieldName);
               if (field != null) {
-                boolean isAnnotated =
-                    annotations.stream()
-                        .anyMatch(annotation -> field.getAnnotation(annotation) != null);
-                if (isAnnotated) {
+                if (annotations.stream().anyMatch(field::isAnnotationPresent)) {
                   removedFields.add(fieldName);
                 } else {
                   JsonNode fieldNode = entry.getValue();

@@ -7,9 +7,17 @@ public interface Versionable<ID, VT> {
 
   ID getId();
 
+  ID getFirstVersionId();
+
+  ID getPrevVersionId();
+
+  ID getNextVersionId();
+
   VT getVersion();
 
   VT getPrevVersion();
+
+  VT getNextVersion();
 
   String getChangeLog();
 
