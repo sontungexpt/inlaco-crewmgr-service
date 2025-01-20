@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr353.JSR353Module;
@@ -42,10 +43,10 @@ public class RawJsonConvertor {
                   return JsonIgnoreProperties.Value.empty();
                 }
 
-                // @Override
-                // public boolean hasIgnoreMarker(AnnotatedMember m) {
-                //   return false;
-                // }
+                @Override
+                public boolean hasIgnoreMarker(AnnotatedMember m) {
+                  return false;
+                }
               });
     }
     return mapper;

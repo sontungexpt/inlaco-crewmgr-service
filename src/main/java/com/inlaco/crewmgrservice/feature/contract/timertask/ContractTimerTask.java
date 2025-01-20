@@ -37,11 +37,17 @@ public class ContractTimerTask {
   @Scheduled(cron = "0 0/1 * * * ?")
   private void onContractEffective() {
     var query = new Query();
-    query.addCriteria(Criteria.where("activationDate").lte(Instant.now()));
+    query.addCriteria(
+        Criteria.where("activated").is(false).and("activationDate").lte(Instant.now()));
     log.debug(query.toString());
 
     List<AbstractContract> contracts = mongoTemplate.find(query, AbstractContract.class);
-    contracts.forEach(this::handleContractEffective);
+    contracts.forEach(
+        it -> {
+          it.setActivated(true);
+          handleContractEffective(it);
+          mongoTemplate.save(it);
+        });
   }
 
   public void handleContractEffective(Contract contract) {

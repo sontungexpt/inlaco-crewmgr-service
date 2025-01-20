@@ -23,7 +23,7 @@ public class UploadFactory {
   }
 
   public UploadOptions getUploadOptions(UploadType type, String id) {
-    return getUploadService(type.getStragegy().name()).getUploadOptions(type, id);
+    return getUploadService(type.getStragegy().name()).getUploadOptions(type.getNestedType(), id);
   }
 
   public void uploadFile(UploadType type, List<UploadToken> uploadTokens) {

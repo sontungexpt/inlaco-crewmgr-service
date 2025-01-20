@@ -28,7 +28,7 @@ public abstract class UploadServiceStragegy {
         .orElseThrow(() -> new ResourceNotFoundException(UploadToken.class, "token", token));
   }
 
-  public abstract UploadOptions getUploadOptions(UploadType type, @Nullable String id);
+  public abstract UploadOptions getUploadOptions(UploadType nestedType, @Nullable String id);
 
   public abstract void uploadFile(List<UploadToken> uploadTokens, @Nullable UploadType nestedType);
 }

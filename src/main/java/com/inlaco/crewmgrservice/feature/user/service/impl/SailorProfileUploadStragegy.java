@@ -60,8 +60,8 @@ public class SailorProfileUploadStragegy extends UploadServiceStragegy {
   }
 
   @Override
-  public UploadOptions getUploadOptions(UploadType type, String id) {
-    IUploadStragegy stragegy = type.getStragegy();
+  public UploadOptions getUploadOptions(UploadType nestedType, String id) {
+    IUploadStragegy stragegy = nestedType.getStragegy();
     if (stragegy.equals(SailorUploadStragegy.SOCIAL_INSURANCE)) {
       return getSocialInsurranceImageUploadOptions(id);
     } else if (stragegy.equals(SailorUploadStragegy.ACCIDENT_INSURANCE)) {

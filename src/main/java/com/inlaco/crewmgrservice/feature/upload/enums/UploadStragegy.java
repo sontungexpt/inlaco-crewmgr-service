@@ -8,4 +8,6 @@ public enum UploadStragegy implements IUploadStragegy {
   SAILOR,
   @FieldNameConstants.Include
   CANDIDATE,
+  @FieldNameConstants.Include
+  CONTRACT,
 }

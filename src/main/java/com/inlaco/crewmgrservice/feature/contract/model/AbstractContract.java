@@ -115,6 +115,15 @@ public abstract class AbstractContract extends ContractVersion
   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
   private Instant activationDate;
 
+  @JsonIgnore
+  @JsonPatchIgnore
+  @Schema(
+      description =
+          "The contract is activated or not(Only use for timertask to checked if the contract"
+              + " should be check)",
+      hidden = true)
+  private boolean activated = false;
+
   @Schema(description = "The time that the contract expired")
   @Future
   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
