@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.security.RolesAllowed;
+import jakarta.validation.Valid;
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -181,7 +182,7 @@ Add contract for sailor.
   public Contract createLaborContract(
       @ObjectId @PathVariable("id") String id,
       @CurrentUser User user,
-      @RequestBody LaborContract contract) {
+      @RequestBody @Valid LaborContract contract) {
     return contractService.createLaborContract(id, contract, user);
   }
 
@@ -202,7 +203,7 @@ Add supply contract
   public Contract createSupplyContract(
       @ObjectId @PathVariable("id") String id,
       @CurrentUser User user,
-      @RequestBody SupplyContract contract) {
+      @RequestBody @Valid SupplyContract contract) {
     return contractService.createSupplyContract(id, contract, user);
   }
 

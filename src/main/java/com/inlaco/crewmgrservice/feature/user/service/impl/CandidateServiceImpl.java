@@ -36,7 +36,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class CandidateServiceImpl implements CandidateService {
 
-  @Value("inlaco.company-name")
+  @Value("${inlaco.company-name}")
   private String COMPANY_NAME;
 
   private final CandidateProfileRepository candidateProfileRepository;
