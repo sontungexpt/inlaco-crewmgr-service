@@ -55,8 +55,8 @@ public class ContractServiceImpl implements ContractService {
         .title(contract.getTitle())
         .type(contract.getType())
         .freezedAt(contract.getFreezeDate())
-        .createdAt(contract.getCreatedAt())
-        .updatedAt(contract.getUpdatedAt())
+        .activationAt(contract.getActivationDate())
+        .expiredAt(contract.getExpiredDate())
         .signed(contract.isSigned())
         .build();
   }

@@ -31,9 +31,9 @@ public class ShortContract implements Contract {
 
   private Instant freezedAt;
 
-  private Instant createdAt;
+  private Instant activationAt;
 
-  private Instant updatedAt;
+  private Instant expiredAt;
 
   private boolean signed;
 
@@ -54,12 +54,12 @@ public class ShortContract implements Contract {
 
   @Override
   public Instant getActivationDate() {
-    return createdAt;
+    return activationAt;
   }
 
   @Override
   public Instant getExpiredDate() {
-    return updatedAt;
+    return expiredAt;
   }
 
   @Override
