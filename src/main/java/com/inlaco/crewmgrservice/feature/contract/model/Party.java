@@ -54,8 +54,8 @@ public class Party {
   @Email
   private String email;
 
-  @Schema(description = "The employee phone of the contract", example = "0123456789")
   @PhoneNumber
+  @Schema(description = "The employee phone of the contract", example = "0392211343")
   private String phone;
 
   @Schema(description = "The address of the contract")

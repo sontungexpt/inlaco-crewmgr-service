@@ -6,7 +6,6 @@ import com.inlaco.crewmgrservice.annotation.PageableQueryParams;
 import com.inlaco.crewmgrservice.config.OpenApiConfig;
 import com.inlaco.crewmgrservice.feature.course.model.Course;
 import com.inlaco.crewmgrservice.feature.course.model.dto.CourseDetail;
-import com.inlaco.crewmgrservice.feature.course.model.dto.CourseEnrollment;
 import com.inlaco.crewmgrservice.feature.course.service.CourseService;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import com.inlaco.crewmgrservice.validation.annotation.ObjectId;
@@ -83,24 +82,6 @@ If `nonExpired` is set to `true`, only non-expired courses will be returned.
       @RequestParam(defaultValue = "true") boolean nonExpired,
       @PageableDefault(page = 0, size = 20) Pageable pageable) {
     return courseService.searchCourses(q, nonExpired, pageable);
-  }
-
-  @Operation(
-      summary = "Get all my courses",
-      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
-      description =
-          """
-Get all courses enrolled by the current user
-
-**Usecase**:
-- UC_crew-xem-khoa-dao-tao (View course list)
-
-""")
-  @GetMapping("/enrolled")
-  @PageableQueryParams
-  public Page<CourseEnrollment> getMyAllCourses(
-      @CurrentUser User user, @PageableDefault(page = 0, size = 20) Pageable pageable) {
-    return courseService.getEnrolledCourses(user, pageable);
   }
 
   @Operation(
@@ -196,7 +177,8 @@ Get all sailors enrolled in a course
   @GetMapping("/{courseId}/members")
   @PageableQueryParams
   public ResponseEntity<?> getCourseMembers(
-      @ObjectId @PathVariable("courseId") String courseId, Pageable pageable) {
+      @ObjectId @PathVariable("courseId") String courseId,
+      @PageableDefault(page = 0, size = 20) Pageable pageable) {
     return ResponseEntity.ok(courseService.getCourseMembers(courseId, pageable));
   }
 

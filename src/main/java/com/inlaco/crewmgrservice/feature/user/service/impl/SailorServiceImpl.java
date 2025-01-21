@@ -9,6 +9,7 @@ import com.inlaco.crewmgrservice.feature.post.service.PostService;
 import com.inlaco.crewmgrservice.feature.user.dto.BasicProfileDTO;
 import com.inlaco.crewmgrservice.feature.user.dto.SailorFilterable;
 import com.inlaco.crewmgrservice.feature.user.enums.WorkStatus;
+import com.inlaco.crewmgrservice.feature.user.event.SailorOfficalEvent;
 import com.inlaco.crewmgrservice.feature.user.model.CandidateProfile;
 import com.inlaco.crewmgrservice.feature.user.model.SailorProfile;
 import com.inlaco.crewmgrservice.feature.user.model.User;
@@ -168,7 +169,7 @@ public class SailorServiceImpl implements SailorService {
         sailorProfile.getCandidateId().toHexString(), CandidateProfile.Status.HIRED, true);
 
     userService.updateToSailor(sailorAccountId);
-    applicationEventPublisher.publishEvent(contract);
+    applicationEventPublisher.publishEvent(new SailorOfficalEvent(this, contract));
   }
 
   @Override

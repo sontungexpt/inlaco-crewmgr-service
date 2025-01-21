@@ -155,18 +155,18 @@ public class CustomCourseRepository {
     Aggregation aggregation =
         Aggregation.newAggregation(
             match(Criteria.where("courseId").is(new ObjectId(courseId))),
-            Aggregation.facet(Aggregation.count().as("totalSailors"))
+            Aggregation.facet(Aggregation.count().as(FacetResult.getCountFacetName()))
                 .as(FacetResult.getCountFacetName())
                 .and(
-                    lookup(
-                        mongoTemplate.getCollectionName(SailorProfile.class),
-                        "accountId",
-                        "userId",
-                        "sailor"),
-                    project().and("sailor").arrayElementAt(0).as("sailorProfile"),
                     sort(pageable.getSort()),
                     skip(pageable.getOffset()),
-                    limit(pageable.getPageSize()))
+                    limit(pageable.getPageSize()),
+                    lookup(
+                        mongoTemplate.getCollectionName(SailorProfile.class),
+                        "userId",
+                        "accountId",
+                        "sailorProfile"),
+                    project().and("sailorProfile").arrayElementAt(0).as("sailorProfile"))
                 .as(FacetResult.getDataFacetName()));
 
     var result =
@@ -174,7 +174,7 @@ public class CustomCourseRepository {
             .aggregate(aggregation, CourseMember.class, CourseMemberInfoFacetResult.class)
             .getUniqueMappedResult();
 
-    return new PageImpl<>(result.getDatas(), pageable, result.getCount("totalSailors"));
+    return new PageImpl<>(result.getDatas(), pageable, result.getCount());
   }
 
   class CourseMemberInfoFacetResult extends FacetResult<CourseMemberInfo> {
