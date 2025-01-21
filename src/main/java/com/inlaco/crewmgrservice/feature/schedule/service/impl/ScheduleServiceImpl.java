@@ -7,6 +7,7 @@ import com.inlaco.crewmgrservice.feature.notify.mail.EmailRequest;
 import com.inlaco.crewmgrservice.feature.schedule.dto.SailorScheduleResponse;
 import com.inlaco.crewmgrservice.feature.schedule.dto.ScheduleFilterable;
 import com.inlaco.crewmgrservice.feature.schedule.dto.ScheduleResponse;
+import com.inlaco.crewmgrservice.feature.schedule.event.NewAssignmentScheduleEvent;
 import com.inlaco.crewmgrservice.feature.schedule.model.AssigmentSchedule;
 import com.inlaco.crewmgrservice.feature.schedule.repository.AssignmentScheduleRepository;
 import com.inlaco.crewmgrservice.feature.schedule.repository.CustomScheduleRepository;
@@ -48,7 +49,7 @@ public class ScheduleServiceImpl implements ScheduleService {
   @Override
   public AssigmentSchedule createSchedule(AssigmentSchedule schedule) {
     var newSchedule = scheduleRepository.save(schedule);
-    eventPublisher.publishEvent(newSchedule);
+    eventPublisher.publishEvent(new NewAssignmentScheduleEvent(this, schedule));
     log.info("New schedule created: {}", newSchedule);
     notifySailorSchedule(newSchedule);
     return newSchedule;
