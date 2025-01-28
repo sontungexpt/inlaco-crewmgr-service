@@ -14,8 +14,8 @@ import com.inlaco.crewmgrservice.feature.schedule.repository.CustomScheduleRepos
 import com.inlaco.crewmgrservice.feature.schedule.service.ScheduleService;
 import com.inlaco.crewmgrservice.feature.user.model.SailorProfile;
 import com.inlaco.crewmgrservice.feature.user.service.SailorService;
-import com.inlaco.crewmgrservice.utils.HtmlEmailVariable;
 import com.inlaco.crewmgrservice.utils.JsonMergePatchUtils;
+import com.inlaco.crewmgrservice.utils.TextTemplateBuilder;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -66,7 +66,7 @@ public class ScheduleServiceImpl implements ScheduleService {
             EmailRequest emailRequest =
                 EmailRequest.builder(
                         profile.getEmail(),
-                        HtmlEmailVariable.htmlContent(html)
+                        TextTemplateBuilder.content(html)
                             .var("recipient_name", profile.getFullName())
                             .var("company_name", "Inlaco")
                             .var("start_date", schedule.getStartDate().toString())
@@ -75,7 +75,7 @@ public class ScheduleServiceImpl implements ScheduleService {
                             .var("end_location", schedule.getArrivalPoint())
                             .var("home_page_link", CLIENT_HOME_PAGE_LINK)
                             .var("info_link", "")
-                            .buildHtml(),
+                            .buildContent(),
                         "Inlaco Work Schedule Notification")
                     .htmlMessage()
                     .build();

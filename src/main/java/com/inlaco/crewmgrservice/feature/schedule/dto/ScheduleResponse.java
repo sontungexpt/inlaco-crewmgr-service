@@ -1,13 +1,14 @@
 package com.inlaco.crewmgrservice.feature.schedule.dto;
 
 import com.inlaco.crewmgrservice.common.model.ShipInfo;
+import com.inlaco.crewmgrservice.feature.schedule.model.AssigmentSchedule;
 import com.inlaco.crewmgrservice.feature.schedule.model.AssigmentSchedule.Status;
 import com.inlaco.crewmgrservice.feature.user.model.SailorProfile;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import jakarta.validation.constraints.NotBlank;
 import java.time.Instant;
-import java.util.Set;
+import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -86,7 +87,7 @@ public class ScheduleResponse {
       requiredMode = RequiredMode.REQUIRED)
   private Instant estimatedEndDate;
 
-  private Set<SailorProfile> crewMembers;
+  private List<SailorProfile> crewMembers;
 
   private Instant createdAt;
 
@@ -95,4 +96,27 @@ public class ScheduleResponse {
   private ObjectId createdBy;
 
   private ObjectId updatedBy;
+
+  public static ScheduleResponse from(AssigmentSchedule schedule) {
+    return ScheduleResponse.builder()
+        .id(schedule.getId())
+        .status(schedule.getStatus())
+        .partnerName(schedule.getPartnerName())
+        .partnerPhone(schedule.getPartnerPhone())
+        .partnerEmail(schedule.getPartnerEmail())
+        .partnerAddress(schedule.getPartnerAddress())
+        .totalSailors(schedule.getTotalSailors())
+        .departurePoint(schedule.getDeparturePoint())
+        .arrivalPoint(schedule.getArrivalPoint())
+        .departureUNLOCODE(schedule.getDepartureUNLOCODE())
+        .arrivalUNLOCODE(schedule.getArrivalUNLOCODE())
+        .shipInfo(schedule.getShipInfo())
+        .startDate(schedule.getStartDate())
+        .estimatedEndDate(schedule.getEstimatedEndDate())
+        .createdAt(schedule.getCreatedAt())
+        .updatedAt(schedule.getUpdatedAt())
+        .createdBy(schedule.getCreatedBy())
+        .updatedBy(schedule.getUpdatedBy())
+        .build();
+  }
 }

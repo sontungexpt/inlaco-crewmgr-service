@@ -32,6 +32,19 @@ public class CustomScheduleRepository {
 
   public ScheduleResponse findDetailSchedule(String id) {
 
+    // AssigmentSchedule schedule = mongoTemplate.findById(id, AssigmentSchedule.class);
+    // ScheduleResponse response = ScheduleResponse.from(schedule);
+    // List<SailorProfile> profiles =
+    //     mongoTemplate.find(
+    //         new Query()
+    //             .addCriteria(
+    //                 Criteria.where("cardId")
+    //                     .in(schedule.getCrewMembers().stream().map(it ->
+    // it.getCardId()).toList())),
+    //         SailorProfile.class);
+
+    // response.setCrewMembers(profiles);
+
     Aggregation aggregation =
         newAggregation(
             match(Criteria.where("_id").is(id)),

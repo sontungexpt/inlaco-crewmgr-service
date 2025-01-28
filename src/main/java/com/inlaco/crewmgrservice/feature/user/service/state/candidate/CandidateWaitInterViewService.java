@@ -11,11 +11,9 @@ import com.inlaco.crewmgrservice.feature.user.model.CandidateProfile.Status;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import com.inlaco.crewmgrservice.feature.user.repository.CandidateProfileRepository;
 import com.inlaco.crewmgrservice.feature.user.service.UserService;
+import com.inlaco.crewmgrservice.utils.TextTemplateBuilder;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.mongodb.core.mapping.Unwrapped.Nullable;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -41,22 +39,6 @@ public class CandidateWaitInterViewService extends CandidateReviewStragegy {
     userService.saveUser(user);
   }
 
-  @Nullable
-  private String createHtmlEmail(String candidate_name, String position) {
-    try {
-      String html =
-          Files.readString(
-              Paths.get(
-                  "src/main/resources/templates/email/html/recruitment/wait-for-interview.html"));
-
-      return html.replace("${candidate_name}", candidate_name)
-          .replace("${position_name}", position);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    return null;
-  }
-
   @Override
   public void review(CandidateProfile profile, boolean autoEmail) {
     if (profile.getStatus() == Status.WAIT_FOR_INTERVIEW) return;
@@ -65,14 +47,22 @@ public class CandidateWaitInterViewService extends CandidateReviewStragegy {
       RecruitmentPost post =
           (RecruitmentPost) postService.getPost(profile.getRecruitmentPostId().toHexString());
 
-      String email = createHtmlEmail(profile.getFullName(), post.getPosition());
-
-      EmailRequest emailRequest =
-          EmailRequest.builder(profile.getEmail(), email, EMAIL_SUBJECT)
-              .emailType(EmailType.MIME)
-              .build();
-
-      notificationFactory.sendNotificationAsync(NotificationType.EMAIL, emailRequest);
+      try {
+        notificationFactory.sendNotificationAsync(
+            NotificationType.EMAIL,
+            EmailRequest.builder(
+                    profile.getEmail(),
+                    TextTemplateBuilder.relativePath(
+                            "src/main/resources/templates/email/html/recruitment/wait-for-interview.html")
+                        .var("candidate_name", profile.getFullName())
+                        .var("position_name", post.getPosition())
+                        .buildContent(),
+                    EMAIL_SUBJECT)
+                .emailType(EmailType.MIME)
+                .build());
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
 
       log.info("Send email to candidate: {}", profile.getEmail());
     }

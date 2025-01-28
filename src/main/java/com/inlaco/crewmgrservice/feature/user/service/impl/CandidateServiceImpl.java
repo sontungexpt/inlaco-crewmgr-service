@@ -19,9 +19,8 @@ import com.inlaco.crewmgrservice.feature.user.repository.CustomCandidateReposito
 import com.inlaco.crewmgrservice.feature.user.service.CandidateService;
 import com.inlaco.crewmgrservice.feature.user.service.state.candidate.ReviewServiceFactory;
 import com.inlaco.crewmgrservice.utils.JsonMergePatchUtils;
+import com.inlaco.crewmgrservice.utils.TextTemplateBuilder;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.time.Year;
 import java.util.List;
 import java.util.Map;
@@ -75,21 +74,20 @@ public class CandidateServiceImpl implements CandidateService {
 
   private String sendApplicationSucessfuleEmail(CandidateProfile profile, RecruitmentPost post) {
     try {
-      String html =
-          Files.readString(
-              Paths.get("src/main/resources/templates/email/html/recruitment/applied.html"));
-
-      var content =
-          html.replace("${candidate_name}", profile.getFullName())
-              .replace("${position_name}", post.getPosition())
-              .replace("${company_name}", COMPANY_NAME)
-              .replace("${current_year}", String.format("%d", Year.now().getValue()))
-              .replace("${contact_email}", "inlaco@gmail.com");
 
       notificationFactory.sendNotificationAsync(
           NotificationType.EMAIL,
           EmailRequest.builder(
-                  profile.getEmail(), content, "Application Successful - " + COMPANY_NAME)
+                  profile.getEmail(),
+                  TextTemplateBuilder.relativePath(
+                          "src/main/resources/templates/email/html/recruitment/applied.html")
+                      .var("candidate_name", profile.getFullName())
+                      .var("position_name", post.getPosition())
+                      .var("company_name", COMPANY_NAME)
+                      .var("current_year", String.format("%d", Year.now().getValue()))
+                      .var("contact_email", "inlaco@gmail.com")
+                      .buildContent(),
+                  "Application Successful - " + COMPANY_NAME)
               .emailType(EmailType.MIME)
               .build());
 
