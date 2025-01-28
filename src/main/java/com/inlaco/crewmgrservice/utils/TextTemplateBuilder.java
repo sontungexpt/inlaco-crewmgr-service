@@ -37,11 +37,24 @@ public class TextTemplateBuilder {
     return new TextTemplateBuilder(Files.readString(Paths.get(uri)));
   }
 
+  /**
+   * Creates a new TextTemplateBuilder instance with the given content.
+   *
+   * @param content the content of the template
+   * @return a new TextTemplateBuilder instance
+   */
   public static TextTemplateBuilder content(@NonNull String content) {
     assert content != null;
     return new TextTemplateBuilder(content);
   }
 
+  /**
+   * Sets the key formatter function. The key formatter is used to format the variable names in the
+   * template. The default key formatter is "${varName}".
+   *
+   * @param keyFormatter the key formatter function
+   * @return this TextTemplateBuilder instance
+   */
   public TextTemplateBuilder keyFormatter(@NonNull Function<String, String> keyFormatter) {
     assert keyFormatter != null;
     this.keyFormatter = keyFormatter;
@@ -53,6 +66,13 @@ public class TextTemplateBuilder {
     this.stringBuilder = new StringBuilder(content);
   }
 
+  /**
+   * Replaces a variable in the template with the given value.
+   *
+   * @param key the variable name
+   * @param value the value to replace the variable with
+   * @return this TextTemplateBuilder instance
+   */
   public TextTemplateBuilder var(@NonNull String key, @NonNull String value) {
     assert key != null;
     assert value != null;
@@ -84,6 +104,11 @@ public class TextTemplateBuilder {
     }
   }
 
+  /**
+   * Builds the content of the template.
+   *
+   * @return the content of the template
+   */
   public String buildContent() {
     return stringBuilder.toString();
   }
