@@ -4,112 +4,178 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.springframework.lang.NonNull;
 
 public class TextTemplateBuilder {
 
-  private StringBuilder stringBuilder;
-  private Function<String, String> keyFormatter = varName -> "${" + varName + "}";
+  public enum TemplateSyntax {
+    DOLLAR_CURLY("(\\\\*)\\$\\{([a-zA-Z0-9_]+)(?::([^}]+))?}"), // ${varName}
+    DOUBLE_CURLY("(\\\\*)\\{\\{([a-zA-Z0-9_]+)(?::([^}]+))?}}"), // {{varName}}
+    DOLLAR_SIMPLE("(\\\\*)\\$([a-zA-Z0-9_]+)"), // $varName
+    DOUBLE_ANGLE("(\\\\*)<<([a-zA-Z0-9_]+)(?::([^>]+))?>>"); // <<varName>>
 
-  /**
-   * Reads the content of a file and creates a new TextTemplateBuilder instance. The file should be
-   * located within the project's directory structure.
+    private final String pattern;
+
+    TemplateSyntax(String pattern) {
+      this.pattern = pattern;
+    }
+
+    public String getPattern() {
+      return pattern;
+    }
+  }
+
+  private String template;
+  private final Map<String, String> variables = new HashMap<>();
+  private TemplateSyntax syntax = TemplateSyntax.DOLLAR_CURLY;
+
+  private TextTemplateBuilder(@NonNull String content) {
+    this.template = content;
+  }
+
+  /*
+   * This method is used to create a new TextTemplateBuilder instance from a file path. The file
+   * path is used to read the content of the file and create the template.
    *
-   * @param path the path to the file relative to the project's root
-   * @return a new TextTemplateBuilder instance
-   * @throws IOException if an I/O error occurs reading from the file
    */
   public static TextTemplateBuilder relativePath(@NonNull String path) throws IOException {
-    assert path != null;
     return new TextTemplateBuilder(Files.readString(Paths.get(path)));
   }
 
-  /**
-   * Reads the content of a file and creates a new TextTemplateBuilder instance.
+  /*
+   * This method is used to create a new TextTemplateBuilder instance from a file path. The file
+   * path is used to read the content of the file and create the template.
    *
-   * @param uri the URI to the file
-   * @return a new TextTemplateBuilder instance
-   * @throws IOException if an I/O error occurs reading from the file
    */
   public static TextTemplateBuilder src(@NonNull URI uri) throws IOException {
-    assert uri != null;
     return new TextTemplateBuilder(Files.readString(Paths.get(uri)));
   }
 
-  /**
-   * Creates a new TextTemplateBuilder instance with the given content.
+  /*
+   * This method is used to set the template content. The content is the text that will be used to
+   * create the template.
    *
-   * @param content the content of the template
-   * @return a new TextTemplateBuilder instance
    */
   public static TextTemplateBuilder content(@NonNull String content) {
-    assert content != null;
     return new TextTemplateBuilder(content);
   }
 
-  /**
-   * Sets the key formatter function. The key formatter is used to format the variable names in the
-   * template. The default key formatter is "${varName}".
+  /*
+   * This method is used to set the template syntax. The syntax is used to identify the variables in
+   * the template. The default syntax is DOLLAR_CURLY.
    *
-   * @param keyFormatter the key formatter function
-   * @return this TextTemplateBuilder instance
    */
-  public TextTemplateBuilder keyFormatter(@NonNull Function<String, String> keyFormatter) {
-    assert keyFormatter != null;
-    this.keyFormatter = keyFormatter;
+  public TextTemplateBuilder syntax(@NonNull TemplateSyntax syntax) {
+    this.syntax = syntax;
     return this;
   }
 
-  private TextTemplateBuilder(@NonNull String content) {
-    assert content != null;
-    this.stringBuilder = new StringBuilder(content);
-  }
-
-  /**
-   * Replaces a variable in the template with the given value.
+  /*
+   * This method is used to add a variable to the template. The key is the variable name in the
+   * template and the value is the value that will replace the variable in the template.
    *
-   * @param key the variable name
-   * @param value the value to replace the variable with
-   * @return this TextTemplateBuilder instance
    */
   public TextTemplateBuilder var(@NonNull String key, @NonNull String value) {
-    assert key != null;
-    assert value != null;
-    replace(key, value);
+    variables.put(key, value);
     return this;
   }
 
-  private void replace(@NonNull String key, @NonNull String value) {
+  /*
+   * This method is used to replace the variables in the template with the values provided in the
+   * variables map. The keyFormatter is used to format the key before replacing it in the template.
+   * This is useful when the key in the template is different from the key in the variables map.
+   *
+   */
+  private void replace(
+      @NonNull String key,
+      @NonNull String value,
+      @NonNull Function<String, String> keyFormatter,
+      @NonNull StringBuilder template) {
     String formattedKey = keyFormatter.apply(key);
     int index = 0;
 
-    while (index < stringBuilder.length()) {
-      int foundIndex = stringBuilder.indexOf(formattedKey, index);
+    while (index < template.length()) {
+      int foundIndex = template.indexOf(formattedKey, index);
 
       if (foundIndex == -1) {
         break;
       }
 
-      // Check for escape character
-      if (foundIndex > 0 && stringBuilder.charAt(foundIndex - 1) == '\\') {
+      int backslashes = 0;
+      if (foundIndex > 0) {
+        // Check for escape characters
+        for (int i = foundIndex - 1; i >= 0 && template.charAt(i) == '\\'; i--) {
+          backslashes++;
+        }
+      }
+
+      if (backslashes % 2 == 1) {
         // Remove the escape character
-        stringBuilder.deleteCharAt(foundIndex - 1);
+        template.deleteCharAt(foundIndex - 1);
         index = foundIndex + formattedKey.length() - 1; // Skip past the escaped variable
       } else {
         // Replace the variable
-        stringBuilder.replace(foundIndex, foundIndex + formattedKey.length(), value);
-        index = foundIndex + value.length(); // Move past the replaced value
+        String replacedValue = "\\".repeat(backslashes / 2) + value;
+
+        int start = foundIndex - backslashes;
+        template.replace(start, foundIndex + formattedKey.length(), replacedValue);
+
+        index = start + replacedValue.length(); // Move past the replaced value
+
+        // template.replace(foundIndex, foundIndex + formattedKey.length(), value);
+        // index = foundIndex + value.length(); // Move past the replaced value
       }
     }
   }
 
-  /**
-   * Builds the content of the template.
+  /*
+   * This method is used to replace the variables in the template with the values provided in the
+   * variables map. The keyFormatter is used to format the key before replacing it in the template.
+   * This is useful when the key in the template is different from the key in the variables map.
    *
-   * @return the content of the template
+   */
+  public String buildContent(Function<String, String> keyFormatter) {
+    StringBuilder templateBuilder = new StringBuilder(template);
+    for (Map.Entry<String, String> entry : variables.entrySet()) {
+      replace(entry.getKey(), entry.getValue(), keyFormatter, templateBuilder);
+    }
+    return templateBuilder.toString();
+  }
+
+  /*
+   * This method is used to replace the variables in the template with the values provided in the
+   * variables map. The keyFormatter is used to format the key before replacing it in the template.
+   * This is useful when the key in the template is different from the key in the variables map.
+   *
    */
   public String buildContent() {
-    return stringBuilder.toString();
+    StringBuilder result = new StringBuilder();
+
+    Pattern placeholderPattern = Pattern.compile(syntax.getPattern());
+
+    Matcher matcher = placeholderPattern.matcher(template);
+
+    while (matcher.find()) {
+      String backslashes = matcher.group(1);
+      String key = matcher.group(2);
+      String defaultValue = matcher.group(3);
+      String value = variables.getOrDefault(key, defaultValue != null ? defaultValue : "");
+
+      int backslashesLength = backslashes.length();
+      if (backslashesLength % 2 == 1) {
+        matcher.appendReplacement(result, backslashes.substring(1) + matcher.group(0));
+      } else {
+        matcher.appendReplacement(
+            result, Matcher.quoteReplacement("\\".repeat(backslashesLength / 2)) + value);
+      }
+    }
+
+    matcher.appendTail(result);
+    return result.toString();
   }
 }
