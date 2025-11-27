@@ -23,7 +23,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "permissions")
 @Builder
 @Schema(description = "Permission is a set of API endpoints that a user can access")
-public class Permission {
+public class EndpointPermission {
 
   @Id private String id;
 
@@ -53,7 +53,7 @@ public class Permission {
   @Override
   public boolean equals(Object obj) {
     if (this == obj) return true;
-    else if (obj instanceof Permission that) {
+    else if (obj instanceof EndpointPermission that) {
       return id.equals(that.id) && name.equals(that.name);
     }
     return false;

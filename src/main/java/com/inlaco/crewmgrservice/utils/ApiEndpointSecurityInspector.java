@@ -282,7 +282,7 @@ public class ApiEndpointSecurityInspector {
   public boolean isOptionalJwtSecurityPath(@NonNull final HttpServletRequest request) {
     return publicEndpoints
         .getOrDefault(HttpMethod.valueOf(request.getMethod()), Collections.emptySet())
-        .stream()
+        .parallelStream()
         .anyMatch(apiPath -> matchPath(apiPath.path, request));
   }
 
@@ -293,7 +293,7 @@ public class ApiEndpointSecurityInspector {
    * @return {@code true} if the request is to an unsecured API endpoint, {@code false} otherwise.
    */
   public boolean isUnsecureRequest(@NonNull final HttpServletRequest request) {
-    return getUnsecuredApiPaths(HttpMethod.valueOf(request.getMethod())).stream()
+    return getUnsecuredApiPaths(HttpMethod.valueOf(request.getMethod())).parallelStream()
         .anyMatch(apiPath -> matchPath(apiPath, request));
   }
 
@@ -306,7 +306,7 @@ public class ApiEndpointSecurityInspector {
    *     token, {@code false} otherwise.
    */
   public boolean isUnsecureJwtRequest(@NonNull final HttpServletRequest request) {
-    return getUnsecuredJwtApiPaths(HttpMethod.valueOf(request.getMethod())).stream()
+    return getUnsecuredJwtApiPaths(HttpMethod.valueOf(request.getMethod())).parallelStream()
         .anyMatch(apiPath -> matchPath(apiPath, request));
   }
 

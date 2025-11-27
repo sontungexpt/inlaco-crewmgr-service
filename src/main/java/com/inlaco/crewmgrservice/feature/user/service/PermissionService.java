@@ -1,22 +1,22 @@
 package com.inlaco.crewmgrservice.feature.user.service;
 
-import com.inlaco.crewmgrservice.feature.user.model.authorization.Permission;
+import com.inlaco.crewmgrservice.feature.user.model.authorization.EndpointPermission;
 import java.util.List;
 import org.springframework.data.domain.Page;
 
 public interface PermissionService {
 
-  Page<Permission> getPaginationPermissions();
+  Page<EndpointPermission> getPaginationPermissions();
 
-  List<Permission> getPermissions();
+  List<EndpointPermission> getPermissions();
 
-  Permission getPermissionById(String id);
+  EndpointPermission getPermissionById(String id);
 
-  Permission getPermissionByName(String name);
+  EndpointPermission getPermissionByName(String name);
 
-  Permission createPermission(Permission permission);
+  EndpointPermission createPermission(EndpointPermission permission);
 
-  Permission updatePermission(String id, Permission permission);
+  EndpointPermission updatePermission(String id, EndpointPermission permission);
 
   void deletePermission(String id);
 }

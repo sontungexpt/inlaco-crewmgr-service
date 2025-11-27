@@ -10,10 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.Document;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.mapping.event.AbstractMongoEventListener;
-import org.springframework.data.mongodb.core.mapping.event.BeforeSaveEvent;
+import org.springframework.data.mongodb.core.mapping.event.BeforeConvertEvent;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
 
@@ -25,8 +24,10 @@ public class SluggableModelListener extends AbstractMongoEventListener<Sluggable
 
   private final MongoTemplate mongoTemplate;
 
+  // public void onBeforeConvert(BeforeConvertEvent<Sluggable> event) {}
+
   @Override
-  public void onBeforeSave(BeforeSaveEvent<Sluggable> event) {
+  public void onBeforeConvert(BeforeConvertEvent<Sluggable> event) {
     var sluggable = event.getSource();
 
     Class<?> slugableClazz = sluggable.getClass();
@@ -106,10 +107,12 @@ public class SluggableModelListener extends AbstractMongoEventListener<Sluggable
                 sep);
 
         ReflectionUtils.setField(field, sluggable, slug);
-        Document document = event.getDocument();
-        if (document != null) {
-          document.put(field.getName(), slug);
-        }
+
+        // Only uncomment this if use onBeforeSave event instead of onBeforeConvert
+        // Document document = event.getDocument();
+        // if (document != null) {
+        //   document.put(field.getName(), slug);
+        // }
       }
     }
   }

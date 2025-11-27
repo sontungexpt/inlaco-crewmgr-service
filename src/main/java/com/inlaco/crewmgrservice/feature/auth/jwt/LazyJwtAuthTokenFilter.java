@@ -44,7 +44,7 @@ public class LazyJwtAuthTokenFilter extends OncePerRequestFilter {
   @Override
   protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
     boolean skip = apiEndpointSecurityInspector.isUnsecureJwtRequest(request);
-    log.info(request.getRequestURI() + " is unsecure jwt: " + skip);
+    log.debug(request.getRequestURI() + " is unsecure jwt: " + skip);
     return skip;
   }
 
@@ -52,9 +52,7 @@ public class LazyJwtAuthTokenFilter extends OncePerRequestFilter {
   protected void doFilterInternal(
       HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException {
-
-    log.info("Processing jwt authentication for '{}'", request.getRequestURI());
-
+    log.debug("Processing jwt authentication for endpoint'{}'", request.getRequestURI());
     boolean isOptional = apiEndpointSecurityInspector.isOptionalJwtSecurityPath(request);
 
     try {
@@ -66,14 +64,17 @@ public class LazyJwtAuthTokenFilter extends OncePerRequestFilter {
         String jwtToken = HttpHeaderUtils.extractBearerToken(request).orElse(null);
         if (jwtToken == null) {
           if (isOptional) filterChain.doFilter(request, response);
-          else resolveException(request, response, new JwtTokenException("Missing JWT token"));
+          else {
+            log.warn("Missing JWT token for required endpoint {}", request.getRequestURI());
+            resolveException(request, response, new JwtTokenException("Missing JWT token"));
+          }
           return;
         }
 
         String userPubId = jwtService.extractSubject(jwtToken);
 
         if (userPubId != null) {
-          log.debug("Processing authentication for userPubId: {}", userPubId);
+          log.debug("Processing authentication for user with pubId: {}", userPubId);
 
           User user = userRepository.findByPubId(userPubId).orElse(null);
           if (user == null) {
@@ -94,7 +95,8 @@ public class LazyJwtAuthTokenFilter extends OncePerRequestFilter {
       filterChain.doFilter(request, response);
 
     } catch (Exception e) {
-      resolver.resolveException(request, response, null, e);
+      log.error("JWT authentication exception: {}", e.getMessage());
+      resolveException(request, response, e);
     }
   }
 

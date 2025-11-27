@@ -22,7 +22,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.bson.types.ObjectId;
-import org.checkerframework.common.value.qual.MinLen;
+// import org.checkerframework.common.value.qual.MinLen;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
@@ -167,7 +167,7 @@ public class AssigmentSchedule implements Serializable {
   }
 
   @Schema(description = "The crew members assigned to the schedule")
-  @MinLen(1)
+  // @MinLen(1)
   private Set<@Valid CrewMember> crewMembers;
 
   @CreatedDate

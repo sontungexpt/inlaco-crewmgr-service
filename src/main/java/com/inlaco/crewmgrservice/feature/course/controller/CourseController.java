@@ -43,7 +43,7 @@ public class CourseController {
       summary = "Get all courses in the system",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
       description =
-          """
+"""
 Get all courses in the system
 
 If `nonExpired` is set to `true`, only non-expired courses will be returned.
@@ -65,7 +65,7 @@ If `nonExpired` is set to `true`, only non-expired courses will be returned.
       summary = "Search course by keyword in the name or archived position",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
       description =
-          """
+"""
 Search course by keyword in the name or archived position
 
 If `nonExpired` is set to `true`, only non-expired courses will be returned.
@@ -88,7 +88,7 @@ If `nonExpired` is set to `true`, only non-expired courses will be returned.
       summary = "Get a course detail",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
       description =
-          """
+"""
 Get a course detail
 
 **Usecase**:
@@ -106,7 +106,7 @@ Get a course detail
       summary = "Create a new course",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
       description =
-          """
+"""
 Create a new course
 
 **Usecase**:
@@ -124,7 +124,7 @@ Create a new course
       summary = "Force cancel a course",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
       description =
-          """
+"""
 Force cancel a course by id
 
 **Usecase**:
@@ -142,7 +142,7 @@ Force cancel a course by id
       summary = "Update a course",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
       description =
-          """
+"""
 Update a course by id
 
 **Usecase**:
@@ -160,7 +160,7 @@ Update a course by id
       summary = "Get all sailors enrolled in a course",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
       description =
-          """
+"""
 Get all sailors enrolled in a course
 
 **Usecase**:
@@ -186,7 +186,7 @@ Get all sailors enrolled in a course
       summary = "Delete a course",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
       description =
-          """
+"""
 
 Delete a course by id
 
@@ -205,7 +205,7 @@ Delete a course by id
       summary = "Cancel registration for a course",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
       description =
-          """
+"""
 Cancel registration for a course
 
 **Usecase**:
@@ -229,7 +229,7 @@ Cancel registration for a course
         @ApiResponse(responseCode = "403", description = "Registration is closed")
       },
       description =
-          """
+"""
 Register for a course as a Sailor
 
 **Usecase**:
@@ -248,7 +248,7 @@ Register for a course as a Sailor
       summary = "Mark completation for a sailor",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
       description =
-          """
+"""
 Mark completation for a sailor
 
 **Usecase**:

@@ -105,14 +105,14 @@ public class User implements UserDetails, Persistable<String> {
   @Schema(description = "The roles of the account")
   private Right right;
 
+  @JsonIgnore
   @CreatedDate
   @Schema(description = "The created time of the account")
-  @JsonIgnore
   private Instant createdAt;
 
-  @LastModifiedDate
   @Schema(description = "The updated time of the account")
   @JsonIgnore
+  @LastModifiedDate
   private Instant updatedAt;
 
   public enum JobState {

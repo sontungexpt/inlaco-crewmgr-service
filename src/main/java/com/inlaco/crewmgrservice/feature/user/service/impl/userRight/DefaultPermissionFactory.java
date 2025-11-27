@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.feature.user.service.impl.userRight;
 
-import com.inlaco.crewmgrservice.feature.user.model.authorization.Permission;
+import com.inlaco.crewmgrservice.feature.user.model.authorization.EndpointPermission;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -10,8 +10,8 @@ public class DefaultPermissionFactory {
 
   // private final PermissionRepository permissionRepository;
 
-  public Permission generateGetPostPermission() {
+  public EndpointPermission generateGetPostPermission() {
 
-    return Permission.builder().name("").build();
+    return EndpointPermission.builder().name("").build();
   }
 }

@@ -3,9 +3,11 @@ package com.inlaco.crewmgrservice.validation.validator;
 import com.inlaco.crewmgrservice.validation.annotation.Enum;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 @Component
+@Slf4j
 public class EnumValidator implements ConstraintValidator<Enum, String> {
   private java.lang.Enum<?>[] enumConstants;
   private boolean optional;
@@ -18,7 +20,7 @@ public class EnumValidator implements ConstraintValidator<Enum, String> {
 
   @Override
   public boolean isValid(String value, ConstraintValidatorContext context) {
-    System.out.println("EnumValidator.isValid");
+    log.debug("EnumValidator.isValid: {}", value);
     if (optional && (value == null || value.isEmpty())) {
       return true;
     }

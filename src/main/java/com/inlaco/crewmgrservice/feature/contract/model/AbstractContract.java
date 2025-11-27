@@ -27,7 +27,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.bson.types.ObjectId;
-import org.checkerframework.common.value.qual.MinLen;
+// import org.checkerframework.common.value.qual.MinLen;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -72,7 +72,7 @@ public abstract class AbstractContract extends ContractVersion
   @Schema(
       description = "The list of signed partners (example sailor)",
       requiredMode = RequiredMode.REQUIRED)
-  @MinLen(1)
+  // @MinLen(1)
   private List<@Valid Party> signedPartners;
 
   @Schema(description = "The list of paper contracts", requiredMode = RequiredMode.REQUIRED)

@@ -35,7 +35,7 @@ public class Role {
   @DBRef
   @Schema(description = "Permissions that this right has", requiredMode = RequiredMode.NOT_REQUIRED)
   @Default
-  private Set<Permission> permissions = Set.of();
+  private Set<EndpointPermission> permissions = Set.of();
 
   @Override
   public int hashCode() {

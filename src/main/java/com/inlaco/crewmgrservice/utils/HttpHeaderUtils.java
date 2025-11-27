@@ -18,7 +18,7 @@ public final class HttpHeaderUtils {
    * @return Optional containing the Authorization Bearer token, or empty if not present.
    */
   public static Optional<String> extractBearerToken(HttpServletRequest request) {
-    log.debug("Extracting bearer token from request");
+    log.debug("Extracting bearer token");
     return extractHeaderWithPrefix(request, AUTHORIZATION_HEADER, AUTHORIZATION_BEARER_PREFIX);
   }
 
@@ -79,7 +79,7 @@ public final class HttpHeaderUtils {
         .filter(
             headerValue -> {
               if (headerValue.startsWith(prefix)) return true;
-              log.warn("Header {} does not start with {}", headerName, prefix);
+              log.error("Header {} does not start with {}", headerName, prefix);
               return false;
             })
         .map(headerValue -> headerValue.substring(prefix.length()));
