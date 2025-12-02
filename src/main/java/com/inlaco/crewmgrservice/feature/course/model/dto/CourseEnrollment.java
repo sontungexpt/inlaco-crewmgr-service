@@ -141,7 +141,7 @@ public class CourseEnrollment {
             .trainingProviderName(course.getTrainingProviderName())
             .trainingProviderLogo(course.getTrainingProviderLogo())
             .certified(course.isCertified())
-            .archivedPosition(course.getAchievedPosition())
+            .archivedPosition(course.getArchivedPosition())
             .description(course.getDescription())
             .teacherName(course.getTeacherName())
             .startDate(course.getStartDate())

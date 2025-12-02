@@ -8,10 +8,11 @@ import java.util.List;
 import java.util.Map;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.lang.Nullable;
 
 public interface CandidateService {
-
-  Page<BasicProfileDTO> getAllCandidates(CandidateProfile.Status status, Pageable pageable);
+  Page<BasicProfileDTO> getAllCandidates(
+      @Nullable String recruimentPostId, CandidateProfile.Status status, Pageable pageable);
 
   Page<BasicProfileDTO> searchCandidates(
       String query, Map<String, Object> filters, Pageable pageable);

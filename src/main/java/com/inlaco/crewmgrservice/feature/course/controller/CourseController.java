@@ -213,7 +213,7 @@ Cancel registration for a course
 - UC_admin-dong-mo-dang-ky-khoa-dao-tao
 
 """)
-  @PostMapping("/cancellation/{id}")
+  @PostMapping("/registration/cancellation/{id}")
   @RolesAllowed("ADMIN")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void cancelRegistration(@PathVariable("id") @ObjectId String id) {

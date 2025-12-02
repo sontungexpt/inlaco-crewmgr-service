@@ -42,7 +42,7 @@ public class CandidateController {
   @Operation(
       summary = "Apply for a job",
       description =
-          """
+"""
 Apply for a job with the given job id.
 
 **Usecase**:
@@ -63,7 +63,7 @@ Apply for a job with the given job id.
   @Operation(
       summary = "Update a candidate profile",
       description =
-          """
+"""
 Update a candidate profile with the given id.
 
 **Usecase**:
@@ -85,7 +85,7 @@ Update a candidate profile with the given id.
       summary = "Retrieve all candidates profiles",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
       description =
-          """
+"""
 This API retrieves a list of candidate profiles from the server.
 
 **Use cases:**
@@ -101,16 +101,17 @@ This API retrieves a list of candidate profiles from the server.
   @PageableQueryParams
   @RolesAllowed("ADMIN")
   public Page<?> getAllCandidates(
+      @RequestParam(required = false) String recruitmentPostId,
       @RequestParam(defaultValue = "APPLIED") CandidateProfile.Status status,
       @PageableDefault(size = 10, page = 0) Pageable pageable) {
-    return candidateService.getAllCandidates(status, pageable);
+    return candidateService.getAllCandidates(recruitmentPostId, status, pageable);
   }
 
   @Operation(
       summary = "Search candidates profiles by candidate name",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
       description =
-          """
+"""
 This API retrieves a list of candidate profiles from the server based on the candidate name.
 
 If you want to filter by some fields, you can pass the filter object as a JSON object in the request body.
@@ -145,7 +146,7 @@ If you want to filter by some fields, you can pass the filter object as a JSON o
   @Operation(
       summary = "Retrieve a detail candidate profile from the server by id",
       description =
-          """
+"""
 This API retrieves a detail candidate profile from the server based on its id.
 
 **Use cases:**
@@ -163,7 +164,7 @@ This API retrieves a detail candidate profile from the server based on its id.
       summary = "Admin review candidate profile",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
       description =
-          """
+"""
 Admin review candidate profile based on its id.
 
 **Use cases:**
@@ -187,7 +188,7 @@ Admin review candidate profile based on its id.
       summary = "Get candidate profile of current user",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
       description =
-          """
+"""
 This API retrieves the candidate profile of the current user.
 
 **Use cases:**

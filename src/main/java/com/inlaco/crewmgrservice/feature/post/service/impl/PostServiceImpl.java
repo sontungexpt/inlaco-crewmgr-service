@@ -2,6 +2,7 @@ package com.inlaco.crewmgrservice.feature.post.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.inlaco.crewmgrservice.exceptions.ResourceNotFoundException;
+import com.inlaco.crewmgrservice.feature.post.enums.PostType;
 import com.inlaco.crewmgrservice.feature.post.model.Post;
 import com.inlaco.crewmgrservice.feature.post.repository.PostRepository;
 import com.inlaco.crewmgrservice.feature.post.service.PostService;
@@ -50,8 +51,8 @@ public class PostServiceImpl implements PostService {
   }
 
   @Override
-  public Page<Post> getPagePosts(Pageable pageable) {
-    return postRepository.findAll(pageable);
+  public Page<Post> getPagePosts(Pageable pageable, PostType type) {
+    return postRepository.findByType(type, pageable);
   }
 
   @Override

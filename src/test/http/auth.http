@@ -1,3 +1,7 @@
+@admin_password = Admin123
+@admin_username = admin@gmail.com
+
+
 ### login
 
 POST http://localhost:8080/api/v1/auth/login HTTP/1.1
@@ -7,6 +11,12 @@ Content-Type: application/json
   "username": "admin@gmail.com",
   "password": "Admin123"
 }
+
+### refresh_token
+
+POST http://localhost:8080/api/v1/auth/refresh-token HTTP/1.1
+Authorization: Bearer {{login.response.body.$.jwt.refreshToken}}
+Content-Type: application/json
 
 ### register
 
@@ -19,6 +29,18 @@ Content-Type: application/json
   "confirmPassword": "Tung123",
   "name": "Tung123"
 }
+
+### resend_two_step_verification_mail
+
+POST http://localhost:8080/api/v1/auth/two-step-verification/resend HTTP/1.1
+
+username: admin@gmail.com
+
+### verify_two_step_verification_mail
+
+GET http://localhost:8080/api/v1/auth/two-step-verification HTTP/1.1
+
+
 
 ### logout
 

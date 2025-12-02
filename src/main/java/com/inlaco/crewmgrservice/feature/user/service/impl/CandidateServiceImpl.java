@@ -59,7 +59,13 @@ public class CandidateServiceImpl implements CandidateService {
   }
 
   @Override
-  public Page<BasicProfileDTO> getAllCandidates(CandidateProfile.Status status, Pageable pageable) {
+  public Page<BasicProfileDTO> getAllCandidates(
+      String recruitmentPostId, CandidateProfile.Status status, Pageable pageable) {
+    if (recruitmentPostId != null) {
+      return candidateProfileRepository
+          .findByRecruitmentPostIdAndStatus(new ObjectId(recruitmentPostId), status, pageable)
+          .map(it -> toBasicProfileDTO(it));
+    }
     return candidateProfileRepository
         .findByStatus(status, pageable)
         .map(it -> toBasicProfileDTO(it));

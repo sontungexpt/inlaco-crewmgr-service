@@ -14,4 +14,7 @@ public interface CandidateProfileRepository extends MongoRepository<CandidatePro
   List<CandidateProfile> findByAccountId(ObjectId accountId);
 
   Page<CandidateProfile> findByStatus(CandidateProfile.Status status, Pageable pageable);
+
+  Page<CandidateProfile> findByRecruitmentPostIdAndStatus(
+      ObjectId recruitmentPostId, CandidateProfile.Status status, Pageable pageable);
 }

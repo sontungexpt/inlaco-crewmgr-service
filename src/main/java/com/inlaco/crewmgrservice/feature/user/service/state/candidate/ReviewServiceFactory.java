@@ -35,11 +35,12 @@ public class ReviewServiceFactory {
     }
   }
 
-  public void review(CandidateProfile.Status status, CandidateProfile profile, boolean autoEmail) {
-    getState(getServiceName(status)).review(profile, autoEmail);
+  public void review(
+      CandidateProfile.Status newStatus, CandidateProfile profile, boolean autoEmail) {
+    getState(getServiceName(newStatus)).review(profile, autoEmail);
   }
 
-  public void review(CandidateProfile.Status status, String id, boolean autoEmail) {
-    getState(getServiceName(status)).review(id, autoEmail);
+  public void review(CandidateProfile.Status newStatus, String id, boolean autoEmail) {
+    getState(getServiceName(newStatus)).review(id, autoEmail);
   }
 }

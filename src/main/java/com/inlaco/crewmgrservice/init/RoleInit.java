@@ -48,6 +48,7 @@ public class RoleInit implements CommandLineRunner {
     if (user == null) {
       User admin =
           User.builder()
+              .name("Admin")
               .username(ADMIN_USERNAME)
               .password(passwordEncoder.encode(ADMIN_PASSWORD))
               .status(UserStatus.ACTIVE)

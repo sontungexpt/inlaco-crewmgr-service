@@ -1,6 +1,7 @@
 package com.inlaco.crewmgrservice.feature.post.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.inlaco.crewmgrservice.feature.post.enums.PostType;
 import com.inlaco.crewmgrservice.feature.post.model.Post;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import org.springframework.data.domain.Page;
@@ -20,7 +21,7 @@ public interface PostService {
 
   Post getPost(String postId);
 
-  Page<Post> getPagePosts(Pageable pageable);
+  Page<Post> getPagePosts(Pageable pageable, PostType type);
 
   Window<Post> getWindowPosts(ScrollPosition position);
 

@@ -43,7 +43,7 @@ public class RegistrationRequest implements Serializable, IMatchPassword {
 
   @Schema(description = "The confirm passowrd", example = "Admin123")
   @Password
-  private String confirmPassowrd;
+  private String confirmPassword;
 
   @Schema(description = "Name", example = "Admin")
   @OptimizedName
@@ -58,6 +58,6 @@ public class RegistrationRequest implements Serializable, IMatchPassword {
   @Override
   @Schema(hidden = true)
   public String getMatchingPassword() {
-    return confirmPassowrd;
+    return confirmPassword;
   }
 }

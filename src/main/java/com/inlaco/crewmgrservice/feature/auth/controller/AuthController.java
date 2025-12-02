@@ -34,7 +34,7 @@ public record AuthController(RefreshTokenService refreshTokenService, AuthServic
   @Operation(
       summary = "Registers a new user to the system",
       description =
-          """
+"""
 Register new user to the system.
 
 **Usecase**:
@@ -54,7 +54,7 @@ Register new user to the system.
   @Operation(
       summary = "Logs the user in to the system and return the auth tokens",
       description =
-          """
+"""
 Login to the existed account
 
 **Usecase**:
@@ -74,7 +74,7 @@ Login to the existed account
   @Operation(
       summary = "Refresh the expired jwt authentication",
       description =
-          """
+"""
 Retrive a new access token and refresh token
 
 **Usecase**:
@@ -99,7 +99,7 @@ Retrive a new access token and refresh token
         @ApiResponse(responseCode = "500", description = "Internal server error")
       },
       description =
-          """
+"""
 Verify the two step verification
 
 **Usecase**:
@@ -124,7 +124,7 @@ Verify the two step verification
         @ApiResponse(responseCode = "500", description = "Internal server error")
       },
       description =
-          """
+"""
 Resend the two step verification
 
 **Usecase**:

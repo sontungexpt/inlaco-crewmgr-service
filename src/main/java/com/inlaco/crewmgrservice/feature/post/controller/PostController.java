@@ -7,6 +7,7 @@ import com.inlaco.crewmgrservice.annotation.PublicEndpoint;
 import com.inlaco.crewmgrservice.config.OpenApiConfig;
 import com.inlaco.crewmgrservice.endpoint.APIEndpointMap;
 import com.inlaco.crewmgrservice.endpoint.APIEndpointName;
+import com.inlaco.crewmgrservice.feature.post.enums.PostType;
 import com.inlaco.crewmgrservice.feature.post.model.Post;
 import com.inlaco.crewmgrservice.feature.post.service.PostService;
 import com.inlaco.crewmgrservice.feature.user.model.User;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -41,7 +43,7 @@ public class PostController {
   @Operation(
       summary = "Create a new post with the given data using type field to identify the post type",
       description =
-          """
+"""
 Create a new post with the given data using type field to identify the post type.
 
 **Usecase**:
@@ -103,7 +105,7 @@ Create a new post with the given data using type field to identify the post type
   @Operation(
       summary = "Retrieve all posts for a given page",
       description =
-          """
+"""
 This API retrieves a list of posts from the server based on the specified page number and size.
 
 **Use cases:**
@@ -123,14 +125,16 @@ This API retrieves a list of posts from the server based on the specified page n
       description =
           "This API retrieves a list of posts from the server based on the specified page number"
               + " and size.")
-  public Page<Post> getPagePosts(@PageableDefault(size = 10, page = 0) Pageable pageable) {
-    return postService.getPagePosts(pageable);
+  public Page<Post> getPagePosts(
+      @RequestParam(defaultValue = "NEWS") PostType type,
+      @PageableDefault(size = 10, page = 0) Pageable pageable) {
+    return postService.getPagePosts(pageable, type);
   }
 
   @Operation(
       summary = "Retrieve a post from the server by id",
       description =
-          """
+"""
 This API retrieves a post from the server based on its id.
 
 **Use cases:**

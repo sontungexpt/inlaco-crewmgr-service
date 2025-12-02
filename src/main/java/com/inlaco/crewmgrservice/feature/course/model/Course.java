@@ -7,8 +7,6 @@ import com.inlaco.crewmgrservice.common.model.File;
 import com.inlaco.crewmgrservice.common.model.Sluggable;
 import com.inlaco.crewmgrservice.common.payload.TimeFrame;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import java.io.Serializable;
@@ -68,7 +66,7 @@ public class Course implements Sluggable<String>, Serializable, TimeFrame {
   private String teacherName;
 
   @Schema(description = "The achieved position after complete the course", example = "Captain")
-  private String achievedPosition;
+  private String archivedPosition;
 
   @Schema(description = "Is the course provide an certification", example = "true")
   private boolean certified;
@@ -174,23 +172,19 @@ public class Course implements Sluggable<String>, Serializable, TimeFrame {
   @Schema(
       description = "The start registration date of the course",
       example = "2021-09-01T00:00:00Z")
-  @FutureOrPresent
   @DateTimeFormat
   @Default
   private Instant startRegistrationAt = Instant.now().plusSeconds(30);
 
   @Schema(description = "The end registration date of the course", example = "2021-09-01T00:00:00Z")
   @DateTimeFormat
-  @Future
   private Instant endRegistrationAt;
 
   @Default
   @Schema(description = "The start date of the course", example = "2021-09-01T00:00:00Z")
-  @FutureOrPresent
   @DateTimeFormat
   private Instant startDate = Instant.now().plusSeconds(30);
 
-  @Future
   @DateTimeFormat
   @Schema(description = "The end date of the course", example = "2021-09-01T00:00:00Z")
   private Instant endDate;

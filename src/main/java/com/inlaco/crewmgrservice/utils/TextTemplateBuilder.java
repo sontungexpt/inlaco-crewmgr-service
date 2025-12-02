@@ -2,6 +2,7 @@ package com.inlaco.crewmgrservice.utils;
 
 import java.io.IOException;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -9,6 +10,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.lang.NonNull;
 
 public class TextTemplateBuilder {
@@ -45,6 +47,17 @@ public class TextTemplateBuilder {
    */
   public static TextTemplateBuilder relativePath(@NonNull String path) throws IOException {
     return new TextTemplateBuilder(Files.readString(Paths.get(path)));
+  }
+
+  /*
+   *  This method is used to create a new TextTemplateBuilder instance from a resource path. The
+   *  resource path is used to read the content of the resource and create the template.
+   *
+   */
+  public static TextTemplateBuilder resourcePath(@NonNull String resourcePath) throws IOException {
+    ClassPathResource resource = new ClassPathResource(resourcePath);
+    return new TextTemplateBuilder(
+        new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8));
   }
 
   /*

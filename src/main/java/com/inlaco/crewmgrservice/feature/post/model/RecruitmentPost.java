@@ -1,9 +1,8 @@
 package com.inlaco.crewmgrservice.feature.post.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.inlaco.crewmgrservice.common.payload.TimeFrame;
-import com.inlaco.crewmgrservice.validation.annotation.Range;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import java.time.Instant;
 import java.util.List;
@@ -28,19 +27,18 @@ public class RecruitmentPost extends Post implements TimeFrame {
   @NotBlank
   private String position;
 
-  @Schema(description = "Expected salary range", example = "[3000, 5000]")
-  @Default
-  @Range
-  private double[] expectedSalary = new double[2];
+  @Schema(description = "Expected salary range", example = "1000000-2000000")
+  private String expectedSalary;
 
-  @Schema(description = "Indicates if the post is active", example = "true")
+  @Schema(description = "Indicates if the post is canceled", example = "true")
   @Default
-  private boolean disabled = false;
+  @JsonIgnore
+  private boolean canceled = false;
 
   @Override
   @Schema(hidden = true)
   public boolean isActive() {
-    return !disabled
+    return !canceled
         && recruitmentStartDate.isBefore(Instant.now())
         && (recruitmentEndDate == null || recruitmentEndDate.isAfter(Instant.now()));
   }
@@ -49,7 +47,6 @@ public class RecruitmentPost extends Post implements TimeFrame {
   private String workLocation;
 
   @Schema(description = "Date when recruitment starts (UTC)", example = "2023-11-01T08:00:00Z")
-  @FutureOrPresent
   @Default
   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
   private Instant recruitmentStartDate = Instant.now().plusSeconds(30);

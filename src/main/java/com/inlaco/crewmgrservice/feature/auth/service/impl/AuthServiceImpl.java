@@ -94,10 +94,11 @@ public record AuthServiceImpl(
   public void register(RegistrationRequest request) {
     final String username = request.getUsername();
     if (userService.existsByUsername(username)) {
+      log.debug("User with username {} already exists", username);
       throw new ResourceAlreadyInUseException(User.class, "username", username);
     }
 
-    log.info("Starting register new user");
+    log.debug("Starting registration for user {}", username);
 
     var usernameType = request.getUsernameType();
 

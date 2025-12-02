@@ -15,6 +15,7 @@ import com.inlaco.crewmgrservice.utils.TextTemplateBuilder;
 import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service(ReviewService.WAIT_INTERVIEW)
@@ -31,6 +32,7 @@ public class CandidateWaitInterViewService extends CandidateReviewStragegy {
   }
 
   @Override
+  @Transactional
   public void updateProfileStatus(CandidateProfile profile) {
     profile.setStatus(Status.WAIT_FOR_INTERVIEW);
     candidateProfileRepository.save(profile);
@@ -40,6 +42,7 @@ public class CandidateWaitInterViewService extends CandidateReviewStragegy {
   }
 
   @Override
+  @Transactional
   public void review(CandidateProfile profile, boolean autoEmail) {
     if (profile.getStatus() == Status.WAIT_FOR_INTERVIEW) return;
     log.info("Review candidate: {}", profile.getFullName());

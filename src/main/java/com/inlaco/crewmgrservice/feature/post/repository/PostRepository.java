@@ -1,5 +1,6 @@
 package com.inlaco.crewmgrservice.feature.post.repository;
 
+import com.inlaco.crewmgrservice.feature.post.enums.PostType;
 import com.inlaco.crewmgrservice.feature.post.model.Post;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
@@ -13,4 +14,6 @@ public interface PostRepository extends MongoRepository<Post, String> {
   Page<Post> findByAuthorId(ObjectId authorId, Pageable pageable);
 
   Page<Post> findByDeleted(boolean deleted, Pageable pageable);
+
+  Page<Post> findByType(PostType type, Pageable pageable);
 }
