@@ -156,7 +156,7 @@ This API retrieves a detail candidate profile from the server based on its id.
 """)
   @GetMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)
-  @RolesAllowed("ADMIN")
+  @RolesAllowed("USER")
   public CandidateProfile getCandidateProfile(@ObjectId @PathVariable("id") String id) {
     return candidateService.getCandidateProfileById(id);
   }

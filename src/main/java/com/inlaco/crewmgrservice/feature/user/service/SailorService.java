@@ -7,6 +7,7 @@ import com.inlaco.crewmgrservice.feature.user.dto.SailorFilterable;
 import com.inlaco.crewmgrservice.feature.user.model.SailorProfile;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import java.util.List;
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -24,8 +25,6 @@ public interface SailorService {
 
   String generateSailorCardId();
 
-  SailorProfile addSailor(String candidateId, SailorProfile profile);
-
   /**
    * Find sailor profile by id. For user that has role ADMIN, they can view all sailor profiles.
    *
@@ -34,7 +33,13 @@ public interface SailorService {
    */
   SailorProfile findSailorProfileById(String sailorId);
 
+  SailorProfile findSailorProfileByIdOrNull(String sailorId);
+
   SailorProfile findSailorProfileByAccountId(String accountId);
+
+  SailorProfile findSailorProfileByAccountIdOrNull(String sailorId);
+
+  SailorProfile findSailorProfileByAccountIdOrNull(ObjectId sailorId);
 
   /**
    * Find current sailor profile of user.

@@ -15,20 +15,16 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.security.RolesAllowed;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -43,7 +39,7 @@ public class SailorController {
       summary = "Find sailor profile by id",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
       description =
-          """
+"""
 This API is used to get the sailor profile by id.
 
 **Usecase**:
@@ -60,7 +56,7 @@ This API is used to get the sailor profile by id.
       summary = "Find sailor profile by id",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
       description =
-          """
+"""
 This API is used to get the sailor profile by id.
 
 **Usecase**:
@@ -78,7 +74,7 @@ This API is used to get the sailor profile by id.
       summary = "Fetch all sailor profiles",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
       description =
-          """
+"""
 This API is used to get all sailor profiles.
 
 **Usecase**:
@@ -111,7 +107,7 @@ This API is used to get all sailor profiles.
       summary = "Search sailors",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
       description =
-          """
+"""
 This API is is used to search sailors by name, email, phone number, accountId.
 
 Can be filtered by position
@@ -148,7 +144,7 @@ Can be filtered by position
       summary = "Find sailor profile of current user",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
       description =
-          """
+"""
 This API is used to get the sailor profile of the current user.
 
 **Usecase**:
@@ -165,7 +161,7 @@ This API is used to get the sailor profile of the current user.
       summary = "Find sailor profile of user with account id",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
       description =
-          """
+"""
 This API is used to get the sailor profile of the user with account id.
 
 **Usecase**:
@@ -180,30 +176,5 @@ This API is used to get the sailor profile of the user with account id.
   public SailorProfile findSailorProfileByAccountId(
       @PathVariable("id") @ObjectId String accountId) {
     return sailorService.findSailorProfileById(accountId);
-  }
-
-  @Operation(
-      summary = "Add new sailor",
-      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
-      description =
-          """
-This API is used to add a new sailor from an candidate profile.
-It just create and save the profile of the sailor but
-does not grant permissions to the sailor because the sailor does not have any contract.
-
-Please create a contract for the sailor to grant permissions.
-And sign the contract to activate the permissions.
-
-**Usecase**:
-- UC_admin-them-thuyen-vien-moi.
-
-""")
-  @PostMapping("/{candidateId}")
-  @RolesAllowed("ADMIN")
-  @ResponseStatus(HttpStatus.CREATED)
-  public SailorProfile createSailor(
-      @PathVariable("candidateId") @ObjectId String candidateId,
-      @Valid @RequestBody SailorProfile profile) {
-    return sailorService.addSailor(candidateId, profile);
   }
 }

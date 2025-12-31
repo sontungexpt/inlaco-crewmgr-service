@@ -72,6 +72,9 @@ public class CandidateProfile extends BasicProfile {
     @Schema(description = "Interviewed but was rejected", example = "REJECTED")
     REJECTED,
 
+    @Schema(description = "Contract not yet in force", example = "CONTRACT_NOT_YET_IN_FORCE")
+    CONTRACT_NOT_YET_IN_FORCE,
+
     @Schema(description = "Hired", example = "HIRED")
     HIRED
   }

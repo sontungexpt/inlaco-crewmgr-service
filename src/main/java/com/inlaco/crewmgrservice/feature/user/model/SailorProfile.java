@@ -9,7 +9,6 @@ import com.inlaco.crewmgrservice.common.model.File;
 import com.inlaco.crewmgrservice.feature.user.enums.WorkStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import java.time.Instant;
 import java.util.List;
@@ -32,7 +31,14 @@ import org.springframework.format.annotation.DateTimeFormat;
 @Getter
 @Setter
 @JsonIgnoreProperties(
-    value = {"id", "cardId", "accountId", "contractId", "joinedAt", "updatedAt", "candidateId"},
+    value = {
+      "id",
+      "cardId",
+      "accountId",
+      "contractId",
+      "joinedAt",
+      "updatedAt",
+    },
     allowGetters = true)
 @CompoundIndexes({
   @CompoundIndex(
@@ -52,11 +58,6 @@ public class SailorProfile extends BasicProfile {
   @JsonPatchIgnore
   @JsonIgnore
   private WorkStatus workStatus;
-
-  @Schema(description = "The candidate id of the sailor", hidden = true, type = "String")
-  @JsonPatchIgnore
-  @JsonSerialize(using = ToStringSerializer.class)
-  protected ObjectId candidateId;
 
   @Schema(description = "The position of the sailor", requiredMode = RequiredMode.REQUIRED)
   private String professionalPosition;
@@ -87,26 +88,6 @@ public class SailorProfile extends BasicProfile {
   @JsonPatchIgnore
   @Indexed(unique = true)
   protected String cardId;
-
-  @Schema(
-      description = "The expertise levels of the sailor",
-      requiredMode = RequiredMode.REQUIRED,
-      type = "List<String>")
-  @NotNull
-  protected List<String> expertiseLevels;
-
-  @Schema(
-      description = "The language skills of the sailor",
-      requiredMode = RequiredMode.REQUIRED,
-      type = "List<String>")
-  @NotNull
-  protected String languageSkills;
-
-  @Schema(
-      description = "The experience of the sailor",
-      requiredMode = RequiredMode.REQUIRED,
-      type = "String")
-  protected String experiences;
 
   @Schema(
       description = "The social insurance code of the sailor",

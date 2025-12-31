@@ -16,8 +16,8 @@ import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -72,8 +72,8 @@ public abstract class AbstractContract extends ContractVersion
   @Schema(
       description = "The list of signed partners (example sailor)",
       requiredMode = RequiredMode.REQUIRED)
-  // @MinLen(1)
-  private List<@Valid Party> signedPartners;
+  @Size(min = 1)
+  private List<@Valid Party> partners;
 
   @Schema(description = "The list of paper contracts", requiredMode = RequiredMode.REQUIRED)
   private File contractFile;
@@ -84,7 +84,6 @@ public abstract class AbstractContract extends ContractVersion
   private List<@Valid File> attachments = new ArrayList<>();
 
   @Schema(description = "The list of term of the contract", requiredMode = RequiredMode.REQUIRED)
-  @NotEmpty
   private List<@NotBlank String> terms;
 
   @JsonPatchIgnore

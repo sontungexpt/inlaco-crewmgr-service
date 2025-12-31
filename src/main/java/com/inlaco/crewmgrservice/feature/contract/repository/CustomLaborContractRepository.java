@@ -33,9 +33,13 @@ public class CustomLaborContractRepository {
     return mongoTemplate.findOne(query, AbstractContract.class);
   }
 
-  public boolean existsLaborContractByEmployeeId(String employeeId) {
+  public boolean existsLaborContractByCandidateProfileId(String candidateProfileId) {
     Query query = new Query();
-    query.addCriteria(buildFoundCriteriaContractByEmployeeId(employeeId));
+    query.addCriteria(
+        Criteria.where("candidateProfileId")
+            .is(new ObjectId(candidateProfileId))
+            .and("type")
+            .is(ContractType.LABOR_CONTRACT));
     log.debug(query.toString());
     return mongoTemplate.exists(query, AbstractContract.class);
   }

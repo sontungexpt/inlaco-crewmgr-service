@@ -45,7 +45,7 @@ public class ContractController {
       summary = "Get contract detail",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
       description =
-          """
+"""
 This API is used to get contract detail.
 
 **Usecase**:
@@ -97,7 +97,7 @@ This API is used to get contract detail.
       summary = "Get all conrtacts",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
       description =
-          """
+"""
 This API is used to get all contracts with short information.
 
 **Usecase**:
@@ -131,7 +131,7 @@ This API is used to get all contracts with short information.
       summary = "Update contract",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
       description =
-          """
+"""
 Update contract if it is not freezed.
 
 **Usecase**:
@@ -151,7 +151,7 @@ Update contract if it is not freezed.
       summary = "Get all contracts of sailor",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
       description =
-          """
+"""
 Get all contracts of sailor.
 
 **Usecase**:
@@ -169,28 +169,28 @@ Get all contracts of sailor.
       summary = "Add contract for sailor",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
       description =
-          """
+"""
 Add contract for sailor.
 
 **Usecase**:
 - UC_admin-tao-hop-dong-theo-template.
 
 """)
-  @PostMapping("/labors/{id}")
+  @PostMapping("/labors/{candidateProfileId}")
   @RolesAllowed("ADMIN")
   @ResponseStatus(HttpStatus.CREATED)
   public Contract createLaborContract(
-      @ObjectId @PathVariable("id") String id,
+      @ObjectId @PathVariable("candidateProfileId") String candidateProfileId,
       @CurrentUser User user,
       @RequestBody @Valid LaborContract contract) {
-    return contractService.createLaborContract(id, contract, user);
+    return contractService.createLaborContract(candidateProfileId, contract, user);
   }
 
   @Operation(
       summary = "Add supply contract",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
       description =
-          """
+"""
 Add supply contract
 
 **Usecase**:
@@ -211,7 +211,7 @@ Add supply contract
       summary = "Active an contract by id",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
       description =
-          """
+"""
 Active an contract by id.
 
 **Usecase**:

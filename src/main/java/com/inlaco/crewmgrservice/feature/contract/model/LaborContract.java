@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.inlaco.crewmgrservice.annotation.JsonPatchIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
@@ -24,4 +25,22 @@ public class LaborContract extends DynamicContract {
   @JsonPatchIgnore
   @JsonSerialize(using = ToStringSerializer.class)
   private ObjectId employeeId;
+
+  @Schema(description = "candidate profile ID", hidden = true)
+  @JsonIgnore
+  @JsonPatchIgnore
+  @JsonSerialize(using = ToStringSerializer.class)
+  private ObjectId candidateProfileId;
+
+  @Schema(description = "The position of the employee", example = "Engineer")
+  @NotBlank
+  private String position;
+
+  @Schema(description = "The working location of the employee", example = "Hanoi")
+  @NotBlank
+  private String workingLocation;
+
+  @Schema(description = "The basic salary of the employee", example = "1000000")
+  @NotBlank
+  private String basicSalary;
 }

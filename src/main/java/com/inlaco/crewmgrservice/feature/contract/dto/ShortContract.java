@@ -68,7 +68,7 @@ public class ShortContract implements Contract {
   }
 
   @Override
-  public List<Party> getSignedPartners() {
+  public List<Party> getPartners() {
     return signedPartners;
   }
 }

@@ -12,7 +12,7 @@ public interface Contract {
 
   Party getInitiator();
 
-  List<Party> getSignedPartners();
+  List<Party> getPartners();
 
   File getContractFile();
 

@@ -1,11 +1,9 @@
 package com.inlaco.crewmgrservice.feature.user.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.inlaco.crewmgrservice.exceptions.ResourceAlreadyInUseException;
 import com.inlaco.crewmgrservice.exceptions.ResourceNotFoundException;
 import com.inlaco.crewmgrservice.feature.contract.model.LaborContract;
-import com.inlaco.crewmgrservice.feature.post.model.RecruitmentPost;
-import com.inlaco.crewmgrservice.feature.post.service.PostService;
+import com.inlaco.crewmgrservice.feature.contract.model.LaborParty;
 import com.inlaco.crewmgrservice.feature.user.dto.BasicProfileDTO;
 import com.inlaco.crewmgrservice.feature.user.dto.SailorFilterable;
 import com.inlaco.crewmgrservice.feature.user.enums.WorkStatus;
@@ -18,6 +16,7 @@ import com.inlaco.crewmgrservice.feature.user.repository.SailorProfileRepository
 import com.inlaco.crewmgrservice.feature.user.service.CandidateService;
 import com.inlaco.crewmgrservice.feature.user.service.SailorService;
 import com.inlaco.crewmgrservice.feature.user.service.UserService;
+import com.inlaco.crewmgrservice.feature.user.service.state.candidate.ReviewServiceFactory;
 import com.inlaco.crewmgrservice.utils.JsonMergePatchUtils;
 import java.time.Instant;
 import java.time.Year;
@@ -30,7 +29,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -42,43 +40,8 @@ public class SailorServiceImpl implements SailorService {
   private final JsonMergePatchUtils jsonMergePatchUtils;
   private final CandidateService candidateService;
   private final CustomSailorRepository customSailorRepository;
-  private final PostService postService;
   private final ApplicationEventPublisher applicationEventPublisher;
-
-  @Override
-  public SailorProfile addSailor(String candidateId, SailorProfile sailorProfile) {
-    CandidateProfile candidateProfile = candidateService.getCandidateProfileById(candidateId);
-    if (candidateProfile.getStatus() != CandidateProfile.Status.WAIT_FOR_INTERVIEW
-        && candidateProfile.getStatus() != CandidateProfile.Status.HIRED) {
-      throw new ResourceNotFoundException(
-          CandidateProfile.class, "status", candidateProfile.getStatus().name());
-    }
-
-    ObjectId candidateIdObj = new ObjectId(candidateId);
-    if (sailorProfileRepository.existsByCandidateId(candidateIdObj)) {
-      throw new ResourceAlreadyInUseException(SailorProfile.class, "candidateId", candidateId);
-    }
-
-    sailorProfile.setAccountId(candidateProfile.getAccountId());
-    sailorProfile.setCandidateId(candidateIdObj);
-
-    if (sailorProfile.getExperiences() == null || sailorProfile.getExperiences().isEmpty()) {
-      sailorProfile.setExperiences(candidateProfile.getExperiences());
-    }
-
-    if (!StringUtils.hasText(sailorProfile.getProfessionalPosition())) {
-      RecruitmentPost recruitmentPost =
-          (RecruitmentPost)
-              postService.getPost(candidateProfile.getRecruitmentPostId().toHexString());
-      sailorProfile.setProfessionalPosition(recruitmentPost.getPosition());
-    }
-
-    if (sailorProfile.getLanguageSkills() == null || sailorProfile.getLanguageSkills().isEmpty()) {
-      sailorProfile.setLanguageSkills(candidateProfile.getLanguageSkills());
-    }
-
-    return sailorProfileRepository.save(sailorProfile);
-  }
+  private final ReviewServiceFactory reviewServiceFactory;
 
   @Override
   public String generateSailorCardId() {
@@ -115,6 +78,18 @@ public class SailorServiceImpl implements SailorService {
     return sailorProfileRepository
         .findById(sailorId)
         .orElseThrow(() -> new ResourceNotFoundException(SailorProfile.class, "id", sailorId));
+  }
+
+  @Override
+  public SailorProfile findSailorProfileByIdOrNull(String sailorId) {
+    log.info("Find sailor profile with id: {}", sailorId);
+    return sailorProfileRepository.findById(sailorId).orElse(null);
+  }
+
+  @Override
+  public SailorProfile findSailorProfileByAccountIdOrNull(String accountId) {
+    log.info("Find sailor profile with accountId: {}", accountId);
+    return sailorProfileRepository.findByAccountId(new ObjectId(accountId)).orElse(null);
   }
 
   @Override
@@ -159,16 +134,37 @@ public class SailorServiceImpl implements SailorService {
   @Override
   @Transactional
   public void makeSailorOfficial(LaborContract contract) {
-    String sailorAccountId = contract.getEmployeeId().toHexString();
-    SailorProfile sailorProfile = findSailorProfileByAccountId(sailorAccountId);
-    sailorProfile.setCardId(generateSailorCardId());
-    sailorProfile.setWorkStatus(WorkStatus.AVAILABLE);
-    sailorProfile.setJoinedCompanyAt(Instant.now());
-    saveSailorProfile(sailorProfile);
-    candidateService.reviewCandidate(
-        sailorProfile.getCandidateId().toHexString(), CandidateProfile.Status.HIRED, true);
+    ObjectId sailorAccountId = contract.getEmployeeId();
+    SailorProfile sailorProfile =
+        sailorProfileRepository
+            .findByAccountId(contract.getEmployeeId())
+            .orElseGet(() -> new SailorProfile());
 
-    userService.updateToSailor(sailorAccountId);
+    LaborParty sailorParty = (LaborParty) contract.getPartners().get(0);
+    sailorProfile.setFullName(sailorParty.getRepresenter());
+    sailorProfile.setAddress(sailorParty.getAddress());
+    sailorProfile.setPhoneNumber(sailorParty.getPhone());
+    sailorProfile.setAccountId(contract.getEmployeeId());
+    sailorProfile.setBirthDate(sailorParty.getBirthDate());
+    sailorProfile.setProfessionalPosition(contract.getPosition());
+
+    if (sailorProfile.getCardId() == null) {
+      sailorProfile.setCardId(generateSailorCardId());
+    }
+
+    if (sailorProfile.getWorkStatus() == null) {
+      sailorProfile.setWorkStatus(WorkStatus.AVAILABLE);
+    }
+
+    if (sailorProfile.getJoinedCompanyAt() == null) {
+      sailorProfile.setJoinedCompanyAt(Instant.now());
+    }
+    saveSailorProfile(sailorProfile);
+
+    candidateService.reviewCandidate(
+        contract.getCandidateProfileId().toHexString(), CandidateProfile.Status.HIRED, true);
+
+    userService.updateToSailor(sailorAccountId.toHexString());
     applicationEventPublisher.publishEvent(new SailorOfficalEvent(this, contract));
   }
 
@@ -182,5 +178,10 @@ public class SailorServiceImpl implements SailorService {
     return sailorProfileRepository
         .findByCardId(cardId)
         .orElseThrow(() -> new ResourceNotFoundException(SailorProfile.class, "cardId", cardId));
+  }
+
+  @Override
+  public SailorProfile findSailorProfileByAccountIdOrNull(ObjectId sailorId) {
+    return sailorProfileRepository.findByAccountId(sailorId).orElse(null);
   }
 }

@@ -18,7 +18,9 @@ import com.inlaco.crewmgrservice.feature.contract.repository.CustomLaborContract
 import com.inlaco.crewmgrservice.feature.contract.service.ContractService;
 import com.inlaco.crewmgrservice.feature.crewrental.enums.RentalRequestStatus;
 import com.inlaco.crewmgrservice.feature.crewrental.service.RentalRequestService;
+import com.inlaco.crewmgrservice.feature.user.model.CandidateProfile;
 import com.inlaco.crewmgrservice.feature.user.model.User;
+import com.inlaco.crewmgrservice.feature.user.service.CandidateService;
 import com.inlaco.crewmgrservice.feature.user.service.SailorService;
 import com.inlaco.crewmgrservice.utils.JsonMergePatchUtils;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +43,7 @@ public class ContractServiceImpl implements ContractService {
   private final CustomContractRepository customContractRepository;
   private final RentalRequestService rentalRequestService;
   private final CustomLaborContractRepository customLaborContractRepository;
+  private final CandidateService candidateService;
 
   @Override
   public AbstractContract getContractById(String id) {
@@ -100,21 +103,26 @@ public class ContractServiceImpl implements ContractService {
 
   @Override
   @Transactional
-  public Contract createLaborContract(String sailorId, LaborContract contract, User creator) {
-    var sailorProfile = sailorService.findSailorProfileById(sailorId);
-
-    if (customLaborContractRepository.existsLaborContractByEmployeeId(
-        sailorProfile.getAccountId().toHexString())) {
+  public Contract createLaborContract(
+      String candidateProfileId, LaborContract contract, User creator) {
+    if (customLaborContractRepository.existsLaborContractByCandidateProfileId(candidateProfileId)) {
       throw new ResourceAlreadyInUseException(
-          LaborContract.class, "employeeId", sailorProfile.getAccountId().toHexString());
+          LaborContract.class, "candidateProfileId", candidateProfileId);
     }
-    contract.setEmployeeId(sailorProfile.getAccountId());
+
+    CandidateProfile candidateProfile =
+        candidateService.getCandidateProfileById(candidateProfileId);
+
+    ObjectId accountId = candidateProfile.getAccountId();
+    contract.setCandidateProfileId(new ObjectId(candidateProfileId));
+    contract.setEmployeeId(accountId);
+
+    candidateService.reviewCandidate(
+        candidateProfileId, CandidateProfile.Status.CONTRACT_NOT_YET_IN_FORCE, false);
 
     var newContract = contractRepository.save(contract);
 
-    sailorService.saveSailorProfile(sailorProfile);
-
-    log.info("Created labor contract for sailor with id: {}", sailorId);
+    log.info("Created labor contract for sailor with account id: {}", accountId);
 
     return newContract;
   }
