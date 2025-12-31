@@ -23,7 +23,8 @@ public interface ContractService {
 
   Contract saveContract(AbstractContract contract);
 
-  Contract createLaborContract(String sailorId, LaborContract contract, User creator);
+  Contract createLaborContract(
+      String sailorId, LaborContract contract, String contractFilePubId, User creator);
 
   Contract createSupplyContract(String crewRentalRequestId, SupplyContract contract, User creator);
 

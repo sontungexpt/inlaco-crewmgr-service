@@ -18,6 +18,8 @@ import com.inlaco.crewmgrservice.feature.contract.repository.CustomLaborContract
 import com.inlaco.crewmgrservice.feature.contract.service.ContractService;
 import com.inlaco.crewmgrservice.feature.crewrental.enums.RentalRequestStatus;
 import com.inlaco.crewmgrservice.feature.crewrental.service.RentalRequestService;
+import com.inlaco.crewmgrservice.feature.upload.enums.UploadStrategy;
+import com.inlaco.crewmgrservice.feature.upload.service.UploadFactory;
 import com.inlaco.crewmgrservice.feature.user.model.CandidateProfile;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import com.inlaco.crewmgrservice.feature.user.service.CandidateService;
@@ -44,6 +46,7 @@ public class ContractServiceImpl implements ContractService {
   private final RentalRequestService rentalRequestService;
   private final CustomLaborContractRepository customLaborContractRepository;
   private final CandidateService candidateService;
+  private final UploadFactory uploadFactory;
 
   @Override
   public AbstractContract getContractById(String id) {
@@ -104,7 +107,7 @@ public class ContractServiceImpl implements ContractService {
   @Override
   @Transactional
   public Contract createLaborContract(
-      String candidateProfileId, LaborContract contract, User creator) {
+      String candidateProfileId, LaborContract contract, String contractFilePubId, User creator) {
     if (customLaborContractRepository.existsLaborContractByCandidateProfileId(candidateProfileId)) {
       throw new ResourceAlreadyInUseException(
           LaborContract.class, "candidateProfileId", candidateProfileId);
@@ -116,6 +119,8 @@ public class ContractServiceImpl implements ContractService {
     ObjectId accountId = candidateProfile.getAccountId();
     contract.setCandidateProfileId(new ObjectId(candidateProfileId));
     contract.setEmployeeId(accountId);
+    contract.setContractFile(
+        uploadFactory.metadata(UploadStrategy.CONTRACT_FILE, contractFilePubId));
 
     candidateService.reviewCandidate(
         candidateProfileId, CandidateProfile.Status.CONTRACT_NOT_YET_IN_FORCE, false);
