@@ -55,9 +55,10 @@ Apply for a job with the given job id.
   @RolesAllowed("USER")
   public CandidateProfile applyCandidate(
       @ObjectId @PathVariable("postId") String postId,
+      @RequestParam String resumePublicId,
       @CurrentUser User user,
       @RequestBody @Valid CandidateProfile candidateProfile) {
-    return candidateService.applyCandidate(postId, candidateProfile, user);
+    return candidateService.applyCandidate(postId, candidateProfile, resumePublicId, user);
   }
 
   @Operation(

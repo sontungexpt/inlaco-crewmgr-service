@@ -49,6 +49,21 @@ public class CloudinarySignParams {
     return this;
   }
 
+  public CloudinarySignParams type(String type) {
+    signParams.put("type", type);
+    return this;
+  }
+
+  public CloudinarySignParams accessMode(String mode) {
+    signParams.put("access_mode", mode);
+    return this;
+  }
+
+  public CloudinarySignParams resourceType(String value) {
+    signParams.put("resource_type", value);
+    return this;
+  }
+
   public CloudinarySignParams param(String key, Object value) {
     signParams.put(key, value);
     return this;

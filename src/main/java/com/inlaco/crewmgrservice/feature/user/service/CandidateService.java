@@ -19,7 +19,8 @@ public interface CandidateService {
 
   CandidateProfile getCandidateProfileById(String candidateId);
 
-  CandidateProfile applyCandidate(String postId, CandidateProfile candidateProfile, User user);
+  CandidateProfile applyCandidate(
+      String postId, CandidateProfile candidateProfile, String resumePublicId, User user);
 
   void reviewCandidate(String id, CandidateProfile.Status status, boolean autoEmail);
 

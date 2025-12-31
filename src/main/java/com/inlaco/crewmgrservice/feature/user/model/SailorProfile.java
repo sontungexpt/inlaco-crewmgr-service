@@ -10,6 +10,7 @@ import com.inlaco.crewmgrservice.feature.user.enums.WorkStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Past;
 import java.time.Instant;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -26,6 +27,7 @@ import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.format.annotation.DateTimeFormat;
 
 @Getter
 @Setter
@@ -68,6 +70,15 @@ public class SailorProfile extends BasicProfile {
   private Instant joinedCompanyAt;
 
   @Schema(
+      description = "The birth date of the person",
+      example = "2000-01-01T00:00:00Z",
+      requiredMode = RequiredMode.REQUIRED,
+      type = "String")
+  @Past
+  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+  protected Instant birthDate;
+
+  @Schema(
       description = "The card id (Year-STT)",
       example = "202200001",
       requiredMode = RequiredMode.REQUIRED,
@@ -89,13 +100,13 @@ public class SailorProfile extends BasicProfile {
       requiredMode = RequiredMode.REQUIRED,
       type = "List<String>")
   @NotNull
-  protected List<String> languageSkills;
+  protected String languageSkills;
 
   @Schema(
       description = "The experience of the sailor",
       requiredMode = RequiredMode.REQUIRED,
-      type = "List<String>")
-  protected List<String> experiences;
+      type = "String")
+  protected String experiences;
 
   @Schema(
       description = "The social insurance code of the sailor",

@@ -44,7 +44,10 @@ public class RentalRequest {
   @Schema(hidden = true)
   private String id;
 
-  @Schema(description = "Total number of crew members needed.", example = "10", required = true)
+  @Schema(
+      description = "Total number of crew members needed.",
+      example = "10",
+      requiredMode = RequiredMode.REQUIRED)
   @NotNull
   @Min(1)
   private Integer totalCrewNeeded;
@@ -68,7 +71,10 @@ public class RentalRequest {
   @NotBlank
   private String companyAddress;
 
-  @Schema(description = "Phone number of the company.", example = "+1234567890", required = true)
+  @Schema(
+      description = "Phone number of the company.",
+      example = "+1234567890",
+      requiredMode = RequiredMode.REQUIRED)
   @NotBlank
   @PhoneNumber
   private String companyPhone;
@@ -135,7 +141,10 @@ public class RentalRequest {
   @NotBlank
   private String departureUNLOCODE;
 
-  @Schema(description = "UN/LOCODE for the arrival point.", example = "JPTYO", required = true)
+  @Schema(
+      description = "UN/LOCODE for the arrival point.",
+      example = "JPTYO",
+      requiredMode = RequiredMode.REQUIRED)
   @NotBlank
   private String arrivalUNLOCODE;
 

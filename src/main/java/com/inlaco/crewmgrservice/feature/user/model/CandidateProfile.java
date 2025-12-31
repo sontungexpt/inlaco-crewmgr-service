@@ -9,7 +9,6 @@ import com.inlaco.crewmgrservice.common.model.File;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import java.time.Instant;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder.Default;
 import lombok.Getter;
@@ -30,7 +29,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @SuperBuilder
 @Document(collection = "candidates")
 @JsonIgnoreProperties(
-    value = {"id", "recruitmentPostId", "status", "accountId"},
+    value = {"id", "recruitmentPostId", "status", "accountId", "resume"},
     allowGetters = true)
 @CompoundIndexes({
   @CompoundIndex(
@@ -41,11 +40,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @AllArgsConstructor
 public class CandidateProfile extends BasicProfile {
 
-  @Schema(description = "The language skills of the sailor", type = "List<String>")
-  protected List<String> languageSkills;
+  @Schema(description = "The language skills of the sailor", type = "String")
+  protected String languageSkills;
 
-  @Schema(description = "The experience of the sailor", type = "List<String>")
-  protected List<String> experiences;
+  @Schema(description = "The experience of the sailor", type = "String")
+  protected String experiences;
 
   @Schema(
       description = "Recruitment post id",

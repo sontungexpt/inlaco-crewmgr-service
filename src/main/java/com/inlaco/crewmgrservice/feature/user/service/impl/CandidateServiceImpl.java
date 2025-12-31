@@ -1,6 +1,7 @@
 package com.inlaco.crewmgrservice.feature.user.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.inlaco.crewmgrservice.common.model.File;
 import com.inlaco.crewmgrservice.exceptions.ResourceNotFoundException;
 import com.inlaco.crewmgrservice.feature.notify.NotificationFactory;
 import com.inlaco.crewmgrservice.feature.notify.NotificationType;
@@ -11,6 +12,8 @@ import com.inlaco.crewmgrservice.feature.post.exception.PostInactiveException;
 import com.inlaco.crewmgrservice.feature.post.model.Post;
 import com.inlaco.crewmgrservice.feature.post.model.RecruitmentPost;
 import com.inlaco.crewmgrservice.feature.post.service.PostService;
+import com.inlaco.crewmgrservice.feature.upload.enums.UploadStrategy;
+import com.inlaco.crewmgrservice.feature.upload.service.UploadFactory;
 import com.inlaco.crewmgrservice.feature.user.dto.BasicProfileDTO;
 import com.inlaco.crewmgrservice.feature.user.model.CandidateProfile;
 import com.inlaco.crewmgrservice.feature.user.model.User;
@@ -38,6 +41,7 @@ public class CandidateServiceImpl implements CandidateService {
   @Value("${inlaco.company-name}")
   private String COMPANY_NAME;
 
+  private final UploadFactory uploadFactory;
   private final CandidateProfileRepository candidateProfileRepository;
   private final CustomCandidateRepository customCandidateRepository;
   private final ReviewServiceFactory reviewServiceFactory;
@@ -54,7 +58,6 @@ public class CandidateServiceImpl implements CandidateService {
         .file(candidateProfile.getResume())
         .phoneNumber(candidateProfile.getPhoneNumber())
         .gender(candidateProfile.getGender())
-        .birthDate(candidateProfile.getBirthDate())
         .build();
   }
 
@@ -105,7 +108,7 @@ public class CandidateServiceImpl implements CandidateService {
 
   @Override
   public CandidateProfile applyCandidate(
-      String postId, CandidateProfile candidateProfile, User user) {
+      String postId, CandidateProfile candidateProfile, String resumePublicId, User user) {
     Post post = postService.getPost(postId);
 
     if (post.getType() != PostType.RECRUITMENT) {
@@ -115,6 +118,8 @@ public class CandidateServiceImpl implements CandidateService {
       throw new PostInactiveException("The registration post is closed");
     }
 
+    File resume = uploadFactory.metadata(UploadStrategy.RESUME, resumePublicId);
+    candidateProfile.setResume(resume);
     candidateProfile.setRecruitmentPostId(new ObjectId(postId));
     candidateProfile.setAccountId(new ObjectId(user.getId()));
 

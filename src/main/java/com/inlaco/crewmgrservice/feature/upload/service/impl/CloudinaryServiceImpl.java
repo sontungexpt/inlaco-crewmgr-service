@@ -18,8 +18,11 @@ public class CloudinaryServiceImpl implements CloudinaryService {
   @Override
   public Map<String, Object> getUploadOptions(Map<String, Object> paramsToSign) {
     paramsToSign = new HashMap<>(paramsToSign);
-    paramsToSign.put("timestamp", System.currentTimeMillis() / 1000);
-    String signature = cloudinary.apiSignRequest(paramsToSign, CloudinaryConfig.API_SECRET);
+    Object timestamp = paramsToSign.get("timestamp");
+    if (timestamp == null) {
+      paramsToSign.put("timestamp", System.currentTimeMillis() / 1000);
+    }
+    String signature = cloudinary.apiSignRequest(paramsToSign, CloudinaryConfig.API_SECRET, 2);
     paramsToSign.put("signature", signature);
     return paramsToSign;
   }

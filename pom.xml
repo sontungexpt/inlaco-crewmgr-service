@@ -41,7 +41,7 @@
     <lombok.version>1.18.42</lombok.version>
     <therapi.version>0.15.0</therapi.version>
     <jjwt.version>0.13.0</jjwt.version>
-    <cloudinary.version>2.0.0</cloudinary.version>
+    <cloudinary.version>2.3.2</cloudinary.version>
     <jnanoid.version>2.0.0</jnanoid.version>
     <dotenv.version>4.0.0</dotenv.version>
     <slugify.version>3.0.7</slugify.version>

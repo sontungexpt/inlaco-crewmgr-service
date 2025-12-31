@@ -11,9 +11,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
-import jakarta.validation.constraints.Past;
 import java.io.Serializable;
-import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,7 +20,6 @@ import lombok.experimental.SuperBuilder;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.format.annotation.DateTimeFormat;
 
 @Getter
 @Setter
@@ -50,15 +47,6 @@ public class BasicProfile implements Serializable {
   @Indexed(unique = true)
   @JsonSerialize(using = ToStringSerializer.class)
   protected ObjectId accountId;
-
-  @Schema(
-      description = "The birth date of the person",
-      example = "2000-01-01T00:00:00Z",
-      requiredMode = RequiredMode.REQUIRED,
-      type = "String")
-  @Past
-  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-  protected Instant birthDate;
 
   @Schema(
       description = "The full name of the person",
