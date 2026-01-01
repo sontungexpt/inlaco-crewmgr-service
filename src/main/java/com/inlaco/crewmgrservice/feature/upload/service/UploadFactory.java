@@ -45,11 +45,11 @@ public class UploadFactory {
     return service.getUploadOptions(params);
   }
 
-  public File metadata(UploadStrategy stragegy, String publicId) {
+  public File metadata(UploadStrategy stragegy, String assetId) {
     UploadServiceStrategy service = getUploadService(stragegy);
     if (service == null) {
-      return uploadMetadataService.metadata(publicId);
+      return uploadMetadataService.metadata(assetId);
     }
-    return service.metadata(publicId);
+    return service.metadata(assetId);
   }
 }

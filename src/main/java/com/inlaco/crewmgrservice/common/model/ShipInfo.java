@@ -35,7 +35,7 @@ public class ShipInfo implements Serializable {
   @Schema(
       description = "Ship's country of registration (ISO 3166-1 alpha-2 code).",
       example = "US",
-      required = true)
+      requiredMode = RequiredMode.REQUIRED)
   private String countryISO;
 
   @Schema(
@@ -51,8 +51,8 @@ public class ShipInfo implements Serializable {
   @Schema(
       description = "URL to an image of the ship",
       example = "https://example.com/images/ship.jpg")
-  private File imageUrl;
+  private File image;
 
   @Schema(description = "Type of the ship")
-  private String shipType;
+  private String type;
 }

@@ -8,7 +8,8 @@ import org.springframework.data.domain.Pageable;
 
 public interface RentalRequestService {
 
-  RentalRequest createRequest(RentalRequest request);
+  RentalRequest createRequest(
+      RentalRequest request, String detailFileAssetId, String shipImageAssetId);
 
   RentalRequest getRequestById(String requestId);
 

@@ -26,7 +26,7 @@ public abstract class UploadServiceStrategy {
     return cloudinaryService.getUploadOptions(signParams);
   }
 
-  public File metadata(String publicId) {
-    return uploadMetadataService.metadata(publicId);
+  public File metadata(String assetId) {
+    return uploadMetadataService.metadata(assetId);
   }
 }

@@ -16,6 +16,7 @@ import lombok.experimental.SuperBuilder;
 public class File implements Serializable {
 
   private String publicId;
+  private String assetId;
   private String url;
   private String displayName;
   private String resourceType;

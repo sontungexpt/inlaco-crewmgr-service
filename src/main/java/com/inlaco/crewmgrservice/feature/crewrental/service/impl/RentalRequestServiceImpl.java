@@ -7,6 +7,8 @@ import com.inlaco.crewmgrservice.feature.crewrental.model.RentalRequest;
 import com.inlaco.crewmgrservice.feature.crewrental.repository.CustomRentalRequestRepository;
 import com.inlaco.crewmgrservice.feature.crewrental.repository.RentalRequestRepository;
 import com.inlaco.crewmgrservice.feature.crewrental.service.RentalRequestService;
+import com.inlaco.crewmgrservice.feature.upload.enums.UploadStrategy;
+import com.inlaco.crewmgrservice.feature.upload.service.UploadFactory;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,14 +21,9 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class RentalRequestServiceImpl implements RentalRequestService {
-
   private final CustomRentalRequestRepository customRentalRequestRepository;
   private final RentalRequestRepository rentalRequestRepository;
-
-  @Override
-  public RentalRequest createRequest(RentalRequest request) {
-    return rentalRequestRepository.save(request);
-  }
+  private final UploadFactory uploadFactory;
 
   @Override
   public RentalRequest getRequestById(String requestId) {
@@ -56,6 +53,19 @@ public class RentalRequestServiceImpl implements RentalRequestService {
 
   @Override
   public RentalRequest saveRequest(RentalRequest request) {
+    return rentalRequestRepository.save(request);
+  }
+
+  @Override
+  public RentalRequest createRequest(
+      RentalRequest request, String detailFileAssetId, String shipImageAssetId) {
+
+    request.setDetailFile(
+        uploadFactory.metadata(UploadStrategy.CREW_RENTAL_REQUEST_DETAIL_FILE, detailFileAssetId));
+
+    request
+        .getShipInfo()
+        .setImage(uploadFactory.metadata(UploadStrategy.SHIP_IMAGE, shipImageAssetId));
     return rentalRequestRepository.save(request);
   }
 }

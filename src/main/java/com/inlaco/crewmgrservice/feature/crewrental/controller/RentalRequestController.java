@@ -34,7 +34,7 @@ public class RentalRequestController {
   @Operation(
       summary = "Create a new crew rental request",
       description =
-          """
+"""
 Create a new crew rental request
 
 **Usecase**:
@@ -42,15 +42,19 @@ Create a new crew rental request
 - UC_general-user-gui-yeu-cau-thuyen-vien.
 """,
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
-  public ResponseEntity<RentalRequest> createRequest(@Valid @RequestBody RentalRequest request) {
-    RentalRequest createdRequest = rentalRequestService.createRequest(request);
+  public ResponseEntity<RentalRequest> createRequest(
+      @RequestParam String detailFileAssetId,
+      @RequestParam String shipImageAssetId,
+      @Valid @RequestBody RentalRequest request) {
+    RentalRequest createdRequest =
+        rentalRequestService.createRequest(request, detailFileAssetId, shipImageAssetId);
     return new ResponseEntity<>(createdRequest, HttpStatus.CREATED);
   }
 
   @Operation(
       summary = "Admin review a new crew rental request",
       description =
-          """
+"""
 Admin review a new crew rental request
 
 **Usecase**:
@@ -71,7 +75,7 @@ Admin review a new crew rental request
   @Operation(
       summary = "Find all requests",
       description =
-          """
+"""
 Find all requests
 
 **Usecase**:
@@ -91,7 +95,7 @@ Find all requests
   @Operation(
       summary = "Find a request by id",
       description =
-          """
+"""
 Find a request by id
 
 **Usecase**:

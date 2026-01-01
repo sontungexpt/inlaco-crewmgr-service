@@ -8,6 +8,9 @@ public class UploadStrategy implements ICustomEnum {
   public static UploadStrategy RESUME = new UploadStrategy("RESUME");
   public static UploadStrategy CONTRACT_FILE = new UploadStrategy("CONTRACT_FILE");
   public static UploadStrategy CONTRACT_TEMPLATE = new UploadStrategy("CONTRACT_TEMPLATE");
+  public static UploadStrategy CREW_RENTAL_REQUEST_DETAIL_FILE =
+      new UploadStrategy("CREW_RENTAL_REQUEST_DETAIL_FILE");
+  public static UploadStrategy SHIP_IMAGE = new UploadStrategy("SHIP_IMAGE");
 
   private final String value;
 

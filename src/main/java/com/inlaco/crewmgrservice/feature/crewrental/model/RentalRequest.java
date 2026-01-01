@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
@@ -35,7 +34,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 @Document("crew_rental_requests")
 @Schema(description = "Model representing a request for crew rental services.")
 @JsonIgnoreProperties(
-    value = {"id", "contractId", "status"},
+    value = {"id", "contractId", "detailFile", "status"},
     allowGetters = true)
 @NoArgsConstructor
 public class RentalRequest {
@@ -44,17 +43,8 @@ public class RentalRequest {
   @Schema(hidden = true)
   private String id;
 
-  @Schema(
-      description = "Total number of crew members needed.",
-      example = "10",
-      requiredMode = RequiredMode.REQUIRED)
-  @NotNull
-  @Min(1)
-  private Integer totalCrewNeeded;
-
   @Schema(description = "File containing detailed positions and required crew counts.")
-  @NotNull
-  private File positionDetail;
+  private File detailFile;
 
   // Company information
   @Schema(
@@ -92,61 +82,33 @@ public class RentalRequest {
       example = "John Doe",
       requiredMode = RequiredMode.REQUIRED)
   @NotBlank
-  private String representativeName;
+  private String companyRepresentor;
 
   @Schema(
       description = "Title of the company's representative.",
       example = "Operations Manager",
       requiredMode = RequiredMode.REQUIRED)
   @NotBlank
-  private String representativeTitle;
+  private String companyRepresentorPosition;
 
   // Planned schedule information
   @Schema(
-      description = "Estimated departure time.",
+      description = "Rental start date.",
       example = "2025-01-14T10:00:00Z",
       requiredMode = RequiredMode.REQUIRED)
   @NotNull
   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
   @Future
-  private Instant estimatedDepartureTime;
+  private Instant rentalStartDate;
 
   @Schema(
-      description = "Estimated arrival time.",
+      description = "Rental end date.",
       example = "2025-01-20T18:00:00Z",
       requiredMode = RequiredMode.REQUIRED)
   @NotNull
   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
   @Future
-  private Instant estimatedArrivalTime;
-
-  @Schema(
-      description = "Departure point.",
-      example = "Port of Los Angeles",
-      requiredMode = RequiredMode.REQUIRED)
-  @NotBlank
-  private String departurePoint;
-
-  @Schema(
-      description = "Arrival point.",
-      example = "Port of Tokyo",
-      requiredMode = RequiredMode.REQUIRED)
-  @NotBlank
-  private String arrivalPoint;
-
-  @Schema(
-      description = "UN/LOCODE for the departure point.",
-      example = "USLAX",
-      requiredMode = RequiredMode.REQUIRED)
-  @NotBlank
-  private String departureUNLOCODE;
-
-  @Schema(
-      description = "UN/LOCODE for the arrival point.",
-      example = "JPTYO",
-      requiredMode = RequiredMode.REQUIRED)
-  @NotBlank
-  private String arrivalUNLOCODE;
+  private Instant rentalEndDate;
 
   @Schema(description = "Ship information.")
   private ShipInfo shipInfo;
@@ -170,7 +132,7 @@ public class RentalRequest {
 
   @JsonGetter("createdBy")
   public String getCreatedByAccount() {
-    return createdBy.toHexString();
+    return createdBy != null ? createdBy.toHexString() : null;
   }
 
   @CreatedDate

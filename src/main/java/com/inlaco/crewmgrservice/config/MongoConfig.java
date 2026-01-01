@@ -7,6 +7,7 @@ import com.inlaco.crewmgrservice.feature.user.model.User;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,6 +21,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 @Configuration
 @EnableMongoAuditing
 @RequiredArgsConstructor
+@Slf4j
 public class MongoConfig {
   private final APIEndpointNameWritingConverter apiEndpointNameWritingConverter;
   private final APIEndpointNameStrReadingConverter apiEndpointNameReadingConverter;
@@ -54,6 +56,8 @@ public class MongoConfig {
   @Primary
   public AuditorAware<ObjectId> auditorObjectIdProvider() {
     return () -> {
+      log.debug("derived auditorObjectIdProvider");
+      log.info("derived auditorObjectIdProvider");
       Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
       if (authentication == null || !authentication.isAuthenticated()) {
         return Optional.empty();

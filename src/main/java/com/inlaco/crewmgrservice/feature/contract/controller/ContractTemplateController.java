@@ -66,6 +66,7 @@ This api is used to upload template.
 """)
   @RolesAllowed("ADMIN")
   @PostMapping("")
+  @ResponseStatus(HttpStatus.CREATED)
   public ContractTemplate uploadTemplate(
       @RequestBody @Valid ContractTemplate contractTemplate,
       @RequestParam String templateFilePubId,

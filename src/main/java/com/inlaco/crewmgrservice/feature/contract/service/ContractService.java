@@ -24,7 +24,7 @@ public interface ContractService {
   Contract saveContract(AbstractContract contract);
 
   Contract createLaborContract(
-      String sailorId, LaborContract contract, String contractFilePubId, User creator);
+      String sailorId, LaborContract contract, String contractFileAssetId, User creator);
 
   Contract createSupplyContract(String crewRentalRequestId, SupplyContract contract, User creator);
 

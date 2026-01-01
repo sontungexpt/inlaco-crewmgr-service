@@ -20,6 +20,7 @@ public class DefaultUploadMetadataService {
     File metadata =
         File.builder()
             .publicId((String) response.get("public_id"))
+            .assetId((String) response.get("asset_id"))
             .url((String) response.get("secure_url"))
             .displayName((String) response.get("display_name"))
             .resourceType((String) response.get("resource_type"))
@@ -30,9 +31,9 @@ public class DefaultUploadMetadataService {
     return metadata;
   }
 
-  public File metadata(String publicId) {
+  public File metadata(String assetId) {
     try {
-      ApiResponse response = cloudinary.api().resource(publicId, ObjectUtils.asMap());
+      ApiResponse response = cloudinary.api().resourceByAssetID(assetId, ObjectUtils.asMap());
       if (response == null || response.isEmpty()) {
         return null;
       }
