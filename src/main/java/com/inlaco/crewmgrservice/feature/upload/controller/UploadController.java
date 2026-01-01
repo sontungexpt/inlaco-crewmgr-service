@@ -11,7 +11,6 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,7 +30,7 @@ public class UploadController {
   @GetMapping("")
   @RolesAllowed("USER")
   public Map<String, Object> getUploadOptions(
-      @RequestParam UploadStrategy stragegy, @RequestBody(required = false) Object payload) {
-    return uploadFactory.getUploadOptions(stragegy, payload);
+      @RequestParam UploadStrategy stragegy, @RequestParam Map<String, String> params) {
+    return uploadFactory.getUploadOptions(stragegy, params);
   }
 }

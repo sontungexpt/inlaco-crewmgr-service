@@ -1,6 +1,7 @@
 package com.inlaco.crewmgrservice.feature.contract.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.inlaco.crewmgrservice.common.model.File;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import jakarta.validation.constraints.NotBlank;
@@ -19,7 +20,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Builder
 @Document("contract_templates")
 @JsonIgnoreProperties(
-    value = {"id", "templateUrl"},
+    value = {"id", "metadata"},
     allowGetters = true)
 @NoArgsConstructor
 @AllArgsConstructor
@@ -40,12 +41,13 @@ public class ContractTemplate implements Serializable {
       description = "The description of the template",
       example = "Desciprtion of template 1",
       requiredMode = RequiredMode.REQUIRED)
-  @NotBlank
   private String description;
 
-  @NotBlank
-  @Schema(description = "The url of the template")
-  private String templateUrl;
+  @Schema(
+      description = "The metadata of the template",
+      example = "Metadata of template 1",
+      requiredMode = RequiredMode.REQUIRED)
+  private File metadata;
 
   @NotNull
   @Schema(
