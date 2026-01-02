@@ -50,6 +50,9 @@ public class Party {
   @Schema(description = "The employee name of the contract", example = "John Doe")
   private String representer;
 
+  @Schema(description = "The employee position of the contract", example = "Engineer")
+  private String representerPosition;
+
   @Schema(description = "The employee email of the contract", example = " [email protected]")
   @Email
   private String email;

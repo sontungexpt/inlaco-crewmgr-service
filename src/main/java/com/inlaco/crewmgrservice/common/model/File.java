@@ -1,5 +1,6 @@
 package com.inlaco.crewmgrservice.common.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
@@ -16,11 +17,18 @@ import lombok.experimental.SuperBuilder;
 public class File implements Serializable {
 
   private String publicId;
-  private String assetId;
+
+  @JsonIgnore private String assetId;
+
   private String url;
+
   private String displayName;
+
   private String resourceType;
+
   private String format;
+
   private Long bytes;
+
   private Instant uploadedAt;
 }

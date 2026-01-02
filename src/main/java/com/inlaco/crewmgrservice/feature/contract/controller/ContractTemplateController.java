@@ -69,9 +69,9 @@ This api is used to upload template.
   @ResponseStatus(HttpStatus.CREATED)
   public ContractTemplate uploadTemplate(
       @RequestBody @Valid ContractTemplate contractTemplate,
-      @RequestParam String templateFilePubId,
+      @RequestParam String templateFileAssetId,
       @CurrentUser User user) {
-    return contractTemplateService.uploadTemplate(templateFilePubId, contractTemplate);
+    return contractTemplateService.uploadTemplate(templateFileAssetId, contractTemplate);
   }
 
   @Operation(
@@ -88,7 +88,7 @@ This api is used to remove template.
   @RolesAllowed("ADMIN")
   @DeleteMapping("/{id}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void uploadTemplate(@PathVariable String id, @CurrentUser User user) {
+  public void removeTemplate(@PathVariable String id, @CurrentUser User user) {
     contractTemplateService.removeTemplate(id);
   }
 }
