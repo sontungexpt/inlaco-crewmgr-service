@@ -30,7 +30,10 @@ public class ContractTemplateServiceImpl implements ContractTemplateService {
   }
 
   @Override
-  public Page<ContractTemplate> getAllTemplates(Pageable pageable) {
+  public Page<ContractTemplate> getAllTemplates(String type, Pageable pageable) {
+    if (type != null) {
+      return contractTemplateRepository.findByType(type, pageable);
+    }
     return contractTemplateRepository.findAll(pageable);
   }
 

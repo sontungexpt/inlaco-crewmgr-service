@@ -2,6 +2,7 @@ package com.inlaco.crewmgrservice.feature.course.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.inlaco.crewmgrservice.common.model.File;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -127,7 +128,7 @@ public class CourseMember {
   }
 
   @Schema(hidden = true)
-  private String certificateUrl; // The URL of the certificate for the course
+  private File certificate; // The URL of the certificate for the course
 
   @Schema(description = "The timestamp when the course was marked as expired", hidden = true)
   @JsonIgnore

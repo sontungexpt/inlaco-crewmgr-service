@@ -32,7 +32,6 @@ public class CustomCourseRepository {
 
   public Page<CourseEnrollment> findCourseEnrollments(String userId, Pageable pageable) {
     log.debug("Get course enrollments for user {}", userId);
-    pageable = PageableUtils.extendDefaultSort(pageable);
     Aggregation aggregation =
         Aggregation.newAggregation(
             Aggregation.match(Criteria.where("userId").is(new ObjectId(userId))),
@@ -44,40 +43,73 @@ public class CustomCourseRepository {
                         "courseId",
                         "_id",
                         "courses"),
-                    Aggregation.project().and("courses").arrayElementAt(0).as("course"),
                     Aggregation.project()
-                        .andExpression("course._id")
+                        .and("courses")
+                        .arrayElementAt(0)
+                        .as("course")
+                        // ===== ID & basic =====
+                        .and("course._id")
                         .as("id")
-                        .andExpression("course.name")
+                        .and("course.name")
                         .as("name")
-                        .andExpression("course.slug")
+                        .and("course.slug")
                         .as("slug")
-                        .andExpression("course.limitStudent")
-                        .as("limitStudent")
-                        .andExpression("course.description")
+                        .and("course.description")
                         .as("description")
-                        .andExpression("course.teacherName")
+
+                        // ===== training info =====
+                        .and("course.trainingProviderName")
+                        .as("trainingProviderName")
+                        .and("course.trainingProviderLogo")
+                        .as("trainingProviderLogo")
+                        .and("course.teacherName")
                         .as("teacherName")
-                        .andExpression("course.startDate")
+                        .and("course.archivedPosition")
+                        .as("archivedPosition")
+                        .and("course.certified")
+                        .as("certified")
+
+                        // ===== registration =====
+                        .and("course.limitStudent")
+                        .as("limitStudent")
+                        .and("course.enrolledStudentCount")
+                        .as("enrolledStudentCount")
+                        .and("course.manuallyRegistrationDisabled")
+                        .as("manuallyRegistrationDisabled")
+                        .and("course.manuallyRegistrationDisabledAt")
+                        .as("manuallyRegistrationDisabledAt")
+                        .and("course.startRegistrationAt")
+                        .as("startRegistrationAt")
+                        .and("course.endRegistrationAt")
+                        .as("endRegistrationAt")
+
+                        // ===== course time =====
+                        .and("course.startDate")
                         .as("startDate")
-                        .andExpression("course.endDate")
+                        .and("course.endDate")
                         .as("endDate")
-                        .andExpression("course.status")
-                        .as("status")
-                        .andExpression("course.note")
-                        .as("note")
-                        .andExpression("course.createdAt")
-                        .as("createdAt")
-                        .andExpression("course.updatedAt")
-                        .as("updatedAt")
-                        .andExpression("course.deletedAt")
+
+                        // ===== media =====
+                        .and("course.wallpaper")
+                        .as("wallpaper")
+
+                        // ===== lifecycle =====
+                        .and("course.forciblyCanceledAt")
+                        .as("forciblyCanceledAt")
+                        .and("course.deleted")
+                        .as("deleted")
+                        .and("course.deletedAt")
                         .as("deletedAt")
-                        .andExpression("course.reopenedBasedOn")
-                        .as("reopenedBasedOn")
-                        .andExpression("course.createdBy")
+
+                        // ===== audit =====
+                        .and("course.createdBy")
                         .as("createdBy")
-                        .andExpression("course.updatedBy")
-                        .as("updatedBy"),
+                        .and("course.updatedBy")
+                        .as("updatedBy")
+                        .and("course.createdAt")
+                        .as("createdAt")
+                        .and("course.updatedAt")
+                        .as("updatedAt"),
                     sort(pageable.getSort()),
                     skip(pageable.getOffset()),
                     limit(pageable.getPageSize()))

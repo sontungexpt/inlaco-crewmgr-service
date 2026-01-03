@@ -116,8 +116,11 @@ Create a new course
   @PostMapping("")
   @RolesAllowed("ADMIN")
   @ResponseStatus(HttpStatus.CREATED)
-  public Course createNewCourse(@Valid @RequestBody Course newCourse) {
-    return courseService.createCourse(newCourse);
+  public Course createNewCourse(
+      @RequestParam String wallpaperAssetId,
+      @RequestParam String logoAssetId,
+      @Valid @RequestBody Course newCourse) {
+    return courseService.createCourse(newCourse, wallpaperAssetId, logoAssetId);
   }
 
   @Operation(

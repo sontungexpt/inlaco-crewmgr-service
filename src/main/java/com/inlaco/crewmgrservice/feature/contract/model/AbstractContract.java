@@ -109,7 +109,6 @@ public abstract class AbstractContract extends ContractVersion
   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
   private Instant signedAt;
 
-  @FutureOrPresent
   @Schema(description = "The time that the contract is valid, and active")
   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
   private Instant activationDate;
@@ -147,7 +146,6 @@ public abstract class AbstractContract extends ContractVersion
   @Default
   private int contractFreezeDelay = 5;
 
-  @JsonIgnore
   @Schema(hidden = true)
   public boolean isFreezed() {
     return isSigned() && Instant.now().isAfter(getFreezeDate());

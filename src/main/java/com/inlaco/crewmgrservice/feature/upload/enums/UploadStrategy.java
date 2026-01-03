@@ -5,6 +5,9 @@ import com.inlaco.crewmgrservice.common.model.ICustomEnum;
 public class UploadStrategy implements ICustomEnum {
 
   public static UploadStrategy DEFAULT = new UploadStrategy("DEFAULT");
+  public static UploadStrategy COURSE_WALLPAPER = new UploadStrategy("COURSE_WALLPAPER");
+  public static UploadStrategy TRAINING_PROVIDER_LOGO =
+      new UploadStrategy("TRAINING_PROVIDER_LOGO");
   public static UploadStrategy RESUME = new UploadStrategy("RESUME");
   public static UploadStrategy CONTRACT_FILE = new UploadStrategy("CONTRACT_FILE");
   public static UploadStrategy CONTRACT_TEMPLATE = new UploadStrategy("CONTRACT_TEMPLATE");

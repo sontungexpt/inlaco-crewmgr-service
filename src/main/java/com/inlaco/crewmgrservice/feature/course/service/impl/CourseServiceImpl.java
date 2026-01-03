@@ -13,13 +13,15 @@ import com.inlaco.crewmgrservice.feature.course.repository.CourseMemberRepositor
 import com.inlaco.crewmgrservice.feature.course.repository.CourseRepository;
 import com.inlaco.crewmgrservice.feature.course.repository.CustomCourseRepository;
 import com.inlaco.crewmgrservice.feature.course.service.CourseService;
+import com.inlaco.crewmgrservice.feature.upload.enums.UploadStrategy;
+import com.inlaco.crewmgrservice.feature.upload.service.UploadFactory;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import com.inlaco.crewmgrservice.utils.JsonMergePatchUtils;
 import com.inlaco.crewmgrservice.utils.PageableUtils;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.CompletionException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
@@ -37,6 +39,7 @@ public class CourseServiceImpl implements CourseService {
   private final JsonMergePatchUtils jsonMergePatchUtils;
   private final CourseRepository courseRepository;
   private final CourseMemberRepository courseMemberRepository;
+  private final UploadFactory uploadFactory;
 
   @Override
   public Page<Course> getCourses(Pageable pageable) {
@@ -45,40 +48,47 @@ public class CourseServiceImpl implements CourseService {
 
   @Override
   public CourseDetail getCourseDetailById(String id, User user) {
-    CompletableFuture<Course> courseFuture =
-        CompletableFuture.supplyAsync(
-            () -> {
-              log.info("Fetching course with id: {}", id);
-              return courseRepository
-                  .findById(id)
-                  .orElseThrow(() -> new ResourceNotFoundException(Course.class, "id", id));
-            });
-
-    CompletableFuture<CourseMember> courseMemberFuture =
-        CompletableFuture.supplyAsync(
-            () -> {
-              log.info(
-                  "Fetching course courseMember with courseId: {} and userId: {}",
-                  id,
-                  user.getId());
-              return courseMemberRepository
-                  .findByCourseIdAndUserId(new ObjectId(id), new ObjectId(user.getId()))
-                  .orElse(null);
-            });
-
-    CompletableFuture.allOf(courseFuture, courseMemberFuture).join();
-
     try {
-      Course course = courseFuture.get();
-      CourseMember courseMemberTracking = courseMemberFuture.get();
-      return CourseDetail.from(course, courseMemberTracking);
-    } catch (InterruptedException | ExecutionException e) {
-      throw new RuntimeException("Error fetching course details", e);
+      CompletableFuture<Course> courseFuture =
+          CompletableFuture.supplyAsync(
+              () -> {
+                log.info("Fetching course with id: {}", id);
+                return courseRepository
+                    .findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException(Course.class, "id", id));
+              });
+
+      CompletableFuture<CourseMember> courseMemberFuture =
+          CompletableFuture.supplyAsync(
+              () -> {
+                log.debug(
+                    "Fetching course courseMember with courseId: {} and userId: {}",
+                    id,
+                    user.getId());
+                return courseMemberRepository
+                    .findByCourseIdAndUserId(new ObjectId(id), new ObjectId(user.getId()))
+                    .orElse(null);
+              });
+
+      return courseFuture
+          .thenCombine(
+              courseMemberFuture, (course, courseMember) -> CourseDetail.from(course, courseMember))
+          .join();
+
+    } catch (CompletionException e) {
+      throw e.getCause() instanceof RuntimeException
+          ? (RuntimeException) e.getCause()
+          : new RuntimeException("Failed to get course detail", e.getCause());
     }
   }
 
   @Override
-  public Course createCourse(Course newCourse) {
+  public Course createCourse(Course newCourse, String wallpaperAssetId, String logoAssetId) {
+    newCourse.setWallpaper(
+        uploadFactory.metadata(UploadStrategy.COURSE_WALLPAPER, wallpaperAssetId));
+    newCourse.setTrainingProviderLogo(
+        uploadFactory.metadata(UploadStrategy.TRAINING_PROVIDER_LOGO, logoAssetId));
+
     Course course = courseRepository.save(newCourse);
     return course;
   }
@@ -182,8 +192,6 @@ public class CourseServiceImpl implements CourseService {
 
     courseMember.complete();
     courseMemberRepository.save(courseMember);
-    // TODO: generate certification
-
   }
 
   @Override

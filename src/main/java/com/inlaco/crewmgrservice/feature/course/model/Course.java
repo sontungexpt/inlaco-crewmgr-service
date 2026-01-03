@@ -60,7 +60,7 @@ public class Course implements Sluggable<String>, Serializable, TimeFrame {
   private String trainingProviderName;
 
   @Schema(description = "The training provider logo url")
-  private String trainingProviderLogo;
+  private File trainingProviderLogo;
 
   @Schema(description = "The name of the teacher", example = "Nguyễn Văn A")
   private String teacherName;

@@ -203,10 +203,13 @@ Add supply contract
   @RolesAllowed("ADMIN")
   @ResponseStatus(HttpStatus.CREATED)
   public Contract createSupplyContract(
-      @ObjectId @PathVariable("id") String id,
+      @ObjectId @PathVariable("id") String requestId,
+      @RequestParam String contractFileAssetId,
+      @RequestParam String shipImageAssetId,
       @CurrentUser User user,
       @RequestBody @Valid SupplyContract contract) {
-    return contractService.createSupplyContract(id, contract, user);
+    return contractService.createSupplyContract(
+        requestId, contract, contractFileAssetId, shipImageAssetId, user);
   }
 
   @Operation(

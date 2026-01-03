@@ -23,7 +23,7 @@ public class ShipInfo implements Serializable {
       example = "9811000",
       requiredMode = RequiredMode.REQUIRED)
   @NotBlank
-  private String IMONumber;
+  private String imoNumber;
 
   @Schema(
       description = "Registration number of the ship",
@@ -48,9 +48,6 @@ public class ShipInfo implements Serializable {
   @Schema(description = "Optional description of the ship", example = "Large container ship")
   private String description;
 
-  @Schema(
-      description = "URL to an image of the ship",
-      example = "https://example.com/images/ship.jpg")
   private File image;
 
   @Schema(description = "Type of the ship")

@@ -21,7 +21,7 @@ public interface CourseService {
 
   CourseDetail getCourseDetailById(String id, User user);
 
-  Course createCourse(Course newCourse);
+  Course createCourse(Course newCourse, String wallpaperAssetId, String logoAssetId);
 
   Course updateCourse(String id, JsonNode updatedPatch);
 

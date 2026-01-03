@@ -1,6 +1,9 @@
 package com.inlaco.crewmgrservice.feature.contract.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import com.inlaco.crewmgrservice.common.model.Auditable;
 import com.inlaco.crewmgrservice.common.model.File;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
@@ -12,6 +15,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.bson.types.ObjectId;
+import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -24,7 +29,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
     allowGetters = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class ContractTemplate implements Serializable {
+public class ContractTemplate extends Auditable implements Serializable {
 
   @Schema(hidden = true)
   @Id
@@ -55,4 +60,9 @@ public class ContractTemplate implements Serializable {
       enumAsRef = true,
       requiredMode = RequiredMode.REQUIRED)
   private ContractType type;
+
+  @Schema(hidden = true)
+  @CreatedBy
+  @JsonSerialize(using = ToStringSerializer.class)
+  private ObjectId creatorId;
 }

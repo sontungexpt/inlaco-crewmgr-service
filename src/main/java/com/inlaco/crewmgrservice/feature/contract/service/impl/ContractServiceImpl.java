@@ -175,10 +175,20 @@ public class ContractServiceImpl implements ContractService {
 
   @Override
   @Transactional
-  public Contract createSupplyContract(String requestId, SupplyContract contract, User creator) {
+  public Contract createSupplyContract(
+      String requestId,
+      SupplyContract contract,
+      String contractFileAssetId,
+      String shipImageAssetId,
+      User creator) {
     var request = rentalRequestService.getRequestById(requestId);
 
     contract.setRentalRequestId(new ObjectId(request.getId()));
+    contract.setContractFile(
+        uploadFactory.metadata(UploadStrategy.CONTRACT_FILE, contractFileAssetId));
+    contract
+        .getShipInfo()
+        .setImage(uploadFactory.metadata(UploadStrategy.SHIP_IMAGE, shipImageAssetId));
 
     var newContract = contractRepository.save(contract);
 
@@ -186,7 +196,7 @@ public class ContractServiceImpl implements ContractService {
     request.setStatus(RentalRequestStatus.SIGNING);
 
     rentalRequestService.saveRequest(request);
-    log.info("Created supply contract for crew rental request with id: {}", requestId);
+    log.debug("Created supply contract for crew rental request with id: {}", requestId);
 
     return newContract;
   }
@@ -196,7 +206,7 @@ public class ContractServiceImpl implements ContractService {
   public Contract activeContract(String contractId, User activer) {
     var contract = getContractById(contractId);
     contract.sign(new ObjectId(activer.getId()));
-    log.info("Actived contract with id: {}", contractId);
+    log.debug("Actived contract with id: {}", contractId);
     return contractRepository.save(contract);
   }
 }

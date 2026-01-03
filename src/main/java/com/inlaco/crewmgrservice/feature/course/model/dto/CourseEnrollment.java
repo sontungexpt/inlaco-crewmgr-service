@@ -33,7 +33,7 @@ public class CourseEnrollment {
   private String trainingProviderName;
 
   @Schema(description = "The training provider logo url")
-  private String trainingProviderLogo;
+  private File trainingProviderLogo;
 
   @Schema(description = "The wallpaper of the course")
   private File wallpaper;
@@ -109,10 +109,8 @@ public class CourseEnrollment {
   @Schema(description = "The updated date of the course", example = "2021-08-10T00:00:00Z")
   private Instant updatedAt;
 
-  @Schema(
-      description = "The URL of the certificate for the course",
-      example = "http://example.com/certificate.pdf")
-  private String certificateUrl;
+  @Schema(description = "The  certificate for the course")
+  private File certificate;
 
   @Schema(description = "Indicates if the course is currently expired", example = "false")
   public boolean isExpired() {
@@ -158,7 +156,7 @@ public class CourseEnrollment {
       result.cancelledAt = courseMemberTracking.getCancelledAt();
       result.expiredAt = courseMemberTracking.getExpiredAt();
       result.enrolledAt = courseMemberTracking.getEnrolledAt();
-      result.certificateUrl = courseMemberTracking.getCertificateUrl();
+      result.certificate = courseMemberTracking.getCertificate();
     }
     return result;
   }

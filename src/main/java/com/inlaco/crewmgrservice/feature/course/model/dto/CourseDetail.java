@@ -25,6 +25,11 @@ public class CourseDetail extends CourseEnrollment {
             .name(course.getName())
             .slug(course.getSlug())
             .limitStudent(course.getLimitStudent())
+            .wallpaper(course.getWallpaper())
+            .trainingProviderName(course.getTrainingProviderName())
+            .trainingProviderLogo(course.getTrainingProviderLogo())
+            .certified(course.isCertified())
+            .archivedPosition(course.getArchivedPosition())
             .description(course.getDescription())
             .teacherName(course.getTeacherName())
             .startDate(course.getStartDate())
@@ -42,7 +47,7 @@ public class CourseDetail extends CourseEnrollment {
       result.setCancelledAt(courseMemberTracking.getCancelledAt());
       result.setExpiredAt(courseMemberTracking.getExpiredAt());
       result.setEnrolledAt(courseMemberTracking.getEnrolledAt());
-      result.setCertificateUrl(courseMemberTracking.getCertificateUrl());
+      result.setCertificate(courseMemberTracking.getCertificate());
     }
     return result;
   }

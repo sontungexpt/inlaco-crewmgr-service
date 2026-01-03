@@ -49,8 +49,9 @@ This API is used to get all templates.
   @GetMapping("")
   @PageableQueryParams
   public Page<ContractTemplate> getAllContractTemplates(
+      @RequestParam(required = false) String type,
       @PageableDefault(page = 0, size = 20) Pageable pageable) {
-    return contractTemplateService.getAllTemplates(pageable);
+    return contractTemplateService.getAllTemplates(type, pageable);
   }
 
   @Operation(

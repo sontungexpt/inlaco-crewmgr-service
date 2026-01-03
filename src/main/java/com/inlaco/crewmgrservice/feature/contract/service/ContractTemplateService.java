@@ -7,7 +7,7 @@ import org.springframework.data.domain.Pageable;
 public interface ContractTemplateService {
   ContractTemplate getTemplateById(String id);
 
-  Page<ContractTemplate> getAllTemplates(Pageable pageable);
+  Page<ContractTemplate> getAllTemplates(String type, Pageable pageable);
 
   ContractTemplate saveTemplate(ContractTemplate template);
 
