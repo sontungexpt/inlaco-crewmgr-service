@@ -13,6 +13,9 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
@@ -23,6 +26,30 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 
+/**
+ * Utility service for applying RFC 7386 (JSON Merge Patch) to MongoDB entities.
+ *
+ * <p>This class supports:
+ *
+ * <ul>
+ *   <li>Applying JSON Merge Patch to Java objects
+ *   <li>Ignoring specific fields by path
+ *   <li>Ignoring fields annotated with {@link JsonPatchIgnore}
+ *   <li>Ignoring audit fields such as {@link CreatedBy}, {@link CreatedDate}, {@link
+ *       LastModifiedBy}, {@link LastModifiedDate}
+ *   <li>Ignoring fields defined via {@link JsonPatchIgnoreProperties}
+ *   <li>Persisting patched entities to MongoDB
+ * </ul>
+ *
+ * <p>The patch process is safe:
+ *
+ * <ul>
+ *   <li>The original patch request is never mutated
+ *   <li>All ignored fields are removed before patch application
+ * </ul>
+ *
+ * <p>This service is designed to be reused across REST PATCH endpoints.
+ */
 @Slf4j
 @Lazy
 @Service
@@ -30,55 +57,80 @@ import org.springframework.stereotype.Service;
 public class JsonMergePatchUtils {
 
   private final MongoTemplate mongoTemplate;
+  private final ObjectMapper mapper = RawJsonConvertor.getMapper();
 
-  private ObjectMapper mapper = RawJsonConvertor.getMapper();
+  /* ======================== PUBLIC API ======================== */
 
   /**
-   * Applies a JSON patch to the given object while ignoring specified fields.
+   * Applies a JSON Merge Patch (RFC 7386) to a given object while excluding specific field paths.
    *
-   * @param origin The original object to be patched.
-   * @param patchRequest The JSON patch request containing the changes.
-   * @param ignoreFieldPaths Field paths to be excluded from patching.
-   * @param <E> The type of the object being patched.
-   * @return The updated object after applying the patch.
-   * @throws IllegalStateException If an error occurs while applying the patch.
-   * @throws JsonPatchException If an error occurs during patch application.
+   * <p>The patch is applied in the following order:
+   *
+   * <ol>
+   *   <li>Clone the patch request to avoid side effects
+   *   <li>Remove fields defined by {@code ignoreFieldPaths}
+   *   <li>Remove fields annotated with ignore annotations
+   *   <li>Apply JSON Merge Patch to the original object
+   * </ol>
+   *
+   * @param origin the original object to patch (must not be {@code null})
+   * @param patchRequest JSON Merge Patch request
+   * @param ignoreFieldPaths dot-separated field paths to exclude from patching
+   * @param <E> entity type
+   * @return patched entity instance
+   * @throws IllegalStateException if patch application or deserialization fails
    */
-  @SuppressWarnings("unchecked")
   public <E> E apply(E origin, JsonNode patchRequest, String... ignoreFieldPaths) {
-    if (ignoreFieldPaths != null && ignoreFieldPaths.length > 0) {
-      patchRequest = JsonNodeUtils.removeFields(patchRequest, ignoreFieldPaths);
-    }
     try {
-      JsonNode entityNode = mapper.convertValue(origin, JsonNode.class);
-      JsonMergePatch jsonMergePatch = JsonMergePatch.fromJson(patchRequest);
-      JsonNode updatedJsonNode = jsonMergePatch.apply(entityNode);
-      return (E) mapper.treeToValue(updatedJsonNode, origin.getClass());
-    } catch (IOException ex) {
-      throw new IllegalStateException("Failed to apply patch", ex);
-    } catch (JsonPatchException e) {
-      throw new RuntimeException(e);
+      JsonNode sanitizedPatch = sanitizePatch(origin.getClass(), patchRequest, ignoreFieldPaths);
+      JsonMergePatch patch = JsonMergePatch.fromJson(sanitizedPatch);
+      JsonNode patched = patch.apply(mapper.valueToTree(origin));
+      return mapper.treeToValue(patched, (Class<E>) origin.getClass());
+    } catch (IOException | JsonPatchException ex) {
+      throw new IllegalStateException("Failed to apply JSON Merge Patch", ex);
     }
   }
 
   /**
-   * Applies a JSON patch to the given object, excluding fields marked with {@link JsonPatchIgnore}
-   * or defined in {@link JsonPatchIgnoreProperties}.
+   * Applies a JSON Merge Patch to an object while automatically ignoring:
    *
-   * @param origin The original object to be patched.
-   * @param patchRequest The JSON patch request containing the changes.
-   * @param <E> The type of the object being patched.
-   * @return The updated object after applying the patch.
-   * @throws IllegalStateException If an error occurs while applying the patch.
-   * @throws JsonPatchException If an error occurs during patch application.
+   * <ul>
+   *   <li>Fields annotated with {@link JsonPatchIgnore}
+   *   <li>Audit fields (createdBy, createdDate, etc.)
+   *   <li>Fields declared in {@link JsonPatchIgnoreProperties}
+   * </ul>
+   *
+   * <p>This is the recommended method for PATCH endpoints.
+   *
+   * @param origin the original object
+   * @param patchRequest JSON Merge Patch request
+   * @param <E> entity type
+   * @return patched entity
    */
   public <E> E apply(E origin, JsonNode patchRequest) {
-    Class<?> clazz = origin.getClass();
-    return apply(
-        origin,
-        removeAnnotatedIgnoreFields(patchRequest, clazz),
-        getJsonPatchIgnoreProperties(clazz));
+    return apply(origin, patchRequest, getJsonPatchIgnoreProperties(origin.getClass()));
   }
+
+  /**
+   * Retrieves an entity by its identifier, applies a JSON Merge Patch, and persists the updated
+   * entity to MongoDB.
+   *
+   * @param id entity identifier
+   * @param entityClass entity class
+   * @param patchRequest JSON Merge Patch request
+   * @param ignoreFieldPaths The paths of fields to ignore during the patching.
+   * @param <E> entity type
+   * @return updated and saved entity
+   * @throws ResourceNotFoundException if the entity does not exist
+   */
+  public <E> E patch(
+      Object id, Class<E> entityClass, JsonNode patchRequest, String... ignoreFieldPaths) {
+
+    E entity = getEntity(id, entityClass);
+    return mongoTemplate.save(apply(entity, patchRequest, ignoreFieldPaths));
+  }
+
+  /* ======================== INTERNAL ======================== */
 
   /**
    * Retrieves an entity from the MongoDB database by its ID. If the entity is not found, a {@link
@@ -88,144 +140,117 @@ public class JsonMergePatchUtils {
    * @param id The ID of the entity to retrieve.
    * @param entityClass The class of the entity to retrieve.
    */
-  private <E> E getEntity(Object id, Class<E> entityClass) {
-    E entity = mongoTemplate.findById(id, entityClass);
-    if (entity == null) {
-      throw new ResourceNotFoundException(entityClass, "id", id);
+  private <E> E getEntity(Object id, Class<E> clazz) {
+    return Optional.ofNullable(mongoTemplate.findById(id, clazz))
+        .orElseThrow(() -> new ResourceNotFoundException(clazz, "id", id));
+  }
+
+  /**
+   * Pre-processes a JSON Merge Patch request before application.
+   *
+   * <p>This method ensures:
+   *
+   * <ul>
+   *   <li>The original patch request is not mutated
+   *   <li>Explicitly ignored field paths are removed
+   *   <li>Fields annotated with ignore annotations are removed
+   *   <li>Fields defined in {@link JsonPatchIgnoreProperties} are removed
+   * </ul>
+   *
+   * @param clazz target entity class
+   * @param patch original patch request
+   * @param ignorePaths explicit field paths to ignore
+   * @return sanitized patch node ready for application
+   */
+  private JsonNode sanitizePatch(Class<?> clazz, JsonNode patch, String... ignorePaths) {
+
+    JsonNode node = patch.deepCopy();
+
+    if (ignorePaths != null && ignorePaths.length > 0) {
+      node = JsonNodeUtils.removeFields(node, ignorePaths);
     }
-    return entity;
-  }
 
-  /**
-   * Patches an existing entity in the MongoDB database using the provided patch request. This
-   * method retrieves the entity by its ID, applies the patch, and then saves the updated entity.
-   *
-   * @param <ID> The type of the entity ID (e.g., String, Long).
-   * @param <E> The type of the entity being patched.
-   * @param id The ID of the entity to patch.
-   * @param entityClass The class of the entity to patch.
-   * @param patchRequest The JSON patch request containing the changes.
-   * @return The updated entity after applying the patch.
-   * @throws ResourceNotFoundException If the entity with the given ID is not found in the database.
-   */
-  public <E> E patch(Object id, Class<E> entityClass, JsonNode patchRequest) {
-    return mongoTemplate.save(apply(getEntity(id, entityClass), patchRequest));
-  }
+    node = removeAnnotatedIgnoreFields(node, clazz);
+    node = removeJsonPatchIgnorePropertiesFields(node, clazz);
 
-  /**
-   * Patches an existing entity in the MongoDB database using the provided patch request, while
-   * allowing specific fields to be ignored during the patching process. This method retrieves the
-   * entity by its ID, applies the patch (excluding ignored fields), and then saves the updated
-   * entity.
-   *
-   * @param <ID> The type of the entity ID (e.g., String, Long).
-   * @param <E> The type of the entity being patched.
-   * @param id The ID of the entity to patch.
-   * @param entityClass The class of the entity to patch.
-   * @param patchRequest The JSON patch request containing the changes.
-   * @param ignoreFieldPaths The paths of fields to ignore during the patching.
-   * @return The updated entity after applying the patch with the ignored fields.
-   * @throws ResourceNotFoundException If the entity with the given ID is not found in the database.
-   */
-  public <ID, E> E patch(
-      ID id, Class<E> entityClass, JsonNode patchRequest, String... ignoreFieldPaths) {
-    return mongoTemplate.save(apply(getEntity(id, entityClass), patchRequest, ignoreFieldPaths));
-  }
-
-  /**
-   * Removes fields from the JSON node that are listed in the provided field paths. This method will
-   * recursively check nested fields to ensure all specified fields are excluded from the patch.
-   *
-   * @param node The JSON node representing the patch request.
-   * @param fieldPaths The paths of fields to be removed.
-   * @return A new JSON node with the specified fields removed.
-   */
-  public JsonNode removeAnnotatedFields(
-      JsonNode node, Class<?> clazz, List<Class<? extends Annotation>> annotations) {
-    List<String> removedFields = new ArrayList<>();
-    node.fields()
-        .forEachRemaining(
-            entry -> {
-              String fieldName = entry.getKey();
-              Field field = ReflectionUtils.getDeclaredField(clazz, fieldName);
-              if (field != null) {
-                if (annotations.stream().anyMatch(field::isAnnotationPresent)) {
-                  removedFields.add(fieldName);
-                } else {
-                  JsonNode fieldNode = entry.getValue();
-                  Class<?> fieldType = field.getType();
-                  if (!ReflectionUtils.isPrimitiveTypeOrString(field) && fieldNode.isObject()) {
-                    removeAnnotatedFields(fieldNode, fieldType, annotations);
-                  } else if (fieldNode.isArray() && fieldType.isArray()) {
-                    fieldNode.forEach(
-                        item -> {
-                          if (item.isObject()) {
-                            removeAnnotatedFields(item, fieldType, annotations);
-                          }
-                        });
-                  }
-                }
-              }
-            });
-
-    if (node instanceof ObjectNode) {
-      removedFields.forEach(((ObjectNode) node)::remove);
-    }
     return node;
   }
 
-  /**
-   * Removes fields from the JSON node that are annotated with the specified annotation. This method
-   * will recursively check nested fields to ensure all annotated fields are excluded from the
-   * patch.
-   *
-   * @param node The JSON node representing the patch request.
-   * @param clazz The class of the original object being patched.
-   * @param annotation The annotation to check for on the fields.
-   * @return A new JSON node with the annotated fields removed.
-   */
-  public JsonNode removeAnnotatedFields(
-      JsonNode node, Class<?> clazz, Class<? extends Annotation> annotation) {
-    return removeAnnotatedFields(node, clazz, List.of(annotation));
-  }
+  /* ======================== FIELD FILTER ======================== */
 
   /**
-   * Removes fields from the JSON node that are annotated with the {@link JsonPatchIgnore}
-   * annotation, as well as the {@link CreatedBy}, {@link LastModifiedBy}, {@link CreatedDate}, and
-   * {@link LastModifiedDate} annotations.
+   * Removes all fields that must never be patched, including:
    *
-   * @param node The JSON node representing the patch request.
-   * @param clazz The class of the original object being patched.
-   * @return A new JSON node with the ignored fields removed.
+   * <ul>
+   *   <li>{@link JsonPatchIgnore}
+   *   <li>Spring Data audit fields
+   * </ul>
+   *
+   * @param node JSON patch node
+   * @param clazz entity class
+   * @return sanitized JSON node
    */
   public JsonNode removeAnnotatedIgnoreFields(JsonNode node, Class<?> clazz) {
     return removeAnnotatedFields(
         node,
         clazz,
-        List.of(
+        Set.of(
             JsonPatchIgnore.class,
             CreatedBy.class,
-            LastModifiedBy.class,
             CreatedDate.class,
+            LastModifiedBy.class,
             LastModifiedDate.class));
   }
 
-  /**
-   * Removes fields from the JSON node that are listed in the {@link JsonPatchIgnoreProperties}
-   * annotation on the class. This method checks if the class has the annotation and removes the
-   * specified fields.
-   *
-   * @param node The JSON node representing the patch request.
-   * @param clazz The class of the original object being patched.
-   * @return A new JSON node with the fields to be ignored removed.
-   */
-  public JsonNode removeJsonPatchIgnorePropertiesFields(JsonNode node, Class<?> clazz) {
-    JsonPatchIgnoreProperties jsonPatchIgnoreProperties =
-        clazz.getAnnotation(JsonPatchIgnoreProperties.class);
-    if (jsonPatchIgnoreProperties != null) {
-      return JsonNodeUtils.removeFields(node, jsonPatchIgnoreProperties.value());
+  private JsonNode removeAnnotatedFields(
+      JsonNode node, Class<?> clazz, Set<Class<? extends Annotation>> ignoredAnnotations) {
+
+    if (!(node instanceof ObjectNode objectNode)) {
+      return node;
     }
+
+    List<String> toRemove = new ArrayList<>();
+
+    for (Map.Entry<String, JsonNode> entry : objectNode.properties()) {
+      Field field = ReflectionUtils.getDeclaredField(clazz, entry.getKey());
+      if (field == null) continue;
+
+      if (ignoredAnnotations.stream().anyMatch(field::isAnnotationPresent)) {
+        toRemove.add(entry.getKey());
+        continue;
+      }
+
+      JsonNode child = entry.getValue();
+      Class<?> fieldType = field.getType();
+
+      if (child.isObject()) {
+        removeAnnotatedFields(child, fieldType, ignoredAnnotations);
+      } else if (child.isArray() && fieldType.isArray()) {
+        child.forEach(
+            item -> {
+              if (item.isObject()) {
+                removeAnnotatedFields(item, fieldType.getComponentType(), ignoredAnnotations);
+              }
+            });
+      }
+    }
+
+    toRemove.forEach(objectNode::remove);
     return node;
+  }
+
+  /**
+   * Removes fields defined in {@link JsonPatchIgnoreProperties} on the entity class.
+   *
+   * <p>This allows class-level configuration of fields that must never be patched.
+   *
+   * @param node JSON patch node
+   * @param clazz entity class
+   * @return JSON node without ignored properties
+   */
+  private JsonNode removeJsonPatchIgnorePropertiesFields(JsonNode node, Class<?> clazz) {
+    JsonPatchIgnoreProperties props = clazz.getAnnotation(JsonPatchIgnoreProperties.class);
+    return props == null ? node : JsonNodeUtils.removeFields(node, props.value());
   }
 
   /**
@@ -235,8 +260,7 @@ public class JsonMergePatchUtils {
    * @return An array of field names to be ignored.
    */
   private String[] getJsonPatchIgnoreProperties(Class<?> clazz) {
-    JsonPatchIgnoreProperties jsonPatchIgnoreProperties =
-        clazz.getAnnotation(JsonPatchIgnoreProperties.class);
-    return jsonPatchIgnoreProperties != null ? jsonPatchIgnoreProperties.value() : new String[] {};
+    JsonPatchIgnoreProperties props = clazz.getAnnotation(JsonPatchIgnoreProperties.class);
+    return props == null ? new String[0] : props.value();
   }
 }
