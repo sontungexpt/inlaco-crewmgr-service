@@ -3,7 +3,6 @@ package com.inlaco.crewmgrservice.config;
 import com.inlaco.crewmgrservice.feature.auth.jwt.AuthEntryPointJwt;
 import com.inlaco.crewmgrservice.feature.auth.jwt.LazyJwtAuthTokenFilter;
 import com.inlaco.crewmgrservice.utils.ApiEndpointSecurityInspector;
-import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,7 +39,7 @@ public class SecurityConfig {
 
   private final LazyJwtAuthTokenFilter lazyJwtAuthTokenFilter;
   private final AuthEntryPointJwt unauthorizedHandler;
-  private final ApiEndpointSecurityInspector apiEndpointSecurityInspector;
+  private final ApiEndpointSecurityInspector endpointInspector;
 
   private final LogoutSuccessHandler logoutSuccessHandler;
   private final LogoutHandler logoutHandler;
@@ -114,8 +113,6 @@ public class SecurityConfig {
   @Bean
   public SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
 
-    apiEndpointSecurityInspector.addPublicEndpoint("/v1/auth/**", "/actuator/**");
-
     http.cors(cors -> cors.configurationSource(corsApiConfigurationSource()))
         .csrf(
             customizer -> {
@@ -133,13 +130,13 @@ public class SecurityConfig {
         // authorize
         .authorizeHttpRequests(
             auth -> {
-              Arrays.stream(HttpMethod.values())
-                  .forEach(
-                      method -> {
-                        auth.requestMatchers(
-                                method, apiEndpointSecurityInspector.getPublicSecurityPaths(method))
-                            .permitAll();
-                      });
+              // PUBLIC ENDPOINTS (NO JWT)
+              for (HttpMethod method : HttpMethod.values()) {
+                String[] paths = endpointInspector.getPublicSecurityPaths(method);
+                if (paths.length > 0) {
+                  auth.requestMatchers(method, paths).permitAll();
+                }
+              }
               auth.anyRequest().authenticated();
             })
         .authenticationProvider(authenticationProvider())

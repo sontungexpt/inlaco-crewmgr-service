@@ -1,27 +1,23 @@
 package com.inlaco.crewmgrservice.utils;
 
 import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpMethod.POST;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.inlaco.crewmgrservice.annotation.PublicEndpoint;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
@@ -32,334 +28,195 @@ import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 /**
- * Utility class responsible for evaluating the accessibility of API endpoints based on their
- * security configuration. It works in conjunction with the mappings of controller methods annotated
- * with {@link PublicEndpoint}.
+ * Inspects API endpoint security configuration and determines whether a request is public,
+ * unsecured, or requires JWT authentication.
  */
 @Component
 @Slf4j
 public class ApiEndpointSecurityInspector {
 
+  /* ==========================================================
+   * Internal model
+   * ========================================================== */
   @Getter
-  private class APIPath {
-    private String path;
-    private boolean filterJwt;
+  @EqualsAndHashCode(of = "path")
+  static final class APIPath {
+    private static final long serialVersionUID = 1L;
 
-    public APIPath(String path, boolean filterJwt) {
+    private final String path;
+    private final boolean filterJwt;
+
+    APIPath(String path, boolean filterJwt) {
       this.path = path;
       this.filterJwt = filterJwt;
-    }
-
-    public APIPath(String path) {
-      this(path, false);
     }
 
     @Override
     public String toString() {
       return path;
     }
-
-    @Override
-    public boolean equals(Object obj) {
-      if (obj == null) return false;
-      else if (obj == this) return true;
-      else if (obj instanceof APIPath that) {
-        return this.path.equals(that.path);
-      }
-      return false;
-    }
-
-    @Override
-    public int hashCode() {
-      return path.hashCode();
-    }
   }
 
-  @Value("${spring.profiles.active}")
-  private String PROFILE;
-
-  private RequestMappingHandlerMapping requestHandlerMapping;
+  /* ==========================================================
+   * Fields
+   * ========================================================== */
+  private final RequestMappingHandlerMapping handlerMapping;
+  private final Environment environment;
   private final AntPathMatcher antPathMatcher = new AntPathMatcher();
-  private final Map<String, Boolean> staticEndpoints = new HashMap<>();
 
-  // /** A set of public endpoints that are accessible via any HTTP method. */
-  // private Set<PathWithCondition> publicAllMethodsEndpoints = new HashSet<>();
+  /** Public endpoints grouped by HTTP method */
+  private final Map<HttpMethod, Set<APIPath>> publicEndpoints = new ConcurrentHashMap<>();
 
-  public ApiEndpointSecurityInspector(
-      @Qualifier("requestMappingHandlerMapping")
-          RequestMappingHandlerMapping requestHandlerMapping) {
+  private final Set<String> staticEndpoints = ConcurrentHashMap.newKeySet();
 
-    this.requestHandlerMapping = requestHandlerMapping;
-  }
-
-  private final Map<HttpMethod, Set<APIPath>> publicEndpoints =
-      new HashMap<>() {
-        {
-          put(
-              GET,
-              new HashSet<APIPath>() {
-                {
-                  add(new APIPath("/v3/api-docs**/**"));
-                  add(new APIPath("/swagger-ui**/**"));
-                  add(new APIPath("/.well-known**/**"));
-                  add(new APIPath("/test/**"));
-                  add(new APIPath("/api/v1/test/**"));
-                  add(new APIPath("/favicon.ico"));
-                }
-              });
-          put(POST, new HashSet<APIPath>());
-        }
-      };
-
-  private Set<APIPath> getPublicEndpoints(HttpMethod httpMethod) {
-    if (publicEndpoints.get(httpMethod) == null) {
-      publicEndpoints.put(httpMethod, new HashSet<APIPath>());
-    }
-    return publicEndpoints.get(httpMethod);
-  }
-
-  /**
-   * Adds a public endpoint that is accessible via any HTTP method.
-   *
-   * @param path The path of the public endpoint.
-   */
-  public void addPublicEndpoint(String path) {
-    addPublicEndpoint(false, path);
-  }
-
-  /**
-   * Adds a public endpoint that is accessible via any HTTP method.
-   *
-   * @param paths The paths of the public endpoints.
-   */
   public void addPublicEndpoint(String... paths) {
-    Arrays.stream(paths).forEach(path -> addPublicEndpoint(path));
+    for (var m : HttpMethod.values()) {
+      for (var path : paths) {
+        addPublicEndpoint(m, path);
+      }
+    }
   }
 
-  /**
-   * Adds a public endpoint that is accessible via any HTTP method.
-   *
-   * @param path The path of the public endpoint.
-   * @param filterJwt Whether to filter JWT for the endpoint.
-   */
-  public void addPublicEndpoint(boolean filterJwt, String path) {
-    Arrays.stream(HttpMethod.values())
-        .forEach(
-            httpMethod -> {
-              addPublicEndpoint(httpMethod, filterJwt, path);
-            });
+  private void addPublicEndpoint(HttpMethod method, String path) {
+    publicEndpoints
+        .computeIfAbsent(method, m -> ConcurrentHashMap.newKeySet())
+        .add(new APIPath(path, false));
   }
 
-  /**
-   * Adds a public endpoint that is accessible via any HTTP method.
-   *
-   * @param paths The paths of the public endpoints.
-   */
-  public void addPublicEndpoint(boolean filterJwt, String... paths) {
-    Arrays.stream(paths).forEach(path -> addPublicEndpoint(filterJwt, path));
+  private void addPublicEndpoint(HttpMethod method, String path, boolean optional) {
+    publicEndpoints
+        .computeIfAbsent(method, m -> ConcurrentHashMap.newKeySet())
+        .add(new APIPath(path, optional));
   }
 
-  /**
-   * Adds a public endpoint that is accessible via any HTTP method.
-   *
-   * @param path The path of the public endpoint.
-   */
-  public void addPublicEndpoint(HttpMethod httpMethod, String path) {
-    addPublicEndpoint(httpMethod, false, path);
+  /* ==========================================================
+   * Constructor
+   * ========================================================== */
+  public ApiEndpointSecurityInspector(
+      RequestMappingHandlerMapping handlerMapping, Environment environment) {
+
+    this.handlerMapping = handlerMapping;
+    this.environment = environment;
+
+    for (HttpMethod method : HttpMethod.values()) {
+      publicEndpoints.put(method, ConcurrentHashMap.newKeySet());
+    }
+
+    // default public endpoints
+    addPublicEndpoint("/actuator/**");
+    addPublicEndpoint(GET, "/v3/api-docs**/**");
+    addPublicEndpoint(GET, "/swagger-ui**/**");
+    addPublicEndpoint(GET, "/.well-known**/**");
+    addPublicEndpoint(GET, "/favicon.ico");
+    addPublicEndpoint(GET, "/test/**");
+    addPublicEndpoint(GET, "/api/v1/test/**");
   }
 
-  /**
-   * Adds a public endpoint that is accessible via any HTTP method.
-   *
-   * @param path The path of the public endpoint.
-   * @param filterJwt Whether to filter JWT for the endpoint.
-   */
-  public void addPublicEndpoint(HttpMethod httpMethod, String... paths) {
-    Arrays.stream(paths).forEach(path -> addPublicEndpoint(httpMethod, path));
-  }
-
-  /**
-   * Adds a public endpoint that is accessible via any HTTP method.
-   *
-   * @param paths The paths of the public endpoints.
-   */
-  public void addPublicEndpoint(HttpMethod httpMethod, boolean filterJwt, String... paths) {
-    Arrays.stream(paths).forEach(path -> addPublicEndpoint(httpMethod, filterJwt, path));
-  }
-
-  /**
-   * Adds a public endpoint that is accessible via any HTTP method.
-   *
-   * @param path The path of the public endpoint.
-   * @param filterJwt Whether to filter JWT for the endpoint.
-   */
-  public void addPublicEndpoint(HttpMethod httpMethod, boolean filterJwt, String path) {
-    getPublicEndpoints(httpMethod).add(new APIPath(path, filterJwt));
-    addStaticEndpoint(path, httpMethod);
-    log.info("Added public endpoint: " + path + " for " + httpMethod);
-  }
-
-  private void watchStaticEndpoints(Map<RequestMappingInfo, HandlerMethod> handlerMethods) {
-
-    publicEndpoints.forEach(
-        (httpMethod, apiPaths) -> {
-          apiPaths.forEach(apiPath -> addStaticEndpoint(apiPath.path, httpMethod));
-        });
-
-    handlerMethods.forEach(
-        (requestInfo, handlerMethod) -> {
-          requestInfo
-              .getMethodsCondition()
-              .getMethods()
-              .forEach(
-                  httpMethod -> {
-                    requestInfo
-                        .getPatternValues()
-                        .forEach(path -> addStaticEndpoint(path, httpMethod.asHttpMethod()));
-                  });
-        });
-  }
-
-  public void watchEachPublicEndpoints(RequestMappingInfo requestInfo, boolean filterJwt) {
-    requestInfo
-        .getMethodsCondition()
-        .getMethods()
-        .forEach(
-            httpMethod -> {
-              getPublicEndpoints(httpMethod.asHttpMethod())
-                  .addAll(
-                      requestInfo.getPatternValues().stream()
-                          .map(path -> new APIPath(path, filterJwt))
-                          .collect(Collectors.toSet()));
-            });
-  }
-
-  /**
-   * Initializes the class by gathering public endpoints for various HTTP methods. It identifies
-   * designated public endpoints within the application's mappings and adds them to separate lists
-   * based on their associated HTTP methods. If OpenAPI is enabled, Swagger endpoints are also
-   * considered as public. The method is annotated with {@link PostConstruct} to ensure that the
-   */
+  /* ==========================================================
+   * Initialization
+   * ========================================================== */
   @PostConstruct
   public void init() {
-    final var handlerMethods = requestHandlerMapping.getHandlerMethods();
-    watchStaticEndpoints(handlerMethods);
+    Map<RequestMappingInfo, HandlerMethod> mappings = handlerMapping.getHandlerMethods();
 
-    handlerMethods.forEach(
-        (requestInfo, handlerMethod) -> {
+    mappings.forEach(this::registerStaticEndpoint);
 
-          // check if the method is annotated with PublicEndpoint or the parent class is
-          // annotated
-          var annotation = getAnnotation(handlerMethod, PublicEndpoint.class);
-
-          if (annotation != null) {
-            List<String> profilesList = getProfiles(annotation, handlerMethod);
-            if (profilesList.isEmpty() || profilesList.contains(PROFILE)) {
-              watchEachPublicEndpoints(requestInfo, annotation.filterJwt());
-            }
-          }
+    mappings.forEach(
+        (info, method) -> {
+          PublicEndpoint annotation = getAnnotation(method, PublicEndpoint.class);
+          if (annotation == null || !profileMatched(annotation, method)) return;
+          registerPublicEndpoint(info, annotation.filterJwt());
         });
 
-    try {
-      log.info(
-          "Initializes public endpoints: "
-              + new ObjectMapper()
-                  .writerWithDefaultPrettyPrinter()
-                  .writeValueAsString(publicEndpoints));
-    } catch (Exception e) {
-      log.info("Initializes public endpoints: " + publicEndpoints);
-    }
+    logInitializedEndpoints();
   }
 
-  /**
-   * Checks if the provided HTTP request is directed towards an optional API endpoint that does not
-   * require a JWT token but still filters it.
-   *
-   * @param request The HTTP request to inspect.
-   * @return {@code true} if the request is to an optional API endpoint that does not require a JWT
-   *     token, {@code false} otherwise.
-   */
-  public boolean isOptionalJwtSecurityPath(@NonNull final HttpServletRequest request) {
-    return publicEndpoints
-        .getOrDefault(HttpMethod.valueOf(request.getMethod()), Collections.emptySet())
-        .parallelStream()
-        .anyMatch(apiPath -> matchPath(apiPath.path, request));
+  /* ==========================================================
+   * Public API
+   * ========================================================== */
+
+  /** Public endpoint, JWT optional (filter only) */
+  public boolean isOptionalJwtSecurityPath(@NonNull HttpServletRequest request) {
+    HttpMethod method = HttpMethod.valueOf(request.getMethod());
+    return publicEndpoints.getOrDefault(method, Set.of()).stream()
+        .filter(APIPath::isFilterJwt)
+        .anyMatch(p -> matchPath(p.getPath(), request));
   }
 
-  /**
-   * Checks if the provided HTTP request is directed towards an unsecured API endpoint.
-   *
-   * @param request The HTTP request to inspect.
-   * @return {@code true} if the request is to an unsecured API endpoint, {@code false} otherwise.
-   */
-  public boolean isUnsecureRequest(@NonNull final HttpServletRequest request) {
-    return getUnsecuredApiPaths(HttpMethod.valueOf(request.getMethod())).parallelStream()
-        .anyMatch(apiPath -> matchPath(apiPath, request));
+  /** Public endpoint (no JWT required) */
+  public boolean isUnsecureRequest(@NonNull HttpServletRequest request) {
+    HttpMethod method = HttpMethod.valueOf(request.getMethod());
+    return publicEndpoints.getOrDefault(method, Set.of()).stream()
+        .anyMatch(p -> matchPath(p.getPath(), request));
   }
 
-  /**
-   * Checks if the provided HTTP request is directed towards an unsecured API endpoint that does not
-   * require a JWT token.
-   *
-   * @param request The HTTP request to inspect.
-   * @return {@code true} if the request is to an unsecured API endpoint that does not require a JWT
-   *     token, {@code false} otherwise.
-   */
-  public boolean isUnsecureJwtRequest(@NonNull final HttpServletRequest request) {
-    return getUnsecuredJwtApiPaths(HttpMethod.valueOf(request.getMethod())).parallelStream()
-        .anyMatch(apiPath -> matchPath(apiPath, request));
+  /** Public endpoint without JWT */
+  public boolean isUnsecureJwtRequest(@NonNull HttpServletRequest request) {
+    HttpMethod method = HttpMethod.valueOf(request.getMethod());
+    return publicEndpoints.getOrDefault(method, Set.of()).stream()
+        .filter(p -> !p.isFilterJwt())
+        .anyMatch(p -> matchPath(p.getPath(), request));
   }
 
-  /**
-   * Retrieves the list of unsecured API paths based on the provided HTTP method that do not require
-   * a JWT token.
-   *
-   * @param httpMethod The HTTP method for which unsecured paths are to be retrieved.
-   * @return A list of unsecured API paths for the specified HTTP method that do not require a JWT
-   *     token.
-   */
-  private Set<String> getUnsecuredJwtApiPaths(@NonNull final HttpMethod httpMethod) {
-    return publicEndpoints.getOrDefault(httpMethod, Collections.emptySet()).stream()
-        .filter(apiPath -> !apiPath.filterJwt)
-        .map(APIPath::toString)
-        .collect(Collectors.toSet());
-  }
-
-  /**
-   * Retrieves the list of unsecured API paths based on the provided HTTP method.
-   *
-   * @param httpMethod The HTTP method for which unsecured paths are to be retrieved.
-   * @return A list of unsecured API paths for the specified HTTP method.s
-   */
-  private Set<String> getUnsecuredApiPaths(@NonNull final HttpMethod httpMethod) {
-    return publicEndpoints.getOrDefault(httpMethod, Collections.emptySet()).stream()
-        .map(APIPath::toString)
-        .collect(Collectors.toSet());
-  }
-
-  /**
-   * Retrieves the list of public API paths based on the provided HTTP method.
-   *
-   * @param httpMethod The HTTP metrhod for which public paths are to be retrieved.
-   * @return A list of public API paths for the specified HTTP method.
-   */
-  public String[] getPublicSecurityPaths(HttpMethod httpMethod) {
-    return publicEndpoints.getOrDefault(httpMethod, Collections.emptySet()).stream()
-        .map(APIPath::toString)
+  public String[] getPublicSecurityPaths(HttpMethod method) {
+    return publicEndpoints.getOrDefault(method, Set.of()).stream()
+        .map(APIPath::getPath)
         .toArray(String[]::new);
   }
 
-  @Nullable
-  private <A extends Annotation> A getAnnotation(
-      HandlerMethod annotatedMethod, Class<A> annotationClass) {
-    if (annotatedMethod == null) return null;
-    A annotation = annotatedMethod.getMethodAnnotation(annotationClass);
-    if (annotation != null) return annotation;
-    annotation = annotatedMethod.getBeanType().getAnnotation(annotationClass);
-    return annotation;
+  /* ==========================================================
+   * Internal helpers
+   * ========================================================== */
+
+  private void registerPublicEndpoint(RequestMappingInfo info, boolean filterJwt) {
+    info.getMethodsCondition()
+        .getMethods()
+        .forEach(
+            method ->
+                info.getPatternValues()
+                    .forEach(path -> addPublicEndpoint(method.asHttpMethod(), path, filterJwt)));
   }
 
-  private boolean isPathVariablePattern(@NonNull String path) {
+  private void registerStaticEndpoint(RequestMappingInfo info, HandlerMethod method) {
+    info.getMethodsCondition()
+        .getMethods()
+        .forEach(m -> info.getPatternValues().forEach(path -> addStaticEndpoint(path, m.name())));
+  }
+
+  private boolean profileMatched(PublicEndpoint annotation, HandlerMethod method) {
+    Set<String> activeProfiles = Set.of(environment.getActiveProfiles());
+
+    if (annotation.profiles().length > 0
+        && Collections.disjoint(activeProfiles, Arrays.asList(annotation.profiles()))) {
+      return false;
+    }
+
+    Profile profile = method.getBeanType().getAnnotation(Profile.class);
+    if (profile != null && Collections.disjoint(activeProfiles, Arrays.asList(profile.value()))) {
+      return false;
+    }
+
+    return true;
+  }
+
+  @Nullable
+  private <A extends Annotation> A getAnnotation(HandlerMethod method, Class<A> clazz) {
+    A ann = method.getMethodAnnotation(clazz);
+    if (ann != null) return ann;
+    return method.getBeanType().getAnnotation(clazz);
+  }
+
+  private boolean matchPath(String path, HttpServletRequest request) {
+    return matchPath(path, request.getRequestURI(), request.getMethod());
+  }
+
+  private boolean matchPath(String pattern, String uri, String method) {
+    boolean matched = antPathMatcher.match(pattern, uri);
+    if (!isPathVariablePattern(pattern)) return matched;
+    return matched && !staticEndpointExists(uri, method);
+  }
+
+  private boolean isPathVariablePattern(String path) {
     boolean uriVar = false;
     for (int i = 0; i < path.length(); i++) {
       char c = path.charAt(i);
@@ -372,46 +229,36 @@ public class ApiEndpointSecurityInspector {
     return false;
   }
 
-  private boolean matchPath(String path, String requestPath, String methodName) {
-    if (path == null || requestPath == null) return false;
-    boolean matched = antPathMatcher.match(path, requestPath);
-    if (!isPathVariablePattern(path)) return matched;
-    return matched && !staticEndpointExists(requestPath, methodName);
-  }
-
-  private boolean matchPath(String path, HttpServletRequest request) {
-    return matchPath(path, request.getRequestURI(), request.getMethod());
-  }
-
-  private void addStaticEndpoint(String path, HttpMethod method) {
-    addStaticEndpoint(path, method.name());
-  }
-
   private void addStaticEndpoint(String path, String methodName) {
     if (antPathMatcher.isPattern(path)) return;
-    staticEndpoints.put(prefixByMethodName(path, methodName), true);
+    staticEndpoints.add(prefixByMethodName(path, methodName));
   }
 
   private boolean staticEndpointExists(String path, String methodName) {
-    return staticEndpoints.containsKey(prefixByMethodName(path, methodName));
+    return staticEndpoints.contains(prefixByMethodName(path, methodName));
   }
 
   private String prefixByMethodName(String path, String methodName) {
     return methodName + "_" + path;
   }
 
-  private List<String> getProfiles(
-      @NonNull PublicEndpoint annotation, HandlerMethod handlerMethod) {
-    List<String> profilesList = new ArrayList<>();
-    for (String profile : annotation.profiles()) {
-      profilesList.add(profile);
+  private void logInitializedEndpoints() {
+    try {
+      log.info(
+          "Public endpoints initialized:\n{}",
+          new ObjectMapper()
+              .writerWithDefaultPrettyPrinter()
+              .writeValueAsString(
+                  publicEndpoints.entrySet().stream()
+                      .collect(
+                          Collectors.toMap(
+                              e -> e.getKey().name(),
+                              e ->
+                                  e.getValue().stream()
+                                      .map(APIPath::toString)
+                                      .collect(Collectors.toList())))));
+    } catch (Exception e) {
+      log.info("Public endpoints initialized: {}", publicEndpoints);
     }
-    Profile profileAnnotation = getAnnotation(handlerMethod, Profile.class);
-    if (profileAnnotation != null) {
-      for (String profile : profileAnnotation.value()) {
-        profilesList.add(profile);
-      }
-    }
-    return profilesList;
   }
 }

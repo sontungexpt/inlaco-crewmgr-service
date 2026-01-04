@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class NotificationFactory {
 
   /**
