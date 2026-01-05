@@ -144,6 +144,7 @@ public abstract class AbstractContract extends ContractVersion
       example = "5")
   @Min(0)
   @Default
+  @JsonPatchIgnore
   private int contractFreezeDelay = 5;
 
   @Schema(hidden = true)

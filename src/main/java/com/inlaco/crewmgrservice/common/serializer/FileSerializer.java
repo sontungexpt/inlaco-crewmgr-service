@@ -39,7 +39,7 @@ public class FileSerializer extends JsonSerializer<File> {
     gen.writeStringField("displayName", value.getDisplayName());
     gen.writeStringField("resourceType", value.getResourceType());
     gen.writeStringField("format", value.getFormat());
-    gen.writeNumberField("bytes", value.getBytes());
+    if (value.getBytes() != null) gen.writeNumberField("bytes", value.getBytes());
     gen.writeObjectField("uploadedAt", value.getUploadedAt());
 
     gen.writeEndObject();
