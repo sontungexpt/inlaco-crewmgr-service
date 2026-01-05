@@ -21,7 +21,6 @@ public class DefaultUploadMetadataService {
         File.builder()
             .publicId((String) response.get("public_id"))
             .assetId((String) response.get("asset_id"))
-            .url((String) response.get("secure_url"))
             .displayName((String) response.get("display_name"))
             .resourceType((String) response.get("resource_type"))
             .format((String) response.get("format"))

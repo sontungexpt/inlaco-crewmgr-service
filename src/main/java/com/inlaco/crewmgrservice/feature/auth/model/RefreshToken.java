@@ -45,8 +45,7 @@ public class RefreshToken implements Persistable<String> {
   private Instant expiresAt;
 
   @Schema(description = "Date and time when the refresh token was revoked")
-  @Indexed(
-      expireAfterSeconds = 1 * 24 * 60 * 60) // automatically delete after 10 days of revocation
+  @Indexed(expireAfter = "10d") // automatically delete after 10 days of revocation
   private Instant revokedAt;
 
   @CreatedDate private Instant createdAt;

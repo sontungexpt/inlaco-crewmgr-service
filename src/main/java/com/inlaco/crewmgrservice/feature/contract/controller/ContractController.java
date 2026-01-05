@@ -181,7 +181,7 @@ Add contract for sailor.
   @ResponseStatus(HttpStatus.CREATED)
   public Contract createLaborContract(
       @ObjectId @PathVariable("candidateProfileId") String candidateProfileId,
-      @RequestParam String contractFileAssetId,
+      @RequestParam(required = false) String contractFileAssetId,
       @CurrentUser User user,
       @RequestBody @Valid LaborContract contract) {
     return contractService.createLaborContract(

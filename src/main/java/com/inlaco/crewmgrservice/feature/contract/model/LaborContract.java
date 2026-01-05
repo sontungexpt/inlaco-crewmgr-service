@@ -43,4 +43,16 @@ public class LaborContract extends DynamicContract {
   @Schema(description = "The basic salary of the employee", example = "1000000")
   @NotBlank
   private String basicSalary;
+
+  @Schema(description = "The allowance of the employee", example = "1000000")
+  private String allowance;
+
+  @Schema(description = "The receive method of the employee", example = "Bank")
+  private String receiveMethod;
+
+  @Schema(description = "The payday of the employee", example = "2022-01-01")
+  private String payday;
+
+  @Schema(description = "The salary review period of the employee", example = "2022-01-01")
+  private String salaryReviewPeriod;
 }

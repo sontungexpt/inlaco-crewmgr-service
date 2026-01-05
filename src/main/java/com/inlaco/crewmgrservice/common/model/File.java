@@ -20,8 +20,6 @@ public class File implements Serializable {
 
   @JsonIgnore private String assetId;
 
-  private String url;
-
   private String displayName;
 
   private String resourceType;

@@ -33,7 +33,7 @@ public class CustomLaborContractRepository {
     return mongoTemplate.findOne(query, AbstractContract.class);
   }
 
-  public boolean existsLaborContractByCandidateProfileId(String candidateProfileId) {
+  public boolean existsByCandidateProfileId(String candidateProfileId) {
     Query query = new Query();
     query.addCriteria(
         Criteria.where("candidateProfileId")

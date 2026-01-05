@@ -5,24 +5,33 @@ import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr353.JSR353Module;
+import com.inlaco.crewmgrservice.common.deserializer.FileDeserializer;
+import com.inlaco.crewmgrservice.common.model.File;
+import com.inlaco.crewmgrservice.common.serializer.FileSerializer;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
 @Configuration
+@RequiredArgsConstructor
 public class JacksonConfig {
+
+  private final FileSerializer fileSerializer;
+  private final FileDeserializer fileDeserializer;
 
   @Bean
   @Primary
   public ObjectMapper objectMapper() {
     ObjectMapper mapper = new ObjectMapper();
 
-    // SimpleModule module = new SimpleModule();
-    // module.addDeserializer(Slice.class, new SliceDeserializer());
-    // module.addSerializer(Slice.class, new SliceSerializer());
-    // mapper.registerModule(module);
+    SimpleModule module = new SimpleModule();
+    module.addSerializer(File.class, fileSerializer);
+    module.addDeserializer(File.class, fileDeserializer);
+    mapper.registerModule(module);
 
     mapper
         .configOverride(String.class)

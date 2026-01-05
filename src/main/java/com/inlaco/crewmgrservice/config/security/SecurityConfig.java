@@ -1,14 +1,12 @@
-package com.inlaco.crewmgrservice.config;
+package com.inlaco.crewmgrservice.config.security;
 
 import com.inlaco.crewmgrservice.feature.auth.jwt.AuthEntryPointJwt;
 import com.inlaco.crewmgrservice.feature.auth.jwt.LazyJwtAuthTokenFilter;
-import com.inlaco.crewmgrservice.utils.ApiEndpointSecurityInspector;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -36,13 +34,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
 
   private final UserDetailsService userDetailsService;
-
-  private final LazyJwtAuthTokenFilter lazyJwtAuthTokenFilter;
-  private final AuthEntryPointJwt unauthorizedHandler;
-  private final ApiEndpointSecurityInspector endpointInspector;
-
-  private final LogoutSuccessHandler logoutSuccessHandler;
-  private final LogoutHandler logoutHandler;
 
   @Bean
   public PasswordEncoder passwordEncoder() {
@@ -110,8 +101,30 @@ public class SecurityConfig {
     return source;
   }
 
+  // Request
+  //  ↓
+  // LazyJwtAuthTokenFilter
+  //   ├─ Have JWT → authenticate
+  //   └─ No JWT → skip
+  //  ↓
+  // AuthorizationFilter
+  //  ↓
+  // ApiEndpointAuthorizationManager
+  //   ├─ PUBLIC → allow
+  //   ├─ OPTIONAL JWT → allow
+  //   └─ AUTH → require Authentication
+  //  ↓
+  // Controller
+
   @Bean
-  public SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
+  public SecurityFilterChain securityFilterChain(
+      HttpSecurity http,
+      LazyJwtAuthTokenFilter lazyJwtAuthTokenFilter,
+      ApiEndpointAuthorizationManager authzManager,
+      AuthEntryPointJwt unauthorizedHandler,
+      LogoutSuccessHandler logoutSuccessHandler,
+      LogoutHandler logoutHandler)
+      throws Exception {
 
     http.cors(cors -> cors.configurationSource(corsApiConfigurationSource()))
         .csrf(
@@ -130,14 +143,15 @@ public class SecurityConfig {
         // authorize
         .authorizeHttpRequests(
             auth -> {
+              auth.anyRequest().access(authzManager);
               // PUBLIC ENDPOINTS (NO JWT)
-              for (HttpMethod method : HttpMethod.values()) {
-                String[] paths = endpointInspector.getPublicSecurityPaths(method);
-                if (paths.length > 0) {
-                  auth.requestMatchers(method, paths).permitAll();
-                }
-              }
-              auth.anyRequest().authenticated();
+              // for (HttpMethod method : HttpMethod.values()) {
+              //   String[] paths = endpointInspector.getPublicSecurityPaths(method);
+              //   if (paths.length > 0) {
+              //     auth.requestMatchers(method, paths).permitAll();
+              //   }
+              // }
+              // auth.anyRequest().authenticated();
             })
         .authenticationProvider(authenticationProvider())
         .addFilterBefore(lazyJwtAuthTokenFilter, UsernamePasswordAuthenticationFilter.class)

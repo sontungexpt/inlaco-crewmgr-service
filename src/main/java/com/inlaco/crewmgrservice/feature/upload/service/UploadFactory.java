@@ -46,6 +46,9 @@ public class UploadFactory {
   }
 
   public File metadata(UploadStrategy stragegy, String assetId) {
+    if (stragegy == null) {
+      return uploadMetadataService.metadata(assetId);
+    }
     UploadServiceStrategy service = getUploadService(stragegy);
     if (service == null) {
       return uploadMetadataService.metadata(assetId);

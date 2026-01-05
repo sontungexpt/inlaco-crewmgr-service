@@ -108,7 +108,7 @@ public class ContractServiceImpl implements ContractService {
   @Transactional
   public Contract createLaborContract(
       String candidateProfileId, LaborContract contract, String contractFileAssetId, User creator) {
-    if (customLaborContractRepository.existsLaborContractByCandidateProfileId(candidateProfileId)) {
+    if (customLaborContractRepository.existsByCandidateProfileId(candidateProfileId)) {
       throw new ResourceAlreadyInUseException(
           LaborContract.class, "candidateProfileId", candidateProfileId);
     }
@@ -119,8 +119,6 @@ public class ContractServiceImpl implements ContractService {
     ObjectId accountId = candidateProfile.getAccountId();
     contract.setCandidateProfileId(new ObjectId(candidateProfileId));
     contract.setEmployeeId(accountId);
-    contract.setContractFile(
-        uploadFactory.metadata(UploadStrategy.CONTRACT_FILE, contractFileAssetId));
 
     candidateService.reviewCandidate(
         candidateProfileId, CandidateProfile.Status.CONTRACT_NOT_YET_IN_FORCE, false);

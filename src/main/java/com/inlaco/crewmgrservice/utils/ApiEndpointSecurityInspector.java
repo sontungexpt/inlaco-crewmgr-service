@@ -13,15 +13,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
-import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
@@ -31,7 +32,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
  * Inspects API endpoint security configuration and determines whether a request is public,
  * unsecured, or requires JWT authentication.
  */
-@Component
+// @Component
 @Slf4j
 public class ApiEndpointSecurityInspector {
 
@@ -40,21 +41,19 @@ public class ApiEndpointSecurityInspector {
    * ========================================================== */
   @Getter
   @EqualsAndHashCode(of = "path")
+  @ToString(of = "path")
+  @AllArgsConstructor
   static final class APIPath {
-    private static final long serialVersionUID = 1L;
-
     private final String path;
     private final boolean filterJwt;
+  }
 
-    APIPath(String path, boolean filterJwt) {
-      this.path = path;
-      this.filterJwt = filterJwt;
-    }
-
-    @Override
-    public String toString() {
-      return path;
-    }
+  @ToString
+  @AllArgsConstructor
+  @EqualsAndHashCode
+  static final class StaticEndpoint {
+    private final HttpMethod method;
+    private final String path;
   }
 
   /* ==========================================================
@@ -67,9 +66,9 @@ public class ApiEndpointSecurityInspector {
   /** Public endpoints grouped by HTTP method */
   private final Map<HttpMethod, Set<APIPath>> publicEndpoints = new ConcurrentHashMap<>();
 
-  private final Set<String> staticEndpoints = ConcurrentHashMap.newKeySet();
+  private final Map<HttpMethod, Set<String>> staticEndpoints = new ConcurrentHashMap<>();
 
-  public void addPublicEndpoint(String... paths) {
+  private void addPublicEndpoint(String... paths) {
     for (var m : HttpMethod.values()) {
       for (var path : paths) {
         addPublicEndpoint(m, path);
@@ -78,9 +77,7 @@ public class ApiEndpointSecurityInspector {
   }
 
   private void addPublicEndpoint(HttpMethod method, String path) {
-    publicEndpoints
-        .computeIfAbsent(method, m -> ConcurrentHashMap.newKeySet())
-        .add(new APIPath(path, false));
+    addPublicEndpoint(method, path, false);
   }
 
   private void addPublicEndpoint(HttpMethod method, String path, boolean optional) {
@@ -97,10 +94,6 @@ public class ApiEndpointSecurityInspector {
 
     this.handlerMapping = handlerMapping;
     this.environment = environment;
-
-    for (HttpMethod method : HttpMethod.values()) {
-      publicEndpoints.put(method, ConcurrentHashMap.newKeySet());
-    }
 
     // default public endpoints
     addPublicEndpoint("/actuator/**");
@@ -180,7 +173,9 @@ public class ApiEndpointSecurityInspector {
   private void registerStaticEndpoint(RequestMappingInfo info, HandlerMethod method) {
     info.getMethodsCondition()
         .getMethods()
-        .forEach(m -> info.getPatternValues().forEach(path -> addStaticEndpoint(path, m.name())));
+        .forEach(
+            m ->
+                info.getPatternValues().forEach(path -> addStaticEndpoint(path, m.asHttpMethod())));
   }
 
   private boolean profileMatched(PublicEndpoint annotation, HandlerMethod method) {
@@ -229,21 +224,24 @@ public class ApiEndpointSecurityInspector {
     return false;
   }
 
-  private void addStaticEndpoint(String path, String methodName) {
+  private void addStaticEndpoint(String path, HttpMethod method) {
     if (antPathMatcher.isPattern(path)) return;
-    staticEndpoints.add(prefixByMethodName(path, methodName));
+
+    staticEndpoints.computeIfAbsent(method, m -> ConcurrentHashMap.newKeySet()).add(path);
   }
 
-  private boolean staticEndpointExists(String path, String methodName) {
-    return staticEndpoints.contains(prefixByMethodName(path, methodName));
-  }
-
-  private String prefixByMethodName(String path, String methodName) {
-    return methodName + "_" + path;
+  private boolean staticEndpointExists(String path, String method) {
+    return staticEndpoints.getOrDefault(HttpMethod.valueOf(method), Set.of()).contains(path);
   }
 
   private void logInitializedEndpoints() {
     try {
+
+      log.debug(
+          "Registered static endpoints: {}",
+          staticEndpoints.entrySet().stream()
+              .collect(Collectors.toMap(e -> e.getKey().name(), Map.Entry::getValue)));
+
       log.info(
           "Public endpoints initialized:\n{}",
           new ObjectMapper()
