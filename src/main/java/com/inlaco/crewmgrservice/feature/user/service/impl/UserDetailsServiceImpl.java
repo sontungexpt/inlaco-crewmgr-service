@@ -15,7 +15,7 @@ public record UserDetailsServiceImpl(UserRepository userRepository) implements U
   public User loadUserByUsername(String username) throws UsernameNotFoundException {
     User account =
         userRepository
-            .findByPhoneNumber(username)
+            .findByUsername(username)
             .orElseThrow(
                 () -> new UsernameNotFoundException("User Not Found with username: " + username));
 

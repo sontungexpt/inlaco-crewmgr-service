@@ -1,0 +1,15 @@
+package com.inlaco.crewmgrservice.common.payload;
+
+import com.inlaco.crewmgrservice.validation.annotation.MatchPassword;
+import jakarta.validation.Valid;
+
+@Valid
+@MatchPassword
+public interface IMatchPassword {
+
+  /** Gets the password that needs to be matched. */
+  String getPasswordToMatch();
+
+  /** Gets the password that must match. */
+  String getMatchingPassword();
+}

@@ -3,18 +3,17 @@ package com.inlaco.crewmgrservice.feature.auth.jwt;
 import com.inlaco.crewmgrservice.exceptions.JwtTokenException;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import com.inlaco.crewmgrservice.feature.user.repository.UserRepository;
-import com.inlaco.crewmgrservice.utils.ApiEndpointSecurityInspector;
 import com.inlaco.crewmgrservice.utils.HttpHeaderUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -23,28 +22,19 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class LazyJwtAuthTokenFilter extends OncePerRequestFilter {
-
-  private JwtService jwtService;
-  private UserRepository userRepository;
-  private ApiEndpointSecurityInspector apiEndpointSecurityInspector;
-  private HandlerExceptionResolver resolver;
+  private final JwtService jwtService;
+  private final UserRepository userRepository;
+  private final HandlerExceptionResolver exceptionResolver;
 
   public LazyJwtAuthTokenFilter(
       JwtService jwtService,
       UserRepository userRepository,
-      ApiEndpointSecurityInspector apiEndpointSecurityInspector,
-      @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
+      @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver) {
+
     this.jwtService = jwtService;
     this.userRepository = userRepository;
-    this.apiEndpointSecurityInspector = apiEndpointSecurityInspector;
-    this.resolver = resolver;
-  }
-
-  @Override
-  protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-    return apiEndpointSecurityInspector.isUnsecureRequest(request);
+    this.exceptionResolver = exceptionResolver;
   }
 
   @Override
@@ -53,31 +43,50 @@ public class LazyJwtAuthTokenFilter extends OncePerRequestFilter {
       throws ServletException, IOException {
 
     try {
-      SecurityContext context = SecurityContextHolder.getContext();
-      if (context.getAuthentication() == null) {
-        String jwtToken = HttpHeaderUtils.extractBearerToken(request);
-        String userPubId = jwtService.extractSubject(jwtToken);
+      Authentication existingAuth = SecurityContextHolder.getContext().getAuthentication();
 
-        if (userPubId != null) {
-          log.debug("Processing authentication for userPubId: {}", userPubId);
-
-          User user =
-              userRepository
-                  .findByPubId(userPubId)
-                  .orElseThrow(() -> new JwtTokenException(jwtToken, "User not found"));
-
-          if (jwtService.isAccessTokenValid(jwtToken, user)) {
-            UsernamePasswordAuthenticationToken authentication =
-                new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            context.setAuthentication(authentication);
-            log.debug("User {} successfully authenticated with pubId {}", user.getId(), userPubId);
-          }
-        }
+      // Already authenticated
+      if (existingAuth != null && !isAnonymous(existingAuth)) {
+        filterChain.doFilter(request, response);
+        return;
       }
+
+      HttpHeaderUtils.extractBearerToken(request).ifPresent(token -> authenticate(token, request));
       filterChain.doFilter(request, response);
-    } catch (Exception e) {
-      resolver.resolveException(request, response, null, e);
+
+    } catch (JwtTokenException ex) {
+      log.warn("[JWT] Authentication failed: {}", ex.getMessage());
+      exceptionResolver.resolveException(request, response, null, ex);
     }
+  }
+
+  /* ==========================================================
+   * Core authentication logic
+   * ========================================================== */
+  private void authenticate(String token, HttpServletRequest request) throws JwtTokenException {
+    String userPubId = jwtService.extractSubject(token);
+    if (userPubId == null) {
+      throw new JwtTokenException(token, "Invalid JWT subject");
+    }
+
+    User user =
+        userRepository
+            .findByPubId(userPubId)
+            .orElseThrow(() -> new JwtTokenException(token, "User not found"));
+
+    if (!jwtService.isAccessTokenValid(token, user)) {
+      throw new JwtTokenException(token, "Invalid or expired JWT");
+    }
+
+    var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+    SecurityContextHolder.getContext().setAuthentication(authentication);
+
+    log.debug("[JWT] User authenticated: pubId={}", userPubId);
+  }
+
+  private boolean isAnonymous(Authentication authentication) {
+    return authentication instanceof AnonymousAuthenticationToken;
   }
 }

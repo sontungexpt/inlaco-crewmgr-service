@@ -1,24 +1,63 @@
 package com.inlaco.crewmgrservice.feature.post.model;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.inlaco.crewmgrservice.common.model.Address;
-import com.inlaco.crewmgrservice.feature.post.enums.PostType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.inlaco.crewmgrservice.common.payload.TimeFrame;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import java.time.Instant;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import java.util.List;
+import lombok.Builder.Default;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
+import org.springframework.format.annotation.DateTimeFormat;
 
-@Data
-@EqualsAndHashCode(callSuper = true)
-@JsonTypeName(PostType.Fields.RECRUITMENT)
-public class RecruitmentPost extends Post {
+@Schema(
+    description =
+        "Details of a recruitment post with expected salary, work location, and recruitment"
+            + " period.")
+@SuperBuilder
+@NoArgsConstructor
+@Getter
+@Setter
+public class RecruitmentPost extends Post implements TimeFrame {
 
-  private double[] expectedSalary = new double[2];
+  @Schema(description = "Position title", example = "Software Engineer")
+  @NotBlank
+  private String position;
 
-  private boolean actived = false;
+  @Schema(description = "Expected salary range", example = "1000000-2000000")
+  private String expectedSalary;
 
-  private Address workLocation;
+  @Schema(description = "Indicates if the post is canceled", example = "true")
+  @Default
+  @JsonIgnore
+  private boolean canceled = false;
 
-  private Instant recruitmentStartDate;
+  @Override
+  @Schema(hidden = true)
+  public boolean isActive() {
+    return !canceled
+        && recruitmentStartDate.isBefore(Instant.now())
+        && (recruitmentEndDate == null || recruitmentEndDate.isAfter(Instant.now()));
+  }
 
+  @Schema(description = "Work location for the position")
+  private String workLocation;
+
+  @Schema(description = "Date when recruitment starts (UTC)", example = "2023-11-01T08:00:00Z")
+  @Default
+  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+  private Instant recruitmentStartDate = Instant.now().plusSeconds(30);
+
+  @Schema(description = "Date when recruitment ends (UTC)", example = "2023-11-30T17:00:00Z")
+  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
   private Instant recruitmentEndDate;
+
+  @Override
+  @Schema(hidden = true)
+  public List<Pair> getTimeFrames() {
+    return List.of(Pair.of(recruitmentStartDate, recruitmentEndDate, true, false));
+  }
 }

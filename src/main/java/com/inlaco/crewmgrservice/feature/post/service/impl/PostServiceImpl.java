@@ -2,11 +2,15 @@ package com.inlaco.crewmgrservice.feature.post.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.inlaco.crewmgrservice.exceptions.ResourceNotFoundException;
+import com.inlaco.crewmgrservice.feature.post.enums.PostType;
 import com.inlaco.crewmgrservice.feature.post.model.Post;
 import com.inlaco.crewmgrservice.feature.post.repository.PostRepository;
 import com.inlaco.crewmgrservice.feature.post.service.PostService;
-import com.inlaco.crewmgrservice.utils.JsonPatchUtils;
-import java.util.List;
+import com.inlaco.crewmgrservice.feature.user.model.User;
+import com.inlaco.crewmgrservice.utils.JsonMergePatchUtils;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.ScrollPosition;
@@ -14,17 +18,24 @@ import org.springframework.data.domain.Window;
 import org.springframework.stereotype.Service;
 
 @Service
-public record PostServiceImpl(PostRepository postRepository, JsonPatchUtils jsonPatchUtils)
-    implements PostService {
+@RequiredArgsConstructor
+@Slf4j
+public class PostServiceImpl implements PostService {
+
+  private final PostRepository postRepository;
+  private final JsonMergePatchUtils jsonPatchUtils;
 
   @Override
-  public Post createPost(Post post) {
-    return postRepository.save(post);
+  public Post createPost(Post post, User user) {
+    return postRepository.insert(post);
   }
 
   @Override
-  public void deletePost(String postId) {
-    postRepository.deleteById(postId);
+  public void deletePost(String postId, User user) {
+    Post post = getPost(postId);
+    post.setDeleted(true);
+    post.setDeletedBy(new ObjectId(user.getId()));
+    postRepository.save(post);
   }
 
   @Override
@@ -35,30 +46,27 @@ public record PostServiceImpl(PostRepository postRepository, JsonPatchUtils json
   }
 
   @Override
-  public List<Post> getPostsByAuthorId(String authorId) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'getPostsByAuthorId'");
+  public Page<Post> getPostsByAuthorId(String authorId, Pageable pageable) {
+    return postRepository.findByAuthorId(new ObjectId(authorId), pageable);
   }
 
   @Override
-  public Page<Post> getPagePosts(Pageable pageable) {
-    return postRepository.findAll(pageable);
+  public Page<Post> getPagePosts(Pageable pageable, PostType type) {
+    return postRepository.findByType(type, pageable);
   }
 
   @Override
   public Window<Post> getWindowPosts(ScrollPosition position) {
-
     return null;
   }
 
   @Override
-  public Post updatePost(Post post) {
+  public Post updatePost(Post post, User user) {
     return postRepository.save(post);
   }
 
   @Override
-  public Post updatePost(String postId, JsonNode patch) {
-    Post oldPost = getPost(postId);
-    return postRepository.save(jsonPatchUtils.applyMergePatch(oldPost, patch));
+  public Post updatePost(String postId, JsonNode patch, User user) {
+    return jsonPatchUtils.patch(postId, Post.class, patch);
   }
 }

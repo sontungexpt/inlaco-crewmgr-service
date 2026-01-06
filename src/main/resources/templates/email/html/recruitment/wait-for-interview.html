@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Application Received</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+      }
+      .email-container {
+        max-width: 600px;
+        margin: 20px auto;
+        background: #ffffff;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        background-color: #2c3e50;
+        color: #ffffff;
+        text-align: center;
+        padding: 20px;
+      }
+      .header h1 {
+        margin: 0;
+        font-size: 24px;
+      }
+      .content {
+        padding: 20px;
+        color: #333333;
+      }
+      .content p {
+        line-height: 1.6;
+        margin: 10px 0;
+      }
+      .footer {
+        background-color: #f4f4f4;
+        text-align: center;
+        padding: 15px;
+        font-size: 14px;
+        color: #666666;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="email-container">
+      <!-- Header -->
+      <div class="header">
+        <h1>Inlaco Recruitment Team</h1>
+      </div>
+
+      <!-- Content -->
+      <div class="content">
+        <p>Dear ${candidate_name},</p>
+
+        <p>
+          Thank you for submitting your application for the
+          <strong>${position_name}</strong> role at <strong>Inlaco</strong>. We
+          have reviewed your CV and are impressed by your qualifications and
+          experience.
+        </p>
+
+        <p>
+          At this stage, we may reach out to you via email or phone to gather
+          additional information about your background and suitability for the
+          role. Please ensure that your phone is reachable and that you
+          regularly check your email for updates from us.
+        </p>
+
+        <p>
+          If you have any questions or need feedback about your application,
+          feel free to reach out to us at
+          <a href="mailto:inlacocrewstudent@gmail.com">
+            inlacocrewstudent@gmail.com </a
+          >.
+        </p>
+
+        <p>
+          Thank you for your interest in joining our team. We appreciate your
+          patience as we carefully evaluate each application.
+        </p>
+
+        <p>Sincerely,</p>
+        <p><strong>Inlaco Recruitment Team</strong></p>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <p>© 2025 Inlaco. All rights reserved.</p>
+      </div>
+    </div>
+  </body>
+</html>

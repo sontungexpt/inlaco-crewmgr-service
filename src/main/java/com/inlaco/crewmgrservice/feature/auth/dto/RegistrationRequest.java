@@ -1,28 +1,63 @@
 package com.inlaco.crewmgrservice.feature.auth.dto;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
+import com.inlaco.crewmgrservice.common.payload.IMatchPassword;
+import com.inlaco.crewmgrservice.feature.user.enums.UsernameType;
+import com.inlaco.crewmgrservice.utils.PhoneNumberValidatorUtils;
 import com.inlaco.crewmgrservice.validation.annotation.OptimizedName;
 import com.inlaco.crewmgrservice.validation.annotation.Password;
-import com.inlaco.crewmgrservice.validation.annotation.PhoneNumber;
-import jakarta.validation.constraints.Email;
-import lombok.AllArgsConstructor;
+import com.inlaco.crewmgrservice.validation.annotation.Username;
+import io.swagger.v3.oas.annotations.media.Schema;
+import java.io.Serializable;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
-public class RegistrationRequest {
+public class RegistrationRequest implements Serializable, IMatchPassword {
 
-  @PhoneNumber
-  @JsonAlias("username")
-  private String phoneNumber;
+  @JsonAlias({"phoneNumber", "email"})
+  @Schema(
+      example = "tunggitclone03@gmail.com",
+      description = "Username (Phone number or email)",
+      examples = {"tunggitclone03@gmail.com", "+840392211343"})
+  @Username
+  private String username;
 
-  @Password private String password;
+  @Schema(hidden = true)
+  public UsernameType getUsernameType() {
+    if (PhoneNumberValidatorUtils.isPotentialPhoneNumber(username)) {
+      return UsernameType.PHONE_NUMBER;
+    } else {
+      return UsernameType.EMAIL;
+    }
+  }
 
-  @OptimizedName private String name;
+  public String getUsername() {
+    return username;
+  }
 
-  @Email private String email;
+  @Schema(description = "Password", example = "Admin123")
+  @Password
+  private String password;
+
+  @Schema(description = "The confirm passowrd", example = "Admin123")
+  @Password
+  private String confirmPassword;
+
+  @Schema(description = "Name", example = "Admin")
+  @OptimizedName
+  private String name;
+
+  @Override
+  @Schema(hidden = true)
+  public String getPasswordToMatch() {
+    return password;
+  }
+
+  @Override
+  @Schema(hidden = true)
+  public String getMatchingPassword() {
+    return confirmPassword;
+  }
 }

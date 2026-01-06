@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Congratulations - Job Offer</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f9f9f9;
+      }
+      .email-container {
+        max-width: 600px;
+        margin: 20px auto;
+        background: #ffffff;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        background-color: #27ae60;
+        color: #ffffff;
+        text-align: center;
+        padding: 20px;
+      }
+      .header h1 {
+        margin: 0;
+        font-size: 24px;
+      }
+      .content {
+        padding: 20px;
+        color: #333333;
+      }
+      .content p {
+        line-height: 1.6;
+        margin: 10px 0;
+      }
+      .content .highlight {
+        font-weight: bold;
+        color: #27ae60;
+      }
+      .footer {
+        background-color: #f4f4f4;
+        text-align: center;
+        padding: 15px;
+        font-size: 14px;
+        color: #666666;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="email-container">
+      <!-- Header -->
+      <div class="header">
+        <h1>Congratulations, ${candidate_name}!</h1>
+      </div>
+
+      <!-- Content -->
+      <div class="content">
+        <p>Dear ${candidate_name},</p>
+
+        <p>
+          We are delighted to inform you that you have successfully passed our
+          selection process for the <strong>${position_name}</strong> role at
+          <strong>Inlaco</strong>. Congratulations on this exciting achievement!
+        </p>
+
+        <p>
+          Your journey with us begins soon, and we can’t wait to welcome you to
+          our team. Below are some important details for your onboarding:
+        </p>
+
+        <p>
+          To help you prepare, please review the attached documents and complete
+          any necessary paperwork before your start date. If you have any
+          questions or need assistance, feel free to reach out to us at
+          <a href="mailto:inlacocrewstudent@gmail.com">
+            inlacocrewstudent@gmail.com </a
+          >.
+        </p>
+
+        <p class="highlight">Once again, congratulations and welcome aboard!</p>
+
+        <p>
+          We look forward to seeing you soon and working together to achieve
+          great things. We will send your schedule and further instructions in
+          later emails.
+        </p>
+
+        <p>Sincerely,</p>
+        <p><strong>The Inlaco Recruitment Team</strong></p>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <p>© 2025 Inlaco. All rights reserved.</p>
+      </div>
+    </div>
+  </body>
+</html>

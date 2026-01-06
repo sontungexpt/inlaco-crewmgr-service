@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Application Successful - ${company_name}</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f9f9f9;
+      }
+      .email-container {
+        max-width: 600px;
+        margin: 20px auto;
+        background: #ffffff;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        background-color: #007bff;
+        color: #ffffff;
+        text-align: center;
+        padding: 20px;
+      }
+      .header h1 {
+        margin: 0;
+        font-size: 24px;
+      }
+      .content {
+        padding: 20px;
+        color: #333333;
+      }
+      .content p {
+        line-height: 1.6;
+        margin: 10px 0;
+      }
+      .content .highlight {
+        font-weight: bold;
+        color: #007bff;
+      }
+      .footer {
+        background-color: #f4f4f4;
+        text-align: center;
+        padding: 15px;
+        font-size: 14px;
+        color: #666666;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="email-container">
+      <!-- Header -->
+      <div class="header">
+        <h1>Congratulations, ${candidate_name}!</h1>
+      </div>
+
+      <!-- Content -->
+      <div class="content">
+        <p>Dear ${candidate_name},</p>
+
+        <p>
+          We are pleased to confirm that your application for the position of
+          <strong>${position_name}</strong> at
+          <strong>${company_name}</strong> has been successfully submitted.
+        </p>
+
+        <p>
+          Thank you for taking the time to apply. Our team will review your
+          profile carefully, and we will contact you soon regarding the next
+          steps in the process.
+        </p>
+
+        <p>
+          If you have any questions in the meantime, please do not hesitate to
+          reach out to us at
+          <a href="mailto:${contact_email}">${contact_email}</a>.
+        </p>
+
+        <p class="highlight">We wish you the best of luck!</p>
+
+        <p>
+          Thank you for your interest in joining the team at
+          <strong>${company_name}</strong>. We look forward to connecting with
+          you soon!
+        </p>
+
+        <p>Sincerely,</p>
+        <p><strong>The ${company_name} Recruitment Team</strong></p>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <p>© ${current_year} ${company_name}. All rights reserved.</p>
+      </div>
+    </div>
+  </body>
+</html>

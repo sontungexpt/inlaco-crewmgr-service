@@ -1,22 +1,34 @@
 package com.inlaco.crewmgrservice.feature.auth.service.impl;
 
-import com.inlaco.crewmgrservice.exceptions.JwtTokenException;
 import com.inlaco.crewmgrservice.exceptions.ResourceAlreadyInUseException;
+import com.inlaco.crewmgrservice.exceptions.ResourceNotFoundException;
 import com.inlaco.crewmgrservice.feature.auth.dto.JwtResponse;
 import com.inlaco.crewmgrservice.feature.auth.dto.LoginRequest;
 import com.inlaco.crewmgrservice.feature.auth.dto.LoginResponse;
 import com.inlaco.crewmgrservice.feature.auth.dto.RegistrationRequest;
+import com.inlaco.crewmgrservice.feature.auth.enums.TwoStepVerificationType;
 import com.inlaco.crewmgrservice.feature.auth.jwt.JwtService;
 import com.inlaco.crewmgrservice.feature.auth.model.RefreshToken;
 import com.inlaco.crewmgrservice.feature.auth.repository.RefreshTokenRepository;
 import com.inlaco.crewmgrservice.feature.auth.service.AuthService;
+import com.inlaco.crewmgrservice.feature.auth.service.RefreshTokenService;
+import com.inlaco.crewmgrservice.feature.notify.NotificationFactory;
+import com.inlaco.crewmgrservice.feature.user.enums.UsernameType;
 import com.inlaco.crewmgrservice.feature.user.model.User;
+import com.inlaco.crewmgrservice.feature.user.model.authorization.Right;
+import com.inlaco.crewmgrservice.feature.user.model.authorization.Role;
+import com.inlaco.crewmgrservice.feature.user.repository.RoleRepository;
 import com.inlaco.crewmgrservice.feature.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,87 +36,115 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public record AuthServiceImpl(
     RefreshTokenRepository refreshTokenRepository,
+    RefreshTokenService refreshTokenService,
     JwtService jwtService,
     UserService userService,
-    AuthenticationManager authenticationManager)
+    AuthenticationManager authenticationManager,
+    PasswordEncoder passwordEncoder,
+    NotificationFactory notificationFactory,
+    TwoStepVerificationFactory twoStepVerificationFactory,
+    RoleRepository roleRepository)
     implements AuthService {
+
+  public void checkUserValid(UserDetails user) {
+    if (!user.isAccountNonLocked()) {
+      log.debug("Failed to authenticate since user account is locked");
+      throw new LockedException(
+          "AbstractUserDetailsAuthenticationProvider.locked. User account is locked");
+    } else if (!user.isEnabled()) {
+      log.debug("Failed to authenticate since user account is disabled");
+      throw new DisabledException(
+          "AbstractUserDetailsAuthenticationProvider.disabled. User is disabled");
+    } else if (!user.isAccountNonExpired()) {
+      log.debug("Failed to authenticate since user account has expired");
+      throw new AccountExpiredException(
+          "AbstractUserDetailsAuthenticationProvider.expired. User account has expired");
+    } else if (!user.isCredentialsNonExpired()) {
+      log.debug("Failed to authenticate since user credentials have expired");
+      throw new AccountExpiredException(
+          "AbstractUserDetailsAuthenticationProvider.expired. User credentials have expired");
+    }
+  }
 
   @Override
   public LoginResponse login(LoginRequest loginRequest) {
     Authentication authentication =
         authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(
-                loginRequest.getPhoneNumber(), loginRequest.getPassword()));
-
+                loginRequest.getUsername(), loginRequest.getPassword()));
     User user = (User) authentication.getPrincipal();
-    // if (user == null)
-    //   throw new UsernameNotFoundException(
-    //       "User not found with phone number " + loginRequest.getPhoneNumber());
+    checkUserValid(user);
 
     SecurityContextHolder.getContext().setAuthentication(authentication);
 
     final String accessToken = jwtService.generateAccessToken(user);
-    final RefreshToken refreshToken = jwtService.generateRefreshToken(user);
-
-    refreshTokenRepository.save(refreshToken);
+    final RefreshToken refreshToken = jwtService.generateRefreshTokenAndSaveToDB(user);
 
     log.info("Account with public id {} logged in successfully", user.getPubId());
 
     return LoginResponse.builder()
         .name(user.getName())
         .jwt(new JwtResponse(accessToken, refreshToken.getToken()))
+        .roles(user.getRight().getRoles().stream().map(Role::getName).toList())
         .build();
   }
 
   @Override
   @Transactional
   public void register(RegistrationRequest request) {
-    final String phoneNumber = request.getPhoneNumber();
-
-    if (userService.existsByPhoneNumber(phoneNumber)) {
-      throw new ResourceAlreadyInUseException(User.class, "phoneNumber", phoneNumber);
+    final String username = request.getUsername();
+    if (userService.existsByUsername(username)) {
+      log.debug("User with username {} already exists", username);
+      throw new ResourceAlreadyInUseException(User.class, "username", username);
     }
 
-    // User user = userService.save(userService.createBasicUser(request));
-    // OTPProperties otpProperties =
-    //     OTPProperties.builder()
-    //         .notificationType(NotificationType.SMS)
-    //         .otpExpiration(OTPExpiration.SHORT)
-    //         .otpType(OTPType.USER_REGISTRATION)
-    //         .build();
+    log.debug("Starting registration for user {}", username);
 
-    // otpService.send(user.getPhoneNumber(), otpProperties);
+    var usernameType = request.getUsernameType();
 
-    // applicationEventPulisher.publishEvent(new UserWaitingOTPValidationEvent(this, user));
+    Role role =
+        roleRepository
+            .findByName("USER")
+            .orElseThrow(() -> new ResourceNotFoundException(Role.class, "name", "ROLE_USER"));
+
+    User user =
+        userService.saveUser(
+            User.builder()
+                .username(username)
+                .usernameType(usernameType)
+                .password(passwordEncoder.encode(request.getPassword()))
+                .right(new Right(role))
+                .name(request.getName())
+                .build());
+
+    if (usernameType == UsernameType.EMAIL) {
+      twoStepVerificationFactory.sendVerificationCode(TwoStepVerificationType.EMAIL, user);
+    } else if (usernameType == UsernameType.PHONE_NUMBER) {
+
+    }
   }
 
   @Override
   @Transactional
   public JwtResponse refreshToken(String refreshToken) {
     RefreshToken savedRefreshToken =
-        refreshTokenRepository
-            .findByToken(refreshToken)
-            .orElseThrow(
-                () -> {
-                  log.warn("Refresh token {} not found", refreshToken);
-                  return new JwtTokenException(refreshToken, "Refresh token not found");
-                });
+        refreshTokenService.getAndValidateRefreshToken(
+            refreshToken, this::handleRefreshtokenIntrusion);
+    return refreshTokenService.refreshJwtTokens(savedRefreshToken);
+  }
 
-    if (savedRefreshToken.isRevoked()) {
-      throw new JwtTokenException(refreshToken, "Refresh token revoked");
-    } else if (savedRefreshToken.isExpired()) {
-      refreshTokenRepository.save(savedRefreshToken.revoke());
-      throw new JwtTokenException(refreshToken, "Refresh token expired");
-    }
+  public void handleRefreshtokenIntrusion(RefreshToken refreshToken) {
+    log.warn("Infiltration detected");
+  }
 
-    String newAccessToken = jwtService.generateAccessToken(savedRefreshToken.getUserPubId());
-    RefreshToken updatedRefreshToken = refreshTokenRepository.save(savedRefreshToken.refresh());
+  @Override
+  public void resend2StepVerification(String identifier) {
+    User user = userService.findUserByUsername(identifier);
+    twoStepVerificationFactory.resendVerificationCode(TwoStepVerificationType.EMAIL, user);
+  }
 
-    log.info(
-        "Refresh token {} refreshed successfully for user with public id {}",
-        refreshToken,
-        savedRefreshToken.getUserPubId());
-
-    return new JwtResponse(newAccessToken, updatedRefreshToken.getToken());
+  @Override
+  public void verify2StepVerifiction(String token) {
+    twoStepVerificationFactory.verifyCode(TwoStepVerificationType.EMAIL, token);
   }
 }

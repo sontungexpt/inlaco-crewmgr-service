@@ -1,6 +1,7 @@
 package com.inlaco.crewmgrservice.feature.auth.jwt;
 
 import com.inlaco.crewmgrservice.feature.auth.model.RefreshToken;
+import com.inlaco.crewmgrservice.feature.auth.repository.RefreshTokenRepository;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import com.inlaco.crewmgrservice.utils.JwtUtils;
 import io.jsonwebtoken.Claims;
@@ -8,20 +9,24 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class JwtService {
 
-  @Value("${inlaco.jwt.secret-key}")
+  @Value("${jwt.secret-key}")
   private String JWT_SECRET_KEY;
 
-  @Value("${inlaco.jwt.access-token-expiration}")
+  @Value("${jwt.access-token-expiration}")
   private long ACCESS_TOKEN_EXPIRATION;
 
-  @Value("${inlaco.jwt.refresh-token-expiration}")
+  @Value("${jwt.refresh-token-expiration}")
   private long REFRESH_TOKEN_EXPIRATION;
+
+  private final RefreshTokenRepository refreshTokenRepository;
 
   public String generateAccessToken(User user) {
     return buildToken(user.getPubId(), ACCESS_TOKEN_EXPIRATION);
@@ -36,7 +41,21 @@ public class JwtService {
   }
 
   public RefreshToken generateRefreshToken(User user) {
-    return new RefreshToken(user.getPubId(), REFRESH_TOKEN_EXPIRATION);
+    return generateRefreshToken(user.getPubId());
+  }
+
+  public RefreshToken generateRefreshToken(String userPubId) {
+    return new RefreshToken(userPubId, REFRESH_TOKEN_EXPIRATION);
+  }
+
+  public RefreshToken generateRefreshTokenAndSaveToDB(User user) {
+    return generateRefreshTokenAndSaveToDB(user.getPubId());
+  }
+
+  public RefreshToken generateRefreshTokenAndSaveToDB(String userPubId) {
+    RefreshToken refreshToken = new RefreshToken(userPubId, REFRESH_TOKEN_EXPIRATION);
+    refreshTokenRepository.save(refreshToken);
+    return refreshToken;
   }
 
   public boolean isTokenValid(String token, String subject) {

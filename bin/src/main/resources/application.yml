@@ -1,0 +1,102 @@
+debug: false
+
+admin:
+  username: ${ADMIN_USERNAME}
+  password: ${ADMIN_PASSWORD}
+
+server:
+  port: 8080
+
+caching:
+  spring:
+    userListTTL: 60000
+
+cloudinary:
+  cloud_name: ${CLOUDINARY_CLOUD_NAME:inlaco-db}
+  api_key: ${CLOUDINARY_API_KEY}
+  api_secret: ${CLOUDINARY_API_SECRET}
+
+vonage:
+  api-key: ${VONAGE_API_KEY}
+  api-secret: ${VONAGE_API_SECRET}
+  sender: ${VONAGE_SENDER:Inlaco}
+
+httpsms:
+  api-key: ${HTTPSMS_API_KEY}
+  sender: ${HTTPSMS_SENDER}
+  api-secret: ${HTTPSMS_SECRET_KEY}
+
+jwt:
+  # inlaco.JWT-secret-key
+  secret-key: ${JWT_SECRET_KEY}
+  access-token-expiration: 300000000 # 5 mins
+  refresh-token-expiration: 2592000000 # 30 days
+
+spring:
+  application:
+    name: "crewmgrservice"
+  profiles:
+    active: dev
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  main:
+    allow-bean-definition-overriding: true
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${EMAIL_USERNAME}
+    password: ${EMAIL_PASSWORD}
+    transport:
+      protocol: smtp
+    smtp:
+      auth: true
+      starttls:
+        enable: true
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=100000,expireAfterAccess=3600s
+    # cache-names:
+    #   - rate-limit-buckets
+    #   - rate-limit-filter
+    jcache:
+      provider: com.github.benmanes.caffeine.jcache.spi.CaffeineCachingProvider
+  data:
+    mongodb:
+      database: ${MONGO_DATABASE}
+      uri: mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_DATABASE}.e2nsr.mongodb.net/?retryWrites=true&w=majority&appName=${MONGO_DATABASE}
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      # password: ${REDIS_PASSWORD:IxXNUvoIE4ZywfZ8PMZ0nmVxVzKwUeC3}
+
+inlaco:
+  company-name: Inlaco
+  upload:
+    path:
+      image: ${INLACO_UPLOAD_PATH_IMAGE:client_upload/images}
+      document: ${INLACO_UPLOAD_PATH_DOCUMENT:client_upload/documents}
+    max-size: ${INLACO_UPLOAD_MAX_SIZE:5MB}
+    max-request-size: ${INLACO_UPLOAD_MAX_REQUEST_SIZE:5MB}
+    file-size-threshold: ${INLACO_UPLOAD_FILE_SIZE_THRESHOLD:0}
+
+  server:
+    port: ${server.port}
+    base-url: ${INLACO_SERVER_BASE_URL:http://localhost:${server.port}}
+    api:
+      url:
+        v1: ${${inlaco.server.base-url}/api/v1}
+
+  client:
+    base-url: ${CLIENT_BASE_URL:http://localhost:3000}
+    endpoint:
+      login: ${inlaco.client.base-url}/login
+      error: ${inlaco.client.base-url}/error

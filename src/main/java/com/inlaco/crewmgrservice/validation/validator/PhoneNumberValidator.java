@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.validation.validator;
 
-import com.inlaco.crewmgrservice.common.regexp.PhoneNumberRegexp;
+import com.inlaco.crewmgrservice.constant.PhoneNumberRegexp;
 import com.inlaco.crewmgrservice.utils.PhoneNumberValidatorUtils;
 import com.inlaco.crewmgrservice.validation.annotation.PhoneNumber;
 import jakarta.validation.ConstraintValidator;

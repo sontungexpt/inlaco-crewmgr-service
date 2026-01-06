@@ -1,55 +1,61 @@
-// package com.foodey.server.notify.httpsms;
+package com.inlaco.crewmgrservice.feature.notify.httpsms;
 
-// import com.foodey.server.notify.NotificationRequest;
-// import com.foodey.server.notify.NotificationService;
-// import com.foodey.server.notify.NotificationType;
-// import com.foodey.server.utils.ConsoleUtils;
-// import com.foodey.server.utils.HttpRequestUtils;
-// import java.util.HashMap;
-// import lombok.RequiredArgsConstructor;
-// import lombok.extern.slf4j.Slf4j;
-// import org.springframework.beans.factory.annotation.Value;
-// import org.springframework.scheduling.annotation.Async;
-// import org.springframework.stereotype.Service;
+import com.inlaco.crewmgrservice.feature.notify.NotificationService;
+import com.inlaco.crewmgrservice.feature.notify.NotificationType;
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
-// @Slf4j
-// @Service(NotificationType.SMS)
-// @RequiredArgsConstructor
-// public class SMSNotificationServiceImpl implements NotificationService {
+@Slf4j
+@RequiredArgsConstructor
+@Service(NotificationType.SMS)
+public class SMSNotificationServiceImpl implements NotificationService<SMSRequest> {
 
-//   @Value("${foodey.sms.httpsms.api-key}")
-//   private String apiKey;
+  @Value("${httpsms.api-key}")
+  private String apiKey;
 
-//   @Value("${foodey.sms.httpsms.sender}")
-//   private String sender;
+  @Value("${httpsms.sender}")
+  private String sender;
 
-//   @Override
-//   @Async
-//   public void sendNotification(NotificationRequest request) {
+  private String POST_URL = "https://api.httpsms.com/v1/messages/send";
 
-//     try {
-//       Object response =
-//           HttpRequestUtils.post(
-//               "https://api.httpsms.com/v1/messages/send",
-//               new HashMap<>() {
-//                 {
-//                   put("content", request.getMessage());
-//                   put("from", sender);
-//                   put("to", (String) request.getRecipient());
-//                 }
-//               },
-//               new HashMap<>() {
-//                 {
-//                   put("x-api-key", apiKey);
-//                   put("Content-Type", "application/json");
-//                   put("accept", "application/json");
-//                 }
-//               });
+  private String getRequestBody(SMSRequest request) {
 
-//       ConsoleUtils.prettyPrint(response);
+    return String.format(
+        """
+        {
+           "content": "%s",
+           "from": "%s",
+           "to": "%s"
+        }
+        """,
+        request.getMessage(), sender, request.getFirstRecipient());
+  }
 
-//     } catch (Exception e) {
-//       log.error("Error SMS " + e);
-//     }
-//   }
-// }
+  @Override
+  public void sendNotification(SMSRequest request) {
+    HttpClient client = HttpClient.newHttpClient();
+    HttpRequest httpRequest =
+        HttpRequest.newBuilder()
+            .uri(URI.create(POST_URL))
+            .header("x-api-key", apiKey)
+            .header("Content-Type", "application/json")
+            .header("accept", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(getRequestBody(request)))
+            .build();
+
+    try {
+      log.info(client.send(httpRequest, HttpResponse.BodyHandlers.ofString()).body());
+    } catch (IOException | InterruptedException e) {
+      e.printStackTrace();
+      log.warn("Error when sending sms message");
+      throw new SMSNotificationException(request.getFirstRecipient(), request.getMessage());
+    }
+  }
+}

@@ -1,6 +1,7 @@
 package com.inlaco.crewmgrservice.feature.auth.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.inlaco.crewmgrservice.endpoint.APIEndpointMapSkip;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class WellKnowController {
 
   @GetMapping("/assetlinks.json")
+  @APIEndpointMapSkip
   public Object assetlinks() {
     try {
       String json =

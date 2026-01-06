@@ -2,8 +2,11 @@ package com.inlaco.crewmgrservice.exceptions.advice;
 
 import com.inlaco.crewmgrservice.common.payload.ExceptionResponse;
 import com.inlaco.crewmgrservice.exceptions.JwtTokenException;
+import com.inlaco.crewmgrservice.feature.user.enums.UserStatus;
 import jakarta.servlet.http.HttpServletRequest;
 import java.nio.file.AccessDeniedException;
+import java.util.Map;
+import javax.security.auth.login.AccountExpiredException;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
@@ -32,10 +35,42 @@ public class AuthorizedAdvice {
         .toResponseEntity();
   }
 
-  @ExceptionHandler({AccessDeniedException.class, LockedException.class, DisabledException.class})
-  public ResponseEntity<?> handleAccessDeniedException(Exception ex, HttpServletRequest request) {
+  @ExceptionHandler({DisabledException.class})
+  public ResponseEntity<?> handleDisabledException(
+      DisabledException ex, HttpServletRequest request) {
     return ExceptionResponse.builder(ex, HttpStatus.FORBIDDEN)
         .request(request)
+        .data(Map.of("reason", UserStatus.UNVERIFIED, "message", "Email not verified"))
+        .build()
+        .toResponseEntity();
+  }
+
+  @ExceptionHandler({AccountExpiredException.class})
+  public ResponseEntity<?> handleAccountExpiredException(
+      AccountExpiredException ex, HttpServletRequest request) {
+    return ExceptionResponse.builder(ex, HttpStatus.FORBIDDEN)
+        .request(request)
+        .data(Map.of("reason", UserStatus.EXPIRED, "message", "Account expired"))
+        .build()
+        .toResponseEntity();
+  }
+
+  // Handle AccessDeniedException with 403 Forbidden
+  @ExceptionHandler(AccessDeniedException.class)
+  public ResponseEntity<?> handleAccessDeniedException(
+      AccessDeniedException ex, HttpServletRequest request) {
+    return ExceptionResponse.builder(ex, HttpStatus.FORBIDDEN)
+        .request(request)
+        .build()
+        .toResponseEntity();
+  }
+
+  // Handle LockedException with a specific status code, such as 423 Locked
+  @ExceptionHandler(LockedException.class)
+  public ResponseEntity<?> handleLockedException(LockedException ex, HttpServletRequest request) {
+    return ExceptionResponse.builder(ex, HttpStatus.LOCKED)
+        .request(request)
+        .data(Map.of("reason", UserStatus.LOCKED, "message", "Account locked"))
         .build()
         .toResponseEntity();
   }

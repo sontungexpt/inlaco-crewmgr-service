@@ -4,7 +4,8 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.3.4</version>
+    <version>3.5.8</version>
+    <!-- <version>4.0.0</version> -->
     <relativePath></relativePath>
     <!-- lookup parent from repository -->
   </parent>
@@ -18,7 +19,15 @@
     <license></license>
   </licenses>
   <developers>
-    <developer></developer>
+    <developer>
+      <id>tung</id>
+      <name>Tran Vo Son Tung</name>
+      <email>sontungexpt@gmail.com</email>
+      <roles>
+        <role>backend developer</role>
+      </roles>
+      <timezone>VietNam/Ho_Chi_Minh</timezone>
+    </developer>
   </developers>
   <scm>
     <connection></connection>
@@ -27,12 +36,47 @@
     <url></url>
   </scm>
   <properties>
-    <java.version>17</java.version>
-    <lombok.version>1.18.34</lombok.version>
+    <java.version>21</java.version>
+    <kotlin.version>2.2.21</kotlin.version>
+    <lombok.version>1.18.42</lombok.version>
     <therapi.version>0.15.0</therapi.version>
-    <jjwt.version>0.12.6</jjwt.version>
+    <jjwt.version>0.13.0</jjwt.version>
+    <cloudinary.version>2.3.2</cloudinary.version>
+    <jnanoid.version>2.0.0</jnanoid.version>
+    <dotenv.version>4.0.0</dotenv.version>
+    <slugify.version>3.0.7</slugify.version>
+    <icu4j.version>76.1</icu4j.version>
+    <redisson.version>3.52.0</redisson.version>
+    <springdoc.version>2.8.1</springdoc.version>
+    <json-patch.version>1.13</json-patch.version>
+    <!-- <vonage.version>8.14.0</vonage.version> -->
   </properties>
   <dependencies>
+    <dependency>
+      <groupId>org.jetbrains.kotlin</groupId>
+      <artifactId>kotlin-reflect</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jetbrains.kotlin</groupId>
+      <artifactId>kotlin-stdlib</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jetbrains.kotlin</groupId>
+      <artifactId>kotlin-test-junit5</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-logging</artifactId>
+    </dependency>
+    <!-- <dependency> -->
+    <!--   <groupId>org.eclipse.angus</groupId> -->
+    <!--   <artifactId>angus-activation</artifactId> -->
+    <!-- </dependency> -->
+    <!-- <dependency> -->
+    <!--   <groupId>org.eclipse.angus</groupId> -->
+    <!--   <artifactId>angus-mail</artifactId> -->
+    <!-- </dependency> -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-mail</artifactId>
@@ -78,12 +122,12 @@
     <dependency>
       <groupId>me.paulschwarz</groupId>
       <artifactId>spring-dotenv</artifactId>
-      <version>4.0.0</version>
+      <version>${dotenv.version}</version>
     </dependency>
     <dependency>
       <groupId>com.github.java-json-tools</groupId>
       <artifactId>json-patch</artifactId>
-      <version>1.13</version>
+      <version>${json-patch.version}</version>
     </dependency>
     <dependency>
       <groupId>org.glassfish</groupId>
@@ -93,12 +137,17 @@
     <dependency>
       <groupId>org.springdoc</groupId>
       <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-      <version>2.6.0</version>
+      <version>${springdoc.version}</version>
     </dependency>
     <dependency>
       <groupId>com.github.therapi</groupId>
       <artifactId>therapi-runtime-javadoc</artifactId>
       <version>${therapi.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.aventrix.jnanoid</groupId>
+      <artifactId>jnanoid</artifactId>
+      <version>${jnanoid.version}</version>
     </dependency>
     <!-- https://stackoverflow.com/questions/21384820/is-there-a-jackson-datatype-module-for-jdk8-java-time   -->
     <dependency>
@@ -128,43 +177,140 @@
       <scope>runtime</scope>
     </dependency>
     <dependency>
-      <groupId>com.aventrix.jnanoid</groupId>
-      <artifactId>jnanoid</artifactId>
-      <version>2.0.0</version>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-cache</artifactId>
     </dependency>
+    <dependency>
+      <groupId>javax.cache</groupId>
+      <artifactId>cache-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.github.ben-manes.caffeine</groupId>
+      <artifactId>caffeine</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.github.ben-manes.caffeine</groupId>
+      <artifactId>jcache</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-redis</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.redisson</groupId>
+      <artifactId>redisson-spring-boot-starter</artifactId>
+      <version>${redisson.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.github.slugify</groupId>
+      <artifactId>slugify</artifactId>
+      <version>${slugify.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.ibm.icu</groupId>
+      <artifactId>icu4j</artifactId>
+      <version>${icu4j.version}</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/com.cloudinary/cloudinary-http5 -->
+    <dependency>
+      <groupId>com.cloudinary</groupId>
+      <artifactId>cloudinary-http5</artifactId>
+      <version>${cloudinary.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.cloudinary</groupId>
+      <artifactId>cloudinary-taglib</artifactId>
+      <version>${cloudinary.version}</version>
+    </dependency>
+    <!-- <dependency> -->
+    <!--   <groupId>com.vonage</groupId> -->
+    <!--   <artifactId>server-sdk</artifactId> -->
+    <!--   <version>${vonage.version}</version> -->
+    <!-- </dependency> -->
   </dependencies>
   <build>
-    <plugins>
-      <plugin>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-maven-plugin</artifactId>
-        <configuration>
-          <excludes>
-            <exclude>
-              <groupId>org.projectlombok</groupId>
-              <artifactId>lombok</artifactId>
-            </exclude>
-          </excludes>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <annotationProcessorPaths>
-            <path>
-              <groupId>com.github.therapi</groupId>
-              <artifactId>therapi-runtime-javadoc-scribe</artifactId>
-              <version>${therapi.version}</version>
-            </path>
-            <path>
-              <groupId>org.projectlombok</groupId>
-              <artifactId>lombok</artifactId>
-              <version>${lombok.version}</version>
-            </path>
-          </annotationProcessorPaths>
-        </configuration>
-      </plugin>
-    </plugins>
+    <pluginManagement>
+      <plugins>
+        <!-- You don't need a separate maven-compiler-plugin in the <build><pluginManagement> section when using the Kotlin Maven plugin with extensions. -->
+        <!-- <plugin> -->
+        <!--   <groupId>org.apache.maven.plugins</groupId> -->
+        <!--   <artifactId>maven-compiler-plugin</artifactId> -->
+        <!--   <configuration> -->
+        <!--     <annotationProcessorPaths> -->
+        <!--       <path> -->
+        <!--         <groupId>com.github.therapi</groupId> -->
+        <!--         <artifactId>therapi-runtime-javadoc-scribe</artifactId> -->
+        <!--         <version>${therapi.version}</version> -->
+        <!--       </path> -->
+        <!--       <path> -->
+        <!--         <groupId>org.projectlombok</groupId> -->
+        <!--         <artifactId>lombok</artifactId> -->
+        <!--         <version>${lombok.version}</version> -->
+        <!--       </path> -->
+        <!--     </annotationProcessorPaths> -->
+        <!--   </configuration> -->
+        <!-- </plugin> -->
+        <!-- Activate Kotlin Maven plugin for main and test sources -->
+        <plugin>
+          <groupId>org.jetbrains.kotlin</groupId>
+          <artifactId>kotlin-maven-plugin</artifactId>
+          <version>${kotlin.version}</version>
+          <!-- lets Maven integrate the Kotlin plugin into the build lifecycle. -->
+          <extensions>true</extensions>
+          <configuration>
+            <annotationProcessorPaths>
+              <path>
+                <groupId>com.github.therapi</groupId>
+                <artifactId>therapi-runtime-javadoc-scribe</artifactId>
+                <version>${therapi.version}</version>
+              </path>
+              <path>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+              </path>
+            </annotationProcessorPaths>
+            <args>
+              <arg>-Xjsr305=strict</arg>
+              <arg>-Xannotation-default-target=param-property</arg>
+            </args>
+            <compilerPlugins>
+              <plugin>spring</plugin>
+            </compilerPlugins>
+          </configuration>
+          <dependencies>
+            <dependency>
+              <groupId>org.jetbrains.kotlin</groupId>
+              <artifactId>kotlin-maven-allopen</artifactId>
+              <version>${kotlin.version}</version>
+            </dependency>
+          </dependencies>
+          <!-- Custom execution phases allow the Kotlin plugin to compile Kotlin first, then Java. -->
+          <executions>
+            <execution>
+              <id>default-compile</id>
+              <phase>compile</phase>
+              <configuration>
+                <sourceDirs>
+                  <sourceDir>src/main/kotlin</sourceDir>
+                  <!-- Ensure Kotlin code can reference Java code -->
+                  <sourceDir>src/main/java</sourceDir>
+                </sourceDirs>
+              </configuration>
+            </execution>
+            <execution>
+              <id>default-test-compile</id>
+              <phase>test-compile</phase>
+              <configuration>
+                <sourceDirs>
+                  <sourceDir>src/test/kotlin</sourceDir>
+                  <sourceDir>src/test/java</sourceDir>
+                </sourceDirs>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+      </plugins>
+    </pluginManagement>
   </build>
 </project>

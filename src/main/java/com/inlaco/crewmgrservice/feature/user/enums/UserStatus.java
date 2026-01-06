@@ -7,5 +7,7 @@ public enum UserStatus {
   DELETED,
   COMPROMISED,
   UNVERIFIED,
+  LOCKED,
+  EXPIRED,
   ;
 }

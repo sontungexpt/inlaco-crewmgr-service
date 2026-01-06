@@ -1,4 +1,4 @@
-// package com.foodey.server.config;
+// package com.inlaco.crewmgrservice.config;
 
 // import com.fasterxml.jackson.databind.ObjectMapper;
 // import lombok.RequiredArgsConstructor;

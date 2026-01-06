@@ -1,14 +1,14 @@
-// package com.foodey.server.notify.httpsms;
+package com.inlaco.crewmgrservice.feature.notify.httpsms;
 
-// import lombok.Getter;
+import lombok.Getter;
 
-// @Getter
-// public class SMSNotificationException extends RuntimeException {
+@Getter
+public class SMSNotificationException extends RuntimeException {
 
-//   private Object receiver;
+  private Object receiver;
 
-//   public SMSNotificationException(Object receiver, String message) {
-//     super(message);
-//     this.receiver = receiver;
-//   }
-// }
+  public SMSNotificationException(Object receiver, String message) {
+    super(message);
+    this.receiver = receiver;
+  }
+}
