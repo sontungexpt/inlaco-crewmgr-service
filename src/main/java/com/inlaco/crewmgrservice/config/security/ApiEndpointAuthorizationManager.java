@@ -83,8 +83,9 @@ public class ApiEndpointAuthorizationManager
    * ========================================================== */
   private final Environment environment;
   private static final PathPatternParser PATH_PARSER = new PathPatternParser();
-  private final Map<HttpMethod, Set<APIPath>> publicEndpoints = new ConcurrentHashMap<>();
-  private final Map<HttpMethod, Set<PathPattern>> staticEndpoints = new ConcurrentHashMap<>();
+  private static final Map<HttpMethod, Set<APIPath>> publicEndpoints = new ConcurrentHashMap<>();
+  private static final Map<HttpMethod, Set<PathPattern>> staticEndpoints =
+      new ConcurrentHashMap<>();
 
   /* ==========================================================
    * Constructor

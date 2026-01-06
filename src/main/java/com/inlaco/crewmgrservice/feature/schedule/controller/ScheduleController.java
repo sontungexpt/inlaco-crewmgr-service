@@ -42,7 +42,7 @@ public class ScheduleController {
   @Operation(
       summary = "Create a new schedule",
       description =
-          """
+"""
 Create a new schedule with the given data.
 
 **Usecase**:
@@ -62,7 +62,7 @@ Create a new schedule with the given data.
   @Operation(
       summary = "Fetch pagination schedules",
       description =
-          """
+"""
 
 Fetch pagination schedules
 
@@ -76,7 +76,7 @@ If estimatedEndDate is provided, adjust the filter to include schedules that mat
 
 """,
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
-  @GetMapping("/pagination")
+  @GetMapping("")
   @RolesAllowed("ADMIN")
   @PageableQueryParams
   public Page<AssigmentSchedule> fetchPaginationSchedules(
@@ -96,7 +96,7 @@ If estimatedEndDate is provided, adjust the filter to include schedules that mat
   @Operation(
       summary = "Find schedules with the given data",
       description =
-          """
+"""
 
 Find schedules with the given data.
 
@@ -110,7 +110,7 @@ If estimatedEndDate is provided, adjust the filter to include schedules that mat
 
 """,
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
-  @GetMapping("")
+  @GetMapping("/all")
   @RolesAllowed("ADMIN")
   @PageableQueryParams
   public List<AssigmentSchedule> fetchSchedules(
@@ -128,7 +128,7 @@ If estimatedEndDate is provided, adjust the filter to include schedules that mat
   @Operation(
       summary = "Find schedules of a sailor with the given cardId",
       description =
-          """
+"""
 
 Find schedules of a sailor with the given cardId.
 
@@ -164,7 +164,7 @@ If estimatedEndDate is provided, adjust the filter to include schedules that mat
   @Operation(
       summary = "Find schedules of a sailor with the given cardId",
       description =
-          """
+"""
 
 Find schedules of a sailor with the given cardId.
 
@@ -197,7 +197,7 @@ If estimatedEndDate is provided, adjust the filter to include schedules that mat
   @Operation(
       summary = "Find schedule detail by id",
       description =
-          """
+"""
 
 Find schedule detail by id.
 
@@ -216,7 +216,7 @@ Find schedule detail by id.
   @Operation(
       summary = "Update schedule by id",
       description =
-          """
+"""
 
 Update schedule by id.
 

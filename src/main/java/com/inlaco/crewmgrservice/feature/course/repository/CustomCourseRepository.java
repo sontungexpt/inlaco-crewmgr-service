@@ -43,10 +43,8 @@ public class CustomCourseRepository {
                         "courseId",
                         "_id",
                         "courses"),
+                    Aggregation.project().and("courses").arrayElementAt(0).as("course"),
                     Aggregation.project()
-                        .and("courses")
-                        .arrayElementAt(0)
-                        .as("course")
                         // ===== ID & basic =====
                         .and("course._id")
                         .as("id")

@@ -34,6 +34,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
  */
 // @Component
 @Slf4j
+@Deprecated
 public class ApiEndpointSecurityInspector {
 
   /* ==========================================================
