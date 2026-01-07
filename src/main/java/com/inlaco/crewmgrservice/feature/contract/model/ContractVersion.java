@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.inlaco.crewmgrservice.annotation.JsonPatchIgnore;
-import com.inlaco.crewmgrservice.common.model.Auditable;
 import com.inlaco.crewmgrservice.common.model.File;
 import com.inlaco.crewmgrservice.common.model.Versionable;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -17,8 +16,10 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @SuperBuilder
@@ -30,7 +31,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "contract_versions")
 @NoArgsConstructor
 /** The document to save all versions of contract */
-public abstract class ContractVersion extends Auditable implements Versionable<String, Integer> {
+public abstract class ContractVersion implements Versionable<String, Integer> {
 
   @Id
   @Schema(hidden = true)
@@ -97,6 +98,16 @@ public abstract class ContractVersion extends Auditable implements Versionable<S
       requiredMode = RequiredMode.REQUIRED)
   @JsonPatchIgnore
   private String changeLog;
+
+  @CreatedDate
+  @Schema(hidden = true)
+  @JsonPatchIgnore
+  protected Instant createdAt;
+
+  @Schema(hidden = true)
+  @LastModifiedDate
+  @JsonPatchIgnore
+  protected Instant updatedAt;
 
   @Schema(hidden = true)
   @CreatedBy

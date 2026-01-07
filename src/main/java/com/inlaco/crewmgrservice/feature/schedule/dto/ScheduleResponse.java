@@ -32,7 +32,10 @@ public class ScheduleResponse {
   @NotBlank
   private String partnerName;
 
-  @Schema(description = "Phone number of the company.", example = "+1234567890", required = true)
+  @Schema(
+      description = "Phone number of the company.",
+      example = "+1234567890",
+      requiredMode = RequiredMode.REQUIRED)
   private String partnerPhone;
 
   @Schema(
@@ -47,29 +50,11 @@ public class ScheduleResponse {
       requiredMode = RequiredMode.REQUIRED)
   private String partnerAddress;
 
-  @Schema(description = "Total number of crew members needed.", example = "10", required = true)
+  @Schema(
+      description = "Total number of crew members needed.",
+      example = "10",
+      requiredMode = RequiredMode.REQUIRED)
   private Integer totalSailors;
-
-  @Schema(
-      description = "Departure point.",
-      example = "Port of Los Angeles",
-      requiredMode = RequiredMode.REQUIRED)
-  private String departurePoint;
-
-  @Schema(
-      description = "Arrival point.",
-      example = "Port of Tokyo",
-      requiredMode = RequiredMode.REQUIRED)
-  private String arrivalPoint;
-
-  @Schema(
-      description = "UN/LOCODE for the departure point.",
-      example = "USLAX",
-      requiredMode = RequiredMode.REQUIRED)
-  private String departureUNLOCODE;
-
-  @Schema(description = "UN/LOCODE for the arrival point.", example = "JPTYO", required = true)
-  private String arrivalUNLOCODE;
 
   @Schema(description = "The information of the ship", requiredMode = RequiredMode.REQUIRED)
   private ShipInfo shipInfo;
@@ -106,13 +91,9 @@ public class ScheduleResponse {
         .partnerEmail(schedule.getPartnerEmail())
         .partnerAddress(schedule.getPartnerAddress())
         .totalSailors(schedule.getTotalSailors())
-        .departurePoint(schedule.getDeparturePoint())
-        .arrivalPoint(schedule.getArrivalPoint())
-        .departureUNLOCODE(schedule.getDepartureUNLOCODE())
-        .arrivalUNLOCODE(schedule.getArrivalUNLOCODE())
         .shipInfo(schedule.getShipInfo())
         .startDate(schedule.getStartDate())
-        .estimatedEndDate(schedule.getEstimatedEndDate())
+        .estimatedEndDate(schedule.getEndDate())
         .createdAt(schedule.getCreatedAt())
         .updatedAt(schedule.getUpdatedAt())
         .createdBy(schedule.getCreatedBy())

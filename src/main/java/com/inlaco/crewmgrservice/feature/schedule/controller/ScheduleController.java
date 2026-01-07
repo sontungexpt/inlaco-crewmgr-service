@@ -10,6 +10,7 @@ import com.inlaco.crewmgrservice.feature.schedule.dto.ScheduleResponse;
 import com.inlaco.crewmgrservice.feature.schedule.model.AssigmentSchedule;
 import com.inlaco.crewmgrservice.feature.schedule.service.ScheduleService;
 import com.inlaco.crewmgrservice.feature.user.model.User;
+import com.inlaco.crewmgrservice.utils.ConsoleUtils;
 import com.inlaco.crewmgrservice.validation.annotation.ObjectId;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -80,17 +81,9 @@ If estimatedEndDate is provided, adjust the filter to include schedules that mat
   @RolesAllowed("ADMIN")
   @PageableQueryParams
   public Page<AssigmentSchedule> fetchPaginationSchedules(
-      @RequestParam(required = false) AssigmentSchedule.Status status,
-      @RequestParam(required = false) Instant startDate,
-      @RequestParam(required = false) Instant estimatedEndDate,
-      @PageableDefault(page = 0, size = 20) Pageable pageable) {
-    return scheduleService.findPaginationSchedules(
-        ScheduleFilterable.builder()
-            .status(status)
-            .startDate(startDate)
-            .estimatedEndDate(estimatedEndDate)
-            .build(),
-        pageable);
+      ScheduleFilterable filterable, @PageableDefault(page = 0, size = 20) Pageable pageable) {
+    ConsoleUtils.log(filterable);
+    return scheduleService.findPaginationSchedules(filterable, pageable);
   }
 
   @Operation(
@@ -116,13 +109,9 @@ If estimatedEndDate is provided, adjust the filter to include schedules that mat
   public List<AssigmentSchedule> fetchSchedules(
       @RequestParam(required = false) AssigmentSchedule.Status status,
       @RequestParam(required = false) Instant startDate,
-      @RequestParam(required = false) Instant estimatedEndDate) {
+      @RequestParam(required = false) Instant endDate) {
     return scheduleService.findSchedules(
-        ScheduleFilterable.builder()
-            .status(status)
-            .startDate(startDate)
-            .estimatedEndDate(estimatedEndDate)
-            .build());
+        ScheduleFilterable.builder().status(status).startDate(startDate).endDate(endDate).build());
   }
 
   @Operation(
@@ -147,18 +136,9 @@ If estimatedEndDate is provided, adjust the filter to include schedules that mat
   @PageableQueryParams
   public Page<SailorScheduleResponse> fetchPaginationSchedulesByCardId(
       @PathVariable("cardId") String cardId,
-      @RequestParam(required = false) AssigmentSchedule.Status status,
-      @RequestParam(required = false) Instant startDate,
-      @RequestParam(required = false) Instant estimatedEndDate,
+      ScheduleFilterable filterable,
       @PageableDefault(page = 0, size = 20) Pageable pageable) {
-    return scheduleService.findPaginationSchedulesByCardId(
-        cardId,
-        ScheduleFilterable.builder()
-            .status(status)
-            .startDate(startDate)
-            .estimatedEndDate(estimatedEndDate)
-            .build(),
-        pageable);
+    return scheduleService.findPaginationSchedulesByCardId(cardId, filterable, pageable);
   }
 
   @Operation(
@@ -183,15 +163,10 @@ If estimatedEndDate is provided, adjust the filter to include schedules that mat
   public List<SailorScheduleResponse> fetchSchedulesByCardId(
       @PathVariable("cardId") String cardId,
       @RequestParam(required = false) AssigmentSchedule.Status status,
+      ScheduleFilterable filterable,
       @RequestParam(required = false) Instant startDate,
       @RequestParam(required = false) Instant estimatedEndDate) {
-    return scheduleService.findSchedulesByCardId(
-        cardId,
-        ScheduleFilterable.builder()
-            .status(status)
-            .startDate(startDate)
-            .estimatedEndDate(estimatedEndDate)
-            .build());
+    return scheduleService.findSchedulesByCardId(cardId, filterable);
   }
 
   @Operation(
