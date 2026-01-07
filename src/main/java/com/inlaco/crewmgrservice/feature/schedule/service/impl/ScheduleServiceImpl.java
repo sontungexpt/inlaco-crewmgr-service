@@ -70,9 +70,7 @@ public class ScheduleServiceImpl implements ScheduleService {
                             .var("recipient_name", profile.getFullName())
                             .var("company_name", "Inlaco")
                             .var("start_date", schedule.getStartDate().toString())
-                            .var("estimated_end_date", schedule.getEstimatedEndDate().toString())
-                            .var("start_location", schedule.getDeparturePoint())
-                            .var("end_location", schedule.getArrivalPoint())
+                            .var("estimated_end_date", schedule.getEndDate().toString())
                             .var("home_page_link", CLIENT_HOME_PAGE_LINK)
                             .var("info_link", "")
                             .buildContent(),
@@ -111,7 +109,7 @@ public class ScheduleServiceImpl implements ScheduleService {
       AssigmentSchedule schedule, String cardId, SailorProfile profile) {
     return SailorScheduleResponse.builder()
         .startDate(schedule.getStartDate())
-        .estimatedEndDate(schedule.getEstimatedEndDate())
+        .endDate(schedule.getEndDate())
         .professionalPosition(profile.getProfessionalPosition())
         // schedule.getCrewMembers().stream()
         //     .filter(crew -> crew.getCardId().equals(cardId))

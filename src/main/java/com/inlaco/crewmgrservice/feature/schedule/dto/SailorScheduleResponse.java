@@ -31,8 +31,8 @@ public class SailorScheduleResponse {
       requiredMode = RequiredMode.REQUIRED)
   private Instant startDate;
 
-  @Schema(description = "The estimated end date of the schedule", type = "String")
-  private Instant estimatedEndDate;
+  @Schema(description = "The end date of the schedule", type = "String")
+  private Instant endDate;
 
   @Schema(description = "The ID of the master assignment schedule", hidden = true)
   private AssigmentSchedule detail;

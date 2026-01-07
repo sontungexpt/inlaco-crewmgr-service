@@ -61,7 +61,7 @@ public class CustomScheduleRepository {
 
   private ScheduleFilterable defaultWeekStartEndFilter(ScheduleFilterable filterable) {
     if (filterable == null) return null;
-    else if (filterable.getStartDate() == null && filterable.getEstimatedEndDate() == null) {
+    else if (filterable.getStartDate() == null && filterable.getEndDate() == null) {
       Instant now = Instant.now();
 
       ZoneId zoneId = ZoneId.systemDefault();
@@ -74,7 +74,7 @@ public class CustomScheduleRepository {
           zonedNow.with(DayOfWeek.SUNDAY).toLocalDate().atTime(LocalTime.MAX).atZone(zoneId);
 
       filterable.setStartDate(startOfWeek.toInstant());
-      filterable.setEstimatedEndDate(endOfWeek.toInstant());
+      filterable.setEndDate(endOfWeek.toInstant());
     }
     return filterable;
   }
@@ -155,14 +155,14 @@ public class CustomScheduleRepository {
 
     if (filterable.getStartDate() != null) {
       Criteria criteria1 = Criteria.where("startDate").gte(filterable.getStartDate());
-      if (filterable.getEstimatedEndDate() != null) {
-        criteria1.and("estimatedEndDate").lte(filterable.getEstimatedEndDate());
+      if (filterable.getEndDate() != null) {
+        criteria1.and("estimatedEndDate").lte(filterable.getEndDate());
       }
       criteriaList.add(criteria1);
     }
 
-    if (filterable.getEstimatedEndDate() != null) {
-      Criteria criteria2 = Criteria.where("estimatedEndDate").lte(filterable.getEstimatedEndDate());
+    if (filterable.getEndDate() != null) {
+      Criteria criteria2 = Criteria.where("estimatedEndDate").lte(filterable.getEndDate());
       if (filterable.getStartDate() != null) {
         criteria2.and("startDate").gte(filterable.getStartDate());
       }

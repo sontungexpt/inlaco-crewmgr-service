@@ -31,7 +31,6 @@ public class LazyJwtAuthTokenFilter extends OncePerRequestFilter {
       JwtService jwtService,
       UserRepository userRepository,
       @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver) {
-
     this.jwtService = jwtService;
     this.userRepository = userRepository;
     this.exceptionResolver = exceptionResolver;

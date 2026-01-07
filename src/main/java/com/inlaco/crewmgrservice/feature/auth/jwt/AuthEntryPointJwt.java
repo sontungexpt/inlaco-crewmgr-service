@@ -21,7 +21,6 @@ public record AuthEntryPointJwt(
       HttpServletRequest request, HttpServletResponse response, AuthenticationException ex)
       throws IOException {
     log.info("User is unauthorised. Routing from the entry point {}", ex.getMessage());
-
     resolver.resolveException(request, response, null, ex);
   }
 }

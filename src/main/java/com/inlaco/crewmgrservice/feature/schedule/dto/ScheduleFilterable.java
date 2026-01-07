@@ -3,18 +3,22 @@ package com.inlaco.crewmgrservice.feature.schedule.dto;
 import com.inlaco.crewmgrservice.common.payload.Filterable;
 import com.inlaco.crewmgrservice.feature.schedule.model.AssigmentSchedule;
 import java.time.Instant;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Builder
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class ScheduleFilterable implements Filterable {
 
   private AssigmentSchedule.Status status;
 
   private Instant startDate;
 
-  private Instant estimatedEndDate;
+  private Instant endDate;
 }
