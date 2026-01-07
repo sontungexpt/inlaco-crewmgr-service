@@ -49,6 +49,7 @@
     <redisson.version>3.52.0</redisson.version>
     <springdoc.version>2.8.1</springdoc.version>
     <json-patch.version>1.13</json-patch.version>
+    <springfilter.version>3.2.5</springfilter.version>
     <!-- <vonage.version>8.14.0</vonage.version> -->
   </properties>
   <dependencies>
@@ -118,6 +119,39 @@
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-test</artifactId>
       <scope>test</scope>
+    </dependency>
+    <!-- Filter JPA entities directly in database queries. The module converts filter expressions to JPA Criteria API specifications. -->
+    <!-- <dependency> -->
+    <!--   <groupId>com.turkraft.springfilter</groupId> -->
+    <!--   <artifactId>jpa</artifactId> -->
+    <!--   <version>${springfilter.version}</version> -->
+    <!-- </dependency> -->
+    <!-- Filter in-memory collections using Java Predicates. Works with any POJO, no database required. -->
+    <!--     <dependency> -->
+    <!--   <groupId>com.turkraft.springfilter</groupId> -->
+    <!--   <artifactId>predicate</artifactId> -->
+    <!--       <version>${springfilter.version}</version> -->
+    <!-- </dependency> -->
+    <!-- Filter MongoDB documents using Spring Data MongoDB queries. -->
+    <dependency>
+      <groupId>com.turkraft.springfilter</groupId>
+      <artifactId>mongo</artifactId>
+      <version>${springfilter.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.turkraft.springfilter</groupId>
+      <artifactId>core</artifactId>
+      <version>${springfilter.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.turkraft.springfilter</groupId>
+      <artifactId>page-sort</artifactId>
+      <version>${springfilter.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.turkraft.springfilter</groupId>
+      <artifactId>openapi</artifactId>
+      <version>${springfilter.version}</version>
     </dependency>
     <dependency>
       <groupId>me.paulschwarz</groupId>

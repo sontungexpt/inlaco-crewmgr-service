@@ -14,6 +14,7 @@ import com.inlaco.crewmgrservice.feature.auth.service.AuthService;
 import com.inlaco.crewmgrservice.feature.auth.service.RefreshTokenService;
 import com.inlaco.crewmgrservice.feature.notify.NotificationFactory;
 import com.inlaco.crewmgrservice.feature.user.enums.UsernameType;
+import com.inlaco.crewmgrservice.feature.user.model.SecurityUser;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import com.inlaco.crewmgrservice.feature.user.model.authorization.Right;
 import com.inlaco.crewmgrservice.feature.user.model.authorization.Role;
@@ -72,15 +73,16 @@ public record AuthServiceImpl(
         authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(
                 loginRequest.getUsername(), loginRequest.getPassword()));
-    User user = (User) authentication.getPrincipal();
-    checkUserValid(user);
+    SecurityUser securityUser = (SecurityUser) authentication.getPrincipal();
+    checkUserValid(securityUser);
+    User user = securityUser.getUser();
 
     SecurityContextHolder.getContext().setAuthentication(authentication);
 
     final String accessToken = jwtService.generateAccessToken(user);
     final RefreshToken refreshToken = jwtService.generateRefreshTokenAndSaveToDB(user);
 
-    log.info("Account with public id {} logged in successfully", user.getPubId());
+    log.debug("Account with public id {} logged in successfully", user.getPubId());
 
     return LoginResponse.builder()
         .name(user.getName())

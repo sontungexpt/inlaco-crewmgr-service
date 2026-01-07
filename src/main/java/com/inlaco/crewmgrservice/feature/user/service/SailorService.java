@@ -10,6 +10,7 @@ import java.util.List;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.core.query.Criteria;
 
 public interface SailorService {
 
@@ -17,7 +18,7 @@ public interface SailorService {
 
   Page<BasicProfileDTO> getAllSailors(SailorFilterable filterable, Pageable pageable);
 
-  Page<BasicProfileDTO> searchSailors(String query, SailorFilterable filterable, Pageable pageable);
+  Page<BasicProfileDTO> searchSailors(String query, Criteria filter, Pageable pageable);
 
   SailorProfile updateSailorProfile(String sailorId, JsonNode patch);
 

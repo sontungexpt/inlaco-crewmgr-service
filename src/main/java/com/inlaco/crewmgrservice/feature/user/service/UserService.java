@@ -23,5 +23,5 @@ public interface UserService {
 
   JwtResponse changePassword(String refreshToken, NewPasswordRequest newPasswordRequest);
 
-  UserProfile fetchRoles(User currentUser);
+  UserProfile getUserProfile(User currentUser);
 }

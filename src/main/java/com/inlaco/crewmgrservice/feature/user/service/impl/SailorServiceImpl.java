@@ -27,6 +27,7 @@ import org.bson.types.ObjectId;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -93,10 +94,9 @@ public class SailorServiceImpl implements SailorService {
   }
 
   @Override
-  public Page<BasicProfileDTO> searchSailors(
-      String query, SailorFilterable filterable, Pageable pageable) {
+  public Page<BasicProfileDTO> searchSailors(String query, Criteria filter, Pageable pageable) {
     return customSailorRepository
-        .searchSailors(query, filterable, pageable)
+        .searchSailors(query, filter, pageable)
         .map(this::toBasicProfileDTO);
   }
 

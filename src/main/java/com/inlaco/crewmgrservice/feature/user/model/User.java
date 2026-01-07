@@ -14,10 +14,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,13 +22,9 @@ import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.annotation.Transient;
 import org.springframework.data.domain.Persistable;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 @Getter
 @Setter
@@ -41,7 +33,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "User model", name = "User")
 @Document(collection = "users")
-public class User implements UserDetails, Persistable<String> {
+public class User implements /* UserDetails, */ Persistable<String> {
   @JsonIgnore @Id private String id;
 
   // Why we need this?
@@ -133,8 +125,6 @@ public class User implements UserDetails, Persistable<String> {
     new CircleJobStateContext(this).demote();
   }
 
-  @JsonIgnore @Transient private Collection<? extends GrantedAuthority> authorities;
-
   // public boolean hasRole(Role.Name roleName) {
   //   return right.getRoles().stream().anyMatch(r -> r.getName().equals(roleName));
   // }
@@ -152,85 +142,15 @@ public class User implements UserDetails, Persistable<String> {
     this.right = user.getRight();
     this.createdAt = user.getCreatedAt();
     this.updatedAt = user.getUpdatedAt();
-    this.authorities = user.getAuthorities();
   }
 
-  @Override
-  public Collection<? extends GrantedAuthority> getAuthorities() {
-    if (right == null) {
-      return Collections.emptySet();
-    } else {
-      if (authorities == null || authorities.isEmpty()) {
-        Set<SimpleGrantedAuthority> auths = new HashSet<>();
-        right
-            .getRoles()
-            .forEach(
-                role -> {
-                  auths.add(new SimpleGrantedAuthority("ROLE_" + role.getName()));
-                  role.getPermissions().stream()
-                      .forEach(
-                          permission -> {
-                            auths.add(new SimpleGrantedAuthority(permission.getName()));
-                            permission
-                                .getApiEndpoints()
-                                .forEach(
-                                    apiEndpoint -> {
-                                      if (right.getExcludedEndpoints().contains(apiEndpoint)) {
-                                        return;
-                                      }
-                                      auths.add(new SimpleGrantedAuthority(apiEndpoint.name()));
-                                    });
-                          });
-                });
-        right
-            .getIncludedEndpoints()
-            .forEach(
-                apiEndpoint -> {
-                  if (right.getExcludedEndpoints().contains(apiEndpoint)) {
-                    return;
-                  }
-                  auths.add(new SimpleGrantedAuthority(apiEndpoint.name()));
-                });
-
-        authorities = auths;
-      }
-      return authorities;
-    }
-  }
-
-  @Override
   @JsonIgnore
   public String getPassword() {
     return password;
   }
 
-  @Override
   public String getUsername() {
     return username;
-  }
-
-  @Override
-  @JsonIgnore
-  public boolean isAccountNonExpired() {
-    return status != UserStatus.ARCHIVED && status != UserStatus.DELETED;
-  }
-
-  @Override
-  @JsonIgnore
-  public boolean isAccountNonLocked() {
-    return status != UserStatus.BANNED;
-  }
-
-  @Override
-  @JsonIgnore
-  public boolean isCredentialsNonExpired() {
-    return status != UserStatus.COMPROMISED;
-  }
-
-  @JsonIgnore
-  @Override
-  public boolean isEnabled() {
-    return status == UserStatus.ACTIVE;
   }
 
   @Override

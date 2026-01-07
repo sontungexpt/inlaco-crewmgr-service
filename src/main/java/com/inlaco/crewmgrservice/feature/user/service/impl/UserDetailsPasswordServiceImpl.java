@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.feature.user.service.impl;
 
-import com.inlaco.crewmgrservice.feature.user.model.User;
+import com.inlaco.crewmgrservice.feature.user.model.SecurityUser;
 import com.inlaco.crewmgrservice.feature.user.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsPasswordService;
@@ -14,10 +14,9 @@ public record UserDetailsPasswordServiceImpl(
 
   @Override
   public UserDetails updatePassword(UserDetails userDetails, String newPassword) {
-    assert userDetails instanceof User;
-    User user = (User) userDetails;
-    user.setPassword(passwordEncoder.encode(newPassword));
-    userRepository.save(user);
-    return user;
+    SecurityUser securityUser = ((SecurityUser) userDetails);
+    securityUser.getUser().setPassword(passwordEncoder.encode(newPassword));
+    userRepository.save(securityUser.getUser());
+    return securityUser;
   }
 }

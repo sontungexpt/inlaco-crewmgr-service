@@ -9,13 +9,12 @@ import com.inlaco.crewmgrservice.common.model.FacetResult;
 import com.inlaco.crewmgrservice.feature.user.dto.SailorFilterable;
 import com.inlaco.crewmgrservice.feature.user.model.SailorProfile;
 import com.inlaco.crewmgrservice.utils.PageableUtils;
-import com.inlaco.crewmgrservice.utils.PhoneNumberValidatorUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +24,7 @@ import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.StringUtils;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -39,33 +39,40 @@ public class CustomSailorRepository {
     return mongoTemplate.count(query, SailorProfile.class);
   }
 
-  public Page<SailorProfile> searchSailors(
-      String keyword, SailorFilterable filterable, Pageable p) {
-    List<Criteria> criteriaList = new ArrayList<>();
-
-    if (ObjectId.isValid(keyword)) {
-      criteriaList.add(Criteria.where("accountId").is(new ObjectId(keyword)));
+  public Page<SailorProfile> searchSailors(String keyword, Criteria filter, Pageable p) {
+    List<Criteria> keywordCriterias = new ArrayList<>();
+    if (StringUtils.hasText(keyword)) {
+      String safeRegex = Pattern.quote(keyword);
+      keywordCriterias.add(Criteria.where("cardId").regex(safeRegex, "i"));
+      keywordCriterias.add(Criteria.where("phone").regex(safeRegex, "i"));
+      keywordCriterias.add(Criteria.where("fullName").regex(safeRegex, "i"));
+      keywordCriterias.add(Criteria.where("email").regex(safeRegex, "i"));
     }
 
-    if (PhoneNumberValidatorUtils.isPotentialPhoneNumber(keyword)) {
-      criteriaList.add(Criteria.where("phone").regex(keyword, "i"));
+    Criteria keywordCriteria =
+        keywordCriterias.isEmpty()
+            ? null
+            : new Criteria().orOperator(keywordCriterias.toArray(Criteria[]::new));
+
+    Criteria finalCriteria;
+
+    if (filter != null && keywordCriteria != null) {
+      finalCriteria = new Criteria().andOperator(filter, keywordCriteria);
+    } else if (filter != null) {
+      finalCriteria = filter;
+    } else if (keywordCriteria != null) {
+      finalCriteria = keywordCriteria;
+    } else {
+      finalCriteria = new Criteria(); // match all
     }
 
-    criteriaList.add(Criteria.where("fullName").regex(keyword, "i"));
-    criteriaList.add(Criteria.where("email").regex(keyword, "i"));
-
-    var query = new Criteria().orOperator(criteriaList);
-    if (filterable.isFilterable()) {
-      query.andOperator(buildFilterableCriteria(filterable));
-    }
-
-    var pageable = PageableUtils.extendDefaultSort(p);
-    log.debug("Fetching non expired courses with pagination");
+    Pageable pageable = PageableUtils.extendDefaultSort(p);
 
     Aggregation aggregation =
-        Aggregation.newAggregation(match(query), buildPaginationOperation(pageable));
+        Aggregation.newAggregation(
+            Aggregation.match(finalCriteria), buildPaginationOperation(pageable));
 
-    var result =
+    SailorProfileFacetResult result =
         mongoTemplate
             .aggregate(aggregation, SailorProfile.class, SailorProfileFacetResult.class)
             .getUniqueMappedResult();

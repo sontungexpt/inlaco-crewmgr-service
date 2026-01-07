@@ -1,6 +1,7 @@
 package com.inlaco.crewmgrservice.config;
 
 import com.inlaco.crewmgrservice.resolver.BearerTokenArgumentResolver;
+import com.inlaco.crewmgrservice.resolver.CurrentUserArgumentResolver;
 import com.inlaco.crewmgrservice.resolver.DefaultSortPageableResolver;
 import com.inlaco.crewmgrservice.resolver.FilterableArgumentResolver;
 import java.util.List;
@@ -16,11 +17,14 @@ public class ResolverConfig implements WebMvcConfigurer {
   private final DefaultSortPageableResolver defaultSortPageableResolver;
   private final BearerTokenArgumentResolver bearerTokenArgumentResolver;
   private final FilterableArgumentResolver filterableArgumentResolver;
+  private final CurrentUserArgumentResolver currentUserArgumentResolver;
+  ;
 
   @Override
   public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
     resolvers.add(bearerTokenArgumentResolver);
     resolvers.add(defaultSortPageableResolver);
     resolvers.add(filterableArgumentResolver);
+    resolvers.add(currentUserArgumentResolver);
   }
 }

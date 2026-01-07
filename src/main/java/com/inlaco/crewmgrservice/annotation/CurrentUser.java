@@ -5,7 +5,6 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 /**
  * Custom annotation to access currently authenticated user in the codebase. Works the same as
@@ -14,5 +13,5 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 @Target({ElementType.PARAMETER, ElementType.TYPE})
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-@AuthenticationPrincipal
+// @AuthenticationPrincipal
 public @interface CurrentUser {}
