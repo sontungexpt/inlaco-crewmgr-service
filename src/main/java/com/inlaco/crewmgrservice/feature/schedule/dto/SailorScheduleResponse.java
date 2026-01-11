@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.feature.schedule.dto;
 
-import com.inlaco.crewmgrservice.feature.schedule.model.AssigmentSchedule;
+import com.inlaco.crewmgrservice.feature.schedule.model.AssignedMobilization;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import java.time.Instant;
@@ -35,5 +35,5 @@ public class SailorScheduleResponse {
   private Instant endDate;
 
   @Schema(description = "The ID of the master assignment schedule", hidden = true)
-  private AssigmentSchedule detail;
+  private AssignedMobilization detail;
 }

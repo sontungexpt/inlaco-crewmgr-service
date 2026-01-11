@@ -94,10 +94,8 @@ public class SailorServiceImpl implements SailorService {
   }
 
   @Override
-  public Page<BasicProfileDTO> searchSailors(String query, Criteria filter, Pageable pageable) {
-    return customSailorRepository
-        .searchSailors(query, filter, pageable)
-        .map(this::toBasicProfileDTO);
+  public Page<SailorProfile> searchSailors(String query, Criteria filter, Pageable pageable) {
+    return customSailorRepository.searchSailors(query, filter, pageable);
   }
 
   @Override

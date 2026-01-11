@@ -1,25 +1,26 @@
 package com.inlaco.crewmgrservice.feature.schedule.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.inlaco.crewmgrservice.feature.schedule.dto.MobilizationResponse;
 import com.inlaco.crewmgrservice.feature.schedule.dto.SailorScheduleResponse;
 import com.inlaco.crewmgrservice.feature.schedule.dto.ScheduleFilterable;
-import com.inlaco.crewmgrservice.feature.schedule.dto.ScheduleResponse;
-import com.inlaco.crewmgrservice.feature.schedule.model.AssigmentSchedule;
+import com.inlaco.crewmgrservice.feature.schedule.model.AssignedMobilization;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface ScheduleService {
 
-  AssigmentSchedule createSchedule(AssigmentSchedule schedule);
+  AssignedMobilization createSchedule(AssignedMobilization schedule);
 
-  ScheduleResponse updateSchedule(String id, JsonNode patch);
+  MobilizationResponse updateSchedule(String id, JsonNode patch);
 
-  ScheduleResponse findDetailScheduleById(String id);
+  MobilizationResponse findDetailScheduleById(String id);
 
-  Page<AssigmentSchedule> findPaginationSchedules(ScheduleFilterable filterable, Pageable pageable);
+  Page<AssignedMobilization> findPaginationSchedules(
+      ScheduleFilterable filterable, Pageable pageable);
 
-  List<AssigmentSchedule> findSchedules(ScheduleFilterable filterable);
+  List<AssignedMobilization> findSchedules(ScheduleFilterable filterable);
 
   Page<SailorScheduleResponse> findPaginationSchedulesByCardId(
       String cardId, ScheduleFilterable filterable, Pageable pageable);

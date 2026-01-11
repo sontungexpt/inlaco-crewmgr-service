@@ -4,10 +4,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.inlaco.crewmgrservice.annotation.CurrentUser;
 import com.inlaco.crewmgrservice.annotation.PageableQueryParams;
 import com.inlaco.crewmgrservice.config.OpenApiConfig;
+import com.inlaco.crewmgrservice.feature.schedule.dto.MobilizationResponse;
 import com.inlaco.crewmgrservice.feature.schedule.dto.SailorScheduleResponse;
 import com.inlaco.crewmgrservice.feature.schedule.dto.ScheduleFilterable;
-import com.inlaco.crewmgrservice.feature.schedule.dto.ScheduleResponse;
-import com.inlaco.crewmgrservice.feature.schedule.model.AssigmentSchedule;
+import com.inlaco.crewmgrservice.feature.schedule.model.AssignedMobilization;
 import com.inlaco.crewmgrservice.feature.schedule.service.ScheduleService;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import com.inlaco.crewmgrservice.utils.ConsoleUtils;
@@ -55,8 +55,8 @@ Create a new schedule with the given data.
   @PostMapping("")
   @RolesAllowed("ADMIN")
   @ResponseStatus(HttpStatus.CREATED)
-  public AssigmentSchedule createSchedule(
-      @CurrentUser User user, @RequestBody @Valid AssigmentSchedule schedule) {
+  public AssignedMobilization createSchedule(
+      @CurrentUser User user, @RequestBody @Valid AssignedMobilization schedule) {
     return scheduleService.createSchedule(schedule);
   }
 
@@ -80,7 +80,7 @@ If estimatedEndDate is provided, adjust the filter to include schedules that mat
   @GetMapping("")
   @RolesAllowed("ADMIN")
   @PageableQueryParams
-  public Page<AssigmentSchedule> fetchPaginationSchedules(
+  public Page<AssignedMobilization> fetchPaginationSchedules(
       ScheduleFilterable filterable, @PageableDefault(page = 0, size = 20) Pageable pageable) {
     ConsoleUtils.log(filterable);
     return scheduleService.findPaginationSchedules(filterable, pageable);
@@ -106,8 +106,8 @@ If estimatedEndDate is provided, adjust the filter to include schedules that mat
   @GetMapping("/all")
   @RolesAllowed("ADMIN")
   @PageableQueryParams
-  public List<AssigmentSchedule> fetchSchedules(
-      @RequestParam(required = false) AssigmentSchedule.Status status,
+  public List<AssignedMobilization> fetchSchedules(
+      @RequestParam(required = false) AssignedMobilization.Status status,
       @RequestParam(required = false) Instant startDate,
       @RequestParam(required = false) Instant endDate) {
     return scheduleService.findSchedules(
@@ -162,7 +162,7 @@ If estimatedEndDate is provided, adjust the filter to include schedules that mat
   @RolesAllowed({"ADMIN", "SAILOR"})
   public List<SailorScheduleResponse> fetchSchedulesByCardId(
       @PathVariable("cardId") String cardId,
-      @RequestParam(required = false) AssigmentSchedule.Status status,
+      @RequestParam(required = false) AssignedMobilization.Status status,
       ScheduleFilterable filterable,
       @RequestParam(required = false) Instant startDate,
       @RequestParam(required = false) Instant estimatedEndDate) {
@@ -184,7 +184,7 @@ Find schedule detail by id.
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   @GetMapping("/{id}")
   @RolesAllowed({"ADMIN", "SAILOR"})
-  public ScheduleResponse findDetailSchedule(@ObjectId @PathVariable("id") String id) {
+  public MobilizationResponse findDetailSchedule(@ObjectId @PathVariable("id") String id) {
     return scheduleService.findDetailScheduleById(id);
   }
 
@@ -203,7 +203,7 @@ Update schedule by id.
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   @PatchMapping(value = "/{id}", consumes = "application/merge-patch+json")
   @RolesAllowed({"ADMIN"})
-  public ScheduleResponse updateSchedule(
+  public MobilizationResponse updateSchedule(
       @ObjectId @PathVariable("id") String id, @RequestBody JsonNode patch) {
     return scheduleService.updateSchedule(id, patch);
   }

@@ -18,7 +18,7 @@ public interface SailorService {
 
   Page<BasicProfileDTO> getAllSailors(SailorFilterable filterable, Pageable pageable);
 
-  Page<BasicProfileDTO> searchSailors(String query, Criteria filter, Pageable pageable);
+  Page<SailorProfile> searchSailors(String query, Criteria filter, Pageable pageable);
 
   SailorProfile updateSailorProfile(String sailorId, JsonNode patch);
 

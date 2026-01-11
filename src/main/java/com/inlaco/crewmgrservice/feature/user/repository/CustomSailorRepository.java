@@ -39,7 +39,7 @@ public class CustomSailorRepository {
     return mongoTemplate.count(query, SailorProfile.class);
   }
 
-  public Page<SailorProfile> searchSailors(String keyword, Criteria filter, Pageable p) {
+  public Page<SailorProfile> searchSailors(String keyword, Criteria filter, Pageable pageable) {
     List<Criteria> keywordCriterias = new ArrayList<>();
     if (StringUtils.hasText(keyword)) {
       String safeRegex = Pattern.quote(keyword);
@@ -66,7 +66,7 @@ public class CustomSailorRepository {
       finalCriteria = new Criteria(); // match all
     }
 
-    Pageable pageable = PageableUtils.extendDefaultSort(p);
+    pageable = PageableUtils.extendDefaultSort(pageable, SailorProfile.class);
 
     Aggregation aggregation =
         Aggregation.newAggregation(

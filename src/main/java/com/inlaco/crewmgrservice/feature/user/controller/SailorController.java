@@ -101,7 +101,7 @@ This API is used to get all sailor profiles.
   @GetMapping("/search")
   @RolesAllowed("ADMIN")
   @PageableQueryParams
-  public Page<BasicProfileDTO> searchSailors(
+  public Page<SailorProfile> searchSailors(
       @RequestParam String q,
       @Filter Criteria filter,
       SailorFilterable filterable,

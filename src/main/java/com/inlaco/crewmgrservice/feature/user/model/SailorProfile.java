@@ -35,6 +35,7 @@ import org.springframework.format.annotation.DateTimeFormat;
       "id",
       "cardId",
       "accountId",
+      "workStatus",
       "contractId",
       "joinedAt",
       "updatedAt",
@@ -56,7 +57,6 @@ public class SailorProfile extends BasicProfile {
       requiredMode = RequiredMode.REQUIRED,
       type = "String")
   @JsonPatchIgnore
-  @JsonIgnore
   private WorkStatus workStatus;
 
   @Schema(description = "The position of the sailor", requiredMode = RequiredMode.REQUIRED)
