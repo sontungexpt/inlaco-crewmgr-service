@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.inlaco.crewmgrservice.annotation.CurrentUser;
 import com.inlaco.crewmgrservice.annotation.PageableQueryParams;
 import com.inlaco.crewmgrservice.config.OpenApiConfig;
-import com.inlaco.crewmgrservice.feature.user.dto.BasicProfileDTO;
 import com.inlaco.crewmgrservice.feature.user.dto.SailorFilterable;
 import com.inlaco.crewmgrservice.feature.user.model.SailorProfile;
 import com.inlaco.crewmgrservice.feature.user.model.User;
@@ -90,7 +89,7 @@ This API is used to get all sailor profiles.
   @GetMapping("")
   @RolesAllowed("ADMIN")
   @PageableQueryParams
-  public Page<BasicProfileDTO> getAllSailors(
+  public Page<SailorProfile> getAllSailors(
       SailorFilterable filterable, @PageableDefault(page = 0, size = 20) Pageable pageable) {
     return sailorService.getAllSailors(filterable, pageable);
   }

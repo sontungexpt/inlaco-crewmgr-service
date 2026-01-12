@@ -168,7 +168,6 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 @Component
 public class FilterableArgumentResolver implements HandlerMethodArgumentResolver {
 
-  private static final String DEFAULT_PREFIX = "filter";
   private final ConversionService conversionService;
 
   public FilterableArgumentResolver(
@@ -190,7 +189,7 @@ public class FilterableArgumentResolver implements HandlerMethodArgumentResolver
       throws Exception {
 
     FilterGroup group = parameter.getParameterAnnotation(FilterGroup.class);
-    String prefix = (group != null ? group.value() : DEFAULT_PREFIX) + ".";
+    String prefix = (group != null ? group.value() : FilterGroup.DEFAULT_PREFIX) + ".";
 
     return bind(parameter.getParameterType(), prefix, webRequest);
   }
@@ -205,38 +204,41 @@ public class FilterableArgumentResolver implements HandlerMethodArgumentResolver
     for (var field : clazz.getDeclaredFields()) {
       field.setAccessible(true);
       String paramName = prefix + field.getName();
+      Class<?> fieldType = field.getType();
 
       // 1️⃣ Collection
-      if (Collection.class.isAssignableFrom(field.getType())) {
-        String[] values = webRequest.getParameterValues(paramName);
-        if (values != null) {
-          Object converted = conversionService.convert(List.of(values), field.getType());
-          field.set(instance, converted);
-          hasValue = true;
-        }
-        continue;
-      }
-
-      // 2️⃣ Simple value (String, Number, Instant, Enum, ...)
-      String value = webRequest.getParameter(paramName);
-      if (value != null && isSimple(field.getType())) {
-        Object converted = conversionService.convert(value, field.getType());
+      if (Collection.class.isAssignableFrom(fieldType)) {
+        String[] rawValues = webRequest.getParameterValues(paramName);
+        if (rawValues == null || rawValues.length == 0) continue;
+        Object converted = conversionService.convert(List.of(rawValues), field.getType());
+        if (converted == null) continue;
         field.set(instance, converted);
         hasValue = true;
         continue;
       }
 
+      // 2️⃣ Simple value (String, Number, Instant, Enum, ...)
+      if (isSimple(fieldType)) {
+        String rawValue = webRequest.getParameter(paramName);
+        if (rawValue == null || rawValue.isBlank()) continue;
+        Object converted = conversionService.convert(rawValue, fieldType);
+        if (converted == null) continue;
+
+        field.set(instance, converted);
+        hasValue = true;
+        continue;
+      }
       // 3️⃣ Nested object (ONLY real objects)
-      if (!isSimple(field.getType())) {
-        Object nested = bind(field.getType(), paramName + ".", webRequest);
-        if (nested != null) {
-          field.set(instance, nested);
-          hasValue = true;
-        }
+      Object nested = bind(fieldType, paramName + ".", webRequest);
+      if (nested != null) {
+        field.set(instance, nested);
+        hasValue = true;
       }
     }
 
-    return hasValue ? instance : null;
+    // instance.set("isFilterable", true)
+
+    return instance;
   }
 
   private boolean isSimple(Class<?> type) {

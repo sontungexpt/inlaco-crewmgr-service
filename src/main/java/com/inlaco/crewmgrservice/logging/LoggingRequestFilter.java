@@ -20,9 +20,9 @@ public class LoggingRequestFilter implements Filter {
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
       throws IOException, ServletException {
 
-    if (request.getContentLength() == 0) {
-      loggingService.logRequestInfo((HttpServletRequest) request);
-    }
+    // if (request.getContentLength() == 0) {
+    loggingService.logRequestInfo((HttpServletRequest) request);
+    // }
 
     chain.doFilter(request, response);
   }

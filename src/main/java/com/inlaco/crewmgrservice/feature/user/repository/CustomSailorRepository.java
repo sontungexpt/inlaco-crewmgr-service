@@ -86,6 +86,7 @@ public class CustomSailorRepository {
 
   private Criteria buildFilterableCriteria(SailorFilterable filterable) {
     var criteria = new Criteria();
+    if (filterable == null) return criteria;
 
     if (filterable.getOfficial() != null) {
       criteria.andOperator(buildOfficialSailorCriteria(filterable.getOfficial()));
@@ -109,10 +110,9 @@ public class CustomSailorRepository {
 
   public Page<SailorProfile> fetchAllSailors(SailorFilterable filterable, Pageable p) {
     var pageable = PageableUtils.extendDefaultSort(p);
-    log.debug("Fetching non expired courses with pagination");
     List<AggregationOperation> operations = new ArrayList<>();
 
-    if (filterable.isFilterable()) {
+    if (filterable != null && filterable.isFilterable()) {
       operations.add(match(buildFilterableCriteria(filterable)));
     }
     operations.add(buildPaginationOperation(pageable));

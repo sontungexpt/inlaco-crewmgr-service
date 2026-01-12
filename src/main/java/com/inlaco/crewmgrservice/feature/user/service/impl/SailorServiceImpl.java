@@ -67,10 +67,8 @@ public class SailorServiceImpl implements SailorService {
   }
 
   @Override
-  public Page<BasicProfileDTO> getAllSailors(SailorFilterable filterable, Pageable pageable) {
-    return customSailorRepository
-        .fetchAllSailors(filterable, pageable)
-        .map(this::toBasicProfileDTO);
+  public Page<SailorProfile> getAllSailors(SailorFilterable filterable, Pageable pageable) {
+    return customSailorRepository.fetchAllSailors(filterable, pageable);
   }
 
   @Override
