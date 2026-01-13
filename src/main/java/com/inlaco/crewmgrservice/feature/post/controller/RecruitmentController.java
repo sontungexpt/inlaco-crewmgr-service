@@ -4,6 +4,7 @@ import com.inlaco.crewmgrservice.annotation.CurrentUser;
 import com.inlaco.crewmgrservice.feature.post.service.RecruitmentPostService;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,13 +26,9 @@ public class RecruitmentController {
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void changePostRegistrationStatus(
       @CurrentUser User user,
-      @RequestParam("active") boolean active,
+      @RequestParam boolean active,
+      @RequestParam(required = false) Instant reopenUntil,
       @PathVariable("id") String id) {
-    recruitmentPostService.changeRegistrationStatus(id, active, user);
+    recruitmentPostService.changeRegistrationStatus(id, active, reopenUntil, user);
   }
-
-  // @RestController
-  // @RequestMapping("/api/v1/posts")
-  // @PublicEndpoint
-  // @RequiredArgsConstructor
 }

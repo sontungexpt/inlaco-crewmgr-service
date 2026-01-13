@@ -92,16 +92,6 @@ Create a new post with the given data using type field to identify the post type
     postService.deletePost(id, user);
   }
 
-  // @GetMapping("/test")
-  // @Operation(
-  //     summary = "Get all posts at the given window",
-  //     description = "Get all posts at the given window",
-  //     security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
-  // public Window<?> getWindowPosts(@BearerToken String token) {
-  //   ConsoleUtils.prettyPrint(token);
-  //   return null;
-  // }
-
   @Operation(
       summary = "Retrieve all posts for a given page",
       description =
