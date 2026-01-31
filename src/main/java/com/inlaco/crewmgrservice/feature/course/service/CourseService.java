@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.inlaco.crewmgrservice.feature.course.model.Course;
 import com.inlaco.crewmgrservice.feature.course.model.dto.CourseDetail;
 import com.inlaco.crewmgrservice.feature.course.model.dto.CourseEnrollment;
+import com.inlaco.crewmgrservice.feature.course.model.dto.CourseFilterable;
 import com.inlaco.crewmgrservice.feature.course.model.dto.CourseMemberInfo;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import org.springframework.data.domain.Page;
@@ -11,7 +12,7 @@ import org.springframework.data.domain.Pageable;
 
 public interface CourseService {
 
-  Page<Course> getCourses(Pageable pageable);
+  Page<Course> getCourses(CourseFilterable filterable, Pageable pageable);
 
   Course getCourseById(String id);
 

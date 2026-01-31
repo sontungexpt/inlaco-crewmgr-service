@@ -197,7 +197,6 @@ public class FilterableArgumentResolver implements HandlerMethodArgumentResolver
   // ========================= CORE =========================
 
   private Object bind(Class<?> clazz, String prefix, NativeWebRequest webRequest) throws Exception {
-
     Object instance = clazz.getDeclaredConstructor().newInstance();
     boolean hasValue = false;
 

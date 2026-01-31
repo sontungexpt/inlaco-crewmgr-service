@@ -116,7 +116,7 @@ This API retrieves a list of posts from the server based on the specified page n
           "This API retrieves a list of posts from the server based on the specified page number"
               + " and size.")
   public Page<Post> getPagePosts(
-      @RequestParam(defaultValue = "NEWS") PostType type,
+      @RequestParam(required = false) PostType type,
       @PageableDefault(size = 10, page = 0) Pageable pageable) {
     return postService.getPagePosts(pageable, type);
   }

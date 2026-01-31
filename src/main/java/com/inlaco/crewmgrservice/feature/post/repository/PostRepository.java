@@ -16,4 +16,6 @@ public interface PostRepository extends MongoRepository<Post, String> {
   Page<Post> findByDeleted(boolean deleted, Pageable pageable);
 
   Page<Post> findByType(PostType type, Pageable pageable);
+
+  Page<Post> findByTypeAndDeleted(PostType type, boolean deleted, Pageable pageable);
 }
