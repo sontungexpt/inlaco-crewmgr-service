@@ -37,7 +37,7 @@
   </scm>
   <properties>
     <java.version>21</java.version>
-    <kotlin.version>2.2.21</kotlin.version>
+    <kotlin.version>2.3.0</kotlin.version>
     <lombok.version>1.18.42</lombok.version>
     <therapi.version>0.15.0</therapi.version>
     <jjwt.version>0.13.0</jjwt.version>
@@ -64,6 +64,16 @@
     <dependency>
       <groupId>org.jetbrains.kotlin</groupId>
       <artifactId>kotlin-test-junit5</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-params</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -264,87 +274,74 @@
   </dependencies>
   <build>
     <pluginManagement>
-      <plugins>
-        <!-- You don't need a separate maven-compiler-plugin in the <build><pluginManagement> section when using the Kotlin Maven plugin with extensions. -->
-        <!-- <plugin> -->
-        <!--   <groupId>org.apache.maven.plugins</groupId> -->
-        <!--   <artifactId>maven-compiler-plugin</artifactId> -->
-        <!--   <configuration> -->
-        <!--     <annotationProcessorPaths> -->
-        <!--       <path> -->
-        <!--         <groupId>com.github.therapi</groupId> -->
-        <!--         <artifactId>therapi-runtime-javadoc-scribe</artifactId> -->
-        <!--         <version>${therapi.version}</version> -->
-        <!--       </path> -->
-        <!--       <path> -->
-        <!--         <groupId>org.projectlombok</groupId> -->
-        <!--         <artifactId>lombok</artifactId> -->
-        <!--         <version>${lombok.version}</version> -->
-        <!--       </path> -->
-        <!--     </annotationProcessorPaths> -->
-        <!--   </configuration> -->
-        <!-- </plugin> -->
-        <!-- Activate Kotlin Maven plugin for main and test sources -->
-        <plugin>
-          <groupId>org.jetbrains.kotlin</groupId>
-          <artifactId>kotlin-maven-plugin</artifactId>
-          <version>${kotlin.version}</version>
-          <!-- lets Maven integrate the Kotlin plugin into the build lifecycle. -->
-          <extensions>true</extensions>
-          <configuration>
-            <annotationProcessorPaths>
-              <path>
-                <groupId>com.github.therapi</groupId>
-                <artifactId>therapi-runtime-javadoc-scribe</artifactId>
-                <version>${therapi.version}</version>
-              </path>
-              <path>
-                <groupId>org.projectlombok</groupId>
-                <artifactId>lombok</artifactId>
-                <version>${lombok.version}</version>
-              </path>
-            </annotationProcessorPaths>
-            <args>
-              <arg>-Xjsr305=strict</arg>
-              <arg>-Xannotation-default-target=param-property</arg>
-            </args>
-            <compilerPlugins>
-              <plugin>spring</plugin>
-            </compilerPlugins>
-          </configuration>
-          <dependencies>
-            <dependency>
-              <groupId>org.jetbrains.kotlin</groupId>
-              <artifactId>kotlin-maven-allopen</artifactId>
-              <version>${kotlin.version}</version>
-            </dependency>
-          </dependencies>
-          <!-- Custom execution phases allow the Kotlin plugin to compile Kotlin first, then Java. -->
-          <executions>
-            <execution>
-              <id>default-compile</id>
-              <phase>compile</phase>
-              <configuration>
-                <sourceDirs>
-                  <sourceDir>src/main/kotlin</sourceDir>
-                  <!-- Ensure Kotlin code can reference Java code -->
-                  <sourceDir>src/main/java</sourceDir>
-                </sourceDirs>
-              </configuration>
-            </execution>
-            <execution>
-              <id>default-test-compile</id>
-              <phase>test-compile</phase>
-              <configuration>
-                <sourceDirs>
-                  <sourceDir>src/test/kotlin</sourceDir>
-                  <sourceDir>src/test/java</sourceDir>
-                </sourceDirs>
-              </configuration>
-            </execution>
-          </executions>
-        </plugin>
-      </plugins>
+      <!-- Lock down plugin versions to avoid using Maven defaults (can be moved to a parent pom file) -->
+      <plugins><!-- No maven-compiler-plugin needed with Kotlin extensions --></plugins>
     </pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+      <!-- Activate Kotlin Maven plugin for main and test sources -->
+      <plugin>
+        <groupId>org.jetbrains.kotlin</groupId>
+        <artifactId>kotlin-maven-plugin</artifactId>
+        <version>${kotlin.version}</version>
+        <!-- lets Maven integrate the Kotlin plugin into the build lifecycle. -->
+        <extensions>true</extensions>
+        <configuration>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>com.github.therapi</groupId>
+              <artifactId>therapi-runtime-javadoc-scribe</artifactId>
+              <version>${therapi.version}</version>
+            </path>
+            <path>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+              <version>${lombok.version}</version>
+            </path>
+          </annotationProcessorPaths>
+          <args>
+            <arg>-Xjsr305=strict</arg>
+            <arg>-Xannotation-default-target=param-property</arg>
+          </args>
+          <compilerPlugins>
+            <plugin>spring</plugin>
+          </compilerPlugins>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-maven-allopen</artifactId>
+            <version>${kotlin.version}</version>
+          </dependency>
+        </dependencies>
+        <!-- Custom execution phases allow the Kotlin plugin to compile Kotlin first, then Java. -->
+        <executions>
+          <execution>
+            <id>default-compile</id>
+            <phase>compile</phase>
+            <configuration>
+              <sourceDirs>
+                <sourceDir>src/main/kotlin</sourceDir>
+                <!-- Ensure Kotlin code can reference Java code -->
+                <sourceDir>src/main/java</sourceDir>
+              </sourceDirs>
+            </configuration>
+          </execution>
+          <execution>
+            <id>default-test-compile</id>
+            <phase>test-compile</phase>
+            <configuration>
+              <sourceDirs>
+                <sourceDir>src/test/kotlin</sourceDir>
+                <sourceDir>src/test/java</sourceDir>
+              </sourceDirs>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
   </build>
 </project>
