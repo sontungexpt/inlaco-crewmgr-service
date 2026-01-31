@@ -38,6 +38,7 @@
   <properties>
     <java.version>21</java.version>
     <kotlin.version>2.3.0</kotlin.version>
+    <main.class>com.inlaco.crewmgrservice.CrewmgrserviceApplication</main.class>
     <lombok.version>1.18.42</lombok.version>
     <therapi.version>0.15.0</therapi.version>
     <jjwt.version>0.13.0</jjwt.version>
@@ -236,15 +237,15 @@
       <groupId>com.github.ben-manes.caffeine</groupId>
       <artifactId>jcache</artifactId>
     </dependency>
-    <!-- <dependency> -->
-    <!--   <groupId>org.springframework.boot</groupId> -->
-    <!--   <artifactId>spring-boot-starter-data-redis</artifactId> -->
-    <!-- </dependency> -->
-    <!-- <dependency> -->
-    <!--   <groupId>org.redisson</groupId> -->
-    <!--   <artifactId>redisson-spring-boot-starter</artifactId> -->
-    <!--   <version>${redisson.version}</version> -->
-    <!-- </dependency> -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-redis</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.redisson</groupId>
+      <artifactId>redisson-spring-boot-starter</artifactId>
+      <version>${redisson.version}</version>
+    </dependency>
     <dependency>
       <groupId>com.github.slugify</groupId>
       <artifactId>slugify</artifactId>
@@ -276,10 +277,10 @@
     <!-- Lock down plugin versions to avoid using Maven defaults (can be moved to a parent pom file) -->
     <pluginManagement>
       <plugins>
-        <plugin>
-          <groupId>org.springframework.boot</groupId>
-          <artifactId>spring-boot-maven-plugin</artifactId>
-        </plugin>
+        <!-- <plugin> -->
+        <!--   <groupId>org.springframework.boot</groupId> -->
+        <!--   <artifactId>spring-boot-maven-plugin</artifactId> -->
+        <!-- </plugin> -->
         <!-- Activate Kotlin Maven plugin for main and test sources -->
         <plugin>
           <groupId>org.jetbrains.kotlin</groupId>
@@ -339,6 +340,18 @@
               </configuration>
             </execution>
           </executions>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-jar-plugin</artifactId>
+          <configuration>
+            <archive>
+              <manifest>
+                <addClasspath>true</addClasspath>
+                <mainClass>${main.class}</mainClass>
+              </manifest>
+            </archive>
+          </configuration>
         </plugin>
       </plugins>
     </pluginManagement>
