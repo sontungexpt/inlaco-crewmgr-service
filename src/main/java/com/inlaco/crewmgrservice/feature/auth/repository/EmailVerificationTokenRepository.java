@@ -9,9 +9,11 @@ import org.springframework.stereotype.Repository;
 public interface EmailVerificationTokenRepository
     extends CrudRepository<EmailVerificationToken, String> {
 
-  Optional<EmailVerificationToken> findByToken(String token);
+  Optional<EmailVerificationToken> findByHashToken(String hashToken);
 
-  void deleteByToken(String token);
+  void deleteByHashToken(String token);
+
+  void deleteByUserId(String userId);
 
   Optional<EmailVerificationToken> findByUserId(String userPubId);
 

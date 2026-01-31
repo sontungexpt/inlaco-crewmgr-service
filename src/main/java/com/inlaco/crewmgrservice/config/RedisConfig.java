@@ -17,6 +17,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.util.StringUtils;
 
 @Configuration
 @RequiredArgsConstructor
@@ -60,10 +61,12 @@ public class RedisConfig {
 
   @Bean
   public Config config() {
-    Config config = new Config();
     String address = String.format("redis://%s:%s", HOST, PORT);
-
-    config.useSingleServer().setAddress(address).setPassword(PASSWORD);
+    Config config = new Config();
+    var singleServerConfig = config.useSingleServer().setAddress(address);
+    if (StringUtils.hasText(PASSWORD)) {
+      singleServerConfig.setPassword(PASSWORD);
+    }
     return config;
   }
 }

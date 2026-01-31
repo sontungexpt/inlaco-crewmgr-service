@@ -1,9 +1,9 @@
 package com.inlaco.crewmgrservice.feature.auth.model;
 
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
 import lombok.AllArgsConstructor;
+import lombok.Builder.Default;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
@@ -13,55 +13,16 @@ import org.springframework.data.annotation.Id;
 @Setter
 @AllArgsConstructor
 @SuperBuilder
+@EqualsAndHashCode
 public abstract class VerificationToken {
 
   @Id private String id;
 
   private String userId;
 
-  private Instant issuedDate;
+  @Default private Instant createdAt = Instant.now();
 
-  public abstract Instant getExpiryDate();
-
-  public VerificationToken() {}
-
-  public VerificationToken(String userId) {
+  protected VerificationToken(String userId) {
     this.userId = userId;
-    this.issuedDate = Instant.now();
-  }
-
-  public abstract boolean isValid(String value);
-
-  public abstract VerificationToken refresh(boolean newToken);
-
-  public VerificationToken refresh() {
-    return refresh(false);
-  }
-
-  /**
-   * Convert the object to a map representation This is useful for storing the object in a Redis
-   * database
-   *
-   * @return a map representation of the object
-   */
-  public Map<String, String> toMap() {
-    HashMap<String, String> map = new HashMap<>();
-    map.put("userId", userId);
-    map.put("issuedDate", issuedDate.toString());
-    return map;
-  }
-
-  @Override
-  public int hashCode() {
-    return id.hashCode();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) return true;
-    else if (obj instanceof VerificationToken that) {
-      return this.id.equals(that.id);
-    }
-    return false;
   }
 }
