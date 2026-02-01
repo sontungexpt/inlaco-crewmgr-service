@@ -3,10 +3,10 @@ package com.inlaco.crewmgrservice.feature.notify.mail;
 import com.inlaco.crewmgrservice.feature.notify.NotificationService;
 import com.inlaco.crewmgrservice.feature.notify.NotificationType;
 import jakarta.mail.Message.RecipientType;
+import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
@@ -36,17 +36,20 @@ public class EmailNotificationServiceImpl implements NotificationService<EmailRe
     mailSender.send(message);
   }
 
-  @SneakyThrows
   private void sendHtmlMessage(String sender, EmailRequest request) {
     MimeMessage message = mailSender.createMimeMessage();
-    message.setFrom(sender);
-    for (String recipient : request.getRecipients()) {
-      message.addRecipients(RecipientType.TO, recipient);
-    }
-    message.setSubject(request.getSubject());
-    message.setText(request.getMessage(), "UTF-8", "html");
 
-    // message.setContent(request.getMessage(), "text/html");
+    try {
+      message.setFrom(sender);
+      for (String recipient : request.getRecipients()) {
+        message.addRecipients(RecipientType.TO, recipient);
+      }
+      message.setSubject(request.getSubject());
+      message.setText(request.getMessage(), "UTF-8", "html");
+      // message.setContent(request.getMessage(), "text/html");
+    } catch (MessagingException e) {
+      e.printStackTrace();
+    }
 
     log.info("Sending http email to {}", request.getRecipients());
     mailSender.send(message);

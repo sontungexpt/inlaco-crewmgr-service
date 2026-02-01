@@ -4,15 +4,12 @@ import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 import org.springframework.data.redis.core.index.Indexed;
 
 @Getter
 @Setter
-@SuperBuilder
-// @Document(collection = "email_verification_token")
 @RedisHash(value = "email_verification_token")
 public class EmailVerificationToken extends VerificationToken {
 
@@ -32,11 +29,13 @@ public class EmailVerificationToken extends VerificationToken {
     this.lastSentAt = Instant.now();
   }
 
+  protected EmailVerificationToken() {
+    super(null);
+  }
+
   public EmailVerificationToken(String userId, String hashToken) {
     super(userId);
-    this.hashToken = hashToken;
-    this.ttl = EXPIRE_SECONDS;
-    this.lastSentAt = Instant.now();
+    refresh(hashToken);
   }
 
   public String getHashToken() {

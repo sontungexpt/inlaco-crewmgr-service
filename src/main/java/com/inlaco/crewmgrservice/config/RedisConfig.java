@@ -2,16 +2,14 @@ package com.inlaco.crewmgrservice.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.redisson.api.RedissonClient;
-import org.redisson.config.Config;
-import org.redisson.spring.data.connection.RedissonConnectionFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
-import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisPassword;
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisKeyValueAdapter;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
@@ -23,9 +21,6 @@ import org.springframework.util.StringUtils;
 @RequiredArgsConstructor
 @EnableRedisRepositories(
     enableKeyspaceEvents = RedisKeyValueAdapter.EnableKeyspaceEvents.ON_STARTUP)
-@ImportAutoConfiguration({
-  RedisAutoConfiguration.class,
-})
 public class RedisConfig {
 
   private final ObjectMapper objectMapper;
@@ -34,39 +29,37 @@ public class RedisConfig {
   private String HOST;
 
   @Value("${spring.data.redis.port}")
-  private String PORT;
+  private int PORT;
 
   @Value("${spring.data.redis.password}")
   private String PASSWORD;
 
   @Bean
-  public RedisConnectionFactory redissonConnectionFactory(RedissonClient redisson) {
-    return new RedissonConnectionFactory(redisson);
+  public RedisConnectionFactory lettuceConnectionFactory() {
+    var config = new RedisStandaloneConfiguration(HOST, PORT);
+    if (StringUtils.hasText(PASSWORD)) {
+      config.setPassword(RedisPassword.of(PASSWORD));
+    }
+    return new LettuceConnectionFactory(config);
   }
 
   @Bean
   @Primary
-  public RedisTemplate<Object, Object> redisTemplate(
-      RedisConnectionFactory redissonConnectionFactory) {
-    RedisTemplate<Object, Object> redisTemplate = new RedisTemplate<>();
-    redisTemplate.setConnectionFactory(redissonConnectionFactory);
+  public RedisTemplate<String, Object> redisTemplate(
+      RedisConnectionFactory redisConnectionFactory) {
+    RedisTemplate<String, Object> template = new RedisTemplate<>();
+    template.setConnectionFactory(redisConnectionFactory);
 
-    redisTemplate.setKeySerializer(new StringRedisSerializer());
-    redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer(objectMapper));
-    redisTemplate.setHashKeySerializer(new StringRedisSerializer());
-    redisTemplate.setHashValueSerializer(new GenericJackson2JsonRedisSerializer(objectMapper));
-    redisTemplate.afterPropertiesSet();
-    return redisTemplate;
-  }
+    StringRedisSerializer stringSerializer = new StringRedisSerializer();
+    GenericJackson2JsonRedisSerializer jsonSerializer =
+        new GenericJackson2JsonRedisSerializer(objectMapper);
 
-  @Bean
-  public Config config() {
-    String address = String.format("redis://%s:%s", HOST, PORT);
-    Config config = new Config();
-    var singleServerConfig = config.useSingleServer().setAddress(address);
-    if (StringUtils.hasText(PASSWORD)) {
-      singleServerConfig.setPassword(PASSWORD);
-    }
-    return config;
+    template.setKeySerializer(stringSerializer);
+    template.setValueSerializer(jsonSerializer);
+    template.setHashKeySerializer(stringSerializer);
+    template.setHashValueSerializer(jsonSerializer);
+
+    template.afterPropertiesSet();
+    return template;
   }
 }

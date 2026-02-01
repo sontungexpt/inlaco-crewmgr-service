@@ -13,9 +13,7 @@ public interface EmailVerificationTokenRepository
 
   void deleteByHashToken(String token);
 
+  Optional<EmailVerificationToken> findByUserId(String userId);
+
   void deleteByUserId(String userId);
-
-  Optional<EmailVerificationToken> findByUserId(String userPubId);
-
-  Optional<EmailVerificationToken> findByResendToken(String resendToken);
 }

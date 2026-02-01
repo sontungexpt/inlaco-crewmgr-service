@@ -99,11 +99,9 @@ public record AuthServiceImpl(
       log.debug("User with username {} already exists", username);
       throw new ResourceAlreadyInUseException(User.class, "username", username);
     }
-
     log.debug("Starting registration for user {}", username);
 
     var usernameType = request.getUsernameType();
-
     Role role =
         roleRepository
             .findByName("USER")

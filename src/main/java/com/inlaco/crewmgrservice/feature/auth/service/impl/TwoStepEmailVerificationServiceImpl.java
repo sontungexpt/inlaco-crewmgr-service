@@ -33,6 +33,9 @@ public class TwoStepEmailVerificationServiceImpl implements TwoStepVerificationS
   private final UserService userService;
   private final NotificationFactory notificationFactory;
 
+  @Value("${inlaco.server.base-url}")
+  private String SERVER_BASE_URL;
+
   @Value("${inlaco.client.endpoint.login}")
   private String LOGIN_CLIENT_URL;
 
@@ -69,9 +72,7 @@ public class TwoStepEmailVerificationServiceImpl implements TwoStepVerificationS
 
     token.refresh(pair.hash()); // reset hash + TTL + resend time
     emailVerificationTokenRepository.save(token);
-
     sendEmail(user, pair.raw());
-
     log.debug("Email verification token resent to user {}", user.getUsername());
   }
 
@@ -118,21 +119,6 @@ public class TwoStepEmailVerificationServiceImpl implements TwoStepVerificationS
         NotificationType.EMAIL, generateEmailRequest(user, rawToken));
   }
 
-  private String getServerBaseUrl() {
-    String baseUrl =
-        HttpServletUtils.getRequest()
-            .map(
-                (request) -> {
-                  String scheme = request.getScheme(); // http or https
-                  String host = request.getServerName(); // host name
-                  int port = request.getServerPort(); // Port
-                  return scheme + "://" + host + ":" + port;
-                })
-            .orElse("");
-    log.debug("Derived server base URL: {}", baseUrl);
-    return baseUrl;
-  }
-
   private void redirectToLogin(User user) {
     HttpServletUtils.getResponse()
         .ifPresent(
@@ -159,9 +145,7 @@ public class TwoStepEmailVerificationServiceImpl implements TwoStepVerificationS
   }
 
   private String generateVerificationLink(String token) {
-    return String.format(
-        "%s/api/v1/auth/two-step-verification?token=%s",
-        getServerBaseUrl(), UriEncoder.encode(token));
+    return SERVER_BASE_URL + "/api/v1/auth/two-step-verification?token=" + UriEncoder.encode(token);
   }
 
   /** Lazy-load the HTML template */
