@@ -31,17 +31,8 @@ public class ResourceNotFoundException extends BaseException {
       @NonNull String conflictFieldName,
       Object conflictFieldValue) {
     super(HttpStatus.NOT_FOUND, message);
-    try {
-      resource.getDeclaredField(conflictFieldName);
-
-      this.resourceName = resource.getSimpleName();
-      this.conflictFields.put(conflictFieldName, conflictFieldValue);
-    } catch (NoSuchFieldException e) {
-      log.error("Field {} not found in class {}", conflictFieldName, resource.getSimpleName());
-      throw new RuntimeException(
-          String.format(
-              "Field %s not found in class %s", conflictFieldName, resource.getSimpleName()));
-    }
+    this.resourceName = resource.getSimpleName();
+    this.conflictFields.put(conflictFieldName, conflictFieldValue);
   }
 
   public <T> ResourceNotFoundException(Class<T> resource, Map<String, Object> conflictFields) {

@@ -96,6 +96,7 @@ public class ContractServiceImpl implements ContractService {
                   () ->
                       new ResourceNotFoundException(
                           ContractVersion.class, "id", savedContract.getPrevVersionId()));
+
       prevVersion.setNextVersionId(savedContract.getId());
       prevVersion.setNextVersion(savedContract.getVersion());
       contractVersionRepository.save(prevVersion);
@@ -117,11 +118,9 @@ public class ContractServiceImpl implements ContractService {
         candidateService.getCandidateProfileById(candidateProfileId);
 
     ObjectId accountId = candidateProfile.getAccountId();
+
     contract.setCandidateProfileId(new ObjectId(candidateProfileId));
     contract.setEmployeeId(accountId);
-
-    candidateService.reviewCandidate(
-        candidateProfileId, CandidateProfile.Status.CONTRACT_NOT_YET_IN_FORCE, false);
 
     var newContract = contractRepository.save(contract);
 

@@ -9,27 +9,32 @@ import com.inlaco.crewmgrservice.feature.user.model.SailorProfile;
 import com.inlaco.crewmgrservice.feature.user.service.SailorService;
 import com.inlaco.crewmgrservice.utils.TextTemplateBuilder;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
 @RequiredArgsConstructor
 public class NewAssignmetScheduleEventListener {
+  private final SailorService sailorService;
+  private final NotificationFactory notificationFactory;
+
   @Value("${inlaco.client.base-url}")
   private String CLIENT_HOME_PAGE_LINK;
 
-  private String SAILOR_WORK_EMAIL_NOTIFICATION_PATH =
-      "src/main/resources/templates/email/html/schedule/sailor-work-notification.html";
+  @Value("${inlaco.template.email.sailor-schedule.path}")
+  private String EMAIL_TEMPLATE_PATH;
 
-  private final SailorService sailorService;
-  private final NotificationFactory notificationFactory;
+  @Value("${inlaco.template.email.sailor-schedule.subject}")
+  private String EMAIL_SUBJECT;
+
+  private volatile String cachedTemplate;
 
   @EventListener(NewAssignmentScheduleEvent.class)
   public void handleNewAssignmentScheduleEvent(NewAssignmentScheduleEvent event) {
@@ -38,16 +43,24 @@ public class NewAssignmetScheduleEventListener {
     notifySailorSchedule(schedule);
   }
 
-  private String loadEmailTemplate() {
-    try {
-      return Files.readString(Paths.get(SAILOR_WORK_EMAIL_NOTIFICATION_PATH));
-    } catch (IOException e) {
-      log.error(
-          "Failed to load sailor work notification email template from {}",
-          SAILOR_WORK_EMAIL_NOTIFICATION_PATH,
-          e);
-      return null;
+  private void notifySailorSchedule(AssignedMobilization schedule) {
+    if (schedule.getCrewMembers() == null || schedule.getCrewMembers().isEmpty()) {
+      log.warn("Schedule {} has no crew members to notify", schedule.getId());
+      return;
     }
+    List<String> cardIds = schedule.getCrewMembers().stream().map(it -> it.getCardId()).toList();
+    List<SailorProfile> profiles = sailorService.findSailorProfilesByCardIds(cardIds);
+
+    if (profiles.isEmpty()) {
+      log.warn("No sailor profiles found for schedule {}", schedule.getId());
+      return;
+    }
+
+    String emailTemplate = getEmailTemplate();
+    if (emailTemplate == null) {
+      return;
+    }
+    profiles.forEach(profile -> sendScheduleEmail(profile, schedule, emailTemplate));
   }
 
   private void sendScheduleEmail(
@@ -68,7 +81,7 @@ public class NewAssignmetScheduleEventListener {
                     .var("home_page_link", CLIENT_HOME_PAGE_LINK)
                     .var("info_link", "")
                     .buildContent(),
-                "Inlaco Work Schedule Notification")
+                EMAIL_SUBJECT)
             .build();
 
     log.debug(
@@ -79,22 +92,22 @@ public class NewAssignmetScheduleEventListener {
     notificationFactory.sendNotificationAsync(NotificationType.EMAIL, emailRequest);
   }
 
-  public void notifySailorSchedule(AssignedMobilization schedule) {
-    if (schedule.getCrewMembers() == null || schedule.getCrewMembers().isEmpty()) {
-      log.warn("Schedule {} has no crew members to notify", schedule.getId());
-      return;
+  /** Lazy-load the HTML template */
+  private String getEmailTemplate() {
+    if (cachedTemplate == null) {
+      synchronized (this) {
+        if (cachedTemplate == null) {
+          try {
+            ClassPathResource resource = new ClassPathResource(EMAIL_TEMPLATE_PATH);
+            cachedTemplate =
+                new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+          } catch (IOException e) {
+            log.error("Failed to load email template with path {}", EMAIL_TEMPLATE_PATH, e);
+            throw new RuntimeException("Failed to generate email request");
+          }
+        }
+      }
     }
-    List<String> cardIds = schedule.getCrewMembers().stream().map(it -> it.getCardId()).toList();
-    List<SailorProfile> profiles = sailorService.findSailorProfilesByCardIds(cardIds);
-
-    if (profiles.isEmpty()) {
-      log.warn("No sailor profiles found for schedule {}", schedule.getId());
-      return;
-    }
-    String emailTemplate = loadEmailTemplate();
-    if (emailTemplate == null) {
-      return;
-    }
-    profiles.forEach(profile -> sendScheduleEmail(profile, schedule, emailTemplate));
+    return cachedTemplate;
   }
 }
