@@ -34,6 +34,7 @@ jwt:
 
 resend:
   api-key: ${RESEND_API_KEY}
+  domain: ${RESEND_DOMAIN}
 
 spring:
   application:
