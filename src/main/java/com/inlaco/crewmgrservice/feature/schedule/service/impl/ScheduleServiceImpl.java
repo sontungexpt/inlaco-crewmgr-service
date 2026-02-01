@@ -64,7 +64,7 @@ public class ScheduleServiceImpl implements ScheduleService {
       profiles.forEach(
           profile -> {
             EmailRequest emailRequest =
-                EmailRequest.builder(
+                EmailRequest.html(
                         profile.getEmail(),
                         TextTemplateBuilder.content(html)
                             .var("recipient_name", profile.getFullName())
@@ -75,7 +75,6 @@ public class ScheduleServiceImpl implements ScheduleService {
                             .var("info_link", "")
                             .buildContent(),
                         "Inlaco Work Schedule Notification")
-                    .htmlMessage()
                     .build();
             log.info("Notify sailor: {}", profile);
             notificationFactory.sendNotificationAsync(NotificationType.EMAIL, emailRequest);

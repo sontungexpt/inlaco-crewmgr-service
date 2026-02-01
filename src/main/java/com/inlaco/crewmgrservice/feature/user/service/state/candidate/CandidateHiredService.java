@@ -3,7 +3,6 @@ package com.inlaco.crewmgrservice.feature.user.service.state.candidate;
 import com.inlaco.crewmgrservice.feature.notify.NotificationFactory;
 import com.inlaco.crewmgrservice.feature.notify.NotificationType;
 import com.inlaco.crewmgrservice.feature.notify.mail.EmailRequest;
-import com.inlaco.crewmgrservice.feature.notify.mail.EmailType;
 import com.inlaco.crewmgrservice.feature.post.model.RecruitmentPost;
 import com.inlaco.crewmgrservice.feature.post.service.PostService;
 import com.inlaco.crewmgrservice.feature.user.model.CandidateProfile;
@@ -57,9 +56,7 @@ public class CandidateHiredService extends CandidateReviewStragegy {
       String email = createHtmlEmail(profile.getFullName(), post.getPosition());
 
       EmailRequest emailRequest =
-          EmailRequest.builder(profile.getEmail(), email, EMAIL_SUBJECT)
-              .emailType(EmailType.MIME)
-              .build();
+          EmailRequest.html(profile.getEmail(), email, EMAIL_SUBJECT).build();
 
       notificationFactory.sendNotificationAsync(NotificationType.EMAIL, emailRequest);
 
