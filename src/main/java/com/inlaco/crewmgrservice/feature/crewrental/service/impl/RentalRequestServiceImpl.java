@@ -47,8 +47,9 @@ public class RentalRequestServiceImpl implements RentalRequestService {
   }
 
   @Override
-  public Page<RentalRequest> findAllRequests(RentalRequestFilterable filter, Pageable pageable) {
-    return customRentalRequestRepository.findAllRequests(filter, pageable);
+  public Page<RentalRequest> findAllRequests(
+      RentalRequestFilterable filterable, Pageable pageable) {
+    return customRentalRequestRepository.findAllRequests(filterable, pageable);
   }
 
   @Override

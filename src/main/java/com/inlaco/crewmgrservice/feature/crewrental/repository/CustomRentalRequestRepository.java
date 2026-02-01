@@ -61,11 +61,24 @@ public class CustomRentalRequestRepository {
   }
 
   public Criteria buildFilterCriteria(RentalRequestFilterable filter) {
-    List<Criteria> criteriaList = new ArrayList<>();
-    if (filter.getStatus() != null) {
-      criteriaList.add(Criteria.where("status").is(filter.getStatus()));
+    Criteria criteria = new Criteria();
+    String keyword = filter.getKeyword();
+    if (keyword != null) {
+      if (PhoneNumberValidatorUtils.isPotentialPhoneNumber(keyword)) {
+        criteria.andOperator(Criteria.where("companyPhone").regex(keyword, "i"));
+      }
+
+      criteria.andOperator(
+          Criteria.where("companyEmail").regex(keyword, "i"),
+          Criteria.where("companyName").regex(keyword, "i"),
+          Criteria.where("shipInfo.name").regex(keyword, "i"));
     }
-    return new Criteria().andOperator(criteriaList);
+
+    if (filter.getStatus() != null) {
+      criteria.andOperator(Criteria.where("status").is(filter.getStatus()));
+    }
+
+    return criteria;
   }
 
   public Page<RentalRequest> findAllRequests(RentalRequestFilterable filterable, Pageable p) {

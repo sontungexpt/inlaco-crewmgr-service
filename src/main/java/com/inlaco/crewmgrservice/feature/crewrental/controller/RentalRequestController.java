@@ -3,7 +3,6 @@ package com.inlaco.crewmgrservice.feature.crewrental.controller;
 import com.inlaco.crewmgrservice.annotation.CurrentUser;
 import com.inlaco.crewmgrservice.config.OpenApiConfig;
 import com.inlaco.crewmgrservice.feature.crewrental.dto.RentalRequestFilterable;
-import com.inlaco.crewmgrservice.feature.crewrental.enums.RentalRequestStatus;
 import com.inlaco.crewmgrservice.feature.crewrental.model.RentalRequest;
 import com.inlaco.crewmgrservice.feature.crewrental.service.RentalRequestService;
 import com.inlaco.crewmgrservice.feature.user.model.User;
@@ -74,22 +73,13 @@ Admin review a new crew rental request
 
   @Operation(
       summary = "Find all requests",
-      description =
-"""
-Find all requests
-
-**Usecase**:
-
-- UC_admin-xem-yeu-cau-thue-thuyen-vien.
-""",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   @RolesAllowed("ADMIN")
   @GetMapping("")
   public Page<RentalRequest> findAllRequests(
-      @RequestParam(required = false) RentalRequestStatus status,
-      @PageableDefault(page = 0, size = 20) Pageable pageable) {
-    return rentalRequestService.findAllRequests(
-        RentalRequestFilterable.builder().status(status).build(), pageable);
+      RentalRequestFilterable filterable, @PageableDefault(page = 0, size = 20) Pageable pageable) {
+
+    return rentalRequestService.findAllRequests(filterable, pageable);
   }
 
   @Operation(
