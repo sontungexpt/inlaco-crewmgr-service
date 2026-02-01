@@ -1,13 +1,17 @@
+// Uncomment to use JavaMailSender via SMTP
+
 package com.inlaco.crewmgrservice.feature.notify.mail;
 
 import com.inlaco.crewmgrservice.feature.notify.NotificationService;
 import com.inlaco.crewmgrservice.feature.notify.NotificationType;
-import com.resend.Resend;
-import com.resend.core.exception.ResendException;
-import com.resend.services.emails.model.CreateEmailOptions;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -15,87 +19,88 @@ import org.springframework.stereotype.Service;
 @Service(NotificationType.EMAIL)
 public class EmailNotificationServiceImpl implements NotificationService<EmailRequest> {
 
-  @Value("${resend.domain}")
+  @Value("${spring.mail.username}")
   private String DEFAULT_SENDER;
 
-  private final Resend resend;
+  private final JavaMailSender mailSender;
 
   @Override
   public void sendNotification(EmailRequest request) {
-    if (request == null) {
-      log.warn("Email request is null, skip sending");
-      return;
-    }
-
     String sender = request.getSender() != null ? request.getSender() : DEFAULT_SENDER;
 
-    if (sender == null || sender.isBlank()) {
-      log.error("No sender configured for email request");
-      return;
+    try {
+      if (request.getEmailType() == EmailType.MIME) {
+        sendHtmlMessage(sender, request);
+      } else {
+        sendSimpleMessage(sender, request);
+      }
+      log.info(
+          "Email sent | type={} | from={} | to={} | subject={}",
+          request.getEmailType(),
+          sender,
+          request.getRecipients(),
+          request.getSubject());
+
+    } catch (Exception e) {
+      log.error(
+          "Failed to send email | type={} | from={} | to={} | subject={}",
+          request.getEmailType(),
+          sender,
+          request.getRecipients(),
+          request.getSubject(),
+          e);
+      throw new RuntimeException("Email sending failed", e);
     }
+  }
 
-    log.debug(
-        "Preparing email: type={}, subject={}, recipients={}",
-        request.getEmailType(),
-        request.getSubject(),
-        request.getRecipients());
-
-    CreateEmailOptions.Builder builder =
-        CreateEmailOptions.builder()
-            .from(sender)
-            .to(request.getRecipients())
-            .subject(request.getSubject());
+  private void sendSimpleMessage(String sender, EmailRequest request) {
+    SimpleMailMessage message = new SimpleMailMessage();
+    message.setFrom(sender);
+    message.setTo(request.getRecipients().toArray(new String[0]));
+    message.setSubject(request.getSubject());
+    message.setText(request.getMessage());
 
     if (request.getCc() != null) {
-      builder.cc(request.getCc());
+      message.setCc(request.getCc());
     }
     if (request.getBcc() != null) {
-      builder.bcc(request.getBcc());
+      message.setBcc(request.getBcc());
     }
 
-    switch (request.getEmailType()) {
-      case MIME -> {
-        log.debug("Building HTML email");
-        builder.html(request.getMessage());
-      }
-      case TEXT -> {
-        log.debug("Building TEXT email");
-        builder.text(request.getMessage());
-      }
-      default -> {
-        log.warn("Unknown email type {}, fallback to TEXT", request.getEmailType());
-        builder.text(request.getMessage());
-      }
+    mailSender.send(message);
+  }
+
+  private void sendHtmlMessage(String sender, EmailRequest request) throws MessagingException {
+    MimeMessage message = mailSender.createMimeMessage();
+    var helper = new MimeMessageHelper(message, true, "UTF-8");
+
+    helper.setFrom(sender);
+    helper.setTo(request.getRecipients().toArray(new String[0]));
+    helper.setSubject(request.getSubject());
+    helper.setText(request.getMessage(), true); // true = HTML
+
+    if (request.getCc() != null) {
+      helper.setCc(request.getCc());
+    }
+    if (request.getBcc() != null) {
+      helper.setBcc(request.getBcc());
     }
 
-    try {
-      resend.emails().send(builder.build());
-
-      log.info(
-          "Email [{}] sent successfully to {}", request.getEmailType(), request.getRecipients());
-
-    } catch (ResendException e) {
-      log.error(
-          "Failed to send email [{}] to {}", request.getEmailType(), request.getRecipients(), e);
-    }
+    mailSender.send(message);
   }
 }
 
-// Uncomment to use JavaMailSender via SMTP
-
+// Uncomment to use Resend
 // package com.inlaco.crewmgrservice.feature.notify.mail;
 
 // import com.inlaco.crewmgrservice.feature.notify.NotificationService;
 // import com.inlaco.crewmgrservice.feature.notify.NotificationType;
-// import jakarta.mail.Message.RecipientType;
-// import jakarta.mail.MessagingException;
-// import jakarta.mail.internet.MimeMessage;
-// import java.util.List;
+// import com.resend.Resend;
+// import com.resend.core.exception.ResendException;
+// import com.resend.services.emails.model.CreateEmailOptions;
 // import lombok.RequiredArgsConstructor;
 // import lombok.extern.slf4j.Slf4j;
 // import org.springframework.beans.factory.annotation.Value;
-// import org.springframework.mail.SimpleMailMessage;
-// import org.springframework.mail.javamail.JavaMailSender;
 // import org.springframework.stereotype.Service;
 
 // @Slf4j
@@ -103,56 +108,68 @@ public class EmailNotificationServiceImpl implements NotificationService<EmailRe
 // @Service(NotificationType.EMAIL)
 // public class EmailNotificationServiceImpl implements NotificationService<EmailRequest> {
 
-//   @Value("${spring.mail.username}")
-//   private String SENDER;
+//   @Value("${resend.domain}")
+//   private String DEFAULT_SENDER;
 
-//   private final JavaMailSender mailSender;
-
-//   private void sendSimpleMessage(String sender, EmailRequest request) {
-//     SimpleMailMessage message = new SimpleMailMessage();
-//     message.setFrom(sender);
-//     message.setTo((String[]) request.getRecipients().toArray());
-//     message.setSubject(request.getSubject());
-//     message.setText(request.getMessage());
-//     message.setCc(request.getCc());
-//     message.setBcc(request.getBcc());
-
-//     log.info("Sending simple email to {}", request.getRecipients());
-//     mailSender.send(message);
-//   }
-
-//   private void sendHtmlMessage(String sender, EmailRequest request) {
-//     MimeMessage message = mailSender.createMimeMessage();
-
-//     try {
-//       message.setFrom(sender);
-//       for (String recipient : request.getRecipients()) {
-//         message.addRecipients(RecipientType.TO, recipient);
-//       }
-//       message.setSubject(request.getSubject());
-//       message.setText(request.getMessage(), "UTF-8", "html");
-//       // message.setContent(request.getMessage(), "text/html");
-//     } catch (MessagingException e) {
-//       e.printStackTrace();
-//     }
-
-//     log.info("Sending http email to {}", request.getRecipients());
-//     mailSender.send(message);
-//   }
+//   private final Resend resend;
 
 //   @Override
 //   public void sendNotification(EmailRequest request) {
-//     List<String> recipient = request.getRecipients();
-//     String sender = request.getSender() != null ? request.getSender() : SENDER;
+//     if (request == null) {
+//       log.warn("Email request is null, skip sending");
+//       return;
+//     }
+
+//     String sender = request.getSender() != null ? request.getSender() : DEFAULT_SENDER;
+
+//     if (sender == null || sender.isBlank()) {
+//       log.error("No sender configured for email request");
+//       return;
+//     }
+
+//     log.debug(
+//         "Preparing email: type={}, subject={}, recipients={}",
+//         request.getEmailType(),
+//         request.getSubject(),
+//         request.getRecipients());
+
+//     CreateEmailOptions.Builder builder =
+//         CreateEmailOptions.builder()
+//             .from(sender)
+//             .to(request.getRecipients())
+//             .subject(request.getSubject());
+
+//     if (request.getCc() != null) {
+//       builder.cc(request.getCc());
+//     }
+//     if (request.getBcc() != null) {
+//       builder.bcc(request.getBcc());
+//     }
 
 //     switch (request.getEmailType()) {
-//       case MIME:
-//         sendHtmlMessage(sender, request);
-//         log.info("HTML email sent to {}", recipient);
-//         break;
-//       default:
-//         sendSimpleMessage(sender, request);
-//         log.info("Simple email sent to {}", recipient);
+//       case MIME -> {
+//         log.debug("Building HTML email");
+//         builder.html(request.getMessage());
+//       }
+//       case TEXT -> {
+//         log.debug("Building TEXT email");
+//         builder.text(request.getMessage());
+//       }
+//       default -> {
+//         log.warn("Unknown email type {}, fallback to TEXT", request.getEmailType());
+//         builder.text(request.getMessage());
+//       }
+//     }
+
+//     try {
+//       resend.emails().send(builder.build());
+
+//       log.info(
+//           "Email [{}] sent successfully to {}", request.getEmailType(), request.getRecipients());
+
+//     } catch (ResendException e) {
+//       log.error(
+//           "Failed to send email [{}] to {}", request.getEmailType(), request.getRecipients(), e);
 //     }
 //   }
 // }
