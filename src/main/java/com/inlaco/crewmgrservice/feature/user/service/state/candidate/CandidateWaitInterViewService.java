@@ -3,7 +3,6 @@ package com.inlaco.crewmgrservice.feature.user.service.state.candidate;
 import com.inlaco.crewmgrservice.feature.notify.NotificationFactory;
 import com.inlaco.crewmgrservice.feature.notify.NotificationType;
 import com.inlaco.crewmgrservice.feature.notify.mail.EmailRequest;
-import com.inlaco.crewmgrservice.feature.notify.mail.EmailType;
 import com.inlaco.crewmgrservice.feature.post.model.RecruitmentPost;
 import com.inlaco.crewmgrservice.feature.post.service.PostService;
 import com.inlaco.crewmgrservice.feature.user.model.CandidateProfile;
@@ -53,7 +52,7 @@ public class CandidateWaitInterViewService extends CandidateReviewStragegy {
       try {
         notificationFactory.sendNotificationAsync(
             NotificationType.EMAIL,
-            EmailRequest.builder(
+            EmailRequest.html(
                     profile.getEmail(),
                     TextTemplateBuilder.relativePath(
                             "src/main/resources/templates/email/html/recruitment/wait-for-interview.html")
@@ -61,7 +60,6 @@ public class CandidateWaitInterViewService extends CandidateReviewStragegy {
                         .var("position_name", post.getPosition())
                         .buildContent(),
                     EMAIL_SUBJECT)
-                .emailType(EmailType.MIME)
                 .build());
       } catch (IOException e) {
         e.printStackTrace();

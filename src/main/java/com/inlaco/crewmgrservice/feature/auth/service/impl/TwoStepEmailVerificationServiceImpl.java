@@ -9,7 +9,6 @@ import com.inlaco.crewmgrservice.feature.auth.service.TwoStepVerificationService
 import com.inlaco.crewmgrservice.feature.notify.NotificationFactory;
 import com.inlaco.crewmgrservice.feature.notify.NotificationType;
 import com.inlaco.crewmgrservice.feature.notify.mail.EmailRequest;
-import com.inlaco.crewmgrservice.feature.notify.mail.EmailType;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import com.inlaco.crewmgrservice.feature.user.service.UserService;
 import com.inlaco.crewmgrservice.utils.DigestUtils;
@@ -133,14 +132,13 @@ public class TwoStepEmailVerificationServiceImpl implements TwoStepVerificationS
 
   private EmailRequest generateEmailRequest(User user, String token) {
     String link = generateVerificationLink(token);
-    return EmailRequest.builder(
+    return EmailRequest.html(
             user.getUsername(),
             TextTemplateBuilder.content(getEmailTemplate())
                 .var("name", user.getName())
                 .var("verificationLink", link)
                 .buildContent(),
             SUBJECT)
-        .emailType(EmailType.MIME)
         .build();
   }
 

@@ -6,7 +6,6 @@ import com.inlaco.crewmgrservice.exceptions.ResourceNotFoundException;
 import com.inlaco.crewmgrservice.feature.notify.NotificationFactory;
 import com.inlaco.crewmgrservice.feature.notify.NotificationType;
 import com.inlaco.crewmgrservice.feature.notify.mail.EmailRequest;
-import com.inlaco.crewmgrservice.feature.notify.mail.EmailType;
 import com.inlaco.crewmgrservice.feature.post.enums.PostType;
 import com.inlaco.crewmgrservice.feature.post.exception.PostInactiveException;
 import com.inlaco.crewmgrservice.feature.post.model.Post;
@@ -86,7 +85,7 @@ public class CandidateServiceImpl implements CandidateService {
 
       notificationFactory.sendNotificationAsync(
           NotificationType.EMAIL,
-          EmailRequest.builder(
+          EmailRequest.html(
                   profile.getEmail(),
                   TextTemplateBuilder.relativePath(
                           "src/main/resources/templates/email/html/recruitment/applied.html")
@@ -97,7 +96,6 @@ public class CandidateServiceImpl implements CandidateService {
                       .var("contact_email", "inlaco@gmail.com")
                       .buildContent(),
                   "Application Successful - " + COMPANY_NAME)
-              .emailType(EmailType.MIME)
               .build());
 
     } catch (IOException e) {

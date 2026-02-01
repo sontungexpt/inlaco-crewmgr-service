@@ -3,6 +3,7 @@ package com.inlaco.crewmgrservice.feature.notify.mail;
 import com.inlaco.crewmgrservice.common.model.File;
 import com.inlaco.crewmgrservice.feature.notify.NotificationRequest;
 import java.util.List;
+import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
@@ -14,34 +15,34 @@ public class EmailRequest extends NotificationRequest<String, String> {
 
   protected String subject;
 
-  @Setter protected EmailType emailType = EmailType.SIMPLE;
+  @Default @Setter protected EmailType emailType = EmailType.TEXT;
 
-  protected List<File> attachments;
+  protected List<File> attachments = null;
 
-  protected String[] cc;
+  protected String[] cc = null;
 
-  protected String[] bcc;
+  protected String[] bcc = null;
 
-  public static EmailRequestBuilder<?, ?> builder(
-      String recipient, String message, String subject) {
-    return new EmailRequestBuilderImpl().recipient(recipient).message(message).subject(subject);
-  }
-
-  public EmailRequest(String recipient, String message, String subject) {
-    super(null, recipient, message);
+  public EmailRequest(String sender, String recipient, String message, String subject) {
+    super(sender, recipient, message);
     this.subject = subject;
   }
 
-  public abstract static class EmailRequestBuilder<
-          C extends EmailRequest, B extends EmailRequestBuilder<C, B>>
-      extends NotificationRequestBuilder<String, String, C, B> {
+  public static EmailRequestBuilder<?, ?> html(String recipient, String message, String subject) {
+    return html(List.of(recipient), message, subject);
+  }
 
-    public B recipient(String recipient) {
-      return self().recipients(List.of(recipient));
-    }
+  public static EmailRequestBuilder<?, ?> html(
+      List<String> recipients, String message, String subject) {
+    return builder(EmailType.MIME, recipients, message, subject);
+  }
 
-    public B htmlMessage() {
-      return emailType(EmailType.MIME);
-    }
+  public static EmailRequestBuilder<?, ?> builder(
+      EmailType type, List<String> recipients, String message, String subject) {
+    return new EmailRequestBuilderImpl()
+        .emailType(type)
+        .recipients(recipients)
+        .message(message)
+        .subject(subject);
   }
 }
