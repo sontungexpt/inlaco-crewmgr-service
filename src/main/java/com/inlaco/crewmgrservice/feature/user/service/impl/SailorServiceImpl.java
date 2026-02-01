@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.inlaco.crewmgrservice.exceptions.ResourceNotFoundException;
 import com.inlaco.crewmgrservice.feature.contract.model.LaborContract;
 import com.inlaco.crewmgrservice.feature.contract.model.LaborParty;
-import com.inlaco.crewmgrservice.feature.user.dto.BasicProfileDTO;
 import com.inlaco.crewmgrservice.feature.user.dto.SailorFilterable;
 import com.inlaco.crewmgrservice.feature.user.enums.WorkStatus;
 import com.inlaco.crewmgrservice.feature.user.event.SailorOfficalEvent;
@@ -50,21 +49,21 @@ public class SailorServiceImpl implements SailorService {
     String currentIndex = String.format("%05d", customSailorRepository.countSailorHasCardId() + 1);
     var cardId = currentYear + currentIndex;
     log.debug("Generated sailor card id: {}", cardId);
-    return cardId;
+    return cardId.trim();
   }
 
-  private BasicProfileDTO toBasicProfileDTO(SailorProfile sailorProfile) {
-    return BasicProfileDTO.builder()
-        .id(sailorProfile.getId())
-        .fullName(sailorProfile.getFullName())
-        .email(sailorProfile.getEmail())
-        .address(sailorProfile.getAddress())
-        // .file(sailorProfile.get())
-        .phoneNumber(sailorProfile.getPhoneNumber())
-        .gender(sailorProfile.getGender())
-        .birthDate(sailorProfile.getBirthDate())
-        .build();
-  }
+  // private BasicProfileDTO toBasicProfileDTO(SailorProfile sailorProfile) {
+  //   return BasicProfileDTO.builder()
+  //       .id(sailorProfile.getId())
+  //       .fullName(sailorProfile.getFullName())
+  //       .email(sailorProfile.getEmail())
+  //       .address(sailorProfile.getAddress())
+  //       // .file(sailorProfile.get())
+  //       .phoneNumber(sailorProfile.getPhoneNumber())
+  //       .gender(sailorProfile.getGender())
+  //       .birthDate(sailorProfile.getBirthDate())
+  //       .build();
+  // }
 
   @Override
   public Page<SailorProfile> getAllSailors(SailorFilterable filterable, Pageable pageable) {
@@ -143,6 +142,7 @@ public class SailorServiceImpl implements SailorService {
     sailorProfile.setAccountId(contract.getEmployeeId());
     sailorProfile.setBirthDate(sailorParty.getBirthDate());
     sailorProfile.setProfessionalPosition(contract.getPosition());
+    sailorProfile.setEmail(sailorParty.getEmail());
 
     if (sailorProfile.getCardId() == null) {
       sailorProfile.setCardId(generateSailorCardId());
@@ -165,8 +165,8 @@ public class SailorServiceImpl implements SailorService {
   }
 
   @Override
-  public List<SailorProfile> findSailorProfilesByCardIds(Iterable<String> sailorIds) {
-    return sailorProfileRepository.findByCardIdIn(sailorIds);
+  public List<SailorProfile> findSailorProfilesByCardIds(Iterable<String> sailorCardIds) {
+    return sailorProfileRepository.findByCardIdIn(sailorCardIds);
   }
 
   @Override

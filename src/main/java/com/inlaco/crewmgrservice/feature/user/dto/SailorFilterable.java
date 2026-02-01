@@ -7,6 +7,8 @@ import lombok.Data;
 @Data
 public class SailorFilterable implements Filterable {
 
+  private String keyword;
+
   private String professionalPosition;
 
   private Boolean official;

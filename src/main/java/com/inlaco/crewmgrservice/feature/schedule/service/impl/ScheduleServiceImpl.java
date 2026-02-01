@@ -1,9 +1,6 @@
 package com.inlaco.crewmgrservice.feature.schedule.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.inlaco.crewmgrservice.feature.notify.NotificationFactory;
-import com.inlaco.crewmgrservice.feature.notify.NotificationType;
-import com.inlaco.crewmgrservice.feature.notify.mail.EmailRequest;
 import com.inlaco.crewmgrservice.feature.schedule.dto.MobilizationResponse;
 import com.inlaco.crewmgrservice.feature.schedule.dto.SailorScheduleResponse;
 import com.inlaco.crewmgrservice.feature.schedule.dto.ScheduleFilterable;
@@ -15,14 +12,9 @@ import com.inlaco.crewmgrservice.feature.schedule.service.ScheduleService;
 import com.inlaco.crewmgrservice.feature.user.model.SailorProfile;
 import com.inlaco.crewmgrservice.feature.user.service.SailorService;
 import com.inlaco.crewmgrservice.utils.JsonMergePatchUtils;
-import com.inlaco.crewmgrservice.utils.TextTemplateBuilder;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,55 +25,22 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class ScheduleServiceImpl implements ScheduleService {
 
-  @Value("${inlaco.client.base-url}")
-  private String CLIENT_HOME_PAGE_LINK;
-
-  private String SAILOR_WORK_EMAIL_NOTIFICATION_PATH =
-      "src/main/resources/templates/email/html/schedule/sailor-work-notification.html";
-
   private final AssignmentScheduleRepository scheduleRepository;
   private final CustomScheduleRepository customScheduleRepository;
   private final JsonMergePatchUtils jsonMergePatch;
   private final ApplicationEventPublisher eventPublisher;
   private final SailorService sailorService;
-  private final NotificationFactory notificationFactory;
 
   @Override
   public AssignedMobilization createSchedule(AssignedMobilization schedule) {
     var newSchedule = scheduleRepository.save(schedule);
-    eventPublisher.publishEvent(new NewAssignmentScheduleEvent(this, schedule));
-    log.info("New schedule created: {}", newSchedule);
-    notifySailorSchedule(newSchedule);
+    log.info(
+        "Schedule created successfully [id={}, startDate={}, endDate={}]",
+        newSchedule.getId(),
+        newSchedule.getStartDate(),
+        newSchedule.getEndDate());
+    eventPublisher.publishEvent(new NewAssignmentScheduleEvent(this, newSchedule));
     return newSchedule;
-  }
-
-  public void notifySailorSchedule(AssignedMobilization schedule) {
-    List<String> cardIds = schedule.getCrewMembers().stream().map(it -> it.getCardId()).toList();
-    List<SailorProfile> profiles = sailorService.findSailorProfilesByCardIds(cardIds);
-
-    try {
-      String html = Files.readString(Paths.get(SAILOR_WORK_EMAIL_NOTIFICATION_PATH));
-      profiles.forEach(
-          profile -> {
-            EmailRequest emailRequest =
-                EmailRequest.html(
-                        profile.getEmail(),
-                        TextTemplateBuilder.content(html)
-                            .var("recipient_name", profile.getFullName())
-                            .var("company_name", "Inlaco")
-                            .var("start_date", schedule.getStartDate().toString())
-                            .var("estimated_end_date", schedule.getEndDate().toString())
-                            .var("home_page_link", CLIENT_HOME_PAGE_LINK)
-                            .var("info_link", "")
-                            .buildContent(),
-                        "Inlaco Work Schedule Notification")
-                    .build();
-            log.info("Notify sailor: {}", profile);
-            notificationFactory.sendNotificationAsync(NotificationType.EMAIL, emailRequest);
-          });
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
   }
 
   @Override

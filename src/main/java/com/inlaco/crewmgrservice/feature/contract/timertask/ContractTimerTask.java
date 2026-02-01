@@ -1,7 +1,5 @@
 package com.inlaco.crewmgrservice.feature.contract.timertask;
 
-import static org.springframework.data.mongodb.core.query.Query.query;
-
 import com.inlaco.crewmgrservice.feature.contract.model.AbstractContract;
 import com.inlaco.crewmgrservice.feature.contract.model.Contract;
 import com.inlaco.crewmgrservice.feature.contract.model.LaborContract;
@@ -10,7 +8,6 @@ import com.inlaco.crewmgrservice.feature.crewrental.enums.RentalRequestStatus;
 import com.inlaco.crewmgrservice.feature.crewrental.model.RentalRequest;
 import com.inlaco.crewmgrservice.feature.crewrental.service.RentalRequestService;
 import com.inlaco.crewmgrservice.feature.user.service.SailorService;
-import com.inlaco.crewmgrservice.feature.user.service.UserService;
 import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -29,47 +26,95 @@ public class ContractTimerTask {
 
   private final MongoTemplate mongoTemplate;
   private final RentalRequestService rentalRequestService;
-  private final UserService userService;
   private final SailorService sailorService;
 
   @Scheduled(cron = "0 0/1 * * * ?")
   private void onContractEffective() {
-    var query = new Query();
-    query.addCriteria(
-        Criteria.where("activated").is(false).and("activationDate").lte(Instant.now()));
+    Instant now = Instant.now();
+    Criteria criteria = Criteria.where("activated").is(false).and("activationDate").lte(now);
+    Query query = Query.query(criteria);
 
-    log.debug(query.toString());
+    log.debug("[ContractTimerTask] Activation query: {}", query);
 
     List<AbstractContract> contracts = mongoTemplate.find(query, AbstractContract.class);
-    contracts.forEach(
-        it -> {
-          it.setActivated(true);
-          handleContractEffective(it);
-          mongoTemplate.save(it);
+
+    if (contracts.isEmpty()) {
+      log.debug("[ContractTimerTask] No contracts to activate at {}", now);
+      return;
+    }
+
+    log.info("[ContractTimerTask] Found {} contract(s) to activate", contracts.size());
+
+    contracts.forEach(this::activateContractSafely);
+  }
+
+  private void activateContractSafely(AbstractContract contract) {
+    CompletableFuture.runAsync(
+        () -> {
+          try {
+            log.info(
+                "[ContractTimerTask] Activating contract id={}, title={}",
+                contract.getId(),
+                contract.getTitle());
+
+            contract.setActivated(true);
+            handleContractEffective(contract);
+            mongoTemplate.save(contract);
+
+            log.info("[ContractTimerTask] Contract activated successfully id={}", contract.getId());
+
+          } catch (Exception ex) {
+            log.error(
+                "[ContractTimerTask] Failed to activate contract id={}, title={}",
+                contract.getId(),
+                contract.getTitle(),
+                ex);
+          }
         });
   }
 
-  public void handleContractEffective(Contract contract) {
-    CompletableFuture.runAsync(
-        () -> {
-          log.info("Activating contract {}", contract.getTitle());
-          if (contract instanceof SupplyContract supplyContract) {
-            RentalRequest request =
-                rentalRequestService.getRequestById(
-                    supplyContract.getRentalRequestId().toHexString());
-            request.setStatus(RentalRequestStatus.ACTIVE);
-            rentalRequestService.saveRequest(request);
-          } else if (contract instanceof LaborContract laborContract) {
-            sailorService.makeSailorOfficial(laborContract);
-            // SailorProfile sailorProfile =
-            //     sailorService.findSailorProfileByAccountId(that.getEmployeeId().toHexString());
-            // sailorProfile.setCardId(sailorService.generateSailorCardId());
-            // sailorProfile.setWorkStatus(WorkStatus.AVAILABLE);
-            // sailorProfile.setJoinedCompanyAt(Instant.now());
-            // sailorService.saveSailorProfile(sailorProfile);
-            // userService.updateToSailor(that.getEmployeeId().toHexString());
-          }
-          log.info("Contract {} activated", contract.getTitle());
-        });
+  private void handleContractEffective(Contract contract) {
+    if (contract instanceof SupplyContract supplyContract) {
+      activateSupplyContract(supplyContract);
+      return;
+    }
+
+    if (contract instanceof LaborContract laborContract) {
+      activateLaborContract(laborContract);
+      return;
+    }
+
+    log.warn(
+        "[ContractTimerTask] Unsupported contract type: {} (id={})",
+        contract.getClass().getSimpleName());
+  }
+
+  private void activateSupplyContract(SupplyContract contract) {
+    String requestId = contract.getRentalRequestId().toHexString();
+
+    RentalRequest request = rentalRequestService.getRequestById(requestId);
+
+    if (request == null) {
+      log.warn(
+          "[ContractTimerTask] RentalRequest not found for SupplyContract id={}", contract.getId());
+      return;
+    }
+
+    request.setStatus(RentalRequestStatus.ACTIVE);
+    rentalRequestService.saveRequest(request);
+
+    log.info(
+        "[ContractTimerTask] SupplyContract activated → RentalRequest {} set to ACTIVE", requestId);
+  }
+
+  private void activateLaborContract(LaborContract contract) {
+    log.info(
+        "[ContractTimerTask] Activating LaborContract for employeeId={}", contract.getEmployeeId());
+
+    sailorService.makeSailorOfficial(contract);
+
+    log.info(
+        "[ContractTimerTask] LaborContract activated, sailor marked official employeeId={}",
+        contract.getEmployeeId());
   }
 }
