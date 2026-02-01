@@ -112,6 +112,8 @@ public class CourseEnrollment {
   @Schema(description = "The  certificate for the course")
   private File certificate;
 
+  private boolean isRegistrationEnabled;
+
   @Schema(description = "Indicates if the course is currently expired", example = "false")
   public boolean isExpired() {
     return endDate != null && endDate.isBefore(Instant.now());
@@ -137,6 +139,7 @@ public class CourseEnrollment {
             .limitStudent(course.getLimitStudent())
             .wallpaper(course.getWallpaper())
             .trainingProviderName(course.getTrainingProviderName())
+            .isRegistrationEnabled(course.isRegistrationEnabled())
             .trainingProviderLogo(course.getTrainingProviderLogo())
             .certified(course.isCertified())
             .archivedPosition(course.getArchivedPosition())

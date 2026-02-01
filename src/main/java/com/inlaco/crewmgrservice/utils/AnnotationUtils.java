@@ -18,7 +18,8 @@ public class AnnotationUtils {
 
   public static String getFirstAnnotationFieldName(
       Class<?> clazz, Class<? extends Annotation> annotation) {
-    return getFirstAnnotationField(clazz, annotation).getName();
+    Field field = getFirstAnnotationField(clazz, annotation);
+    return field == null ? null : field.getName();
   }
 
   public static Field getFirstAnnotationField(

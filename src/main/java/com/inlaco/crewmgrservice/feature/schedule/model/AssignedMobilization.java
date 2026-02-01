@@ -13,6 +13,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
@@ -25,7 +26,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.bson.types.ObjectId;
-// import org.checkerframework.common.value.qual.MinLen;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
@@ -39,12 +39,12 @@ import org.springframework.format.annotation.DateTimeFormat;
 @Getter
 @Setter
 @JsonIgnoreProperties(
-    value = {"id", "status", "createdAt", "updatedAt", "totalSailors"},
+    value = {"id", "status", "createdAt", "updatedAt"},
     allowGetters = true)
 @Document(collection = "master_assignment_schedules")
 @NoArgsConstructor
 @AllArgsConstructor
-public class AssigmentSchedule implements Serializable, TimeFrame {
+public class AssignedMobilization implements Serializable, TimeFrame {
 
   @Schema(description = "The status of the schedule")
   public enum Status {
@@ -57,10 +57,6 @@ public class AssigmentSchedule implements Serializable, TimeFrame {
     @Schema(description = "The schedule is completed")
     COMPLETED
   }
-
-  @Schema(description = "The status of the schedule", hidden = true)
-  @JsonPatchIgnore
-  private Status status;
 
   @Id
   @Schema(hidden = true)
@@ -112,9 +108,12 @@ public class AssigmentSchedule implements Serializable, TimeFrame {
   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
   private Instant endDate;
 
-  public int getTotalSailors() {
-    if (crewMembers == null) return 0;
-    return crewMembers.size();
+  @Schema(description = "The status of the schedule", hidden = true)
+  @JsonPatchIgnore
+  private Status status;
+
+  public int getTotalCrews() {
+    return crewMembers == null ? 0 : crewMembers.size();
   }
 
   @Override
@@ -123,24 +122,9 @@ public class AssigmentSchedule implements Serializable, TimeFrame {
     return List.of(Pair.of(startDate, endDate));
   }
 
-  @Data
-  @EqualsAndHashCode(of = "cardId")
-  public static class CrewMember {
-
-    @Indexed
-    @Schema(description = "The ID of the crew member's card", requiredMode = RequiredMode.REQUIRED)
-    @NotBlank
-    private String cardId;
-
-    // @Schema(description = "The name of the crew member", requiredMode = RequiredMode.REQUIRED)
-    // @NotBlank
-    // private String professionalPosition;
-
-  }
-
   @Schema(description = "The crew members assigned to the schedule")
-  // @MinLen(1)
-  private Set<@Valid CrewMember> crewMembers;
+  @Size(min = 1)
+  private Set<@Valid CrewAssignment> crewMembers;
 
   @CreatedDate
   @JsonIgnore
@@ -170,4 +154,19 @@ public class AssigmentSchedule implements Serializable, TimeFrame {
   @LastModifiedBy
   @JsonPatchIgnore
   private ObjectId updatedBy;
+
+  @Data
+  @EqualsAndHashCode(of = "cardId")
+  public static class CrewAssignment {
+
+    @NotBlank @Indexed private String cardId;
+
+    @NotBlank private String rankOnBoard;
+
+    @NotNull private Instant startDate;
+
+    @NotNull private Instant endDate;
+
+    private String remark;
+  }
 }

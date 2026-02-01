@@ -2,11 +2,9 @@ package com.inlaco.crewmgrservice.feature.user.dto;
 
 import com.inlaco.crewmgrservice.common.payload.Filterable;
 import com.inlaco.crewmgrservice.feature.user.enums.WorkStatus;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
 
-@Builder
-@Getter
+@Data
 public class SailorFilterable implements Filterable {
 
   private String professionalPosition;

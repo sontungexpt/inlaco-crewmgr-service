@@ -92,16 +92,6 @@ Create a new post with the given data using type field to identify the post type
     postService.deletePost(id, user);
   }
 
-  // @GetMapping("/test")
-  // @Operation(
-  //     summary = "Get all posts at the given window",
-  //     description = "Get all posts at the given window",
-  //     security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
-  // public Window<?> getWindowPosts(@BearerToken String token) {
-  //   ConsoleUtils.prettyPrint(token);
-  //   return null;
-  // }
-
   @Operation(
       summary = "Retrieve all posts for a given page",
       description =
@@ -126,7 +116,7 @@ This API retrieves a list of posts from the server based on the specified page n
           "This API retrieves a list of posts from the server based on the specified page number"
               + " and size.")
   public Page<Post> getPagePosts(
-      @RequestParam(defaultValue = "NEWS") PostType type,
+      @RequestParam(required = false) PostType type,
       @PageableDefault(size = 10, page = 0) Pageable pageable) {
     return postService.getPagePosts(pageable, type);
   }

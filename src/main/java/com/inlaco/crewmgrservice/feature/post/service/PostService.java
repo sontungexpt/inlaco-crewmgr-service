@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.ScrollPosition;
 import org.springframework.data.domain.Window;
+import org.springframework.lang.Nullable;
 
 public interface PostService {
 
@@ -21,7 +22,7 @@ public interface PostService {
 
   Post getPost(String postId);
 
-  Page<Post> getPagePosts(Pageable pageable, PostType type);
+  Page<Post> getPagePosts(Pageable pageable, @Nullable PostType type);
 
   Window<Post> getWindowPosts(ScrollPosition position);
 

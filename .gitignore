@@ -33,3 +33,10 @@ build/
 .vscode/
 
 .env
+
+# ===== Java / Spring =====
+/bin/
+*.class
+*.log
+logs/
+hs_err_pid*

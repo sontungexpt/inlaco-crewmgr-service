@@ -32,6 +32,7 @@ public class CourseDetail extends CourseEnrollment {
             .archivedPosition(course.getArchivedPosition())
             .description(course.getDescription())
             .teacherName(course.getTeacherName())
+            .isRegistrationEnabled(course.isRegistrationEnabled())
             .startDate(course.getStartDate())
             .endDate(course.getEndDate())
             .createdAt(course.getCreatedAt())

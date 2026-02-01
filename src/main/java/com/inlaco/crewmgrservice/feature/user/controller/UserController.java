@@ -10,12 +10,14 @@ import com.inlaco.crewmgrservice.feature.auth.dto.NewPasswordRequest;
 import com.inlaco.crewmgrservice.feature.user.dto.UserProfile;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import com.inlaco.crewmgrservice.feature.user.service.UserService;
+import com.inlaco.crewmgrservice.utils.ConsoleUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,20 +32,7 @@ public class UserController {
 
   @Operation(
       summary = "Change the password for an account",
-      security = @SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME),
-      description =
-          """
-Change the password for an account
-**Required**:
-- Refresh token is passed in the header as a Bearer token
-
-**Usecase**:
-- UC_account-doi-mat-khau
-
-**Note**
-- The new password must be different from the old password
-
-""")
+      security = @SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME))
   @PostMapping("/new-password")
   @APIEndpointMap(
       name = APIEndpointName.USER_CHANGE_PASSWORD,
@@ -55,19 +44,12 @@ Change the password for an account
   }
 
   @Operation(
-      summary = "Fetch the user profile",
-      security = @SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME),
-      description =
-          """
-Fetch the user's profile
-
-**Usecase**:
-- UC_account-xem-thong-tin-ca-nhan
-
-""")
-  @PostMapping("/roles")
+      summary = "Get the user profile",
+      security = @SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME))
+  @GetMapping("/me")
   @RolesAllowed("USER")
-  public UserProfile fetchRoles(@CurrentUser User currentUser) {
-    return userService.fetchRoles(currentUser);
+  public UserProfile getUserProfile(@CurrentUser User currentUser) {
+    ConsoleUtils.prettyPrint(currentUser);
+    return userService.getUserProfile(currentUser);
   }
 }

@@ -40,15 +40,10 @@ public class MongoConfig {
   @Bean
   public AuditorAware<String> auditorProvider() {
     return () -> {
-      Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-      if (authentication == null || !authentication.isAuthenticated()) {
-        return Optional.empty();
-      }
-      Object principal = authentication.getPrincipal();
-      if (!(principal instanceof User)) {
-        return Optional.empty();
-      }
-      return Optional.of(((User) principal).getId());
+      log.debug("derived auditorProvider");
+      User user = getUser();
+      if (user == null) return Optional.empty();
+      return Optional.of(user.getId());
     };
   }
 
@@ -57,16 +52,17 @@ public class MongoConfig {
   public AuditorAware<ObjectId> auditorObjectIdProvider() {
     return () -> {
       log.debug("derived auditorObjectIdProvider");
-      log.info("derived auditorObjectIdProvider");
-      Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-      if (authentication == null || !authentication.isAuthenticated()) {
-        return Optional.empty();
-      }
-      Object principal = authentication.getPrincipal();
-      if (!(principal instanceof User)) {
-        return Optional.empty();
-      }
-      return Optional.of(new ObjectId(((User) principal).getId()));
+      User user = getUser();
+      if (user == null) return Optional.empty();
+      return Optional.of(new ObjectId(user.getId()));
     };
+  }
+
+  private User getUser() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (authentication == null || !authentication.isAuthenticated()) return null;
+    Object principal = authentication.getPrincipal();
+    if (!(principal instanceof User)) return null;
+    return (User) principal;
   }
 }

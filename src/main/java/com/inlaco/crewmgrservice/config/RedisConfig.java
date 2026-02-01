@@ -1,67 +1,65 @@
-// package com.inlaco.crewmgrservice.config;
+package com.inlaco.crewmgrservice.config;
 
-// import com.fasterxml.jackson.databind.ObjectMapper;
-// import lombok.RequiredArgsConstructor;
-// import org.redisson.api.RedissonClient;
-// import org.redisson.spring.data.connection.RedissonConnectionFactory;
-// import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
-// import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
-// import org.springframework.context.annotation.Bean;
-// import org.springframework.context.annotation.Configuration;
-// import org.springframework.context.annotation.Primary;
-// import org.springframework.data.redis.connection.RedisConnectionFactory;
-// import org.springframework.data.redis.core.RedisKeyValueAdapter;
-// import org.springframework.data.redis.core.RedisTemplate;
-// import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
-// import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
-// import org.springframework.data.redis.serializer.StringRedisSerializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisPassword;
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
+import org.springframework.data.redis.core.RedisKeyValueAdapter;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.util.StringUtils;
 
-// @Configuration
-// @RequiredArgsConstructor
-// @EnableRedisRepositories(
-//     enableKeyspaceEvents = RedisKeyValueAdapter.EnableKeyspaceEvents.ON_STARTUP)
-// @ImportAutoConfiguration({
-//   RedisAutoConfiguration.class,
-// })
-// public class RedisConfig {
+@Configuration
+@RequiredArgsConstructor
+@EnableRedisRepositories(
+    enableKeyspaceEvents = RedisKeyValueAdapter.EnableKeyspaceEvents.ON_STARTUP)
+public class RedisConfig {
 
-//   private final ObjectMapper objectMapper;
+  private final ObjectMapper objectMapper;
 
-//   // @Value("${spring.data.redis.host}")
-//   // private String HOST;
+  @Value("${spring.data.redis.host}")
+  private String HOST;
 
-//   // @Value("${spring.data.redis.port}")
-//   // private String PORT;
+  @Value("${spring.data.redis.port}")
+  private int PORT;
 
-//   // @Value("${spring.data.redis.password}")
-//   // private String PASSWORD;
+  @Value("${spring.data.redis.password}")
+  private String PASSWORD;
 
-//   @Bean
-//   public RedisConnectionFactory redissonConnectionFactory(RedissonClient redisson) {
-//     return new RedissonConnectionFactory(redisson);
-//   }
+  @Bean
+  public RedisConnectionFactory lettuceConnectionFactory() {
+    var config = new RedisStandaloneConfiguration(HOST, PORT);
+    if (StringUtils.hasText(PASSWORD)) {
+      config.setPassword(RedisPassword.of(PASSWORD));
+    }
+    return new LettuceConnectionFactory(config);
+  }
 
-//   @Bean
-//   @Primary
-//   public RedisTemplate<Object, Object> redisTemplate(
-//       RedisConnectionFactory redissonConnectionFactory) {
-//     RedisTemplate<Object, Object> redisTemplate = new RedisTemplate<>();
-//     redisTemplate.setConnectionFactory(redissonConnectionFactory);
+  @Bean
+  @Primary
+  public RedisTemplate<String, Object> redisTemplate(
+      RedisConnectionFactory redisConnectionFactory) {
+    RedisTemplate<String, Object> template = new RedisTemplate<>();
+    template.setConnectionFactory(redisConnectionFactory);
 
-//     redisTemplate.setKeySerializer(new StringRedisSerializer());
-//     redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer(objectMapper));
-//     redisTemplate.setHashKeySerializer(new StringRedisSerializer());
-//     redisTemplate.setHashValueSerializer(new GenericJackson2JsonRedisSerializer(objectMapper));
-//     redisTemplate.afterPropertiesSet();
-//     return redisTemplate;
-//   }
+    StringRedisSerializer stringSerializer = new StringRedisSerializer();
+    GenericJackson2JsonRedisSerializer jsonSerializer =
+        new GenericJackson2JsonRedisSerializer(objectMapper);
 
-//   // @Bean
-//   // public Config config() {
-//   //   Config config = new Config();
-//   //   String address = String.format("redis://%s:%s", HOST, PORT);
+    template.setKeySerializer(stringSerializer);
+    template.setValueSerializer(jsonSerializer);
+    template.setHashKeySerializer(stringSerializer);
+    template.setHashValueSerializer(jsonSerializer);
 
-//   //   config.useSingleServer().setAddress(address).setPassword(PASSWORD);
-//   //   return config;
-//   // }
-// }
+    template.afterPropertiesSet();
+    return template;
+  }
+}

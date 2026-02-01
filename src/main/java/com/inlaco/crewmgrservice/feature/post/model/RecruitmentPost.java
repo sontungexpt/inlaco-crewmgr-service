@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import java.time.Instant;
 import java.util.List;
+import lombok.AccessLevel;
 import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -33,7 +34,21 @@ public class RecruitmentPost extends Post implements TimeFrame {
   @Schema(description = "Indicates if the post is canceled", example = "true")
   @Default
   @JsonIgnore
+  @Getter(AccessLevel.PRIVATE)
+  @Setter(AccessLevel.PRIVATE)
   private boolean canceled = false;
+
+  public void reopenUntil(Instant until) {
+    if (until.isBefore(recruitmentStartDate)) {
+      return;
+    }
+    canceled = false;
+    recruitmentEndDate = until;
+  }
+
+  public void cancel() {
+    canceled = true;
+  }
 
   @Override
   @Schema(hidden = true)

@@ -71,9 +71,7 @@ public final class PageableUtils {
       Class<?> entityClass,
       Class<? extends Annotation> annotation,
       Sort.Direction direction) {
-
     String field = AnnotationUtils.getFirstAnnotationFieldName(entityClass, annotation);
-
     if (field != null) {
       orders.add(new Order(direction, field));
     }

@@ -2,7 +2,6 @@ package com.inlaco.crewmgrservice.feature.user.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.inlaco.crewmgrservice.feature.contract.model.LaborContract;
-import com.inlaco.crewmgrservice.feature.user.dto.BasicProfileDTO;
 import com.inlaco.crewmgrservice.feature.user.dto.SailorFilterable;
 import com.inlaco.crewmgrservice.feature.user.model.SailorProfile;
 import com.inlaco.crewmgrservice.feature.user.model.User;
@@ -10,14 +9,15 @@ import java.util.List;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.core.query.Criteria;
 
 public interface SailorService {
 
   void makeSailorOfficial(LaborContract contract);
 
-  Page<BasicProfileDTO> getAllSailors(SailorFilterable filterable, Pageable pageable);
+  Page<SailorProfile> getAllSailors(SailorFilterable filterable, Pageable pageable);
 
-  Page<BasicProfileDTO> searchSailors(String query, SailorFilterable filterable, Pageable pageable);
+  Page<SailorProfile> searchSailors(String query, Criteria filter, Pageable pageable);
 
   SailorProfile updateSailorProfile(String sailorId, JsonNode patch);
 

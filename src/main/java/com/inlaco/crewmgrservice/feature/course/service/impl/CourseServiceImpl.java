@@ -8,6 +8,7 @@ import com.inlaco.crewmgrservice.feature.course.model.Course;
 import com.inlaco.crewmgrservice.feature.course.model.CourseMember;
 import com.inlaco.crewmgrservice.feature.course.model.dto.CourseDetail;
 import com.inlaco.crewmgrservice.feature.course.model.dto.CourseEnrollment;
+import com.inlaco.crewmgrservice.feature.course.model.dto.CourseFilterable;
 import com.inlaco.crewmgrservice.feature.course.model.dto.CourseMemberInfo;
 import com.inlaco.crewmgrservice.feature.course.repository.CourseMemberRepository;
 import com.inlaco.crewmgrservice.feature.course.repository.CourseRepository;
@@ -17,7 +18,6 @@ import com.inlaco.crewmgrservice.feature.upload.enums.UploadStrategy;
 import com.inlaco.crewmgrservice.feature.upload.service.UploadFactory;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import com.inlaco.crewmgrservice.utils.JsonMergePatchUtils;
-import com.inlaco.crewmgrservice.utils.PageableUtils;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -42,8 +42,8 @@ public class CourseServiceImpl implements CourseService {
   private final UploadFactory uploadFactory;
 
   @Override
-  public Page<Course> getCourses(Pageable pageable) {
-    return courseRepository.findByDeleted(false, PageableUtils.extendDefaultSort(pageable));
+  public Page<Course> getCourses(CourseFilterable courseFilterable, Pageable pageable) {
+    return customCourseRepository.getCourses(courseFilterable, pageable);
   }
 
   @Override

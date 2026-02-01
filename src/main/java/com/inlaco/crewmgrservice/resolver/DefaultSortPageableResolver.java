@@ -18,7 +18,6 @@ public class DefaultSortPageableResolver extends PageableHandlerMethodArgumentRe
       ModelAndViewContainer mavContainer,
       NativeWebRequest webRequest,
       WebDataBinderFactory binderFactory) {
-
     Pageable pageable =
         super.resolveArgument(methodParameter, mavContainer, webRequest, binderFactory);
 

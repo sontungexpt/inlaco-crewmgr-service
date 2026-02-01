@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.ScrollPosition;
 import org.springframework.data.domain.Window;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -51,8 +52,11 @@ public class PostServiceImpl implements PostService {
   }
 
   @Override
-  public Page<Post> getPagePosts(Pageable pageable, PostType type) {
-    return postRepository.findByType(type, pageable);
+  public Page<Post> getPagePosts(Pageable pageable, @Nullable PostType type) {
+    if (type != null) {
+      return postRepository.findByTypeAndDeleted(type, false, pageable);
+    }
+    return postRepository.findByDeleted(false, pageable);
   }
 
   @Override

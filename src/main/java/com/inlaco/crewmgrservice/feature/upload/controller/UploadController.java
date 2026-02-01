@@ -30,7 +30,7 @@ public class UploadController {
   @GetMapping("")
   @RolesAllowed("USER")
   public Map<String, Object> getUploadOptions(
-      @RequestParam UploadStrategy stragegy, @RequestParam Map<String, String> params) {
-    return uploadFactory.getUploadOptions(stragegy, params);
+      @RequestParam UploadStrategy strategy, @RequestParam Map<String, String> params) {
+    return uploadFactory.getUploadOptions(strategy, params);
   }
 }

@@ -1,8 +1,7 @@
 package com.inlaco.crewmgrservice.feature.user.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.inlaco.crewmgrservice.annotation.JsonPatchIgnore;
 import com.inlaco.crewmgrservice.validation.annotation.PhoneNumber;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -43,9 +42,9 @@ public class BasicProfile implements Serializable {
       hidden = true,
       requiredMode = RequiredMode.REQUIRED,
       type = "String")
-  @JsonPatchIgnore
   @Indexed(unique = true)
-  @JsonSerialize(using = ToStringSerializer.class)
+  @JsonIgnore
+  @JsonPatchIgnore
   protected ObjectId accountId;
 
   @Schema(

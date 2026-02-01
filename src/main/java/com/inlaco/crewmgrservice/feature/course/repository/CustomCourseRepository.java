@@ -6,8 +6,10 @@ import com.inlaco.crewmgrservice.common.model.FacetResult;
 import com.inlaco.crewmgrservice.feature.course.model.Course;
 import com.inlaco.crewmgrservice.feature.course.model.CourseMember;
 import com.inlaco.crewmgrservice.feature.course.model.dto.CourseEnrollment;
+import com.inlaco.crewmgrservice.feature.course.model.dto.CourseFilterable;
 import com.inlaco.crewmgrservice.feature.course.model.dto.CourseMemberInfo;
 import com.inlaco.crewmgrservice.feature.user.model.SailorProfile;
+import com.inlaco.crewmgrservice.utils.ConsoleUtils;
 import com.inlaco.crewmgrservice.utils.PageableUtils;
 import java.time.Instant;
 import java.util.List;
@@ -22,6 +24,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.StringUtils;
 
 @Repository
 @RequiredArgsConstructor
@@ -128,6 +131,45 @@ public class CustomCourseRepository {
     Aggregation aggregation =
         Aggregation.newAggregation(
             match(Criteria.where("deleted").is(false).and("endDate").gte(Instant.now())),
+            Aggregation.facet(Aggregation.count().as("totalCourses"))
+                .as(FacetResult.getCountFacetName())
+                .and(
+                    sort(pageable.getSort()),
+                    skip(pageable.getOffset()),
+                    limit(pageable.getPageSize()))
+                .as(FacetResult.getDataFacetName()));
+
+    var result =
+        mongoTemplate
+            .aggregate(aggregation, Course.class, CourseFacetResult.class)
+            .getUniqueMappedResult();
+
+    return new PageImpl<>(result.getDatas(), pageable, result.getCount("totalCourses"));
+  }
+
+  public Page<Course> getCourses(CourseFilterable filterable, Pageable p) {
+    var pageable = PageableUtils.extendDefaultSort(p);
+    log.debug("Get courses by name with pagination");
+
+    var query = Criteria.where("deleted").is(false);
+
+    ConsoleUtils.prettyPrint(filterable);
+
+    if (filterable != null && filterable.isFilterable()) {
+      if (StringUtils.hasText(filterable.getKeyword())) {
+        query.orOperator(
+            Criteria.where("name").regex(filterable.getKeyword(), "i"),
+            Criteria.where("achievedPosition").regex(filterable.getKeyword(), "i"));
+      }
+
+      if (filterable.getNonExpired() != null && filterable.getNonExpired() == true) {
+        query.and("endDate").gte(Instant.now());
+      }
+    }
+
+    Aggregation aggregation =
+        Aggregation.newAggregation(
+            match(query),
             Aggregation.facet(Aggregation.count().as("totalCourses"))
                 .as(FacetResult.getCountFacetName())
                 .and(

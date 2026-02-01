@@ -1,26 +1,28 @@
 package com.inlaco.crewmgrservice.feature.user.service.impl;
 
+import com.inlaco.crewmgrservice.feature.user.model.SecurityUser;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import com.inlaco.crewmgrservice.feature.user.repository.UserRepository;
+import com.inlaco.crewmgrservice.feature.user.service.AuthorityResolver;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-public record UserDetailsServiceImpl(UserRepository userRepository) implements UserDetailsService {
+public record UserDetailsServiceImpl(
+    UserRepository userRepository, AuthorityResolver authorityResolver)
+    implements UserDetailsService {
 
   @Override
-  public User loadUserByUsername(String username) throws UsernameNotFoundException {
-    User account =
+  public UserDetails loadUserByUsername(String username) {
+    User user =
         userRepository
             .findByUsername(username)
-            .orElseThrow(
-                () -> new UsernameNotFoundException("User Not Found with username: " + username));
+            .orElseThrow(() -> new UsernameNotFoundException(username));
 
-    log.info("Fetch account by phone number: {}", account);
-
-    return account;
+    return new SecurityUser(user, authorityResolver);
   }
 }

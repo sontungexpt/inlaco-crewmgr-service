@@ -1,7 +1,7 @@
 package com.inlaco.crewmgrservice.feature.schedule.dto;
 
 import com.inlaco.crewmgrservice.common.payload.Filterable;
-import com.inlaco.crewmgrservice.feature.schedule.model.AssigmentSchedule;
+import com.inlaco.crewmgrservice.feature.schedule.model.AssignedMobilization;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,7 +16,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class ScheduleFilterable implements Filterable {
 
-  private AssigmentSchedule.Status status;
+  private AssignedMobilization.Status status;
 
   private Instant startDate;
 

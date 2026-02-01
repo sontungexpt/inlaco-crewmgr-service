@@ -1,8 +1,10 @@
 package com.inlaco.crewmgrservice.feature.auth.jwt;
 
 import com.inlaco.crewmgrservice.exceptions.JwtTokenException;
+import com.inlaco.crewmgrservice.feature.user.model.SecurityUser;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import com.inlaco.crewmgrservice.feature.user.repository.UserRepository;
+import com.inlaco.crewmgrservice.feature.user.service.AuthorityResolver;
 import com.inlaco.crewmgrservice.utils.HttpHeaderUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -26,14 +28,17 @@ public class LazyJwtAuthTokenFilter extends OncePerRequestFilter {
   private final JwtService jwtService;
   private final UserRepository userRepository;
   private final HandlerExceptionResolver exceptionResolver;
+  private final AuthorityResolver authorityResolver;
 
   public LazyJwtAuthTokenFilter(
       JwtService jwtService,
       UserRepository userRepository,
+      AuthorityResolver authorityResolver,
       @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver) {
     this.jwtService = jwtService;
     this.userRepository = userRepository;
     this.exceptionResolver = exceptionResolver;
+    this.authorityResolver = authorityResolver;
   }
 
   @Override
@@ -77,7 +82,10 @@ public class LazyJwtAuthTokenFilter extends OncePerRequestFilter {
       throw new JwtTokenException(token, "Invalid or expired JWT");
     }
 
-    var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+    SecurityUser securityUser = new SecurityUser(user, authorityResolver);
+
+    var authentication =
+        new UsernamePasswordAuthenticationToken(securityUser, null, securityUser.getAuthorities());
     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
     SecurityContextHolder.getContext().setAuthentication(authentication);

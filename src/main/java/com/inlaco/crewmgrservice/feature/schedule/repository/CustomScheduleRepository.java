@@ -3,9 +3,9 @@ package com.inlaco.crewmgrservice.feature.schedule.repository;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
 import com.inlaco.crewmgrservice.common.model.FacetResult;
+import com.inlaco.crewmgrservice.feature.schedule.dto.MobilizationResponse;
 import com.inlaco.crewmgrservice.feature.schedule.dto.ScheduleFilterable;
-import com.inlaco.crewmgrservice.feature.schedule.dto.ScheduleResponse;
-import com.inlaco.crewmgrservice.feature.schedule.model.AssigmentSchedule;
+import com.inlaco.crewmgrservice.feature.schedule.model.AssignedMobilization;
 import com.inlaco.crewmgrservice.feature.user.model.SailorProfile;
 import com.inlaco.crewmgrservice.utils.PageableUtils;
 import java.time.*;
@@ -30,7 +30,7 @@ public class CustomScheduleRepository {
 
   private final MongoTemplate mongoTemplate;
 
-  public ScheduleResponse findDetailSchedule(String id) {
+  public MobilizationResponse findDetailSchedule(String id) {
 
     // AssigmentSchedule schedule = mongoTemplate.findById(id, AssigmentSchedule.class);
     // ScheduleResponse response = ScheduleResponse.from(schedule);
@@ -55,7 +55,7 @@ public class CustomScheduleRepository {
                 "crewMembers"));
 
     return mongoTemplate
-        .aggregate(aggregation, AssigmentSchedule.class, ScheduleResponse.class)
+        .aggregate(aggregation, AssignedMobilization.class, MobilizationResponse.class)
         .getUniqueMappedResult();
   }
 
@@ -79,13 +79,13 @@ public class CustomScheduleRepository {
     return filterable;
   }
 
-  public List<AssigmentSchedule> findAllSchedules(ScheduleFilterable filterable) {
+  public List<AssignedMobilization> findAllSchedules(ScheduleFilterable filterable) {
     return mongoTemplate.find(
         new Query().addCriteria(buildFilterableCriteria(defaultWeekStartEndFilter(filterable))),
-        AssigmentSchedule.class);
+        AssignedMobilization.class);
   }
 
-  public Page<AssigmentSchedule> findAllSchedules(
+  public Page<AssignedMobilization> findAllSchedules(
       ScheduleFilterable filterable, Pageable pageable) {
     List<AggregationOperation> operations = new ArrayList<>();
 
@@ -93,19 +93,19 @@ public class CustomScheduleRepository {
       operations.add(match(buildFilterableCriteria(filterable)));
     }
 
-    pageable = PageableUtils.extendDefaultSort(pageable, AssigmentSchedule.class);
+    pageable = PageableUtils.extendDefaultSort(pageable, AssignedMobilization.class);
     operations.add(buildSimplePaginationOperation(pageable));
 
     var result =
         mongoTemplate
             .aggregate(
-                newAggregation(operations), AssigmentSchedule.class, ScheduleFacetResult.class)
+                newAggregation(operations), AssignedMobilization.class, ScheduleFacetResult.class)
             .getUniqueMappedResult();
 
     return result.toPage(pageable);
   }
 
-  public List<AssigmentSchedule> findSchedulesByCardId(
+  public List<AssignedMobilization> findSchedulesByCardId(
       String cardId, ScheduleFilterable filterable) {
     List<AggregationOperation> operations = new ArrayList<>();
     var criteria = Criteria.where("crewMembers.cardId").is(cardId);
@@ -116,10 +116,10 @@ public class CustomScheduleRepository {
 
     operations.add(match(criteria));
 
-    return mongoTemplate.find(new Query().addCriteria(criteria), AssigmentSchedule.class);
+    return mongoTemplate.find(new Query().addCriteria(criteria), AssignedMobilization.class);
   }
 
-  public Page<AssigmentSchedule> findPaginationSchedulesByCardId(
+  public Page<AssignedMobilization> findPaginationSchedulesByCardId(
       String cardId, ScheduleFilterable filterable, Pageable pageable) {
     List<AggregationOperation> operations = new ArrayList<>();
 
@@ -131,13 +131,13 @@ public class CustomScheduleRepository {
 
     operations.add(match(criteria));
 
-    pageable = PageableUtils.extendDefaultSort(pageable, AssigmentSchedule.class);
+    pageable = PageableUtils.extendDefaultSort(pageable, AssignedMobilization.class);
     operations.add(buildSimplePaginationOperation(pageable));
 
     var result =
         mongoTemplate
             .aggregate(
-                newAggregation(operations), AssigmentSchedule.class, ScheduleFacetResult.class)
+                newAggregation(operations), AssignedMobilization.class, ScheduleFacetResult.class)
             .getUniqueMappedResult();
 
     return result.toPage(pageable);
@@ -180,9 +180,9 @@ public class CustomScheduleRepository {
         .as(FacetResult.getDataFacetName());
   }
 
-  private class ScheduleFacetResult extends FacetResult<AssigmentSchedule> {
+  private class ScheduleFacetResult extends FacetResult<AssignedMobilization> {
     public ScheduleFacetResult(
-        List<AssigmentSchedule> dataFacet, List<Map<String, Object>> countFacet) {
+        List<AssignedMobilization> dataFacet, List<Map<String, Object>> countFacet) {
       super(dataFacet, countFacet);
     }
   }

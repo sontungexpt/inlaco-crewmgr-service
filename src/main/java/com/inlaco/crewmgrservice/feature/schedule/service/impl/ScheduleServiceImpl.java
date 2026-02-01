@@ -4,11 +4,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.inlaco.crewmgrservice.feature.notify.NotificationFactory;
 import com.inlaco.crewmgrservice.feature.notify.NotificationType;
 import com.inlaco.crewmgrservice.feature.notify.mail.EmailRequest;
+import com.inlaco.crewmgrservice.feature.schedule.dto.MobilizationResponse;
 import com.inlaco.crewmgrservice.feature.schedule.dto.SailorScheduleResponse;
 import com.inlaco.crewmgrservice.feature.schedule.dto.ScheduleFilterable;
-import com.inlaco.crewmgrservice.feature.schedule.dto.ScheduleResponse;
 import com.inlaco.crewmgrservice.feature.schedule.event.NewAssignmentScheduleEvent;
-import com.inlaco.crewmgrservice.feature.schedule.model.AssigmentSchedule;
+import com.inlaco.crewmgrservice.feature.schedule.model.AssignedMobilization;
 import com.inlaco.crewmgrservice.feature.schedule.repository.AssignmentScheduleRepository;
 import com.inlaco.crewmgrservice.feature.schedule.repository.CustomScheduleRepository;
 import com.inlaco.crewmgrservice.feature.schedule.service.ScheduleService;
@@ -47,7 +47,7 @@ public class ScheduleServiceImpl implements ScheduleService {
   private final NotificationFactory notificationFactory;
 
   @Override
-  public AssigmentSchedule createSchedule(AssigmentSchedule schedule) {
+  public AssignedMobilization createSchedule(AssignedMobilization schedule) {
     var newSchedule = scheduleRepository.save(schedule);
     eventPublisher.publishEvent(new NewAssignmentScheduleEvent(this, schedule));
     log.info("New schedule created: {}", newSchedule);
@@ -55,7 +55,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     return newSchedule;
   }
 
-  public void notifySailorSchedule(AssigmentSchedule schedule) {
+  public void notifySailorSchedule(AssignedMobilization schedule) {
     List<String> cardIds = schedule.getCrewMembers().stream().map(it -> it.getCardId()).toList();
     List<SailorProfile> profiles = sailorService.findSailorProfilesByCardIds(cardIds);
 
@@ -64,7 +64,7 @@ public class ScheduleServiceImpl implements ScheduleService {
       profiles.forEach(
           profile -> {
             EmailRequest emailRequest =
-                EmailRequest.builder(
+                EmailRequest.html(
                         profile.getEmail(),
                         TextTemplateBuilder.content(html)
                             .var("recipient_name", profile.getFullName())
@@ -75,7 +75,6 @@ public class ScheduleServiceImpl implements ScheduleService {
                             .var("info_link", "")
                             .buildContent(),
                         "Inlaco Work Schedule Notification")
-                    .htmlMessage()
                     .build();
             log.info("Notify sailor: {}", profile);
             notificationFactory.sendNotificationAsync(NotificationType.EMAIL, emailRequest);
@@ -86,13 +85,13 @@ public class ScheduleServiceImpl implements ScheduleService {
   }
 
   @Override
-  public Page<AssigmentSchedule> findPaginationSchedules(
+  public Page<AssignedMobilization> findPaginationSchedules(
       ScheduleFilterable filterable, Pageable pageable) {
     return customScheduleRepository.findAllSchedules(filterable, pageable);
   }
 
   @Override
-  public List<AssigmentSchedule> findSchedules(ScheduleFilterable filterable) {
+  public List<AssignedMobilization> findSchedules(ScheduleFilterable filterable) {
     return customScheduleRepository.findAllSchedules(filterable);
   }
 
@@ -106,7 +105,7 @@ public class ScheduleServiceImpl implements ScheduleService {
   }
 
   private SailorScheduleResponse toSailorScheduleResponse(
-      AssigmentSchedule schedule, String cardId, SailorProfile profile) {
+      AssignedMobilization schedule, String cardId, SailorProfile profile) {
     return SailorScheduleResponse.builder()
         .startDate(schedule.getStartDate())
         .endDate(schedule.getEndDate())
@@ -131,13 +130,13 @@ public class ScheduleServiceImpl implements ScheduleService {
   }
 
   @Override
-  public ScheduleResponse findDetailScheduleById(String id) {
+  public MobilizationResponse findDetailScheduleById(String id) {
     return customScheduleRepository.findDetailSchedule(id);
   }
 
   @Override
-  public ScheduleResponse updateSchedule(String id, JsonNode patch) {
-    jsonMergePatch.patch(id, AssigmentSchedule.class, patch);
+  public MobilizationResponse updateSchedule(String id, JsonNode patch) {
+    jsonMergePatch.patch(id, AssignedMobilization.class, patch);
     return customScheduleRepository.findDetailSchedule(id);
   }
 }

@@ -1,8 +1,8 @@
 package com.inlaco.crewmgrservice.feature.schedule.dto;
 
 import com.inlaco.crewmgrservice.common.model.ShipInfo;
-import com.inlaco.crewmgrservice.feature.schedule.model.AssigmentSchedule;
-import com.inlaco.crewmgrservice.feature.schedule.model.AssigmentSchedule.Status;
+import com.inlaco.crewmgrservice.feature.schedule.model.AssignedMobilization;
+import com.inlaco.crewmgrservice.feature.schedule.model.AssignedMobilization.Status;
 import com.inlaco.crewmgrservice.feature.user.model.SailorProfile;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
@@ -10,16 +10,14 @@ import jakarta.validation.constraints.NotBlank;
 import java.time.Instant;
 import java.util.List;
 import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.format.annotation.DateTimeFormat;
 
-@Getter
 @Builder
-@Setter
-public class ScheduleResponse {
+@Data
+public class MobilizationResponse {
 
   @Schema(description = "The status of the schedule", requiredMode = RequiredMode.REQUIRED)
   private Status status;
@@ -54,7 +52,7 @@ public class ScheduleResponse {
       description = "Total number of crew members needed.",
       example = "10",
       requiredMode = RequiredMode.REQUIRED)
-  private Integer totalSailors;
+  private Integer totalCrews;
 
   @Schema(description = "The information of the ship", requiredMode = RequiredMode.REQUIRED)
   private ShipInfo shipInfo;
@@ -70,7 +68,7 @@ public class ScheduleResponse {
       description = "Estimated arrival time.",
       example = "2025-01-20T18:00:00Z",
       requiredMode = RequiredMode.REQUIRED)
-  private Instant estimatedEndDate;
+  private Instant endDate;
 
   private List<SailorProfile> crewMembers;
 
@@ -82,18 +80,18 @@ public class ScheduleResponse {
 
   private ObjectId updatedBy;
 
-  public static ScheduleResponse from(AssigmentSchedule schedule) {
-    return ScheduleResponse.builder()
+  public static MobilizationResponse from(AssignedMobilization schedule) {
+    return MobilizationResponse.builder()
         .id(schedule.getId())
         .status(schedule.getStatus())
         .partnerName(schedule.getPartnerName())
         .partnerPhone(schedule.getPartnerPhone())
         .partnerEmail(schedule.getPartnerEmail())
         .partnerAddress(schedule.getPartnerAddress())
-        .totalSailors(schedule.getTotalSailors())
+        .totalCrews(schedule.getTotalCrews())
         .shipInfo(schedule.getShipInfo())
         .startDate(schedule.getStartDate())
-        .estimatedEndDate(schedule.getEndDate())
+        .endDate(schedule.getEndDate())
         .createdAt(schedule.getCreatedAt())
         .updatedAt(schedule.getUpdatedAt())
         .createdBy(schedule.getCreatedBy())

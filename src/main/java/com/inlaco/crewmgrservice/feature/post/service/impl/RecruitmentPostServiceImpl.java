@@ -6,6 +6,8 @@ import com.inlaco.crewmgrservice.feature.post.model.RecruitmentPost;
 import com.inlaco.crewmgrservice.feature.post.repository.PostRepository;
 import com.inlaco.crewmgrservice.feature.post.service.RecruitmentPostService;
 import com.inlaco.crewmgrservice.feature.user.model.User;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,14 +20,25 @@ public class RecruitmentPostServiceImpl implements RecruitmentPostService {
   private final PostRepository postRepository;
 
   @Override
-  public void changeRegistrationStatus(String postId, boolean active, User user) {
+  public void changeRegistrationStatus(
+      String postId, boolean active, Instant reopenUntil, User user) {
     Post post =
         postRepository
             .findById(postId)
             .orElseThrow(() -> new ResourceNotFoundException(Post.class, "id", postId));
 
     if (post instanceof RecruitmentPost) {
-      ((RecruitmentPost) post).setCanceled(!active);
+      if (active) {
+        if (reopenUntil == null) {
+          // plus 10 days from now
+          reopenUntil = Instant.now().plus(10, ChronoUnit.DAYS);
+        }
+
+        ((RecruitmentPost) post).reopenUntil(reopenUntil);
+      } else {
+        ((RecruitmentPost) post).cancel();
+      }
+
       postRepository.save(post);
       return;
     }

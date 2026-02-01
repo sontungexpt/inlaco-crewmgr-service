@@ -12,7 +12,6 @@ import com.inlaco.crewmgrservice.feature.user.repository.RoleRepository;
 import com.inlaco.crewmgrservice.feature.user.repository.UserRepository;
 import com.inlaco.crewmgrservice.feature.user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.userdetails.UserDetailsPasswordService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +21,6 @@ public record UserServiceImpl(
     RefreshTokenService refreshTokenService,
     UserRepository userRepository,
     RoleRepository roleRepository,
-    UserDetailsPasswordService userDetailsPasswordService,
     PasswordEncoder passwordEncoder)
     implements UserService {
 
@@ -61,7 +59,10 @@ public record UserServiceImpl(
       throw new IllegalArgumentException("Old password is incorrect");
     }
 
-    userDetailsPasswordService.updatePassword(user, newPasswordRequest.getNewPassword());
+    user.setPassword(passwordEncoder.encode(newPasswordRequest.getNewPassword()));
+    userRepository.save(user);
+
+    // userDetailsPasswordService.updatePassword(user, newPasswordRequest.getNewPassword());
     return refreshTokenService.refreshJwtTokens(savedRefreshToken);
   }
 
@@ -96,7 +97,7 @@ public record UserServiceImpl(
   }
 
   @Override
-  public UserProfile fetchRoles(User currentUser) {
+  public UserProfile getUserProfile(User currentUser) {
     return UserProfile.builder()
         .name(currentUser.getName())
         .avatar(currentUser.getAvatar())

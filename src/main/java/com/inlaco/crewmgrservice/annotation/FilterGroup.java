@@ -6,5 +6,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface FilterGroup {
-  String value() default "filter";
+  public static final String DEFAULT_PREFIX = "filter";
+
+  String value() default DEFAULT_PREFIX;
 }
