@@ -44,14 +44,7 @@ public class ContractController {
   @Operation(
       summary = "Get contract detail",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
-      description =
-"""
-This API is used to get contract detail.
-
-**Usecase**:
-- UC_admin-tim-kiem-loc-hop-dong.
-
-""")
+      description = "This API is used to get contract detail.")
   @RolesAllowed("ADMIN")
   @GetMapping("/{id}")
   public Contract getContractById(@ObjectId @PathVariable("id") String id) {

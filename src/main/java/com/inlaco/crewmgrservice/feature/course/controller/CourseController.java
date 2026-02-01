@@ -69,15 +69,7 @@ public class CourseController {
   @Operation(
       summary = "Get a course detail",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
-      description =
-"""
-Get a course detail
-
-**Usecase**:
-
-- UC_crew-xem-chi-tiet-khoa-dao-tao
-
-""")
+      description = "Get a course detail")
   @GetMapping("/{id}")
   public CourseDetail getCourseDetail(
       @CurrentUser User user, @ObjectId @PathVariable("id") String id) {

@@ -28,8 +28,6 @@ public class ReviewServiceFactory {
         return ReviewService.HIRED;
       case REJECTED:
         return ReviewService.REJECTED;
-      case CONTRACT_NOT_YET_IN_FORCE:
-        return ReviewService.CONTRACT_NOT_YET_IN_FORCE;
       case WAIT_FOR_INTERVIEW:
         return ReviewService.WAIT_INTERVIEW;
       default:
