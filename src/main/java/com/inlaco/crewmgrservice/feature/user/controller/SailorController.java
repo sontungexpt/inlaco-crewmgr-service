@@ -38,14 +38,7 @@ public class SailorController {
   @Operation(
       summary = "Find sailor profile by id",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
-      description =
-"""
-This API is used to get the sailor profile by id.
-
-**Usecase**:
-- UC_admin-xem-thong-tin-chi-tiet-thuyen-vien.
-
-""")
+      description = "This API is used to get the sailor profile by id.")
   @GetMapping("/{id}")
   @RolesAllowed("ADMIN")
   public SailorProfile findSailorById(@ObjectId @PathVariable("id") String sailorId) {
@@ -73,19 +66,7 @@ This API is used to get the sailor profile by id.
   @Operation(
       summary = "Fetch all sailor profiles",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
-      description =
-"""
-This API is used to get all sailor profiles.
-
-**Usecase**:
-- UC_admin-xem-thong-tin-chi-tiet-thuyen-vien.
-
-**NOTE**:
-- This API is only accessible by the admin.
-- The response is paginated.
-- The default page size is 20.
-
-""")
+      description = "This API is used to get all sailor profiles.")
   @GetMapping("")
   @RolesAllowed("ADMIN")
   @PageableQueryParams
@@ -94,6 +75,7 @@ This API is used to get all sailor profiles.
     return sailorService.getAllSailors(filterable, pageable);
   }
 
+  @Deprecated
   @Operation(
       summary = "Search sailors",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
@@ -111,14 +93,7 @@ This API is used to get all sailor profiles.
   @Operation(
       summary = "Find sailor profile of current user",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
-      description =
-"""
-This API is used to get the sailor profile of the current user.
-
-**Usecase**:
-- UC_admin-xem-thong-tin-chi-tiet-thuyen-vien.
-
-""")
+      description = "This API is used to get the sailor profile of the current user")
   @GetMapping("/profile/me")
   @RolesAllowed("SAILOR")
   public SailorProfile findMySailorProfile(@CurrentUser User sailor) {

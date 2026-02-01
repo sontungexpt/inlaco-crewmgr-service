@@ -88,6 +88,14 @@ public class CustomSailorRepository {
     var criteria = new Criteria();
     if (filterable == null) return criteria;
 
+    if (filterable.getKeyword() != null) {
+      criteria.andOperator(
+          Criteria.where("cardId").regex(filterable.getKeyword(), "i"),
+          Criteria.where("phone").regex(filterable.getKeyword(), "i"),
+          Criteria.where("fullName").regex(filterable.getKeyword(), "i"),
+          Criteria.where("email").regex(filterable.getKeyword(), "i"));
+    }
+
     if (filterable.getOfficial() != null) {
       criteria.andOperator(buildOfficialSailorCriteria(filterable.getOfficial()));
     }

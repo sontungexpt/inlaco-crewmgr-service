@@ -42,15 +42,7 @@ public class ScheduleController {
 
   @Operation(
       summary = "Create a new schedule",
-      description =
-"""
-Create a new schedule with the given data.
-
-**Usecase**:
-
-- UC_admin-dieu-dong.
-
-""",
+      description = "Create a new schedule with the given data.",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   @PostMapping("")
   @RolesAllowed("ADMIN")
@@ -62,20 +54,7 @@ Create a new schedule with the given data.
 
   @Operation(
       summary = "Fetch pagination schedules",
-      description =
-"""
-
-Fetch pagination schedules
-
-If status is provided, filter the schedules by the given status.
-If startDate is set, filter schedules that start from the specified startDate to future dates.
-If estimatedEndDate is provided, adjust the filter to include schedules that match the estimated end date.
-
-**Usecase**:
-
-- UC_admin-xem-danh-sach-cac-dieu-dong.
-
-""",
+      description = "Fetch pagination schedules",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   @GetMapping("")
   @RolesAllowed("ADMIN")
