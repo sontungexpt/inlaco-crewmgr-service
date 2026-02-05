@@ -1,9 +1,9 @@
 package com.inlaco.crewmgrservice.feature.upload.service.impl;
 
 import com.cloudinary.Cloudinary;
-import com.inlaco.crewmgrservice.config.CloudinaryConfig;
 import com.inlaco.crewmgrservice.feature.upload.model.CloudinarySignParams;
 import com.inlaco.crewmgrservice.feature.upload.service.CloudinaryService;
+import com.inlaco.crewmgrservice.infrastructure.config.cloud.CloudinaryProperties;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 public class CloudinaryServiceImpl implements CloudinaryService {
 
   private final Cloudinary cloudinary;
+  private final CloudinaryProperties cloudinaryProperties;
 
   @Override
   public Map<String, Object> getUploadOptions(Map<String, Object> paramsToSign) {
@@ -22,7 +23,8 @@ public class CloudinaryServiceImpl implements CloudinaryService {
     if (timestamp == null) {
       paramsToSign.put("timestamp", System.currentTimeMillis() / 1000);
     }
-    String signature = cloudinary.apiSignRequest(paramsToSign, CloudinaryConfig.API_SECRET, 2);
+    String signature =
+        cloudinary.apiSignRequest(paramsToSign, cloudinaryProperties.getApiSecret(), 2);
     paramsToSign.put("signature", signature);
     return paramsToSign;
   }

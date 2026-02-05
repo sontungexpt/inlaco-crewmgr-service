@@ -1,15 +1,15 @@
 package com.inlaco.crewmgrservice.feature.course.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.inlaco.crewmgrservice.annotation.CurrentUser;
-import com.inlaco.crewmgrservice.annotation.PageableQueryParams;
-import com.inlaco.crewmgrservice.config.OpenApiConfig;
 import com.inlaco.crewmgrservice.feature.course.model.Course;
 import com.inlaco.crewmgrservice.feature.course.model.dto.CourseDetail;
 import com.inlaco.crewmgrservice.feature.course.model.dto.CourseFilterable;
 import com.inlaco.crewmgrservice.feature.course.service.CourseService;
 import com.inlaco.crewmgrservice.feature.user.model.User;
-import com.inlaco.crewmgrservice.validation.annotation.ObjectId;
+import com.inlaco.crewmgrservice.infrastructure.config.openapi.OpenApiConfig;
+import com.inlaco.crewmgrservice.infrastructure.web.annotation.CurrentUser;
+import com.inlaco.crewmgrservice.infrastructure.web.annotation.PageableQueryParams;
+import com.inlaco.crewmgrservice.infrastructure.web.validation.annotation.ObjectId;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;

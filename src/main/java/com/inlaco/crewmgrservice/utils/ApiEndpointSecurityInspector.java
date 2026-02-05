@@ -3,7 +3,7 @@ package com.inlaco.crewmgrservice.utils;
 import static org.springframework.http.HttpMethod.GET;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.inlaco.crewmgrservice.annotation.PublicEndpoint;
+import com.inlaco.crewmgrservice.infrastructure.web.annotation.PublicEndpoint;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import java.lang.annotation.Annotation;

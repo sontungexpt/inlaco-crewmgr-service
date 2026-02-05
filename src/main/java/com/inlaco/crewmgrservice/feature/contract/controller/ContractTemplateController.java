@@ -1,11 +1,11 @@
 package com.inlaco.crewmgrservice.feature.contract.controller;
 
-import com.inlaco.crewmgrservice.annotation.CurrentUser;
-import com.inlaco.crewmgrservice.annotation.PageableQueryParams;
-import com.inlaco.crewmgrservice.config.OpenApiConfig;
 import com.inlaco.crewmgrservice.feature.contract.model.ContractTemplate;
 import com.inlaco.crewmgrservice.feature.contract.service.ContractTemplateService;
 import com.inlaco.crewmgrservice.feature.user.model.User;
+import com.inlaco.crewmgrservice.infrastructure.config.openapi.OpenApiConfig;
+import com.inlaco.crewmgrservice.infrastructure.web.annotation.CurrentUser;
+import com.inlaco.crewmgrservice.infrastructure.web.annotation.PageableQueryParams;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;

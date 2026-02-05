@@ -1,8 +1,8 @@
 package com.inlaco.crewmgrservice.feature.upload.controller;
 
-import com.inlaco.crewmgrservice.config.OpenApiConfig;
 import com.inlaco.crewmgrservice.feature.upload.enums.UploadStrategy;
 import com.inlaco.crewmgrservice.feature.upload.service.UploadFactory;
+import com.inlaco.crewmgrservice.infrastructure.config.openapi.OpenApiConfig;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;

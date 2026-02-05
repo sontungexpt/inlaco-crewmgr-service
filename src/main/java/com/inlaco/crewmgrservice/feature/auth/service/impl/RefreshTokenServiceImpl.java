@@ -1,11 +1,11 @@
 package com.inlaco.crewmgrservice.feature.auth.service.impl;
 
-import com.inlaco.crewmgrservice.exceptions.JwtTokenException;
 import com.inlaco.crewmgrservice.feature.auth.dto.JwtResponse;
-import com.inlaco.crewmgrservice.feature.auth.jwt.JwtService;
 import com.inlaco.crewmgrservice.feature.auth.model.RefreshToken;
 import com.inlaco.crewmgrservice.feature.auth.repository.RefreshTokenRepository;
 import com.inlaco.crewmgrservice.feature.auth.service.RefreshTokenService;
+import com.inlaco.crewmgrservice.feature.auth.service.TokenService;
+import com.inlaco.crewmgrservice.infrastructure.security.jwt.exception.JwtTokenException;
 import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class RefreshTokenServiceImpl implements RefreshTokenService {
 
   private final RefreshTokenRepository refreshTokenRepository;
-  private final JwtService jwtService;
+  private final TokenService tokenService;
 
   @Override
   public RefreshToken validateRefreshToken(RefreshToken refreshToken) {
@@ -64,7 +64,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
   @Transactional
   public JwtResponse refreshJwtTokens(RefreshToken refreshToken) {
     String userPubId = refreshToken.getUserPubId();
-    String newAccessToken = jwtService.generateAccessToken(userPubId);
+    String newAccessToken = tokenService.generateAccessToken(userPubId);
 
     RefreshToken newRefreshToken = refreshToken.refresh(refreshTokenRepository);
 
@@ -78,6 +78,6 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
   @Override
   public RefreshToken generateRefreshToken(String userPubId) {
-    return jwtService.generateRefreshTokenAndSaveToDB(userPubId);
+    return tokenService.generateRefreshToken(userPubId);
   }
 }

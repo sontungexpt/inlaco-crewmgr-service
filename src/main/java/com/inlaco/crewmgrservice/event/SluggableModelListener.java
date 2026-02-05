@@ -1,9 +1,9 @@
 package com.inlaco.crewmgrservice.event;
 
-import com.inlaco.crewmgrservice.annotation.AutoSlugify;
-import com.inlaco.crewmgrservice.annotation.AutoSlugify.Separator;
-import com.inlaco.crewmgrservice.annotation.AutoSlugify.UpdateStrategy;
 import com.inlaco.crewmgrservice.common.model.Sluggable;
+import com.inlaco.crewmgrservice.infrastructure.web.annotation.AutoSlugify;
+import com.inlaco.crewmgrservice.infrastructure.web.annotation.AutoSlugify.Separator;
+import com.inlaco.crewmgrservice.infrastructure.web.annotation.AutoSlugify.UpdateStrategy;
 import com.inlaco.crewmgrservice.utils.SlugUtils;
 import java.lang.reflect.Field;
 import java.util.ArrayList;

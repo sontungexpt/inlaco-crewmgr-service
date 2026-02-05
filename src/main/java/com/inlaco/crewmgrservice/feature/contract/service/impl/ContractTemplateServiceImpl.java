@@ -1,7 +1,7 @@
 package com.inlaco.crewmgrservice.feature.contract.service.impl;
 
 import com.inlaco.crewmgrservice.common.model.File;
-import com.inlaco.crewmgrservice.exceptions.ResourceNotFoundException;
+import com.inlaco.crewmgrservice.domain.exception.ResourceNotFoundException;
 import com.inlaco.crewmgrservice.feature.contract.model.ContractTemplate;
 import com.inlaco.crewmgrservice.feature.contract.repository.ContractTemplateRepository;
 import com.inlaco.crewmgrservice.feature.contract.service.ContractTemplateService;

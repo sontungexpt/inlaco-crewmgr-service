@@ -1,16 +1,16 @@
 package com.inlaco.crewmgrservice.feature.post.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.inlaco.crewmgrservice.annotation.CurrentUser;
-import com.inlaco.crewmgrservice.annotation.PageableQueryParams;
-import com.inlaco.crewmgrservice.annotation.PublicEndpoint;
-import com.inlaco.crewmgrservice.config.OpenApiConfig;
 import com.inlaco.crewmgrservice.endpoint.APIEndpointMap;
 import com.inlaco.crewmgrservice.endpoint.APIEndpointName;
 import com.inlaco.crewmgrservice.feature.post.enums.PostType;
 import com.inlaco.crewmgrservice.feature.post.model.Post;
 import com.inlaco.crewmgrservice.feature.post.service.PostService;
 import com.inlaco.crewmgrservice.feature.user.model.User;
+import com.inlaco.crewmgrservice.infrastructure.config.openapi.OpenApiConfig;
+import com.inlaco.crewmgrservice.infrastructure.web.annotation.CurrentUser;
+import com.inlaco.crewmgrservice.infrastructure.web.annotation.PageableQueryParams;
+import com.inlaco.crewmgrservice.infrastructure.web.annotation.PublicEndpoint;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;

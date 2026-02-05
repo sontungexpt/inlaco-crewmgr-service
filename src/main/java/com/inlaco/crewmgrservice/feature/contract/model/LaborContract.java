@@ -3,7 +3,7 @@ package com.inlaco.crewmgrservice.feature.contract.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
-import com.inlaco.crewmgrservice.annotation.JsonPatchIgnore;
+import com.inlaco.crewmgrservice.infrastructure.web.annotation.patch.JsonPatchIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;

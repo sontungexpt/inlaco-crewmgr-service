@@ -2,7 +2,7 @@ package com.inlaco.crewmgrservice.utils;
 
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import com.github.slugify.Slugify;
-import com.inlaco.crewmgrservice.annotation.AutoSlugify.Separator;
+import com.inlaco.crewmgrservice.infrastructure.web.annotation.AutoSlugify.Separator;
 import org.springframework.util.StringUtils;
 
 public class SlugUtils {

@@ -1,9 +1,8 @@
 package com.inlaco.crewmgrservice.feature.auth.service.impl;
 
-import com.inlaco.crewmgrservice.exceptions.JwtTokenException;
-import com.inlaco.crewmgrservice.feature.auth.enums.TokenType;
 import com.inlaco.crewmgrservice.feature.auth.model.RefreshToken;
 import com.inlaco.crewmgrservice.feature.auth.repository.RefreshTokenRepository;
+import com.inlaco.crewmgrservice.infrastructure.security.jwt.exception.JwtTokenException;
 import com.inlaco.crewmgrservice.utils.HttpHeaderUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -33,10 +32,7 @@ public record LogoutServiceImpl(
       RefreshToken savedRefreshToken =
           refreshTokenRepository
               .findByToken(refreshToken)
-              .orElseThrow(
-                  () ->
-                      new JwtTokenException(
-                          TokenType.BEARER, refreshToken, "Invalid refresh token"));
+              .orElseThrow(() -> new JwtTokenException(refreshToken, "Invalid refresh token"));
 
       refreshTokenRepository.save(savedRefreshToken.revoke());
       log.debug("Logout successful");

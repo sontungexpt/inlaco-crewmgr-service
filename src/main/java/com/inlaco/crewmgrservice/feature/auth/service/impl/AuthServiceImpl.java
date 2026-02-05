@@ -1,17 +1,17 @@
 package com.inlaco.crewmgrservice.feature.auth.service.impl;
 
-import com.inlaco.crewmgrservice.exceptions.ResourceAlreadyInUseException;
-import com.inlaco.crewmgrservice.exceptions.ResourceNotFoundException;
+import com.inlaco.crewmgrservice.domain.exception.ResourceAlreadyInUseException;
+import com.inlaco.crewmgrservice.domain.exception.ResourceNotFoundException;
 import com.inlaco.crewmgrservice.feature.auth.dto.JwtResponse;
 import com.inlaco.crewmgrservice.feature.auth.dto.LoginRequest;
 import com.inlaco.crewmgrservice.feature.auth.dto.LoginResponse;
 import com.inlaco.crewmgrservice.feature.auth.dto.RegistrationRequest;
 import com.inlaco.crewmgrservice.feature.auth.enums.TwoStepVerificationType;
-import com.inlaco.crewmgrservice.feature.auth.jwt.JwtService;
 import com.inlaco.crewmgrservice.feature.auth.model.RefreshToken;
 import com.inlaco.crewmgrservice.feature.auth.repository.RefreshTokenRepository;
 import com.inlaco.crewmgrservice.feature.auth.service.AuthService;
 import com.inlaco.crewmgrservice.feature.auth.service.RefreshTokenService;
+import com.inlaco.crewmgrservice.feature.auth.service.TokenService;
 import com.inlaco.crewmgrservice.feature.notify.NotificationFactory;
 import com.inlaco.crewmgrservice.feature.user.enums.UsernameType;
 import com.inlaco.crewmgrservice.feature.user.model.SecurityUser;
@@ -20,6 +20,7 @@ import com.inlaco.crewmgrservice.feature.user.model.authorization.Right;
 import com.inlaco.crewmgrservice.feature.user.model.authorization.Role;
 import com.inlaco.crewmgrservice.feature.user.repository.RoleRepository;
 import com.inlaco.crewmgrservice.feature.user.service.UserService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -35,17 +36,18 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
-public record AuthServiceImpl(
-    RefreshTokenRepository refreshTokenRepository,
-    RefreshTokenService refreshTokenService,
-    JwtService jwtService,
-    UserService userService,
-    AuthenticationManager authenticationManager,
-    PasswordEncoder passwordEncoder,
-    NotificationFactory notificationFactory,
-    TwoStepVerificationFactory twoStepVerificationFactory,
-    RoleRepository roleRepository)
-    implements AuthService {
+@RequiredArgsConstructor
+public class AuthServiceImpl implements AuthService {
+
+  private final RefreshTokenRepository refreshTokenRepository;
+  private final RefreshTokenService refreshTokenService;
+  private final TokenService tokenService;
+  private final UserService userService;
+  private final AuthenticationManager authenticationManager;
+  private final PasswordEncoder passwordEncoder;
+  private final NotificationFactory notificationFactory;
+  private final TwoStepVerificationFactory twoStepVerificationFactory;
+  private final RoleRepository roleRepository;
 
   public void checkUserValid(UserDetails user) {
     if (!user.isAccountNonLocked()) {
@@ -79,8 +81,8 @@ public record AuthServiceImpl(
 
     SecurityContextHolder.getContext().setAuthentication(authentication);
 
-    final String accessToken = jwtService.generateAccessToken(user);
-    final RefreshToken refreshToken = jwtService.generateRefreshTokenAndSaveToDB(user);
+    final String accessToken = tokenService.generateAccessToken(user.getPubId());
+    final RefreshToken refreshToken = tokenService.generateRefreshToken(user.getPubId());
 
     log.debug("Account with public id {} logged in successfully", user.getPubId());
 

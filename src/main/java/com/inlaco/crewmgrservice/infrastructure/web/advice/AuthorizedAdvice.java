@@ -1,0 +1,76 @@
+package com.inlaco.crewmgrservice.infrastructure.web.advice;
+
+import com.inlaco.crewmgrservice.infrastructure.security.jwt.exception.JwtTokenException;
+import com.inlaco.crewmgrservice.infrastructure.web.payload.response.ApiResponse;
+import com.inlaco.crewmgrservice.infrastructure.web.payload.response.ErrorResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import java.nio.file.AccessDeniedException;
+import javax.security.auth.login.AccountExpiredException;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+@RestControllerAdvice
+@Order(Ordered.HIGHEST_PRECEDENCE)
+public class AuthorizedAdvice {
+
+  @ExceptionHandler({UsernameNotFoundException.class, BadCredentialsException.class})
+  public ResponseEntity<?> handleBadCredentials(Exception ex, HttpServletRequest request) {
+    // TODO: when frontend fixed by using errorCode change status to UNAUTHORIZED
+    return buildError(
+        HttpStatus.UNAUTHORIZED, "INVALID_CREDENTIALS", "Invalid credentials", request);
+  }
+
+  @ExceptionHandler(DisabledException.class)
+  public ResponseEntity<?> handleDisabled(DisabledException ex, HttpServletRequest request) {
+    return buildError(HttpStatus.FORBIDDEN, "ACCOUNT_DISABLED", "Account disabled", request);
+  }
+
+  @ExceptionHandler(AccountExpiredException.class)
+  public ResponseEntity<?> handleExpired(AccountExpiredException ex, HttpServletRequest request) {
+    return buildError(HttpStatus.FORBIDDEN, "ACCOUNT_EXPIRED", "Account expired", request);
+  }
+
+  @ExceptionHandler(LockedException.class)
+  public ResponseEntity<?> handleLocked(LockedException ex, HttpServletRequest request) {
+
+    return buildError(HttpStatus.LOCKED, "ACCOUNT_LOCKED", "Account locked", request);
+  }
+
+  @ExceptionHandler(JwtTokenException.class)
+  public ResponseEntity<?> handleJwt(JwtTokenException ex, HttpServletRequest request) {
+    return buildError(
+        HttpStatus.UNAUTHORIZED, "INVALID_TOKEN", "Token malformed or expired", request);
+  }
+
+  @ExceptionHandler(AccessDeniedException.class)
+  public ResponseEntity<?> handleAccessDenied(
+      AccessDeniedException ex, HttpServletRequest request) {
+    return buildError(
+        HttpStatus.FORBIDDEN, "ACCESS_DENIED", "You are not have permission", request);
+  }
+
+  @ExceptionHandler(AuthenticationException.class)
+  public ResponseEntity<?> handleAuthenticationException(
+      AuthenticationException ex, HttpServletRequest request) {
+    return buildError(HttpStatus.UNAUTHORIZED, "UNAUTHORIZED", "Unauthorized", request);
+  }
+
+  private ResponseEntity<ApiResponse<Void>> buildError(
+      HttpStatus status, String errorCode, String message, HttpServletRequest request) {
+    return ErrorResponse.of(status)
+        .errorCode(errorCode)
+        .message(message)
+        .path(request.getRequestURI())
+        .build()
+        .toResponseEntity();
+  }
+}

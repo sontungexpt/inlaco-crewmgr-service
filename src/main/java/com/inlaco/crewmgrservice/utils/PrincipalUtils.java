@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.utils;
 
-import com.inlaco.crewmgrservice.exceptions.AuthenticationException;
+import com.inlaco.crewmgrservice.domain.exception.AuthenticationException;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import org.springframework.security.core.context.SecurityContextHolder;
 

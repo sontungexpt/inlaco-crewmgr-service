@@ -1,8 +1,8 @@
 package com.inlaco.crewmgrservice.feature.contract.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.inlaco.crewmgrservice.exceptions.ResourceAlreadyInUseException;
-import com.inlaco.crewmgrservice.exceptions.ResourceNotFoundException;
+import com.inlaco.crewmgrservice.domain.exception.ResourceAlreadyInUseException;
+import com.inlaco.crewmgrservice.domain.exception.ResourceNotFoundException;
 import com.inlaco.crewmgrservice.feature.contract.dto.ContractFilterable;
 import com.inlaco.crewmgrservice.feature.contract.dto.ShortContract;
 import com.inlaco.crewmgrservice.feature.contract.exception.FreezeContractUpdateException;
@@ -164,9 +164,9 @@ public class ContractServiceImpl implements ContractService {
 
   @Override
   public Page<? extends Contract> getAllContracts(
-      ContractFilterable filterRequest, Pageable pageable) {
+      ContractFilterable filterable, Pageable pageable) {
     return customContractRepository
-        .findAllContracts(filterRequest, pageable)
+        .findAllContracts(filterable, pageable)
         .map(this::toShortContract);
   }
 

@@ -1,8 +1,8 @@
 package com.inlaco.crewmgrservice.feature.auth.dto;
 
-import com.inlaco.crewmgrservice.common.payload.IDiffPassword;
-import com.inlaco.crewmgrservice.common.payload.IMatchPassword;
-import com.inlaco.crewmgrservice.validation.annotation.Password;
+import com.inlaco.crewmgrservice.infrastructure.web.payload.request.constraint.IDiffPassword;
+import com.inlaco.crewmgrservice.infrastructure.web.payload.request.constraint.IMatchPassword;
+import com.inlaco.crewmgrservice.infrastructure.web.validation.password.Password;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

@@ -1,8 +1,5 @@
 package com.inlaco.crewmgrservice.feature.user.controller;
 
-import com.inlaco.crewmgrservice.annotation.BearerToken;
-import com.inlaco.crewmgrservice.annotation.CurrentUser;
-import com.inlaco.crewmgrservice.config.OpenApiConfig;
 import com.inlaco.crewmgrservice.endpoint.APIEndpointMap;
 import com.inlaco.crewmgrservice.endpoint.APIEndpointName;
 import com.inlaco.crewmgrservice.feature.auth.dto.JwtResponse;
@@ -10,6 +7,9 @@ import com.inlaco.crewmgrservice.feature.auth.dto.NewPasswordRequest;
 import com.inlaco.crewmgrservice.feature.user.dto.UserProfile;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import com.inlaco.crewmgrservice.feature.user.service.UserService;
+import com.inlaco.crewmgrservice.infrastructure.config.openapi.OpenApiConfig;
+import com.inlaco.crewmgrservice.infrastructure.web.annotation.BearerToken;
+import com.inlaco.crewmgrservice.infrastructure.web.annotation.CurrentUser;
 import com.inlaco.crewmgrservice.utils.ConsoleUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;

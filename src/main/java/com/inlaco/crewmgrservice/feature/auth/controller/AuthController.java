@@ -1,14 +1,14 @@
 package com.inlaco.crewmgrservice.feature.auth.controller;
 
-import com.inlaco.crewmgrservice.annotation.BearerToken;
-import com.inlaco.crewmgrservice.annotation.PublicEndpoint;
-import com.inlaco.crewmgrservice.config.OpenApiConfig;
 import com.inlaco.crewmgrservice.endpoint.APIEndpointMap;
 import com.inlaco.crewmgrservice.endpoint.APIEndpointName;
 import com.inlaco.crewmgrservice.feature.auth.dto.LoginRequest;
 import com.inlaco.crewmgrservice.feature.auth.dto.RegistrationRequest;
 import com.inlaco.crewmgrservice.feature.auth.service.AuthService;
 import com.inlaco.crewmgrservice.feature.auth.service.RefreshTokenService;
+import com.inlaco.crewmgrservice.infrastructure.config.openapi.OpenApiConfig;
+import com.inlaco.crewmgrservice.infrastructure.web.annotation.BearerToken;
+import com.inlaco.crewmgrservice.infrastructure.web.annotation.PublicEndpoint;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;

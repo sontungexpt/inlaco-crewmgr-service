@@ -1,12 +1,12 @@
 package com.inlaco.crewmgrservice.feature.auth.dto;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
-import com.inlaco.crewmgrservice.common.payload.IMatchPassword;
 import com.inlaco.crewmgrservice.feature.user.enums.UsernameType;
+import com.inlaco.crewmgrservice.infrastructure.web.payload.request.constraint.IMatchPassword;
+import com.inlaco.crewmgrservice.infrastructure.web.validation.annotation.OptimizedName;
+import com.inlaco.crewmgrservice.infrastructure.web.validation.password.Password;
+import com.inlaco.crewmgrservice.infrastructure.web.validation.username.Username;
 import com.inlaco.crewmgrservice.utils.PhoneNumberValidatorUtils;
-import com.inlaco.crewmgrservice.validation.annotation.OptimizedName;
-import com.inlaco.crewmgrservice.validation.annotation.Password;
-import com.inlaco.crewmgrservice.validation.annotation.Username;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serializable;
 import lombok.Getter;

@@ -2,10 +2,10 @@ package com.inlaco.crewmgrservice.feature.schedule.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.inlaco.crewmgrservice.annotation.JsonPatchIgnore;
 import com.inlaco.crewmgrservice.common.model.ShipInfo;
-import com.inlaco.crewmgrservice.common.payload.TimeFrame;
-import com.inlaco.crewmgrservice.validation.annotation.PhoneNumber;
+import com.inlaco.crewmgrservice.infrastructure.web.annotation.patch.JsonPatchIgnore;
+import com.inlaco.crewmgrservice.infrastructure.web.payload.request.constraint.TimeFrame;
+import com.inlaco.crewmgrservice.infrastructure.web.validation.phone.PhoneNumber;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import jakarta.validation.Valid;

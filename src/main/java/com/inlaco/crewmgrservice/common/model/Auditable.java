@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.common.model;
 
-import com.inlaco.crewmgrservice.annotation.JsonPatchIgnore;
+import com.inlaco.crewmgrservice.infrastructure.web.annotation.patch.JsonPatchIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
 import lombok.AllArgsConstructor;

@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.feature.auth.exceptions;
 
-import com.inlaco.crewmgrservice.exceptions.BaseException;
+import com.inlaco.crewmgrservice.domain.exception.BaseException;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -10,6 +10,6 @@ import org.springframework.http.HttpStatus;
 public class TwoStepVerificationException extends BaseException {
 
   public TwoStepVerificationException(String message) {
-    super(HttpStatus.NOT_FOUND, message);
+    super("TWO_STEP_VERIFICATION_ERROR", message, HttpStatus.NOT_FOUND);
   }
 }

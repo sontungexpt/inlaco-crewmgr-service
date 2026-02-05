@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.feature.crewrental.service.impl;
 
-import com.inlaco.crewmgrservice.exceptions.ResourceNotFoundException;
+import com.inlaco.crewmgrservice.domain.exception.ResourceNotFoundException;
 import com.inlaco.crewmgrservice.feature.crewrental.dto.RentalRequestFilterable;
 import com.inlaco.crewmgrservice.feature.crewrental.enums.RentalRequestStatus;
 import com.inlaco.crewmgrservice.feature.crewrental.model.RentalRequest;

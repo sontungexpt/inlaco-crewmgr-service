@@ -1,8 +1,8 @@
 package com.inlaco.crewmgrservice.feature.course.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.inlaco.crewmgrservice.exceptions.ResourceAlreadyInUseException;
-import com.inlaco.crewmgrservice.exceptions.ResourceNotFoundException;
+import com.inlaco.crewmgrservice.domain.exception.ResourceAlreadyInUseException;
+import com.inlaco.crewmgrservice.domain.exception.ResourceNotFoundException;
 import com.inlaco.crewmgrservice.feature.course.exception.RegistrationClosedException;
 import com.inlaco.crewmgrservice.feature.course.model.Course;
 import com.inlaco.crewmgrservice.feature.course.model.CourseMember;
