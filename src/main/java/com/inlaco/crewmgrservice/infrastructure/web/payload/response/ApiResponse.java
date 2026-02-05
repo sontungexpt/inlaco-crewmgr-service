@@ -28,7 +28,7 @@ public class ApiResponse<T> {
     return new ResponseEntity<>(this, this.status);
   }
 
-  public static <T> ApiResponseBuilder<T, ?, ?> of(HttpStatus status) {
+  public static ApiResponseBuilder of(HttpStatus status) {
     var request = HttpServletUtils.getRequest().orElse(null);
     return new ApiResponseBuilderImpl()
         .status(status)

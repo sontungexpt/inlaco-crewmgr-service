@@ -11,16 +11,13 @@ import org.springframework.http.HttpStatus;
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @SuperBuilder
-public class ValidationErrorResponse extends ApiResponse<Map<String, String>> {
+public class ValidationErrorResponse extends ErrorResponse<Map<String, String>> {
 
-  private String errorCode;
-  private String message;
-
-  public static ValidationErrorResponseBuilder<?, ?> of(HttpStatus status) {
+  public static ValidationErrorResponseBuilder of(HttpStatus status) {
     return new ValidationErrorResponseBuilderImpl().status(status);
   }
 
   public abstract static class ValidationErrorResponseBuilder<
           C extends ValidationErrorResponse, B extends ValidationErrorResponseBuilder<C, B>>
-      extends ApiResponseBuilder<Map<String, String>, C, B> {}
+      extends ErrorResponseBuilder<Map<String, String>, C, B> {}
 }

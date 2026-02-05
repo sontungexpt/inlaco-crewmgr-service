@@ -10,16 +10,16 @@ import org.springframework.http.HttpStatus;
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @SuperBuilder
-public class ErrorResponse extends ApiResponse<Void> {
+public class ErrorResponse<T> extends ApiResponse<T> {
 
   private String errorCode;
   private String message;
 
-  public static ErrorResponseBuilder<?, ?> of(HttpStatus status) {
-    return new ErrorResponseBuilderImpl().status(status);
+  public static ErrorResponseBuilder of(HttpStatus status) {
+    return new ErrorResponseBuilderImpl<>().status(status);
   }
 
   public abstract static class ErrorResponseBuilder<
-          C extends ErrorResponse, B extends ErrorResponseBuilder<C, B>>
-      extends ApiResponseBuilder<Void, C, B> {}
+          T, C extends ErrorResponse<T>, B extends ErrorResponseBuilder<T, C, B>>
+      extends ApiResponseBuilder<T, C, B> {}
 }
