@@ -1,8 +1,7 @@
 package com.inlaco.crewmgrservice.infrastructure.web.advice;
 
-import com.inlaco.crewmgrservice.domain.exception.BaseException;
+import com.inlaco.crewmgrservice.application.exception.ApplicationExceptionException;
 import com.inlaco.crewmgrservice.infrastructure.web.payload.response.ApiResponse;
-import com.inlaco.crewmgrservice.infrastructure.web.payload.response.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
@@ -20,31 +19,26 @@ import org.springframework.web.multipart.support.MissingServletRequestPartExcept
 public class FallbackExceptionAdvice {
 
   // ===================== BUSINESS =====================
-  @ExceptionHandler(BaseException.class)
+  @ExceptionHandler(ApplicationExceptionException.class)
   public ResponseEntity<ApiResponse<Void>> handleBaseException(
-      BaseException ex, HttpServletRequest request) {
+      ApplicationExceptionException ex, HttpServletRequest request) {
     log.warn("Business exception [{}]: {}", ex.getErrorCode(), ex.getMessage());
-    return ErrorResponse.of(ex.getStatus())
-        .code(ex.getStatus().value())
-        .errorCode(ex.getErrorCode())
-        .message(ex.getMessage())
-        .path(request.getRequestURI())
-        .build()
-        .toResponseEntity();
+    return AdviceUtils.buildErrorResponse(
+        ex.getStatus(), ex.getErrorCode(), ex.getMessage(), request);
   }
 
   // ===================== CLIENT INPUT =====================
   @ExceptionHandler(MissingServletRequestPartException.class)
   public ResponseEntity<ApiResponse<Void>> handleMissingPart(
       MissingServletRequestPartException ex, HttpServletRequest request) {
-    return buildError(
+    return AdviceUtils.buildErrorResponse(
         HttpStatus.BAD_REQUEST, "MISSING_REQUEST_PART", "Missing request part", request);
   }
 
   @ExceptionHandler(HttpMessageNotReadableException.class)
   public ResponseEntity<ApiResponse<Void>> handleInvalidBody(
       HttpMessageNotReadableException ex, HttpServletRequest request) {
-    return buildError(
+    return AdviceUtils.buildErrorResponse(
         HttpStatus.UNPROCESSABLE_ENTITY, "INVALID_REQUEST_BODY", "Invalid request body", request);
   }
 
@@ -53,30 +47,17 @@ public class FallbackExceptionAdvice {
   public ResponseEntity<ApiResponse<Void>> handleUnsupported(
       UnsupportedOperationException ex, HttpServletRequest request) {
     log.error("Unsupported operation", ex);
-    return buildError(
+    return AdviceUtils.buildErrorResponse(
         HttpStatus.NOT_IMPLEMENTED, "UNSUPPORTED_OPERATION", "Operation is not supported", request);
   }
 
   @ExceptionHandler(Exception.class)
   public ResponseEntity<ApiResponse<Void>> handleUnknown(Exception ex, HttpServletRequest request) {
     log.error("Unhandled exception", ex);
-    return buildError(
+    return AdviceUtils.buildErrorResponse(
         HttpStatus.INTERNAL_SERVER_ERROR,
         "INTERNAL_SERVER_ERROR",
         "System is meetting unexpected error",
         request);
-  }
-
-  // ===================== HELPERS =====================
-
-  private ResponseEntity<ApiResponse<Void>> buildError(
-      HttpStatus status, String errorCode, String message, HttpServletRequest request) {
-    return ErrorResponse.of(status)
-        .code(status.value())
-        .errorCode(errorCode)
-        .message(message)
-        .path(request.getRequestURI())
-        .build()
-        .toResponseEntity();
   }
 }

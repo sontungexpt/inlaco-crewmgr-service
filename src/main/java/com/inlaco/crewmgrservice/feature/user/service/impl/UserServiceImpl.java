@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.feature.user.service.impl;
 
-import com.inlaco.crewmgrservice.domain.exception.ResourceNotFoundException;
+import com.inlaco.crewmgrservice.application.exception.ResourceNotFoundException;
 import com.inlaco.crewmgrservice.feature.auth.dto.JwtResponse;
 import com.inlaco.crewmgrservice.feature.auth.dto.NewPasswordRequest;
 import com.inlaco.crewmgrservice.feature.auth.model.RefreshToken;

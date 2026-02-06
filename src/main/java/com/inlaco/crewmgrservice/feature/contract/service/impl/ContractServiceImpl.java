@@ -1,8 +1,8 @@
 package com.inlaco.crewmgrservice.feature.contract.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.inlaco.crewmgrservice.domain.exception.ResourceAlreadyInUseException;
-import com.inlaco.crewmgrservice.domain.exception.ResourceNotFoundException;
+import com.inlaco.crewmgrservice.application.exception.ResourceAlreadyInUseException;
+import com.inlaco.crewmgrservice.application.exception.ResourceNotFoundException;
 import com.inlaco.crewmgrservice.feature.contract.dto.ContractFilterable;
 import com.inlaco.crewmgrservice.feature.contract.dto.ShortContract;
 import com.inlaco.crewmgrservice.feature.contract.exception.FreezeContractUpdateException;

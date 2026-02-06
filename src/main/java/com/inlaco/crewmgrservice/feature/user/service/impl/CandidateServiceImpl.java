@@ -1,8 +1,8 @@
 package com.inlaco.crewmgrservice.feature.user.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.inlaco.crewmgrservice.application.exception.ResourceNotFoundException;
 import com.inlaco.crewmgrservice.common.model.File;
-import com.inlaco.crewmgrservice.domain.exception.ResourceNotFoundException;
 import com.inlaco.crewmgrservice.feature.notify.NotificationFactory;
 import com.inlaco.crewmgrservice.feature.notify.NotificationType;
 import com.inlaco.crewmgrservice.feature.notify.mail.EmailRequest;

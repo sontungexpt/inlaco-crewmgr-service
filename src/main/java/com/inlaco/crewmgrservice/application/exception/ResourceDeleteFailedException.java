@@ -1,9 +1,13 @@
-package com.inlaco.crewmgrservice.domain.exception;
+package com.inlaco.crewmgrservice.application.exception;
 
 import java.util.Map;
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
-public class ResourceDeleteFailedException extends BaseException {
+@Getter
+public class ResourceDeleteFailedException extends ApplicationExceptionException {
+
+  private Map<String, Object> reasons;
 
   public ResourceDeleteFailedException(Class<?> resource, String field, Object value) {
     this(resource.getSimpleName() + " cannot be deleted", resource, field, value);
@@ -20,11 +24,7 @@ public class ResourceDeleteFailedException extends BaseException {
 
   public ResourceDeleteFailedException(
       String message, Class<?> resource, Map<String, Object> reasons) {
-
-    super(
-        "RESOURCE_DELETE_FAILED",
-        message,
-        HttpStatus.UNPROCESSABLE_ENTITY,
-        Map.of("resource", resource.getSimpleName(), "reasons", reasons));
+    super("RESOURCE_DELETE_FAILED", HttpStatus.UNPROCESSABLE_ENTITY, message);
+    this.reasons = reasons;
   }
 }

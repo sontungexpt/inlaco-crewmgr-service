@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.feature.post.service.impl;
 
-import com.inlaco.crewmgrservice.domain.exception.ResourceNotFoundException;
+import com.inlaco.crewmgrservice.application.exception.ResourceNotFoundException;
 import com.inlaco.crewmgrservice.feature.post.model.Post;
 import com.inlaco.crewmgrservice.feature.post.model.RecruitmentPost;
 import com.inlaco.crewmgrservice.feature.post.repository.PostRepository;

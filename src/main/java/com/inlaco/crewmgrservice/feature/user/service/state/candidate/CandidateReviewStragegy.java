@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.feature.user.service.state.candidate;
 
-import com.inlaco.crewmgrservice.domain.exception.ResourceNotFoundException;
+import com.inlaco.crewmgrservice.application.exception.ResourceNotFoundException;
 import com.inlaco.crewmgrservice.feature.notify.NotificationFactory;
 import com.inlaco.crewmgrservice.feature.post.service.PostService;
 import com.inlaco.crewmgrservice.feature.user.model.CandidateProfile;

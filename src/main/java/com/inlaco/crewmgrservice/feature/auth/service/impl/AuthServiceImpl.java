@@ -1,7 +1,7 @@
 package com.inlaco.crewmgrservice.feature.auth.service.impl;
 
-import com.inlaco.crewmgrservice.domain.exception.ResourceAlreadyInUseException;
-import com.inlaco.crewmgrservice.domain.exception.ResourceNotFoundException;
+import com.inlaco.crewmgrservice.application.exception.ResourceAlreadyInUseException;
+import com.inlaco.crewmgrservice.application.exception.ResourceNotFoundException;
 import com.inlaco.crewmgrservice.feature.auth.dto.JwtResponse;
 import com.inlaco.crewmgrservice.feature.auth.dto.LoginRequest;
 import com.inlaco.crewmgrservice.feature.auth.dto.LoginResponse;

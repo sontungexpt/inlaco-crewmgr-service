@@ -15,8 +15,8 @@ public class ErrorResponse<T> extends ApiResponse<T> {
   private String errorCode;
   private String message;
 
-  public static ErrorResponseBuilder of(HttpStatus status) {
-    return new ErrorResponseBuilderImpl<>().status(status);
+  public static <T> ErrorResponseBuilder<T, ?, ?> of(HttpStatus status) {
+    return new ErrorResponseBuilderImpl<T>().status(status);
   }
 
   public abstract static class ErrorResponseBuilder<

@@ -1,6 +1,5 @@
 package com.inlaco.crewmgrservice.infrastructure.web.payload.response;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.inlaco.crewmgrservice.utils.HttpServletUtils;
 import java.time.Instant;
@@ -16,23 +15,25 @@ import org.springframework.http.ResponseEntity;
 @SuperBuilder
 public class ApiResponse<T> {
 
-  private int code;
-  private T data;
+  private HttpStatus status;
   private String timestamp;
   private String cause;
   private String path;
+  private T data;
 
-  @JsonIgnore private HttpStatus status;
+  // return code from http status to client
+  public int getCode() {
+    return status.value();
+  }
 
   public ResponseEntity<ApiResponse<T>> toResponseEntity() {
     return new ResponseEntity<>(this, this.status);
   }
 
-  public static ApiResponseBuilder of(HttpStatus status) {
+  public static <T> ApiResponseBuilder<T, ?, ?> of(HttpStatus status) {
     var request = HttpServletUtils.getRequest().orElse(null);
-    return new ApiResponseBuilderImpl()
+    return new ApiResponseBuilderImpl<T>()
         .status(status)
-        .code(status.value())
         .path(request != null ? request.getRequestURI() : "")
         .timestamp(Instant.now().toString());
   }

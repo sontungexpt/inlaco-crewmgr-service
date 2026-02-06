@@ -1,6 +1,5 @@
 package com.inlaco.crewmgrservice.infrastructure.web.advice;
 
-import com.inlaco.crewmgrservice.infrastructure.web.payload.response.ErrorResponse;
 import com.inlaco.crewmgrservice.infrastructure.web.payload.response.ValidationErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ValidationException;
@@ -28,7 +27,12 @@ public class ValidationExceptionAdvice {
     e.getFieldErrors()
         .forEach(fieldError -> body.put(fieldError.getField(), fieldError.getDefaultMessage()));
     log.debug("Validation error: {}", body);
-    return ValidationErrorResponse.of(HttpStatus.BAD_REQUEST).data(body).build().toResponseEntity();
+    return ValidationErrorResponse.of(HttpStatus.BAD_REQUEST)
+        .errorCode("VALIDATION_ERROR")
+        .path(request.getRequestURI())
+        .data(body)
+        .build()
+        .toResponseEntity();
   }
 
   @ExceptionHandler(HandlerMethodValidationException.class)
@@ -42,24 +46,32 @@ public class ValidationExceptionAdvice {
               body.put(fieldError[fieldError.length - 1], objectError.getDefaultMessage());
             });
     log.debug("Validation error: {}", body);
-    return ValidationErrorResponse.of(HttpStatus.BAD_REQUEST).data(body).build().toResponseEntity();
+    return ValidationErrorResponse.of(HttpStatus.BAD_REQUEST)
+        .errorCode("VALIDATION_ERROR")
+        .data(body)
+        .path(request.getRequestURI())
+        .build()
+        .toResponseEntity();
   }
 
   @ExceptionHandler(IllegalAccessException.class)
   public ResponseEntity<?> handleIllegalArgumentException(
       IllegalAccessException e, HttpServletRequest request) {
-    return ErrorResponse.of(HttpStatus.BAD_REQUEST).build().toResponseEntity();
+    return AdviceUtils.buildErrorResponse(
+        HttpStatus.BAD_REQUEST, "ILLEGAL_AGRS_ERROR", "Illegal Args Error", request);
   }
 
   @ExceptionHandler({BadRequestException.class})
   public ResponseEntity<?> handleBadRequestException(
       BadRequestException ex, HttpServletRequest request) {
-    return ErrorResponse.of(HttpStatus.BAD_REQUEST).build().toResponseEntity();
+    return AdviceUtils.buildErrorResponse(
+        HttpStatus.BAD_REQUEST, "BAD_REQUEST_ERROR", "Bad request", request);
   }
 
   @ExceptionHandler(ValidationException.class)
   public ResponseEntity<?> handleValidationException(
       ValidationException e, HttpServletRequest request) {
-    return ErrorResponse.of(HttpStatus.BAD_REQUEST).build().toResponseEntity();
+    return AdviceUtils.buildErrorResponse(
+        HttpStatus.BAD_REQUEST, "VALIDATION_ERROR", "Validation failed", request);
   }
 }

@@ -1,9 +1,13 @@
-package com.inlaco.crewmgrservice.domain.exception;
+package com.inlaco.crewmgrservice.application.exception;
 
 import java.util.Map;
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
-public class ResourceNotFoundException extends BaseException {
+@Getter
+public class ResourceNotFoundException extends ApplicationExceptionException {
+
+  private Map<String, Object> criteria;
 
   public ResourceNotFoundException(Class<?> resource, String field, Object value) {
     this(resource.getSimpleName() + " not found", resource, field, value);
@@ -19,10 +23,7 @@ public class ResourceNotFoundException extends BaseException {
 
   public ResourceNotFoundException(
       String message, Class<?> resource, Map<String, Object> criteria) {
-    super(
-        "RESOURCE_NOT_FOUND",
-        message,
-        HttpStatus.NOT_FOUND,
-        Map.of("resource", resource.getSimpleName(), "criteria", criteria));
+    super("RESOURCE_NOT_FOUND", HttpStatus.NOT_FOUND, message);
+    this.criteria = criteria;
   }
 }

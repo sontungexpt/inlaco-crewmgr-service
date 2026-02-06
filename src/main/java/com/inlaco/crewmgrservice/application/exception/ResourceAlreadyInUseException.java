@@ -1,9 +1,13 @@
-package com.inlaco.crewmgrservice.domain.exception;
+package com.inlaco.crewmgrservice.application.exception;
 
 import java.util.Map;
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
-public class ResourceAlreadyInUseException extends BaseException {
+@Getter
+public class ResourceAlreadyInUseException extends ApplicationExceptionException {
+
+  private Map<String, Object> conflictFields;
 
   public ResourceAlreadyInUseException(Class<?> resource, String field, Object value) {
     this(resource.getSimpleName() + " already in use", resource, field, value);
@@ -20,14 +24,7 @@ public class ResourceAlreadyInUseException extends BaseException {
 
   public ResourceAlreadyInUseException(
       String message, Class<?> resource, Map<String, Object> conflictFields) {
-    super(
-        "RESOURCE_ALREADY_IN_USE",
-        message,
-        HttpStatus.CONFLICT,
-        Map.of("resource", resource.getSimpleName(), "conflictFields", conflictFields));
-  }
-
-  public Object getConflictFields() {
-    return super.getData();
+    super("RESOURCE_ALREADY_IN_USE", HttpStatus.CONFLICT, message);
+    this.conflictFields = conflictFields;
   }
 }

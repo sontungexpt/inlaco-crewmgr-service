@@ -13,7 +13,7 @@ import org.springframework.http.HttpStatus;
 @SuperBuilder
 public class ValidationErrorResponse extends ErrorResponse<Map<String, String>> {
 
-  public static ValidationErrorResponseBuilder of(HttpStatus status) {
+  public static ValidationErrorResponseBuilder<?, ?> of(HttpStatus status) {
     return new ValidationErrorResponseBuilderImpl().status(status);
   }
 

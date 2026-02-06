@@ -1,4 +1,4 @@
-package com.inlaco.crewmgrservice.domain.exception;
+package com.inlaco.crewmgrservice.application.exception;
 
 import lombok.Getter;
 import org.springframework.http.HttpMethod;

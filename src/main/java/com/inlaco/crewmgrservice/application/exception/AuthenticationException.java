@@ -1,4 +1,4 @@
-package com.inlaco.crewmgrservice.domain.exception;
+package com.inlaco.crewmgrservice.application.exception;
 
 public class AuthenticationException
     extends org.springframework.security.core.AuthenticationException {

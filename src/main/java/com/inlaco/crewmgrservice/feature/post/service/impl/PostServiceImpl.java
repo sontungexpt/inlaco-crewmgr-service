@@ -1,7 +1,7 @@
 package com.inlaco.crewmgrservice.feature.post.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.inlaco.crewmgrservice.domain.exception.ResourceNotFoundException;
+import com.inlaco.crewmgrservice.application.exception.ResourceNotFoundException;
 import com.inlaco.crewmgrservice.feature.post.enums.PostType;
 import com.inlaco.crewmgrservice.feature.post.model.Post;
 import com.inlaco.crewmgrservice.feature.post.repository.PostRepository;
