@@ -1,7 +1,7 @@
 package com.inlaco.crewmgrservice.feature.schedule.dto;
 
 import com.inlaco.crewmgrservice.feature.schedule.model.AssignedMobilization;
-import com.inlaco.crewmgrservice.infrastructure.web.payload.Filterable;
+import com.inlaco.crewmgrservice.infrastructure.web.payload.request.filter.Filterable;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

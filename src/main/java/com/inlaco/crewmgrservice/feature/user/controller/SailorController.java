@@ -9,7 +9,6 @@ import com.inlaco.crewmgrservice.infrastructure.config.openapi.OpenApiConfig;
 import com.inlaco.crewmgrservice.infrastructure.web.annotation.CurrentUser;
 import com.inlaco.crewmgrservice.infrastructure.web.annotation.PageableQueryParams;
 import com.inlaco.crewmgrservice.infrastructure.web.validation.annotation.ObjectId;
-import com.turkraft.springfilter.boot.Filter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -77,7 +76,7 @@ public class SailorController {
   @PageableQueryParams
   public Page<SailorProfile> searchSailors(
       @RequestParam String q,
-      @Filter Criteria filter,
+      Criteria filter,
       SailorFilterable filterable,
       @PageableDefault(page = 0, size = 20) Pageable pageable) {
     return sailorService.searchSailors(q, filter, pageable);

@@ -1,7 +1,7 @@
 package com.inlaco.crewmgrservice.infrastructure.web.resolver;
 
 import com.inlaco.crewmgrservice.infrastructure.web.annotation.FilterGroup;
-import com.inlaco.crewmgrservice.infrastructure.web.payload.Filterable;
+import com.inlaco.crewmgrservice.infrastructure.web.payload.request.filter.Filterable;
 import java.time.temporal.Temporal;
 import java.util.Collection;
 import java.util.List;

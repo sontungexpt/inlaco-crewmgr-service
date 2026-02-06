@@ -1,4 +1,4 @@
-package com.inlaco.crewmgrservice.infrastructure.web.payload;
+package com.inlaco.crewmgrservice.infrastructure.web.payload.request.filter;
 
 import java.lang.reflect.Field;
 import java.util.Collection;

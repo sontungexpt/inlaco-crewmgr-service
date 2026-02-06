@@ -1,4 +1,4 @@
-package com.inlaco.crewmgrservice.event;
+package com.inlaco.crewmgrservice.infrastructure.web.event;
 
 import com.inlaco.crewmgrservice.common.model.Sluggable;
 import com.inlaco.crewmgrservice.infrastructure.web.annotation.AutoSlugify;
@@ -16,7 +16,6 @@ import org.springframework.data.mongodb.core.mapping.event.BeforeConvertEvent;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
 
-@SuppressWarnings("rawtypes")
 @Component
 @RequiredArgsConstructor
 @Slf4j
