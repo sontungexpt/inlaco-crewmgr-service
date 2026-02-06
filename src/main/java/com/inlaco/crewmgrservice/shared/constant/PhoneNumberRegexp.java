@@ -1,4 +1,6 @@
-package com.inlaco.crewmgrservice.constant;
+package com.inlaco.crewmgrservice.shared.constant;
+
+import java.util.regex.Pattern;
 
 public enum PhoneNumberRegexp {
   // South East Asia
@@ -91,17 +93,19 @@ public enum PhoneNumberRegexp {
   ITU_T_E_164("^(\\+|00)?[1-9]\\d{1,14}$");
 
   private final String regexp;
+  private final Pattern pattern;
 
-  public final String getRegexp() {
+  public String getRegexp() {
     return regexp;
+  }
+
+  public Pattern getPattern() {
+    return pattern;
   }
 
   PhoneNumberRegexp(String regexp) {
     this.regexp = regexp;
-  }
-
-  public String getValue() {
-    return regexp;
+    this.pattern = Pattern.compile(regexp);
   }
 
   @Override
@@ -109,12 +113,18 @@ public enum PhoneNumberRegexp {
     return regexp;
   }
 
-  // Returns true if the phone number matches the regexps
-  public boolean isValid(String phoneNumber) {
-    return phoneNumber.matches(regexp);
+  public boolean isValid(CharSequence phoneNumber) {
+    if (phoneNumber == null) return false;
+    return pattern.matcher(phoneNumber).matches();
   }
 
-  public boolean isValid(CharSequence phoneNumber) {
-    return phoneNumber.toString().matches(regexp);
+  public static boolean isValidAny(String phoneNumber) {
+    if (phoneNumber == null) return false;
+    for (PhoneNumberRegexp r : values()) {
+      if (r.isValid(phoneNumber)) {
+        return true;
+      }
+    }
+    return false;
   }
 }

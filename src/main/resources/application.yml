@@ -27,7 +27,6 @@ httpsms:
   api-secret: ${HTTPSMS_SECRET_KEY}
 
 jwt:
-  # inlaco.JWT-secret-key
   secret-key: ${JWT_SECRET_KEY}
   access-token-expiration: 300000000 # 5 mins
   refresh-token-expiration: 2592000000 # 30 days
@@ -37,8 +36,6 @@ resend:
   domain: ${RESEND_DOMAIN}
 
 spring:
-  config:
-    import: optional:file:.env[.properties]
   application:
     name: "crewmgrservice"
   profiles:

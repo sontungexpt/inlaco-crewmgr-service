@@ -3,7 +3,7 @@ package com.inlaco.crewmgrservice.feature.course.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.inlaco.crewmgrservice.common.model.File;
-import com.inlaco.crewmgrservice.common.model.Sluggable;
+import com.inlaco.crewmgrservice.domain.model.Sluggable;
 import com.inlaco.crewmgrservice.infrastructure.web.annotation.AutoSlugify;
 import com.inlaco.crewmgrservice.infrastructure.web.payload.request.constraint.TimeFrame;
 import io.swagger.v3.oas.annotations.media.Schema;

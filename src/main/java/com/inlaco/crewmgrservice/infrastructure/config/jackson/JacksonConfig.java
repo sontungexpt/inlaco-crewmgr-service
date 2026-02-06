@@ -31,7 +31,6 @@ public class JacksonConfig {
     SimpleModule module = new SimpleModule();
     module.addSerializer(File.class, fileSerializer);
     module.addDeserializer(File.class, fileDeserializer);
-    mapper.registerModule(module);
 
     mapper
         .configOverride(String.class)
@@ -43,11 +42,10 @@ public class JacksonConfig {
     return mapper
         // .setSerializerProvider(sp)
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-
+        .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+        .registerModule(module)
         // https://stackoverflow.com/questions/45662820/how-to-set-format-of-string-for-java-time-instant-using-objectmapper
         .registerModule(new JavaTimeModule())
-        .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-
         // https://cassiomolin.com/programming/using-http-patch-in-spring/
         .registerModule(new JSR353Module());
   }

@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.utils;
 
-import com.inlaco.crewmgrservice.constant.PhoneNumberRegexp;
+import com.inlaco.crewmgrservice.shared.constant.PhoneNumberRegexp;
 import java.util.Arrays;
 
 public class PhoneNumberValidatorUtils {

@@ -15,8 +15,6 @@ public class JsonPatchUtils {
 
   private ObjectMapper DEFAULT_MAPPER = JacksonUtils.newMapper();
 
-  // private MongoTemplate mongoTemplate;
-  @SuppressWarnings("unchecked")
   public <E> E applyPatch(E origin, JsonNode patchRequest, String... ignoreFieldPaths) {
     ObjectMapper mapper = RawJsonConvertor.getMapper();
     try {
