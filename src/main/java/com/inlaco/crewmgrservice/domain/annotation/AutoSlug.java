@@ -1,4 +1,4 @@
-package com.inlaco.crewmgrservice.infrastructure.web.annotation;
+package com.inlaco.crewmgrservice.domain.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface AutoSlugify {
+public @interface AutoSlug {
 
   String[] fields();
 
@@ -15,7 +15,7 @@ public @interface AutoSlugify {
 
   boolean unique() default true;
 
-  Separator separator() default Separator.HYPHEN;
+  String separator() default "-";
 
   UpdateStrategy updateStrategy() default UpdateStrategy.ON_VALUE_CHANGE;
 
@@ -23,20 +23,5 @@ public @interface AutoSlugify {
     ON_DOCUMENT_SAVE,
     ON_VALUE_CHANGE,
     NEVER_UPDATE
-  }
-
-  enum Separator {
-    UNDERSCORE("_"),
-    HYPHEN("-");
-
-    private final String value;
-
-    Separator(String value) {
-      this.value = value;
-    }
-
-    public String getValue() {
-      return value;
-    }
   }
 }

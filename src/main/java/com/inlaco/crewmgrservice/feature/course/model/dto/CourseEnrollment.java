@@ -1,6 +1,8 @@
 package com.inlaco.crewmgrservice.feature.course.model.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.inlaco.crewmgrservice.common.model.File;
+import com.inlaco.crewmgrservice.domain.model.Sluggable;
 import com.inlaco.crewmgrservice.feature.course.model.Course;
 import com.inlaco.crewmgrservice.feature.course.model.CourseMember;
 import com.inlaco.crewmgrservice.feature.course.model.CourseMember.Status;
@@ -17,7 +19,7 @@ import org.springframework.lang.Nullable;
 @Data
 @SuperBuilder
 @NoArgsConstructor
-public class CourseEnrollment {
+public class CourseEnrollment implements Sluggable {
 
   private String id;
 
@@ -135,7 +137,7 @@ public class CourseEnrollment {
         CourseEnrollment.builder()
             .id(course.getId())
             .name(course.getName())
-            .slug(course.getSlug())
+            // .slug(course.getSlug())
             .limitStudent(course.getLimitStudent())
             .wallpaper(course.getWallpaper())
             .trainingProviderName(course.getTrainingProviderName())
@@ -162,5 +164,17 @@ public class CourseEnrollment {
       result.certificate = courseMemberTracking.getCertificate();
     }
     return result;
+  }
+
+  @JsonIgnore private boolean slugProcessor;
+
+  @Override
+  public boolean isSlugProcessed() {
+    return slugProcessor;
+  }
+
+  @Override
+  public void markSlugProcessed() {
+    slugProcessor = true;
   }
 }

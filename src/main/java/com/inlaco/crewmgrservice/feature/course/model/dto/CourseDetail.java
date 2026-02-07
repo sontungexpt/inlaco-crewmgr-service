@@ -5,8 +5,8 @@ import com.inlaco.crewmgrservice.feature.course.model.CourseMember;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 @Getter
 @Setter

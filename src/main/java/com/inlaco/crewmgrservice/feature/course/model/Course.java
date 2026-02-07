@@ -3,8 +3,7 @@ package com.inlaco.crewmgrservice.feature.course.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.inlaco.crewmgrservice.common.model.File;
-import com.inlaco.crewmgrservice.domain.model.Sluggable;
-import com.inlaco.crewmgrservice.infrastructure.web.annotation.AutoSlugify;
+import com.inlaco.crewmgrservice.domain.annotation.Slug;
 import com.inlaco.crewmgrservice.infrastructure.web.payload.request.constraint.TimeFrame;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
@@ -47,7 +46,8 @@ import org.springframework.util.StringUtils;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class Course implements Sluggable<String>, Serializable, TimeFrame {
+public class Course implements Serializable, TimeFrame {
+
   @Id
   @Schema(hidden = true)
   private String id;
@@ -91,7 +91,8 @@ public class Course implements Sluggable<String>, Serializable, TimeFrame {
     }
   }
 
-  @AutoSlugify(fields = "name")
+  // @AutoSlugify(fields = "name")
+  @Slug(fields = "name")
   @Schema(hidden = true)
   private String slug;
 

@@ -11,6 +11,7 @@ import com.fasterxml.jackson.datatype.jsr353.JSR353Module;
 import com.inlaco.crewmgrservice.common.model.File;
 import com.inlaco.crewmgrservice.infrastructure.serialization.deserializer.FileDeserializer;
 import com.inlaco.crewmgrservice.infrastructure.serialization.serializer.FileSerializer;
+import com.inlaco.crewmgrservice.infrastructure.serialization.serializer.slug.SluggableSerializer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,14 +24,22 @@ public class JacksonConfig {
   private final FileSerializer fileSerializer;
   private final FileDeserializer fileDeserializer;
 
+  private final SluggableSerializer slugableSerializer;
+
   @Bean
   @Primary
   public ObjectMapper objectMapper() {
     ObjectMapper mapper = new ObjectMapper();
 
-    SimpleModule module = new SimpleModule();
-    module.addSerializer(File.class, fileSerializer);
-    module.addDeserializer(File.class, fileDeserializer);
+    SimpleModule fileModule = new SimpleModule();
+    fileModule.addSerializer(File.class, fileSerializer);
+    fileModule.addDeserializer(File.class, fileDeserializer);
+    mapper.registerModule(fileModule);
+
+    // SimpleModule sluggableModule = new SimpleModule();
+    // // sluggableModule.setSerializerModifier(new SluggableBeanSerializerModifier());
+    // sluggableModule.addSerializer(Sluggable.class, slugableSerializer);
+    // mapper.registerModule(sluggableModule);
 
     mapper
         .configOverride(String.class)
@@ -43,7 +52,6 @@ public class JacksonConfig {
         // .setSerializerProvider(sp)
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-        .registerModule(module)
         // https://stackoverflow.com/questions/45662820/how-to-set-format-of-string-for-java-time-instant-using-objectmapper
         .registerModule(new JavaTimeModule())
         // https://cassiomolin.com/programming/using-http-patch-in-spring/

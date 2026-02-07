@@ -1,4 +1,4 @@
-package com.inlaco.crewmgrservice.init;
+package com.inlaco.crewmgrservice.infrastructure.bootstrap;
 
 import com.inlaco.crewmgrservice.feature.user.enums.UserStatus;
 import com.inlaco.crewmgrservice.feature.user.model.User;
@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor
-public class RoleInit implements CommandLineRunner {
+public class DataInitializer implements CommandLineRunner {
 
   @Value("${admin.username}")
   private String ADMIN_USERNAME;
@@ -30,32 +30,35 @@ public class RoleInit implements CommandLineRunner {
 
   @Override
   @Transactional
-  public void run(String... args) throws Exception {
-    List<String> roles = List.of("USER", "ADMIN", "SAILOR");
-
-    roles.forEach(
-        role -> {
-          if (!roleRepository.existsByName(role)) {
-            roleRepository.save(Role.builder().name(role).build());
-          }
-        });
-
-    initAdminAccount();
+  public void run(String... args) {
+    List<Role> roles = initRoles();
+    initAdmin(roles);
   }
 
-  public void initAdminAccount() {
-    User user = userRepository.findByUsername(ADMIN_USERNAME).orElse(null);
-    if (user == null) {
-      User admin =
-          User.builder()
-              .name("Admin")
-              .username(ADMIN_USERNAME)
-              .password(passwordEncoder.encode(ADMIN_PASSWORD))
-              .status(UserStatus.ACTIVE)
-              .right(new Right(roleRepository.findAll()))
-              .build();
+  private List<Role> initRoles() {
+    List<String> roleNames = List.of("USER", "ADMIN", "SAILOR");
+    roleNames.forEach(
+        name -> {
+          if (!roleRepository.existsByName(name)) {
+            roleRepository.save(Role.builder().name(name).build());
+          }
+        });
+    return roleRepository.findAll();
+  }
 
-      userRepository.save(admin);
+  private void initAdmin(List<Role> roles) {
+    if (userRepository.existsByUsername(ADMIN_USERNAME)) {
+      return;
     }
+    User admin =
+        User.builder()
+            .name("Admin")
+            .username(ADMIN_USERNAME)
+            .password(passwordEncoder.encode(ADMIN_PASSWORD))
+            .status(UserStatus.ACTIVE)
+            .right(new Right(roles))
+            .build();
+
+    userRepository.save(admin);
   }
 }

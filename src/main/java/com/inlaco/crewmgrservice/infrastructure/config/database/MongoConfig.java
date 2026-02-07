@@ -23,12 +23,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 @RequiredArgsConstructor
 @Slf4j
 public class MongoConfig {
+
   private final APIEndpointNameWritingConverter apiEndpointNameWritingConverter;
   private final APIEndpointNameStrReadingConverter apiEndpointNameReadingConverter;
   private final APIEndpointNameCodeReadingConverter apiEndpointNameCodeReadingConverter;
 
   @Bean
   public MongoCustomConversions customConversions() {
+
     return new MongoCustomConversions(
         List.of(
             apiEndpointNameWritingConverter,

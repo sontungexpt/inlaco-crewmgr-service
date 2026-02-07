@@ -51,6 +51,7 @@
     <resend.version>LATEST</resend.version>
     <springfilter.version>3.2.5</springfilter.version>
     <vonage.version>8.14.0</vonage.version>
+    <javaxjson.version>1.1.4</javaxjson.version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -184,13 +185,6 @@
     <!--   <version>${springfilter.version}</version> -->
     <!-- </dependency> -->
     <dependency>
-      <!-- Source: https://mvnrepository.com/artifact/com.github.java-json-tools/json-patch -->
-      <groupId>com.github.java-json-tools</groupId>
-      <artifactId>json-patch</artifactId>
-      <version>${json-patch.version}</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
       <groupId>org.springdoc</groupId>
       <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
       <version>${springdoc.version}</version>
@@ -205,10 +199,25 @@
       <artifactId>jnanoid</artifactId>
       <version>${jnanoid.version}</version>
     </dependency>
+    <!-- json patch -->
+    <dependency>
+      <!-- Source: https://mvnrepository.com/artifact/com.github.java-json-tools/json-patch -->
+      <groupId>com.github.java-json-tools</groupId>
+      <artifactId>json-patch</artifactId>
+      <version>${json-patch.version}</version>
+      <scope>compile</scope>
+    </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.datatype</groupId>
       <artifactId>jackson-datatype-jsr353</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.glassfish</groupId>
+      <artifactId>javax.json</artifactId>
+      <version>${javaxjson.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <!-- json patch -->
     <dependency>
       <groupId>io.jsonwebtoken</groupId>
       <artifactId>jjwt-api</artifactId>
