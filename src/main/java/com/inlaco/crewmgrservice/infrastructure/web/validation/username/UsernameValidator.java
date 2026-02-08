@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.infrastructure.web.validation.username;
 
-import com.inlaco.crewmgrservice.utils.PhoneNumberValidatorUtils;
+import com.inlaco.crewmgrservice.shared.constant.PhoneNumberRegexp;
 import jakarta.validation.ConstraintValidatorContext;
 import org.hibernate.validator.internal.constraintvalidators.AbstractEmailValidator;
 import org.springframework.stereotype.Component;
@@ -17,9 +17,8 @@ public class UsernameValidator extends AbstractEmailValidator<Username> {
           .addPropertyNode("username")
           .addConstraintViolation()
           .disableDefaultConstraintViolation();
-      ;
       return false;
-    } else if (PhoneNumberValidatorUtils.validate(value)) {
+    } else if (PhoneNumberRegexp.isValidAny(value)) {
       return true;
     } else if (isValidEmail(value, context)) {
       return true;

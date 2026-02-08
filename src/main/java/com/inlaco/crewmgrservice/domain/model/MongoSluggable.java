@@ -5,7 +5,7 @@ package com.inlaco.crewmgrservice.domain.model;
  * implements this interface, the {@link SluggableModelListener} will automatically generate a slug
  * for the object based on the fields annotated with {@link AutoSlugify}.
  */
-public interface MongoSluggable<ID> extends Sluggable {
+public interface MongoSluggable<ID> {
 
   ID getId();
 }

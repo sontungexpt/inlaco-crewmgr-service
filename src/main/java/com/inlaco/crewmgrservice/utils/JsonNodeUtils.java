@@ -68,7 +68,6 @@ public final class JsonNodeUtils {
     return node;
   }
 
-  @SuppressWarnings("unchecked")
   private static <V> void removeRecursive(ObjectNode node, Map<String, V> tree) {
     for (Map.Entry<String, V> entry : tree.entrySet()) {
       String field = entry.getKey();

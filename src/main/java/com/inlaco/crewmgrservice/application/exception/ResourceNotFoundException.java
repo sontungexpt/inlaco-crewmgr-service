@@ -5,7 +5,7 @@ import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
-public class ResourceNotFoundException extends ApplicationExceptionException {
+public class ResourceNotFoundException extends ApplicationException {
 
   private Map<String, Object> criteria;
 

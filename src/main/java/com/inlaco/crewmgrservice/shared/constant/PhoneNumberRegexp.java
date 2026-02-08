@@ -118,7 +118,7 @@ public enum PhoneNumberRegexp {
     return pattern.matcher(phoneNumber).matches();
   }
 
-  public static boolean isValidAny(String phoneNumber) {
+  public static boolean isValidAny(CharSequence phoneNumber) {
     if (phoneNumber == null) return false;
     for (PhoneNumberRegexp r : values()) {
       if (r.isValid(phoneNumber)) {

@@ -6,7 +6,7 @@ import com.inlaco.crewmgrservice.infrastructure.web.payload.request.constraint.I
 import com.inlaco.crewmgrservice.infrastructure.web.validation.annotation.OptimizedName;
 import com.inlaco.crewmgrservice.infrastructure.web.validation.password.Password;
 import com.inlaco.crewmgrservice.infrastructure.web.validation.username.Username;
-import com.inlaco.crewmgrservice.utils.PhoneNumberValidatorUtils;
+import com.inlaco.crewmgrservice.shared.constant.PhoneNumberRegexp;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serializable;
 import lombok.Getter;
@@ -26,7 +26,7 @@ public class RegistrationRequest implements Serializable, IMatchPassword {
 
   @Schema(hidden = true)
   public UsernameType getUsernameType() {
-    if (PhoneNumberValidatorUtils.isPotentialPhoneNumber(username)) {
+    if (PhoneNumberRegexp.ITU_T_E_164.isValid(username)) {
       return UsernameType.PHONE_NUMBER;
     } else {
       return UsernameType.EMAIL;

@@ -1,4 +1,4 @@
-package com.inlaco.crewmgrservice.infrastructure.bootstrap;
+package com.inlaco.crewmgrservice.bootstrap;
 
 import com.inlaco.crewmgrservice.feature.user.enums.UserStatus;
 import com.inlaco.crewmgrservice.feature.user.model.User;

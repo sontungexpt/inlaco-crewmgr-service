@@ -5,7 +5,7 @@ import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
-public class ResourceDeleteFailedException extends ApplicationExceptionException {
+public class ResourceDeleteFailedException extends ApplicationException {
 
   private Map<String, Object> reasons;
 

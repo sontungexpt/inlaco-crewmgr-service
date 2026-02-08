@@ -1,7 +1,7 @@
 package com.inlaco.crewmgrservice.feature.course.model.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.inlaco.crewmgrservice.common.model.File;
+import com.inlaco.crewmgrservice.domain.annotation.Slug;
 import com.inlaco.crewmgrservice.domain.model.Sluggable;
 import com.inlaco.crewmgrservice.feature.course.model.Course;
 import com.inlaco.crewmgrservice.feature.course.model.CourseMember;
@@ -47,6 +47,7 @@ public class CourseEnrollment implements Sluggable {
   private boolean certified;
 
   @Schema(hidden = true)
+  @Slug(fields = "name")
   private String slug;
 
   @Min(1)
@@ -164,17 +165,5 @@ public class CourseEnrollment implements Sluggable {
       result.certificate = courseMemberTracking.getCertificate();
     }
     return result;
-  }
-
-  @JsonIgnore private boolean slugProcessor;
-
-  @Override
-  public boolean isSlugProcessed() {
-    return slugProcessor;
-  }
-
-  @Override
-  public void markSlugProcessed() {
-    slugProcessor = true;
   }
 }

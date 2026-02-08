@@ -1,4 +1,4 @@
-package com.inlaco.crewmgrservice.shared.slug;
+package com.inlaco.crewmgrservice.shared.slug.domain;
 
 import java.lang.reflect.Field;
 import java.util.List;

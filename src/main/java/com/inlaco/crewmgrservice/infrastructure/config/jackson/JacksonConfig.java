@@ -11,7 +11,7 @@ import com.fasterxml.jackson.datatype.jsr353.JSR353Module;
 import com.inlaco.crewmgrservice.common.model.File;
 import com.inlaco.crewmgrservice.infrastructure.serialization.deserializer.FileDeserializer;
 import com.inlaco.crewmgrservice.infrastructure.serialization.serializer.FileSerializer;
-import com.inlaco.crewmgrservice.infrastructure.serialization.serializer.slug.SluggableSerializer;
+import com.inlaco.crewmgrservice.infrastructure.serialization.serializer.slug.SluggableBeanSerializerModifier;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,7 +24,7 @@ public class JacksonConfig {
   private final FileSerializer fileSerializer;
   private final FileDeserializer fileDeserializer;
 
-  private final SluggableSerializer slugableSerializer;
+  private final SluggableBeanSerializerModifier sluggableBeanSerializerModifier;
 
   @Bean
   @Primary
@@ -36,10 +36,9 @@ public class JacksonConfig {
     fileModule.addDeserializer(File.class, fileDeserializer);
     mapper.registerModule(fileModule);
 
-    // SimpleModule sluggableModule = new SimpleModule();
-    // // sluggableModule.setSerializerModifier(new SluggableBeanSerializerModifier());
-    // sluggableModule.addSerializer(Sluggable.class, slugableSerializer);
-    // mapper.registerModule(sluggableModule);
+    SimpleModule sluggableModule = new SimpleModule();
+    sluggableModule.setSerializerModifier(sluggableBeanSerializerModifier);
+    mapper.registerModule(sluggableModule);
 
     mapper
         .configOverride(String.class)

@@ -1,7 +1,7 @@
 package com.inlaco.crewmgrservice.infrastructure.serialization.serializer.slug;
 
 import com.inlaco.crewmgrservice.domain.annotation.Slug;
-import com.inlaco.crewmgrservice.shared.slug.SlugDefinition;
+import com.inlaco.crewmgrservice.shared.slug.domain.SlugDefinition;
 import java.lang.reflect.Field;
 import org.springframework.stereotype.Component;
 

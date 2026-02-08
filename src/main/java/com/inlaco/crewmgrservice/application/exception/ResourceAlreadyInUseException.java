@@ -5,7 +5,7 @@ import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
-public class ResourceAlreadyInUseException extends ApplicationExceptionException {
+public class ResourceAlreadyInUseException extends ApplicationException {
 
   private Map<String, Object> conflictFields;
 

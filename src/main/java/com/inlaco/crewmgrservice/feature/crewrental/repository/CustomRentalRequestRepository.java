@@ -8,8 +8,8 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.sort
 import com.inlaco.crewmgrservice.common.model.FacetResult;
 import com.inlaco.crewmgrservice.feature.crewrental.dto.RentalRequestFilterable;
 import com.inlaco.crewmgrservice.feature.crewrental.model.RentalRequest;
+import com.inlaco.crewmgrservice.shared.constant.PhoneNumberRegexp;
 import com.inlaco.crewmgrservice.utils.PageableUtils;
-import com.inlaco.crewmgrservice.utils.PhoneNumberValidatorUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +40,7 @@ public class CustomRentalRequestRepository {
   public Page<RentalRequest> searchRequests(
       String keyword, RentalRequestFilterable filter, Pageable p) {
     List<Criteria> criteriaList = new ArrayList<>();
-    if (PhoneNumberValidatorUtils.isPotentialPhoneNumber(keyword)) {
+    if (PhoneNumberRegexp.ITU_T_E_164.isValid(keyword)) {
       criteriaList.add(Criteria.where("companyPhone").regex(keyword, "i"));
     }
     criteriaList.add(Criteria.where("companyEmail").regex(keyword, "i"));
@@ -64,10 +64,9 @@ public class CustomRentalRequestRepository {
     Criteria criteria = new Criteria();
     String keyword = filter.getKeyword();
     if (keyword != null) {
-      if (PhoneNumberValidatorUtils.isPotentialPhoneNumber(keyword)) {
+      if (PhoneNumberRegexp.ITU_T_E_164.isValid(keyword)) {
         criteria.andOperator(Criteria.where("companyPhone").regex(keyword, "i"));
       }
-
       criteria.andOperator(
           Criteria.where("companyEmail").regex(keyword, "i"),
           Criteria.where("companyName").regex(keyword, "i"),

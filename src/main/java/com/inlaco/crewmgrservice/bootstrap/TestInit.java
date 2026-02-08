@@ -1,4 +1,4 @@
-package com.inlaco.crewmgrservice.infrastructure.bootstrap;
+package com.inlaco.crewmgrservice.bootstrap;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
