@@ -1,7 +1,7 @@
 package com.inlaco.crewmgrservice.feature.user.service;
 
-import com.inlaco.crewmgrservice.feature.auth.dto.JwtResponse;
-import com.inlaco.crewmgrservice.feature.auth.dto.NewPasswordRequest;
+import com.inlaco.crewmgrservice.feature.auth.presentation.dto.request.NewPasswordRequest;
+import com.inlaco.crewmgrservice.feature.auth.presentation.dto.response.AuthTokenResponse;
 import com.inlaco.crewmgrservice.feature.user.dto.UserProfile;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 
@@ -21,7 +21,7 @@ public interface UserService {
 
   User updateToSailor(String userId);
 
-  JwtResponse changePassword(String refreshToken, NewPasswordRequest newPasswordRequest);
+  AuthTokenResponse changePassword(String refreshToken, NewPasswordRequest newPasswordRequest);
 
   UserProfile getUserProfile(User currentUser);
 }

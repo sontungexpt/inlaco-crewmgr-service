@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
  *
  * <p>{@link SecurityConfig}
  *
- * <p>{@link LazyJwtAuthTokenFilter}
+ * <p>{@link JwtAuthenticationFilter}
  */
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)

@@ -1,0 +1,22 @@
+package com.inlaco.crewmgrservice.feature.post.application.port.in;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.inlaco.crewmgrservice.feature.post.domain.model.Post;
+import com.inlaco.crewmgrservice.feature.post.presentation.dto.enums.PostType;
+import com.inlaco.crewmgrservice.feature.user.model.User;
+import org.jspecify.annotations.Nullable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
+public interface PostUseCase {
+
+  Post createPost(Post post, User user);
+
+  Post updatePost(String postId, JsonNode patch, User user);
+
+  void deletePost(String postId, User user);
+
+  Post getPost(String postId);
+
+  Page<Post> getPagePosts(Pageable pageable, @Nullable PostType type);
+}

@@ -2,8 +2,8 @@ package com.inlaco.crewmgrservice.feature.user.controller;
 
 import com.inlaco.crewmgrservice.endpoint.APIEndpointMap;
 import com.inlaco.crewmgrservice.endpoint.APIEndpointName;
-import com.inlaco.crewmgrservice.feature.auth.dto.JwtResponse;
-import com.inlaco.crewmgrservice.feature.auth.dto.NewPasswordRequest;
+import com.inlaco.crewmgrservice.feature.auth.presentation.dto.request.NewPasswordRequest;
+import com.inlaco.crewmgrservice.feature.auth.presentation.dto.response.AuthTokenResponse;
 import com.inlaco.crewmgrservice.feature.user.dto.UserProfile;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import com.inlaco.crewmgrservice.feature.user.service.UserService;
@@ -38,7 +38,7 @@ public class UserController {
       name = APIEndpointName.USER_CHANGE_PASSWORD,
       displayName = "Change password",
       description = "Change the password for an account")
-  public JwtResponse changePassword(
+  public AuthTokenResponse changePassword(
       @BearerToken String refreshToken, @Valid @RequestBody NewPasswordRequest newPasswordRequest) {
     return userService.changePassword(refreshToken, newPasswordRequest);
   }

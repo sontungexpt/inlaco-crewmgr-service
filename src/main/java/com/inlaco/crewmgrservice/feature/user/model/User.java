@@ -10,9 +10,9 @@ import com.inlaco.crewmgrservice.feature.user.model.state.job.CircleJobStateCont
 import com.inlaco.crewmgrservice.infrastructure.web.validation.annotation.OptimizedName;
 import com.inlaco.crewmgrservice.infrastructure.web.validation.password.Password;
 import com.inlaco.crewmgrservice.infrastructure.web.validation.username.Username;
+import com.inlaco.crewmgrservice.shared.constant.PhoneNumberRegexp;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
-import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
 import lombok.Builder.Default;
 import lombok.Getter;
@@ -62,9 +62,13 @@ public class User implements /* UserDetails, */ Persistable<String> {
   @Schema(description = "The avatar of the account")
   private String avatar;
 
-  @NotNull
-  @Schema(description = "The type of the username", requiredMode = RequiredMode.REQUIRED)
-  private UsernameType usernameType;
+  public UsernameType getUsernameType() {
+    if (PhoneNumberRegexp.isValidAny(username)) {
+      return UsernameType.PHONE_NUMBER;
+    } else {
+      return UsernameType.EMAIL;
+    }
+  }
 
   @JsonIgnore
   @Password
@@ -133,7 +137,6 @@ public class User implements /* UserDetails, */ Persistable<String> {
     this.id = user.getId();
     this.pubId = user.getPubId();
     this.username = user.getUsername();
-    this.usernameType = user.getUsernameType();
     this.password = user.getPassword();
     this.name = user.getName();
     this.jobState = user.getJobState();

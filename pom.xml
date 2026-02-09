@@ -52,6 +52,7 @@
     <springfilter.version>3.2.5</springfilter.version>
     <vonage.version>8.14.0</vonage.version>
     <javaxjson.version>1.1.4</javaxjson.version>
+    <org.mapstruct.version>1.6.3</org.mapstruct.version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -140,6 +141,18 @@
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
       <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <!-- https://mvnrepository.com/artifact/org.mapstruct/mapstruct-processor -->
+      <groupId>org.mapstruct</groupId>
+      <artifactId>mapstruct-processor</artifactId>
+      <version>${org.mapstruct.version}</version>
+    </dependency>
+    <dependency>
+      <!-- https://mvnrepository.com/artifact/org.mapstruct/mapstruct -->
+      <groupId>org.mapstruct</groupId>
+      <artifactId>mapstruct</artifactId>
+      <version>${org.mapstruct.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -283,13 +296,13 @@
           <configuration>
             <annotationProcessorPaths>
               <path>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+              </path>
+              <path>
                 <groupId>com.github.therapi</groupId>
                 <artifactId>therapi-runtime-javadoc-scribe</artifactId>
                 <version>${therapi.version}</version>
-              </path>
-              <path>
-                <groupId>org.projectlombok</groupId>
-                <artifactId>lombok</artifactId>
               </path>
             </annotationProcessorPaths>
             <args>

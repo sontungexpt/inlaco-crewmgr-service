@@ -1,7 +1,6 @@
 package com.inlaco.crewmgrservice.infrastructure.config.security;
 
-import com.inlaco.crewmgrservice.infrastructure.security.jwt.entrypoint.AuthEntryPointJwt;
-import com.inlaco.crewmgrservice.infrastructure.security.jwt.filter.LazyJwtAuthTokenFilter;
+import com.inlaco.crewmgrservice.infrastructure.security.jwt.filter.JwtAuthenticationFilter;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,6 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -17,6 +17,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
@@ -33,23 +34,9 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-  private final UserDetailsService userDetailsService;
-
   @Bean
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
-  }
-
-  public DaoAuthenticationProvider authenticationProvider() {
-    DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService);
-    authProvider.setPasswordEncoder(passwordEncoder());
-    return authProvider;
-  }
-
-  @Bean
-  public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig)
-      throws Exception {
-    return authConfig.getAuthenticationManager();
   }
 
   // @Bean
@@ -57,9 +44,88 @@ public class SecurityConfig {
   //     throws Exception {
   //   return new ProviderManager(providers);
   // }
+  @Bean
+  public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig)
+      throws Exception {
+    return authConfig.getAuthenticationManager();
+  }
+
+  // Request
+  //  ↓
+  // LazyJwtAuthTokenFilter
+  //   ├─ Have JWT → authenticate
+  //   └─ No JWT → skip
+  //  ↓
+  // AuthorizationFilter
+  //  ↓
+  // ApiEndpointAuthorizationManager
+  //   ├─ PUBLIC → allow
+  //   ├─ OPTIONAL JWT → allow
+  //   └─ AUTH → require Authentication
+  //  ↓
+  // Controller
 
   @Bean
-  public CorsConfigurationSource corsApiConfigurationSource() {
+  public SecurityFilterChain securityFilterChain(
+      HttpSecurity http,
+      JwtAuthenticationFilter lazyJwtAuthTokenFilter,
+      AuthorizationManager authzManager,
+      AuthenticationEntryPoint authenticationEntryPoint,
+      LogoutSuccessHandler logoutSuccessHandler,
+      PasswordEncoder passwordEncoder,
+      UserDetailsService userDetailsService,
+      LogoutHandler logoutHandler)
+      throws Exception {
+
+    http.cors(cors -> cors.configurationSource(corsApiConfigurationSource()))
+        .csrf(
+            customizer -> {
+              customizer.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
+              customizer.ignoringRequestMatchers("/**", "/actuator/**");
+            })
+
+        // exception handling
+        .exceptionHandling(
+            exception -> exception.authenticationEntryPoint(authenticationEntryPoint))
+
+        // session management
+        .sessionManagement(
+            session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+        // authorize
+        .authorizeHttpRequests(
+            auth -> {
+              auth.anyRequest().access(authzManager);
+              // PUBLIC ENDPOINTS (NO JWT)
+              // for (HttpMethod method : HttpMethod.values()) {
+              //   String[] paths = endpointInspector.getPublicSecurityPaths(method);
+              //   if (paths.length > 0) {
+              //     auth.requestMatchers(method, paths).permitAll();
+              //   }
+              // }
+              // auth.anyRequest().authenticated();
+            })
+        .authenticationProvider(authenticationProvider(passwordEncoder, userDetailsService))
+        .addFilterBefore(lazyJwtAuthTokenFilter, UsernamePasswordAuthenticationFilter.class)
+        // authorize by endpoints
+        .logout(
+            logout ->
+                logout
+                    .logoutUrl("/api/v1/auth/logout")
+                    .addLogoutHandler(logoutHandler)
+                    .logoutSuccessHandler(logoutSuccessHandler));
+
+    return http.build();
+  }
+
+  private DaoAuthenticationProvider authenticationProvider(
+      PasswordEncoder passwordEncoder, UserDetailsService userDetailsService) {
+    DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService);
+    authProvider.setPasswordEncoder(passwordEncoder);
+    return authProvider;
+  }
+
+  private CorsConfigurationSource corsApiConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
     // configuration.addAllowedOriginPattern("http://localhost:*");
     // configuration.addAllowedOriginPattern("*.ngrok-free.app");
@@ -99,70 +165,5 @@ public class SecurityConfig {
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", configuration);
     return source;
-  }
-
-  // Request
-  //  ↓
-  // LazyJwtAuthTokenFilter
-  //   ├─ Have JWT → authenticate
-  //   └─ No JWT → skip
-  //  ↓
-  // AuthorizationFilter
-  //  ↓
-  // ApiEndpointAuthorizationManager
-  //   ├─ PUBLIC → allow
-  //   ├─ OPTIONAL JWT → allow
-  //   └─ AUTH → require Authentication
-  //  ↓
-  // Controller
-
-  @Bean
-  public SecurityFilterChain securityFilterChain(
-      HttpSecurity http,
-      LazyJwtAuthTokenFilter lazyJwtAuthTokenFilter,
-      ApiEndpointAuthorizationManager authzManager,
-      AuthEntryPointJwt unauthorizedHandler,
-      LogoutSuccessHandler logoutSuccessHandler,
-      LogoutHandler logoutHandler)
-      throws Exception {
-
-    http.cors(cors -> cors.configurationSource(corsApiConfigurationSource()))
-        .csrf(
-            customizer -> {
-              customizer.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
-              customizer.ignoringRequestMatchers("/**", "/actuator/**");
-            })
-
-        // exception handling
-        .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
-
-        // session management
-        .sessionManagement(
-            session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
-        // authorize
-        .authorizeHttpRequests(
-            auth -> {
-              auth.anyRequest().access(authzManager);
-              // PUBLIC ENDPOINTS (NO JWT)
-              // for (HttpMethod method : HttpMethod.values()) {
-              //   String[] paths = endpointInspector.getPublicSecurityPaths(method);
-              //   if (paths.length > 0) {
-              //     auth.requestMatchers(method, paths).permitAll();
-              //   }
-              // }
-              // auth.anyRequest().authenticated();
-            })
-        .authenticationProvider(authenticationProvider())
-        .addFilterBefore(lazyJwtAuthTokenFilter, UsernamePasswordAuthenticationFilter.class)
-        // authorize by endpoints
-        .logout(
-            logout ->
-                logout
-                    .logoutUrl("/api/v1/auth/logout")
-                    .addLogoutHandler(logoutHandler)
-                    .logoutSuccessHandler(logoutSuccessHandler));
-
-    return http.build();
   }
 }

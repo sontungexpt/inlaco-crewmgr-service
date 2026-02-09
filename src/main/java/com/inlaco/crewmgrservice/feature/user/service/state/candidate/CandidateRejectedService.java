@@ -3,8 +3,8 @@ package com.inlaco.crewmgrservice.feature.user.service.state.candidate;
 import com.inlaco.crewmgrservice.feature.notify.NotificationFactory;
 import com.inlaco.crewmgrservice.feature.notify.NotificationType;
 import com.inlaco.crewmgrservice.feature.notify.mail.EmailRequest;
-import com.inlaco.crewmgrservice.feature.post.model.RecruitmentPost;
-import com.inlaco.crewmgrservice.feature.post.service.PostService;
+import com.inlaco.crewmgrservice.feature.post.application.port.in.PostUseCase;
+import com.inlaco.crewmgrservice.feature.post.domain.model.RecruitmentPost;
 import com.inlaco.crewmgrservice.feature.user.model.CandidateProfile;
 import com.inlaco.crewmgrservice.feature.user.model.CandidateProfile.Status;
 import com.inlaco.crewmgrservice.feature.user.model.User;
@@ -26,7 +26,7 @@ public class CandidateRejectedService extends CandidateReviewStragegy {
   public CandidateRejectedService(
       CandidateProfileRepository candidateProfileRepository,
       NotificationFactory notificationFactory,
-      PostService postService,
+      PostUseCase postService,
       UserService userService) {
     super(candidateProfileRepository, notificationFactory, postService, userService);
   }

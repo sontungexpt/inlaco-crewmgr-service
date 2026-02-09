@@ -1,12 +1,12 @@
 package com.inlaco.crewmgrservice.feature.contract.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.inlaco.crewmgrservice.feature.contract.dto.ContractFilterable;
 import com.inlaco.crewmgrservice.feature.contract.model.AbstractContract;
 import com.inlaco.crewmgrservice.feature.contract.model.Contract;
 import com.inlaco.crewmgrservice.feature.contract.model.ContractVersion;
 import com.inlaco.crewmgrservice.feature.contract.model.LaborContract;
 import com.inlaco.crewmgrservice.feature.contract.model.SupplyContract;
+import com.inlaco.crewmgrservice.feature.contract.presentation.dto.ContractFilterable;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

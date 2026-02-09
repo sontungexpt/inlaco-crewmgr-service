@@ -14,8 +14,8 @@ import com.inlaco.crewmgrservice.feature.course.repository.CourseMemberRepositor
 import com.inlaco.crewmgrservice.feature.course.repository.CourseRepository;
 import com.inlaco.crewmgrservice.feature.course.repository.CustomCourseRepository;
 import com.inlaco.crewmgrservice.feature.course.service.CourseService;
-import com.inlaco.crewmgrservice.feature.upload.enums.UploadStrategy;
-import com.inlaco.crewmgrservice.feature.upload.service.UploadFactory;
+import com.inlaco.crewmgrservice.feature.upload.application.enums.UploadStrategy;
+import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadFactory;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import com.inlaco.crewmgrservice.utils.JsonMergePatchUtils;
 import java.util.List;

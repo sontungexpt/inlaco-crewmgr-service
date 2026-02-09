@@ -1,10 +1,9 @@
 package com.inlaco.crewmgrservice.feature.user.service.impl;
 
 import com.inlaco.crewmgrservice.application.exception.ResourceNotFoundException;
-import com.inlaco.crewmgrservice.feature.auth.dto.JwtResponse;
-import com.inlaco.crewmgrservice.feature.auth.dto.NewPasswordRequest;
-import com.inlaco.crewmgrservice.feature.auth.model.RefreshToken;
-import com.inlaco.crewmgrservice.feature.auth.service.RefreshTokenService;
+import com.inlaco.crewmgrservice.feature.auth.application.port.in.RefreshTokenManager;
+import com.inlaco.crewmgrservice.feature.auth.presentation.dto.request.NewPasswordRequest;
+import com.inlaco.crewmgrservice.feature.auth.presentation.dto.response.AuthTokenResponse;
 import com.inlaco.crewmgrservice.feature.user.dto.UserProfile;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import com.inlaco.crewmgrservice.feature.user.model.authorization.Role;
@@ -18,7 +17,7 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 public record UserServiceImpl(
-    RefreshTokenService refreshTokenService,
+    RefreshTokenManager refreshTokenService,
     UserRepository userRepository,
     RoleRepository roleRepository,
     PasswordEncoder passwordEncoder)
@@ -51,25 +50,21 @@ public record UserServiceImpl(
   }
 
   @Override
-  public JwtResponse changePassword(String refreshToken, NewPasswordRequest newPasswordRequest) {
-    RefreshToken savedRefreshToken =
-        refreshTokenService.getAndValidateRefreshToken(refreshToken, this::handleInstruction);
-    User user = findUserByPubId(savedRefreshToken.getUserPubId());
-    if (!passwordEncoder.matches(newPasswordRequest.getOldPassword(), user.getPassword())) {
-      throw new IllegalArgumentException("Old password is incorrect");
-    }
+  public AuthTokenResponse changePassword(
+      String refreshToken, NewPasswordRequest newPasswordRequest) {
+    throw new UnsupportedOperationException("Unimplemented method 'changePassword'");
+    // RefreshToken savedRefreshToken =
+    //     refreshTokenService.getAndValidateRefreshToken(refreshToken, this::handleInstruction);
+    // User user = findUserByPubId(savedRefreshToken.getUserPubId());
+    // if (!passwordEncoder.matches(newPasswordRequest.oldPassword(), user.getPassword())) {
+    //   throw new IllegalArgumentException("Old password is incorrect");
+    // }
 
-    user.setPassword(passwordEncoder.encode(newPasswordRequest.getNewPassword()));
-    userRepository.save(user);
+    // user.setPassword(passwordEncoder.encode(newPasswordRequest.newPassword()));
+    // userRepository.save(user);
 
-    // userDetailsPasswordService.updatePassword(user, newPasswordRequest.getNewPassword());
-    return refreshTokenService.refreshJwtTokens(savedRefreshToken);
-  }
-
-  public void handleInstruction(RefreshToken refreshToken) {
-    System.out.println("Change the password for an account");
-    System.out.println(
-        "Change the password for an account\n\n**Usecase**:\n- UC_account-doi-mat-khau\n\n");
+    // // userDetailsPasswordService.updatePassword(user, newPasswordRequest.getNewPassword());
+    // return refreshTokenService.refreshJwtTokens(savedRefreshToken);
   }
 
   @Override

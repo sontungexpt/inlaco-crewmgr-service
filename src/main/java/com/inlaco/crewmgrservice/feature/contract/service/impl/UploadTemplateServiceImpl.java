@@ -1,10 +1,10 @@
 package com.inlaco.crewmgrservice.feature.contract.service.impl;
 
-import com.inlaco.crewmgrservice.feature.upload.enums.UploadStrategy;
-import com.inlaco.crewmgrservice.feature.upload.model.CloudinarySignParams;
-import com.inlaco.crewmgrservice.feature.upload.service.CloudinaryService;
-import com.inlaco.crewmgrservice.feature.upload.service.UploadServiceStrategy;
-import com.inlaco.crewmgrservice.feature.upload.service.impl.DefaultUploadMetadataService;
+import com.inlaco.crewmgrservice.feature.upload.application.enums.UploadStrategy;
+import com.inlaco.crewmgrservice.feature.upload.application.port.in.CloudinaryService;
+import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadServiceStrategy;
+import com.inlaco.crewmgrservice.feature.upload.application.service.DefaultUploadMetadataService;
+import com.inlaco.crewmgrservice.feature.upload.domain.model.CloudinarySignParams;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

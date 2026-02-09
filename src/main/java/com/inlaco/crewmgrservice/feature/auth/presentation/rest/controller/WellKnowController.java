@@ -1,0 +1,29 @@
+package com.inlaco.crewmgrservice.feature.auth.presentation.rest.controller;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.inlaco.crewmgrservice.endpoint.APIEndpointMapSkip;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/.well-known")
+@Slf4j
+public class WellKnowController {
+
+  @GetMapping("/assetlinks.json")
+  @APIEndpointMapSkip
+  public Object assetlinks() {
+    try {
+      String json =
+          Files.readString(Paths.get("src/main/resources/static/.well-known/assetlinks.json"));
+      return new ObjectMapper().readValue(json, Object.class);
+    } catch (Exception e) {
+      log.error("Error when create assetlinks", e);
+      throw new RuntimeException("Error when create assetlinks");
+    }
+  }
+}

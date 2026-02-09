@@ -26,10 +26,12 @@ httpsms:
   sender: ${HTTPSMS_SENDER}
   api-secret: ${HTTPSMS_SECRET_KEY}
 
-jwt:
-  secret-key: ${JWT_SECRET_KEY}
-  access-token-expiration: 300000000 # 5 mins
-  refresh-token-expiration: 2592000000 # 30 days
+auth:
+  access-token:
+    secret-key: ${JWT_SECRET_KEY}
+    expiration: 300000000 # 5 mins
+  refresh-token:
+    expiration: 2592000000 # 30 days
 
 resend:
   api-key: ${RESEND_API_KEY}

@@ -3,6 +3,7 @@ package com.inlaco.crewmgrservice.infrastructure.config.database;
 import com.inlaco.crewmgrservice.endpoint.APIEndpointNameCodeReadingConverter;
 import com.inlaco.crewmgrservice.endpoint.APIEndpointNameStrReadingConverter;
 import com.inlaco.crewmgrservice.endpoint.APIEndpointNameWritingConverter;
+import com.inlaco.crewmgrservice.feature.user.model.SecurityUser;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import java.util.List;
 import java.util.Optional;
@@ -18,10 +19,10 @@ import org.springframework.data.mongodb.core.convert.MongoCustomConversions;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+@Slf4j
 @Configuration
 @EnableMongoAuditing
 @RequiredArgsConstructor
-@Slf4j
 public class MongoConfig {
 
   private final APIEndpointNameWritingConverter apiEndpointNameWritingConverter;
@@ -59,6 +60,8 @@ public class MongoConfig {
   private Optional<User> getCurrentUser() {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     if (auth == null || !auth.isAuthenticated()) return Optional.empty();
-    return auth.getPrincipal() instanceof User u ? Optional.of(u) : Optional.empty();
+    return auth.getPrincipal() instanceof SecurityUser su
+        ? Optional.of(su.getUser())
+        : Optional.empty();
   }
 }
