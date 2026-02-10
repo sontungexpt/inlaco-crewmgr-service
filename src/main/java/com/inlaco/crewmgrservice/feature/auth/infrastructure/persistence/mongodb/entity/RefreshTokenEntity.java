@@ -12,9 +12,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @Document(collection = "refresh_tokens")
-public class RefreshTokenEntity implements Persistable<ObjectId> {
+public class RefreshTokenEntity implements Persistable<String> {
 
-  @Id private ObjectId id;
+  @Id private String id;
 
   private ObjectId userId;
 

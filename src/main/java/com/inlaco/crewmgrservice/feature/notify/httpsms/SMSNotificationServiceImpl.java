@@ -1,7 +1,7 @@
 package com.inlaco.crewmgrservice.feature.notify.httpsms;
 
+import com.inlaco.crewmgrservice.feature.notify.NotificationPolicy;
 import com.inlaco.crewmgrservice.feature.notify.NotificationService;
-import com.inlaco.crewmgrservice.feature.notify.NotificationType;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @RequiredArgsConstructor
-@Service(NotificationType.SMS)
+@Service
 public class SMSNotificationServiceImpl implements NotificationService<SMSRequest> {
 
   @Value("${httpsms.api-key}")
@@ -24,6 +24,11 @@ public class SMSNotificationServiceImpl implements NotificationService<SMSReques
   private String sender;
 
   private String POST_URL = "https://api.httpsms.com/v1/messages/send";
+
+  @Override
+  public NotificationPolicy getPolicy() {
+    return NotificationPolicy.SMS;
+  }
 
   private String getRequestBody(SMSRequest request) {
 

@@ -33,7 +33,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "User model", name = "User")
 @Document(collection = "users")
-public class User implements /* UserDetails, */ Persistable<String> {
+public class User implements Persistable<String> {
   @JsonIgnore @Id private String id;
 
   // Why we need this?

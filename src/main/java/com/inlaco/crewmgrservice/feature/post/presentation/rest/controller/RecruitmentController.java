@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.feature.post.presentation.rest.controller;
 
-import com.inlaco.crewmgrservice.feature.post.application.port.in.RecruitmentPostService;
+import com.inlaco.crewmgrservice.feature.post.application.port.in.RecruitmentPostUseCase;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import com.inlaco.crewmgrservice.infrastructure.web.annotation.CurrentUser;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Recruitments", description = "A collection endpoints to work with recruitments")
 public class RecruitmentController {
 
-  private final RecruitmentPostService recruitmentPostService;
+  private final RecruitmentPostUseCase recruitmentPostService;
 
   @PostMapping("/registration-status/{id}")
   @ResponseStatus(HttpStatus.NO_CONTENT)

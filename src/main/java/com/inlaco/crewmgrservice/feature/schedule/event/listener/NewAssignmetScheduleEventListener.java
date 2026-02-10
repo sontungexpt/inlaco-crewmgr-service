@@ -1,7 +1,7 @@
 package com.inlaco.crewmgrservice.feature.schedule.event.listener;
 
-import com.inlaco.crewmgrservice.feature.notify.NotificationFactory;
-import com.inlaco.crewmgrservice.feature.notify.NotificationType;
+import com.inlaco.crewmgrservice.feature.notify.NotificationDispatcher;
+import com.inlaco.crewmgrservice.feature.notify.NotificationPolicy;
 import com.inlaco.crewmgrservice.feature.notify.mail.EmailRequest;
 import com.inlaco.crewmgrservice.feature.schedule.event.NewAssignmentScheduleEvent;
 import com.inlaco.crewmgrservice.feature.schedule.model.AssignedMobilization;
@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class NewAssignmetScheduleEventListener {
   private final SailorService sailorService;
-  private final NotificationFactory notificationFactory;
+  private final NotificationDispatcher notificationFactory;
 
   @Value("${inlaco.client.base-url}")
   private String CLIENT_HOME_PAGE_LINK;
@@ -89,7 +89,7 @@ public class NewAssignmetScheduleEventListener {
         profile.getId(),
         profile.getEmail());
 
-    notificationFactory.sendNotificationAsync(NotificationType.EMAIL, emailRequest);
+    notificationFactory.sendNotificationAsync(NotificationPolicy.EMAIL, emailRequest);
   }
 
   /** Lazy-load the HTML template */

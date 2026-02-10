@@ -1,7 +1,7 @@
 package com.inlaco.crewmgrservice.feature.post.presentation.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.inlaco.crewmgrservice.feature.post.presentation.dto.enums.PostType;
+import com.inlaco.crewmgrservice.feature.post.domain.enums.PostType;
 import com.inlaco.crewmgrservice.infrastructure.web.payload.request.constraint.TimeFrame;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

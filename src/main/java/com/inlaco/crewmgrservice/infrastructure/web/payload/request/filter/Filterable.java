@@ -6,7 +6,6 @@ import java.util.Collection;
 public interface Filterable {
 
   default boolean isFilterable() {
-
     // 2️⃣ Fallback: auto-detect by field
     for (Field field : this.getClass().getDeclaredFields()) {
       field.setAccessible(true);

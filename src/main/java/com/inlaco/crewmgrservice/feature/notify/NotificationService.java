@@ -4,6 +4,8 @@ import java.util.concurrent.CompletableFuture;
 
 public interface NotificationService<N extends NotificationRequest<?, ?>> {
 
+  NotificationPolicy getPolicy();
+
   void sendNotification(N request);
 
   default CompletableFuture<Void> sendNotificationAsync(N request) {

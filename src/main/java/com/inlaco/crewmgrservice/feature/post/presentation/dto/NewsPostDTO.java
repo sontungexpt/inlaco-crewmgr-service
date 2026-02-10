@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.feature.post.presentation.dto;
 
-import com.inlaco.crewmgrservice.feature.post.presentation.dto.enums.PostType;
+import com.inlaco.crewmgrservice.feature.post.domain.enums.PostType;
 import lombok.Getter;
 import lombok.Setter;
 

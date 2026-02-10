@@ -42,12 +42,12 @@ public interface PostEntityMapper {
   @SubclassMapping(source = EventPost.class, target = EventPostEntity.class)
   @Mapping(target = "authorId", source = "authorId", qualifiedByName = "stringToObjectId")
   @Mapping(target = "id", source = "id", qualifiedByName = "stringToObjectId")
-  PostEntity toEntity(Post post);
+  PostEntity toPostEntity(Post post);
 
   @SubclassMapping(source = NewsPostEntity.class, target = NewsPost.class)
   @SubclassMapping(source = RecruitmentPostEntity.class, target = RecruitmentPost.class)
   @SubclassMapping(source = EventPostEntity.class, target = EventPost.class)
   @Mapping(target = "authorId", source = "authorId", qualifiedByName = "objectIdToString")
   @Mapping(target = "id", source = "id", qualifiedByName = "objectIdToString")
-  Post toDomain(PostEntity entity);
+  Post toPost(PostEntity entity);
 }

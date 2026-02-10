@@ -1,0 +1,206 @@
+package com.inlaco.crewmgrservice.feature.course.infrastructure.persistence.mongodb.adapter;
+
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
+
+import com.inlaco.crewmgrservice.common.model.FacetResult;
+import com.inlaco.crewmgrservice.feature.course.application.model.CourseSearchCriteria;
+import com.inlaco.crewmgrservice.feature.course.application.port.out.CourseRepository;
+import com.inlaco.crewmgrservice.feature.course.domain.model.Course;
+import com.inlaco.crewmgrservice.feature.course.domain.model.UserCourse;
+import com.inlaco.crewmgrservice.feature.course.infrastructure.persistence.mongodb.entity.CourseEntity;
+import com.inlaco.crewmgrservice.feature.course.infrastructure.persistence.mongodb.entity.CourseMemberEntity;
+import com.inlaco.crewmgrservice.feature.course.infrastructure.persistence.mongodb.mapper.CourseEntityMapper;
+import com.inlaco.crewmgrservice.feature.course.infrastructure.persistence.mongodb.repository.CourseMongoRepository;
+import com.inlaco.crewmgrservice.utils.PageableUtils;
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.bson.Document;
+import org.bson.types.ObjectId;
+import org.jspecify.annotations.Nullable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.stereotype.Repository;
+import org.springframework.util.StringUtils;
+
+@Repository
+@RequiredArgsConstructor
+@Slf4j
+public class CourseRepositoryAdapter implements CourseRepository {
+
+  private final CourseMongoRepository courseMongoRepository;
+  private final MongoTemplate mongoTemplate;
+  private final CourseEntityMapper courseMapper;
+
+  @Override
+  public Optional<Course> findById(String id) {
+    return courseMongoRepository.findByIdAndDeletedAtIsNull(id).map(courseMapper::toCourse);
+  }
+
+  @Override
+  public Page<Course> findAll(Pageable pageable) {
+    return courseMongoRepository.findByDeletedAtIsNull(pageable).map(courseMapper::toCourse);
+  }
+
+  @Override
+  public Page<Course> findAll(@Nullable CourseSearchCriteria criteria, Pageable pageable) {
+    pageable = PageableUtils.extendDefaultSort(pageable);
+
+    var query = Criteria.where("deletedAt").exists(false);
+
+    if (criteria != null) {
+      if (StringUtils.hasText(criteria.getKeyword())) {
+        query.orOperator(
+            Criteria.where("name").regex(criteria.getKeyword(), "i"),
+            Criteria.where("achievedPosition").regex(criteria.getKeyword(), "i"));
+      }
+      Instant now = Instant.now();
+
+      if (Boolean.TRUE.equals(criteria.getNonExpired())) {
+        query.and("endDate").gte(now);
+      }
+
+      if (Boolean.TRUE.equals(criteria.getRegistrationEnabled())) {
+        query.and("startRegistrationAt").lte(now).and("endRegistrationAt").gte(now);
+      }
+    }
+
+    Aggregation aggregation =
+        newAggregation(
+            match(query),
+            facet(Aggregation.count().as(FacetResult.COUNT_KEY))
+                .as(FacetResult.COUNT_FACET_NAME)
+                .and(
+                    sort(pageable.getSort()),
+                    skip(pageable.getOffset()),
+                    limit(pageable.getPageSize()))
+                .as(FacetResult.DATA_FACET_NAME));
+
+    return mongoTemplate
+        .aggregate(aggregation, CourseEntity.class, CourseEntityFacetResult.class)
+        .getUniqueMappedResult()
+        .toPage(pageable)
+        .map(courseMapper::toCourse);
+  }
+
+  @Override
+  public Course save(Course course) {
+    return courseMapper.toCourse(courseMongoRepository.save(courseMapper.toEntity(course)));
+  }
+
+  @Override
+  public void deleteById(String id) {
+    mongoTemplate.updateFirst(
+        Query.query(Criteria.where("_id").is(id)),
+        new Update().addToSet("deletedAt", Instant.now()),
+        Course.class);
+  }
+
+  @Override
+  public Page<UserCourse> findAllEnrolled(String userId, Pageable pageable) {
+    log.debug("Fetching enrolled courses with pagination");
+
+    Aggregation aggregation =
+        newAggregation(
+            match(Criteria.where("userId").is(new ObjectId(userId))),
+            facet(Aggregation.count().as(FacetResult.COUNT_KEY))
+                .as(FacetResult.COUNT_FACET_NAME)
+                .and(
+                    lookup(
+                        mongoTemplate.getCollectionName(CourseEntity.class),
+                        "courseId",
+                        "_id",
+                        "courses"),
+                    project()
+                        .and("courses")
+                        .arrayElementAt(0)
+                        .as("course")
+                        .and("createdAt")
+                        .as("enrolledAt"),
+                    sort(pageable.getSort()),
+                    skip(pageable.getOffset()),
+                    limit(pageable.getPageSize()))
+                .as(FacetResult.DATA_FACET_NAME));
+    var raw =
+        mongoTemplate
+            .aggregate(aggregation, CourseMemberEntity.class, Document.class)
+            .getUniqueMappedResult();
+
+    if (raw == null) return Page.empty(pageable);
+
+    MongoConverter converter = mongoTemplate.getConverter();
+
+    // 2️⃣ Extract count
+    long total =
+        raw.getList(FacetResult.COUNT_FACET_NAME, Document.class).stream()
+            .findFirst()
+            .map(d -> d.get(FacetResult.COUNT_KEY))
+            .filter(Number.class::isInstance)
+            .map(Number.class::cast)
+            .map(Number::longValue)
+            .orElse(0L);
+
+    // 3️⃣ Extract data + convert
+    List<UserCourse> data =
+        raw.getList(FacetResult.DATA_FACET_NAME, Document.class).stream()
+            .map(
+                doc -> {
+                  CourseEntity courseEntity =
+                      converter.read(CourseEntity.class, (Document) doc.get("course"));
+                  UserCourse userCourse = converter.read(UserCourse.class, doc);
+                  userCourse.setCourse(courseMapper.toCourse(courseEntity));
+                  return userCourse;
+                })
+            .toList();
+
+    // 4️⃣ Return page
+    return new PageImpl<>(data, pageable, total);
+  }
+
+  // public Page<CourseMemberInfoResponse> findEnrolledCourseSailors(String courseId, Pageable p) {
+  //   var pageable = PageableUtils.extendDefaultSort(p);
+  //   log.debug("Fetching non expired courses with pagination");
+
+  //   Aggregation aggregation =
+  //       Aggregation.newAggregation(
+  //           match(Criteria.where("courseId").is(new ObjectId(courseId))),
+  //           Aggregation.facet(Aggregation.count().as(FacetResult.getCountFacetName()))
+  //               .as(FacetResult.getCountFacetName())
+  //               .and(
+  //                   sort(pageable.getSort()),
+  //                   skip(pageable.getOffset()),
+  //                   limit(pageable.getPageSize()),
+  //                   lookup(
+  //                       mongoTemplate.getCollectionName(SailorProfile.class),
+  //                       "userId",
+  //                       "accountId",
+  //                       "sailorProfile"),
+  //                   project().and("sailorProfile").arrayElementAt(0).as("sailorProfile"))
+  //               .as(FacetResult.getDataFacetName()));
+
+  //   var result =
+  //       mongoTemplate
+  //           .aggregate(aggregation, CourseMember.class, UserCourseFacetResult.class)
+  //           .getUniqueMappedResult();
+
+  //   return result.toPage(pageable);
+  // }
+
+  // class CourseMemberInfoFacetResult extends FacetResult<CourseMemberInfoResponse> {
+  //   public CourseMemberInfoFacetResult(
+  //       List<CourseMemberInfoResponse> dataFacet, List<Map<String, Object>> countFacet) {
+  //     super(dataFacet, countFacet);
+  //   }
+  // }
+
+  class CourseEntityFacetResult extends FacetResult<CourseEntity> {}
+}

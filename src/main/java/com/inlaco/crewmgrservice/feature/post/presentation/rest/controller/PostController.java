@@ -1,13 +1,15 @@
 package com.inlaco.crewmgrservice.feature.post.presentation.rest.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.inlaco.crewmgrservice.feature.post.application.model.PostSearchCriteria;
 import com.inlaco.crewmgrservice.feature.post.application.port.in.PostUseCase;
+import com.inlaco.crewmgrservice.feature.post.domain.enums.PostType;
 import com.inlaco.crewmgrservice.feature.post.presentation.dto.PostDTO;
-import com.inlaco.crewmgrservice.feature.post.presentation.dto.enums.PostType;
 import com.inlaco.crewmgrservice.feature.post.presentation.mapper.PostMapper;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import com.inlaco.crewmgrservice.infrastructure.config.openapi.OpenApiConfig;
 import com.inlaco.crewmgrservice.infrastructure.web.annotation.CurrentUser;
+import com.inlaco.crewmgrservice.infrastructure.web.annotation.Filter;
 import com.inlaco.crewmgrservice.infrastructure.web.annotation.PageableQueryParams;
 import com.inlaco.crewmgrservice.infrastructure.web.annotation.PublicEndpoint;
 import io.swagger.v3.oas.annotations.Operation;
@@ -82,8 +84,13 @@ public class PostController {
   @ResponseStatus(HttpStatus.OK)
   @PageableQueryParams
   public Page<PostDTO> getAllPosts(
+      @Filter PostSearchCriteria criteria,
       @RequestParam(required = false) PostType type,
       @PageableDefault(size = 10, page = 0) Pageable pageable) {
-    return postUseCase.getPagePosts(pageable, type).map(postMapper::toDTO);
+
+    // WARN: This api should be removed after migration at frontend side
+    if (type != null) return postUseCase.getPagePosts(pageable, type).map(postMapper::toDTO);
+
+    return postUseCase.getPosts(criteria, pageable).map(postMapper::toDTO);
   }
 }

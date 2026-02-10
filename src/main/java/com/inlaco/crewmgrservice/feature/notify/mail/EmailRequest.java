@@ -1,6 +1,5 @@
 package com.inlaco.crewmgrservice.feature.notify.mail;
 
-import com.inlaco.crewmgrservice.common.model.File;
 import com.inlaco.crewmgrservice.feature.notify.NotificationRequest;
 import java.util.List;
 import lombok.Builder.Default;
@@ -13,15 +12,13 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class EmailRequest extends NotificationRequest<String, String> {
 
-  protected String subject;
+  private String subject;
 
-  @Default @Setter protected EmailType emailType = EmailType.TEXT;
+  @Default private EmailType emailType = EmailType.TEXT;
 
-  protected List<File> attachments = null;
+  private String[] cc = null;
 
-  protected String[] cc = null;
-
-  protected String[] bcc = null;
+  private String[] bcc = null;
 
   public EmailRequest(String sender, String recipient, String message, String subject) {
     super(sender, recipient, message);

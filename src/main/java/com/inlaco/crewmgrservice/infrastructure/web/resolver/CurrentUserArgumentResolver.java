@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.infrastructure.web.resolver;
 
-import com.inlaco.crewmgrservice.feature.user.model.SecurityUser;
+import com.inlaco.crewmgrservice.feature.auth.infrastructure.security.SecurityUser;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import com.inlaco.crewmgrservice.infrastructure.web.annotation.CurrentUser;
 import org.springframework.core.MethodParameter;
@@ -34,6 +34,6 @@ public class CurrentUserArgumentResolver implements HandlerMethodArgumentResolve
       return null;
     }
 
-    return principal.getUser();
+    return principal.user();
   }
 }

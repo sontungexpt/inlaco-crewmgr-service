@@ -1,12 +1,12 @@
 package com.inlaco.crewmgrservice.feature.contract.presentation.rest.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.inlaco.crewmgrservice.feature.contract.model.Contract;
-import com.inlaco.crewmgrservice.feature.contract.model.ContractType;
-import com.inlaco.crewmgrservice.feature.contract.model.LaborContract;
-import com.inlaco.crewmgrservice.feature.contract.model.SupplyContract;
+import com.inlaco.crewmgrservice.feature.contract.application.port.in.ContractUseCase;
+import com.inlaco.crewmgrservice.feature.contract.domain.model.Contract;
+import com.inlaco.crewmgrservice.feature.contract.domain.model.ContractType;
+import com.inlaco.crewmgrservice.feature.contract.domain.model.LaborContract;
+import com.inlaco.crewmgrservice.feature.contract.domain.model.SupplyContract;
 import com.inlaco.crewmgrservice.feature.contract.presentation.dto.ContractFilterable;
-import com.inlaco.crewmgrservice.feature.contract.service.ContractService;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import com.inlaco.crewmgrservice.infrastructure.config.openapi.OpenApiConfig;
 import com.inlaco.crewmgrservice.infrastructure.web.annotation.CurrentUser;
@@ -39,7 +39,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Contract", description = "APIs for managing contracts")
 public class ContractController {
 
-  private final ContractService contractService;
+  private final ContractUseCase contractService;
 
   @Operation(
       summary = "Get contract detail",
@@ -51,52 +51,9 @@ public class ContractController {
     return contractService.getContractById(id);
   }
 
-  //   @Operation(
-  //       summary = "Search conrtacts",
-  //       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
-  //       description =
-  //           """
-  // This API is used to search contracts.
-  //
-  // **Usecase**:
-  // - UC_admin-tim-kiem-loc-hop-dong.
-
-  // """)
-  //   @RolesAllowed("ADMIN")
-  //   @GetMapping("/search")
-  //   @PageableQueryParams
-  //   public Page<? extends Contract> searchConrtacts(
-  //       @RequestParam String q,
-  //       @RequestParam(required = false) ContractType type,
-  //       @RequestParam(required = false) Instant activationDateStart,
-  //       @RequestParam(required = false) Instant activationDateEnd,
-  //       @RequestParam(required = false) Instant expiredDateStart,
-  //       @RequestParam(required = false) Instant expiredDateEnd,
-  //       @RequestParam(defaultValue = "true") boolean signed,
-  //       @PageableDefault(page = 0, size = 20) Pageable pageable) {
-  //     return contractService.search(
-  //         ContractFilterable.builder()
-  //             .type(type)
-  //             .activationDateStart(activationDateStart)
-  //             .activationDateEnd(activationDateEnd)
-  //             .expiredDateStart(expiredDateStart)
-  //             .expiredDateEnd(expiredDateEnd)
-  //             .signed(signed)
-  //             .build(),
-  //         pageable);
-  //   }
-
   @Operation(
       summary = "Get all conrtacts",
-      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
-      description =
-"""
-This API is used to get all contracts with short information.
-
-**Usecase**:
-- UC_admin-tim-kiem-loc-hop-dong.
-
-""")
+      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   @RolesAllowed("ADMIN")
   @GetMapping("")
   @PageableQueryParams
@@ -122,15 +79,7 @@ This API is used to get all contracts with short information.
 
   @Operation(
       summary = "Update contract",
-      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
-      description =
-"""
-Update contract if it is not freezed.
-
-**Usecase**:
-- UC_admin-tao-hop-dong-theo-template.
-
-""")
+      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   @RolesAllowed("ADMIN")
   @PatchMapping(value = "/{id}", consumes = "application/merge-patch+json")
   public Contract updateContract(
@@ -186,6 +135,6 @@ Update contract if it is not freezed.
   @PostMapping("/active/{id}")
   @RolesAllowed("ADMIN")
   public Contract activeContract(@ObjectId @PathVariable("id") String id, @CurrentUser User user) {
-    return contractService.activeContract(id, user);
+    return contractService.signContract(id, user);
   }
 }

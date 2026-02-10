@@ -3,6 +3,7 @@ package com.inlaco.crewmgrservice.infrastructure.config.resolver;
 import com.inlaco.crewmgrservice.infrastructure.web.resolver.BearerTokenArgumentResolver;
 import com.inlaco.crewmgrservice.infrastructure.web.resolver.CurrentUserArgumentResolver;
 import com.inlaco.crewmgrservice.infrastructure.web.resolver.DefaultSortPageableResolver;
+import com.inlaco.crewmgrservice.infrastructure.web.resolver.FilterArgumentResolver;
 import com.inlaco.crewmgrservice.infrastructure.web.resolver.FilterableArgumentResolver;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -16,14 +17,18 @@ public class ResolverConfig implements WebMvcConfigurer {
 
   private final DefaultSortPageableResolver defaultSortPageableResolver;
   private final BearerTokenArgumentResolver bearerTokenArgumentResolver;
-  private final FilterableArgumentResolver filterableArgumentResolver;
   private final CurrentUserArgumentResolver currentUserArgumentResolver;
+
+  private final FilterableArgumentResolver filterableArgumentResolver;
+  private final FilterArgumentResolver filterArgumentResolver;
 
   @Override
   public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
     resolvers.add(bearerTokenArgumentResolver);
     resolvers.add(defaultSortPageableResolver);
-    resolvers.add(filterableArgumentResolver);
     resolvers.add(currentUserArgumentResolver);
+    resolvers.add(filterArgumentResolver);
+
+    resolvers.add(filterableArgumentResolver);
   }
 }

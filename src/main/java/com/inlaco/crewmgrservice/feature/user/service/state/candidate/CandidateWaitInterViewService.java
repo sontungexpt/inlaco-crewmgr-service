@@ -1,7 +1,7 @@
 package com.inlaco.crewmgrservice.feature.user.service.state.candidate;
 
-import com.inlaco.crewmgrservice.feature.notify.NotificationFactory;
-import com.inlaco.crewmgrservice.feature.notify.NotificationType;
+import com.inlaco.crewmgrservice.feature.notify.NotificationDispatcher;
+import com.inlaco.crewmgrservice.feature.notify.NotificationPolicy;
 import com.inlaco.crewmgrservice.feature.notify.mail.EmailRequest;
 import com.inlaco.crewmgrservice.feature.post.application.port.in.PostUseCase;
 import com.inlaco.crewmgrservice.feature.post.domain.model.RecruitmentPost;
@@ -24,7 +24,7 @@ public class CandidateWaitInterViewService extends CandidateReviewStragegy {
 
   public CandidateWaitInterViewService(
       CandidateProfileRepository candidateProfileRepository,
-      NotificationFactory notificationFactory,
+      NotificationDispatcher notificationFactory,
       PostUseCase postService,
       UserService userService) {
     super(candidateProfileRepository, notificationFactory, postService, userService);
@@ -51,7 +51,7 @@ public class CandidateWaitInterViewService extends CandidateReviewStragegy {
 
       try {
         notificationFactory.sendNotificationAsync(
-            NotificationType.EMAIL,
+            NotificationPolicy.EMAIL,
             EmailRequest.html(
                     profile.getEmail(),
                     TextTemplateBuilder.relativePath(

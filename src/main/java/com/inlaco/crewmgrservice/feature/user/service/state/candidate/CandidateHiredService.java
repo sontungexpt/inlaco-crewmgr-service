@@ -1,7 +1,7 @@
 package com.inlaco.crewmgrservice.feature.user.service.state.candidate;
 
-import com.inlaco.crewmgrservice.feature.notify.NotificationFactory;
-import com.inlaco.crewmgrservice.feature.notify.NotificationType;
+import com.inlaco.crewmgrservice.feature.notify.NotificationDispatcher;
+import com.inlaco.crewmgrservice.feature.notify.NotificationPolicy;
 import com.inlaco.crewmgrservice.feature.notify.mail.EmailRequest;
 import com.inlaco.crewmgrservice.feature.post.application.port.in.PostUseCase;
 import com.inlaco.crewmgrservice.feature.post.domain.model.RecruitmentPost;
@@ -30,7 +30,7 @@ public class CandidateHiredService extends CandidateReviewStragegy {
 
   public CandidateHiredService(
       CandidateProfileRepository candidateProfileRepository,
-      NotificationFactory notificationFactory,
+      NotificationDispatcher notificationFactory,
       PostUseCase postService,
       UserService userService) {
     super(candidateProfileRepository, notificationFactory, postService, userService);
@@ -58,7 +58,7 @@ public class CandidateHiredService extends CandidateReviewStragegy {
       EmailRequest emailRequest =
           EmailRequest.html(profile.getEmail(), email, EMAIL_SUBJECT).build();
 
-      notificationFactory.sendNotificationAsync(NotificationType.EMAIL, emailRequest);
+      notificationFactory.sendNotificationAsync(NotificationPolicy.EMAIL, emailRequest);
 
       log.debug("Send email to candidate: {}", profile.getFullName());
     }

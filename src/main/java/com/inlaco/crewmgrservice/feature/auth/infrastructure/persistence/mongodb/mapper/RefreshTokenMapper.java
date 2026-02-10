@@ -9,13 +9,9 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring", uses = ObjectIdMapper.class)
 public interface RefreshTokenMapper {
 
-  // Entity -> Domain
-  @Mapping(target = "id", source = "id", qualifiedByName = "objectIdToString")
   @Mapping(target = "userId", source = "userId", qualifiedByName = "objectIdToString")
   RefreshToken toDomain(RefreshTokenEntity entity);
 
-  // Domain -> Entity
-  @Mapping(target = "id", source = "id", qualifiedByName = "stringToObjectId")
   @Mapping(target = "userId", source = "userId", qualifiedByName = "stringToObjectId")
   RefreshTokenEntity toEntity(RefreshToken domain);
 }

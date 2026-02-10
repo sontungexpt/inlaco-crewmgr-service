@@ -1,8 +1,8 @@
 package com.inlaco.crewmgrservice.feature.contract.repository;
 
-import com.inlaco.crewmgrservice.feature.contract.model.AbstractContract;
-import com.inlaco.crewmgrservice.feature.contract.model.Contract;
-import com.inlaco.crewmgrservice.feature.contract.model.ContractType;
+import com.inlaco.crewmgrservice.feature.contract.domain.model.AbstractContract;
+import com.inlaco.crewmgrservice.feature.contract.domain.model.Contract;
+import com.inlaco.crewmgrservice.feature.contract.domain.model.ContractType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;

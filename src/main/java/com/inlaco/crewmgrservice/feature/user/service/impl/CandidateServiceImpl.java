@@ -3,14 +3,14 @@ package com.inlaco.crewmgrservice.feature.user.service.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.inlaco.crewmgrservice.application.exception.ResourceNotFoundException;
 import com.inlaco.crewmgrservice.common.model.File;
-import com.inlaco.crewmgrservice.feature.notify.NotificationFactory;
-import com.inlaco.crewmgrservice.feature.notify.NotificationType;
+import com.inlaco.crewmgrservice.feature.notify.NotificationDispatcher;
+import com.inlaco.crewmgrservice.feature.notify.NotificationPolicy;
 import com.inlaco.crewmgrservice.feature.notify.mail.EmailRequest;
 import com.inlaco.crewmgrservice.feature.post.application.port.in.PostUseCase;
+import com.inlaco.crewmgrservice.feature.post.domain.enums.PostType;
 import com.inlaco.crewmgrservice.feature.post.domain.exception.PostInactiveException;
 import com.inlaco.crewmgrservice.feature.post.domain.model.Post;
 import com.inlaco.crewmgrservice.feature.post.domain.model.RecruitmentPost;
-import com.inlaco.crewmgrservice.feature.post.presentation.dto.enums.PostType;
 import com.inlaco.crewmgrservice.feature.upload.application.enums.UploadStrategy;
 import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadFactory;
 import com.inlaco.crewmgrservice.feature.user.dto.BasicProfileDTO;
@@ -46,7 +46,7 @@ public class CandidateServiceImpl implements CandidateService {
   private final ReviewServiceFactory reviewServiceFactory;
   private final PostUseCase postService;
   private final JsonMergePatchUtils jsonMergePatchUtils;
-  private final NotificationFactory notificationFactory;
+  private final NotificationDispatcher notificationFactory;
 
   private BasicProfileDTO toBasicProfileDTO(CandidateProfile candidateProfile) {
     return BasicProfileDTO.builder()
@@ -84,7 +84,7 @@ public class CandidateServiceImpl implements CandidateService {
     try {
 
       notificationFactory.sendNotificationAsync(
-          NotificationType.EMAIL,
+          NotificationPolicy.EMAIL,
           EmailRequest.html(
                   profile.getEmail(),
                   TextTemplateBuilder.relativePath(

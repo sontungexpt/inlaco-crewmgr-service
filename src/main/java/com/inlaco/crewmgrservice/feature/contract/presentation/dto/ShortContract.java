@@ -2,9 +2,9 @@ package com.inlaco.crewmgrservice.feature.contract.presentation.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.inlaco.crewmgrservice.common.model.File;
-import com.inlaco.crewmgrservice.feature.contract.model.Contract;
-import com.inlaco.crewmgrservice.feature.contract.model.ContractType;
-import com.inlaco.crewmgrservice.feature.contract.model.Party;
+import com.inlaco.crewmgrservice.feature.contract.domain.model.Contract;
+import com.inlaco.crewmgrservice.feature.contract.domain.model.ContractType;
+import com.inlaco.crewmgrservice.feature.contract.domain.model.Party;
 import java.time.Instant;
 import java.util.List;
 import lombok.Builder;

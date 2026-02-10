@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.feature.user.event;
 
-import com.inlaco.crewmgrservice.feature.contract.model.LaborContract;
+import com.inlaco.crewmgrservice.feature.contract.domain.model.LaborContract;
 import lombok.Getter;
 import org.springframework.context.ApplicationEvent;
 

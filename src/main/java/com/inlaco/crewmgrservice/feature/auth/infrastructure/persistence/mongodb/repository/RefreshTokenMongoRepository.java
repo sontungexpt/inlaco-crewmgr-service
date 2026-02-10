@@ -2,12 +2,11 @@ package com.inlaco.crewmgrservice.feature.auth.infrastructure.persistence.mongod
 
 import com.inlaco.crewmgrservice.feature.auth.infrastructure.persistence.mongodb.entity.RefreshTokenEntity;
 import java.util.Optional;
-import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface RefreshTokenMongoRepository extends MongoRepository<RefreshTokenEntity, ObjectId> {
+public interface RefreshTokenMongoRepository extends MongoRepository<RefreshTokenEntity, String> {
   Optional<RefreshTokenEntity> findByToken(String token);
 
   int deleteByToken(String token);

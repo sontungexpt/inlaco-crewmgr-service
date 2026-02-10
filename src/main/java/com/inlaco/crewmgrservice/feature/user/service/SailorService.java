@@ -1,7 +1,7 @@
 package com.inlaco.crewmgrservice.feature.user.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.inlaco.crewmgrservice.feature.contract.model.LaborContract;
+import com.inlaco.crewmgrservice.feature.contract.domain.model.LaborContract;
 import com.inlaco.crewmgrservice.feature.user.dto.SailorFilterable;
 import com.inlaco.crewmgrservice.feature.user.model.SailorProfile;
 import com.inlaco.crewmgrservice.feature.user.model.User;

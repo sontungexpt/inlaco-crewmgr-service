@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.feature.contract.repository;
 
-import com.inlaco.crewmgrservice.feature.contract.model.AbstractContract;
+import com.inlaco.crewmgrservice.feature.contract.domain.model.AbstractContract;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;

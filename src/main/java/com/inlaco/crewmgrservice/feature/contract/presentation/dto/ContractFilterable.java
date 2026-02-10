@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.feature.contract.presentation.dto;
 
-import com.inlaco.crewmgrservice.feature.contract.model.ContractType;
+import com.inlaco.crewmgrservice.feature.contract.domain.model.ContractType;
 import com.inlaco.crewmgrservice.infrastructure.web.payload.request.filter.Filterable;
 import java.time.Instant;
 import lombok.Builder;

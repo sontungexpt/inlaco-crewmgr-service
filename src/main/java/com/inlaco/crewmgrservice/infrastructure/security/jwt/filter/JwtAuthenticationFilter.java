@@ -1,8 +1,8 @@
 package com.inlaco.crewmgrservice.infrastructure.security.jwt.filter;
 
-import com.inlaco.crewmgrservice.feature.user.model.SecurityUser;
+import com.inlaco.crewmgrservice.feature.auth.infrastructure.security.AuthorityResolver;
+import com.inlaco.crewmgrservice.feature.auth.infrastructure.security.SecurityUser;
 import com.inlaco.crewmgrservice.feature.user.repository.UserRepository;
-import com.inlaco.crewmgrservice.feature.user.service.AuthorityResolver;
 import com.inlaco.crewmgrservice.infrastructure.security.jwt.exception.JwtTokenException;
 import com.inlaco.crewmgrservice.infrastructure.security.jwt.service.JwtAccessTokenService;
 import com.inlaco.crewmgrservice.utils.HttpHeaderUtils;
@@ -72,7 +72,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         .findByPubId(pubId)
         .ifPresent(
             user -> {
-              SecurityUser su = new SecurityUser(user, authorityResolver);
+              SecurityUser su = new SecurityUser(user, authorityResolver.resolve(user));
               var auth = new UsernamePasswordAuthenticationToken(su, null, su.getAuthorities());
               auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
               SecurityContextHolder.getContext().setAuthentication(auth);

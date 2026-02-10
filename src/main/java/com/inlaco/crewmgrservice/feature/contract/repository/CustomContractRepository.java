@@ -3,7 +3,7 @@ package com.inlaco.crewmgrservice.feature.contract.repository;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
 import com.inlaco.crewmgrservice.common.model.FacetResult;
-import com.inlaco.crewmgrservice.feature.contract.model.AbstractContract;
+import com.inlaco.crewmgrservice.feature.contract.domain.model.AbstractContract;
 import com.inlaco.crewmgrservice.feature.contract.presentation.dto.ContractFilterable;
 import com.inlaco.crewmgrservice.utils.PageableUtils;
 import java.util.ArrayList;

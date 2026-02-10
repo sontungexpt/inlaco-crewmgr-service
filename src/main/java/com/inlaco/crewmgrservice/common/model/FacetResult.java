@@ -1,57 +1,61 @@
 package com.inlaco.crewmgrservice.common.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import java.util.List;
 import java.util.Map;
 import lombok.Getter;
-import lombok.Setter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 @Getter
-@Setter
-public class FacetResult<T> {
+public abstract class FacetResult<T> {
+
+  public static final String COUNT_KEY = "facetResultCount";
+  public static final String DATA_FACET_NAME = "dataFacet";
+  public static final String COUNT_FACET_NAME = "countFacet";
 
   private List<T> dataFacet;
-
   private List<Map<String, Object>> countFacet;
 
-  public Page<T> toPage(Pageable pageable) {
-    return new PageImpl<>(dataFacet, pageable, getCount());
-  }
+  protected FacetResult() {}
 
-  @JsonCreator
-  public FacetResult(List<T> dataFacet, List<Map<String, Object>> countFacet) {
+  protected FacetResult(List<T> dataFacet, List<Map<String, Object>> countFacet) {
     this.dataFacet = dataFacet;
     this.countFacet = countFacet;
   }
 
   public static final String getCountKey() {
-    return "facetResultCount";
+    return COUNT_KEY;
   }
 
   public static final String getDataFacetName() {
-    return "dataFacet";
+    return DATA_FACET_NAME;
   }
 
   public static final String getCountFacetName() {
-    return "countFacet";
+    return COUNT_FACET_NAME;
   }
 
-  public List<T> getDatas() {
+  public Page<T> toPage(Pageable pageable) {
+    return toPage(pageable, COUNT_KEY);
+  }
+
+  public Page<T> toPage(Pageable pageable, String countKey) {
+    return new PageImpl<>(dataFacet, pageable, getCount(countKey));
+  }
+
+  public List<T> data() {
     return dataFacet;
   }
 
-  public int getCount(String key) {
-    if (countFacet == null || countFacet.isEmpty()) return 0;
-
-    Object count = countFacet.get(0).get(key);
-    if (count == null) return 0;
-    return (int) count;
+  public long getCount() {
+    return getCount(COUNT_KEY);
   }
 
-  public int getCount() {
-    return getCount(getCountKey());
+  public long getCount(String key) {
+    if (countFacet == null || countFacet.isEmpty()) return 0;
+    Object value = countFacet.get(0).get(key);
+    if (!(value instanceof Number number)) return 0;
+    return number.longValue();
   }
 }

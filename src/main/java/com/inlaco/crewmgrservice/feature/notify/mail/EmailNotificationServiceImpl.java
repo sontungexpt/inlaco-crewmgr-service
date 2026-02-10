@@ -2,13 +2,13 @@
 
 package com.inlaco.crewmgrservice.feature.notify.mail;
 
+import com.inlaco.crewmgrservice.feature.notify.NotificationPolicy;
 import com.inlaco.crewmgrservice.feature.notify.NotificationService;
-import com.inlaco.crewmgrservice.feature.notify.NotificationType;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.mail.autoconfigure.MailProperties;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -16,17 +16,21 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @RequiredArgsConstructor
-@Service(NotificationType.EMAIL)
+@Service
 public class EmailNotificationServiceImpl implements NotificationService<EmailRequest> {
 
-  @Value("${spring.mail.username}")
-  private String DEFAULT_SENDER;
-
+  private final MailProperties mailProperties;
   private final JavaMailSender mailSender;
 
   @Override
+  public NotificationPolicy getPolicy() {
+    return NotificationPolicy.EMAIL;
+  }
+
+  @Override
   public void sendNotification(EmailRequest request) {
-    String sender = request.getSender() != null ? request.getSender() : DEFAULT_SENDER;
+    String sender =
+        request.getSender() != null ? request.getSender() : mailProperties.getUsername();
 
     try {
       if (request.getEmailType() == EmailType.MIME) {

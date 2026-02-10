@@ -6,7 +6,7 @@ import com.inlaco.crewmgrservice.feature.auth.application.port.in.AccessTokenGen
 import com.inlaco.crewmgrservice.feature.auth.application.port.in.LoginUseCase;
 import com.inlaco.crewmgrservice.feature.auth.application.port.in.RefreshTokenManager;
 import com.inlaco.crewmgrservice.feature.auth.domain.model.RefreshToken;
-import com.inlaco.crewmgrservice.feature.user.model.SecurityUser;
+import com.inlaco.crewmgrservice.feature.auth.infrastructure.security.SecurityUser;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +37,7 @@ public class LoginService implements LoginUseCase {
 
     SecurityUser securityUser = (SecurityUser) authentication.getPrincipal();
     checkUserValid(securityUser);
-    User user = securityUser.getUser();
+    User user = securityUser.user();
 
     SecurityContextHolder.getContext().setAuthentication(authentication);
 

@@ -2,10 +2,11 @@ package com.inlaco.crewmgrservice.feature.post.application.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.inlaco.crewmgrservice.application.exception.ResourceNotFoundException;
+import com.inlaco.crewmgrservice.feature.post.application.model.PostSearchCriteria;
 import com.inlaco.crewmgrservice.feature.post.application.port.in.PostUseCase;
 import com.inlaco.crewmgrservice.feature.post.application.port.out.PostRepository;
+import com.inlaco.crewmgrservice.feature.post.domain.enums.PostType;
 import com.inlaco.crewmgrservice.feature.post.domain.model.Post;
-import com.inlaco.crewmgrservice.feature.post.presentation.dto.enums.PostType;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import com.inlaco.crewmgrservice.utils.JsonMergePatchUtils;
 import lombok.RequiredArgsConstructor;
@@ -51,5 +52,10 @@ public class PostService implements PostUseCase {
     Post current = getPost(postId);
     Post updated = jsonPatchUtils.apply(current, patch);
     return postRepository.save(updated);
+  }
+
+  @Override
+  public Page<Post> getPosts(@Nullable PostSearchCriteria criteria, Pageable pageable) {
+    return postRepository.findAll(criteria, pageable);
   }
 }

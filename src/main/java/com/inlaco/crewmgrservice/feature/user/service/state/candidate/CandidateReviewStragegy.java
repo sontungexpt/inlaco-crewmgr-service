@@ -1,7 +1,7 @@
 package com.inlaco.crewmgrservice.feature.user.service.state.candidate;
 
 import com.inlaco.crewmgrservice.application.exception.ResourceNotFoundException;
-import com.inlaco.crewmgrservice.feature.notify.NotificationFactory;
+import com.inlaco.crewmgrservice.feature.notify.NotificationDispatcher;
 import com.inlaco.crewmgrservice.feature.post.application.port.in.PostUseCase;
 import com.inlaco.crewmgrservice.feature.user.model.CandidateProfile;
 import com.inlaco.crewmgrservice.feature.user.repository.CandidateProfileRepository;
@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 public abstract class CandidateReviewStragegy {
 
   protected final CandidateProfileRepository candidateProfileRepository;
-  protected final NotificationFactory notificationFactory;
+  protected final NotificationDispatcher notificationFactory;
   protected final PostUseCase postService;
   protected final UserService userService;
 

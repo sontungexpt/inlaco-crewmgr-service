@@ -77,7 +77,7 @@ public class CustomSailorRepository {
             .aggregate(aggregation, SailorProfile.class, SailorProfileFacetResult.class)
             .getUniqueMappedResult();
 
-    return new PageImpl<>(result.getDatas(), pageable, result.getCount());
+    return new PageImpl<>(result.data(), pageable, result.getCount());
   }
 
   private Criteria buildOfficialSailorCriteria(boolean official) {
@@ -131,7 +131,7 @@ public class CustomSailorRepository {
             .aggregate(aggregation, SailorProfile.class, SailorProfileFacetResult.class)
             .getUniqueMappedResult();
 
-    return new PageImpl<>(result.getDatas(), pageable, result.getCount());
+    return new PageImpl<>(result.data(), pageable, result.getCount());
   }
 
   private static class SailorProfileFacetResult extends FacetResult<SailorProfile> {

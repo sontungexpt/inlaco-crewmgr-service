@@ -15,17 +15,14 @@ public abstract class NotificationRequest<S, R> {
   private String message;
 
   public R getFirstRecipient() {
-    if (recipients.isEmpty()) {
-      return null;
-    }
-    return recipients.get(0);
+    return recipients.isEmpty() ? null : recipients.get(0);
   }
 
-  public NotificationRequest(S sender, R recipient, String message) {
+  protected NotificationRequest(S sender, R recipient, String message) {
     this(sender, List.of(recipient), message);
   }
 
-  public NotificationRequest(S sender, List<R> recipients, String message) {
+  protected NotificationRequest(S sender, List<R> recipients, String message) {
     assert recipients != null;
     assert message != null;
 

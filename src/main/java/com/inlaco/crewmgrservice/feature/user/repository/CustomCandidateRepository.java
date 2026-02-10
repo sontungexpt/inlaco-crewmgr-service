@@ -57,7 +57,7 @@ public class CustomCandidateRepository {
             .aggregate(aggregation, CandidateProfile.class, CandidateProfileFacetResult.class)
             .getUniqueMappedResult();
 
-    return new PageImpl<>(result.getDatas(), pageable, result.getCount("totalCandidates"));
+    return new PageImpl<>(result.data(), pageable, result.getCount("totalCandidates"));
   }
 
   private class CandidateProfileFacetResult extends FacetResult<CandidateProfile> {

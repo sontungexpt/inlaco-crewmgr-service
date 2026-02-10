@@ -1,6 +1,7 @@
 package com.inlaco.crewmgrservice.feature.post.infrastructure.persistence.mongodb.entity;
 
 import com.inlaco.crewmgrservice.common.model.File;
+import com.inlaco.crewmgrservice.feature.post.domain.enums.PostType;
 import java.time.Instant;
 import java.util.List;
 import lombok.Getter;
@@ -11,6 +12,7 @@ import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Setter
@@ -33,10 +35,11 @@ public abstract class PostEntity {
 
   private String company;
 
-  private boolean deleted = false;
+  private PostType type;
 
   private ObjectId deletedBy;
 
+  @Indexed(partialFilter = "{ deletedAt: null }")
   private Instant deletedAt;
 
   @CreatedBy private ObjectId authorId;

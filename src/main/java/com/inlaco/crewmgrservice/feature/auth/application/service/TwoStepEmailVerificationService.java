@@ -6,8 +6,8 @@ import com.inlaco.crewmgrservice.feature.auth.application.port.in.TwoStepVerific
 import com.inlaco.crewmgrservice.feature.auth.application.port.out.EmailVerificationTokenRepository;
 import com.inlaco.crewmgrservice.feature.auth.domain.exception.TwoStepVerificationException;
 import com.inlaco.crewmgrservice.feature.auth.domain.model.EmailVerificationToken;
-import com.inlaco.crewmgrservice.feature.notify.NotificationFactory;
-import com.inlaco.crewmgrservice.feature.notify.NotificationType;
+import com.inlaco.crewmgrservice.feature.notify.NotificationDispatcher;
+import com.inlaco.crewmgrservice.feature.notify.NotificationPolicy;
 import com.inlaco.crewmgrservice.feature.notify.mail.EmailRequest;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import com.inlaco.crewmgrservice.feature.user.service.UserService;
@@ -30,7 +30,7 @@ public class TwoStepEmailVerificationService implements TwoStepVerificationServi
 
   private final EmailVerificationTokenRepository emailVerificationTokenRepository;
   private final UserService userService;
-  private final NotificationFactory notificationFactory;
+  private final NotificationDispatcher notificationFactory;
 
   @Value("${inlaco.server.base-url}")
   private String SERVER_BASE_URL;
@@ -120,7 +120,7 @@ public class TwoStepEmailVerificationService implements TwoStepVerificationServi
 
   private void sendEmail(User user, String rawToken) {
     notificationFactory.sendNotificationAsync(
-        NotificationType.EMAIL, generateEmailRequest(user, rawToken));
+        NotificationPolicy.EMAIL, generateEmailRequest(user, rawToken));
   }
 
   private void redirectToLogin(User user) {

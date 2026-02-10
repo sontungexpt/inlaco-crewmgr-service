@@ -1,7 +1,7 @@
 package com.inlaco.crewmgrservice.utils;
 
 import com.inlaco.crewmgrservice.application.exception.AuthenticationException;
-import com.inlaco.crewmgrservice.feature.user.model.SecurityUser;
+import com.inlaco.crewmgrservice.feature.auth.infrastructure.security.SecurityUser;
 import com.inlaco.crewmgrservice.feature.user.model.User;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -9,7 +9,7 @@ public class PrincipalUtils {
 
   public static final User getUser() {
     Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    if (principal instanceof SecurityUser su) return su.getUser();
+    if (principal instanceof SecurityUser su) return su.user();
     throw new AuthenticationException();
   }
 

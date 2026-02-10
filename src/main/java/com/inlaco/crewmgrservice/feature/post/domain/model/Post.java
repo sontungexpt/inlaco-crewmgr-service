@@ -1,6 +1,7 @@
 package com.inlaco.crewmgrservice.feature.post.domain.model;
 
 import com.inlaco.crewmgrservice.common.model.File;
+import com.inlaco.crewmgrservice.feature.post.domain.enums.PostType;
 import com.inlaco.crewmgrservice.infrastructure.web.annotation.patch.JsonPatchIgnore;
 import java.io.Serializable;
 import java.time.Instant;
@@ -16,17 +17,19 @@ public abstract class Post implements Serializable {
 
   @JsonPatchIgnore private String id;
 
-  protected String title;
+  private String title;
 
-  protected String content;
+  private String content;
 
-  protected String description;
+  private String description;
 
   private List<File> attachments;
 
-  protected File image;
+  private File image;
 
-  protected String company;
+  private String company;
+
+  private PostType type;
 
   @JsonPatchIgnore private String authorId;
 

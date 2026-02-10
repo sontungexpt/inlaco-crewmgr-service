@@ -2,8 +2,8 @@ package com.inlaco.crewmgrservice.feature.user.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.inlaco.crewmgrservice.application.exception.ResourceNotFoundException;
-import com.inlaco.crewmgrservice.feature.contract.model.LaborContract;
-import com.inlaco.crewmgrservice.feature.contract.model.LaborParty;
+import com.inlaco.crewmgrservice.feature.contract.domain.model.LaborContract;
+import com.inlaco.crewmgrservice.feature.contract.domain.model.LaborParty;
 import com.inlaco.crewmgrservice.feature.user.dto.SailorFilterable;
 import com.inlaco.crewmgrservice.feature.user.enums.WorkStatus;
 import com.inlaco.crewmgrservice.feature.user.event.SailorOfficalEvent;

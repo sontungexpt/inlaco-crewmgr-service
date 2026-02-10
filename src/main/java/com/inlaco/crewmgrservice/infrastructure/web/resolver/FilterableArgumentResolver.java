@@ -166,6 +166,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * </ul>
  */
 @Component
+@Deprecated
 public class FilterableArgumentResolver implements HandlerMethodArgumentResolver {
 
   private final ConversionService conversionService;
