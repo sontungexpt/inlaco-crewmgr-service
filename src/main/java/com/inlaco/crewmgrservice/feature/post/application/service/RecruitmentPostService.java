@@ -5,7 +5,7 @@ import com.inlaco.crewmgrservice.feature.post.application.port.in.RecruitmentPos
 import com.inlaco.crewmgrservice.feature.post.application.port.out.PostRepository;
 import com.inlaco.crewmgrservice.feature.post.domain.model.Post;
 import com.inlaco.crewmgrservice.feature.post.domain.model.RecruitmentPost;
-import com.inlaco.crewmgrservice.feature.user.model.User;
+import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import lombok.RequiredArgsConstructor;

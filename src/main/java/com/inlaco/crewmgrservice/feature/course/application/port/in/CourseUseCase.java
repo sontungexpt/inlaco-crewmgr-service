@@ -5,7 +5,7 @@ import com.inlaco.crewmgrservice.feature.course.application.model.CourseSearchCr
 import com.inlaco.crewmgrservice.feature.course.domain.model.Course;
 import com.inlaco.crewmgrservice.feature.course.domain.model.CourseMember;
 import com.inlaco.crewmgrservice.feature.course.domain.model.UserCourse;
-import com.inlaco.crewmgrservice.feature.user.model.User;
+import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

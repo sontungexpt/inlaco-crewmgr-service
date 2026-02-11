@@ -1,9 +1,9 @@
 package com.inlaco.crewmgrservice.feature.schedule.dto;
 
 import com.inlaco.crewmgrservice.common.model.ShipInfo;
+import com.inlaco.crewmgrservice.feature.crew.domain.model.CrewProfile;
 import com.inlaco.crewmgrservice.feature.schedule.model.AssignedMobilization;
 import com.inlaco.crewmgrservice.feature.schedule.model.AssignedMobilization.Status;
-import com.inlaco.crewmgrservice.feature.user.model.SailorProfile;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import jakarta.validation.constraints.NotBlank;
@@ -70,7 +70,7 @@ public class MobilizationResponse {
       requiredMode = RequiredMode.REQUIRED)
   private Instant endDate;
 
-  private List<SailorProfile> crewMembers;
+  private List<CrewProfile> crewMembers;
 
   private Instant createdAt;
 

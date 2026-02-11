@@ -3,10 +3,9 @@ package com.inlaco.crewmgrservice.feature.post.presentation.rest.controller;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.inlaco.crewmgrservice.feature.post.application.model.PostSearchCriteria;
 import com.inlaco.crewmgrservice.feature.post.application.port.in.PostUseCase;
-import com.inlaco.crewmgrservice.feature.post.domain.enums.PostType;
 import com.inlaco.crewmgrservice.feature.post.presentation.dto.PostDTO;
 import com.inlaco.crewmgrservice.feature.post.presentation.mapper.PostMapper;
-import com.inlaco.crewmgrservice.feature.user.model.User;
+import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import com.inlaco.crewmgrservice.infrastructure.config.openapi.OpenApiConfig;
 import com.inlaco.crewmgrservice.infrastructure.web.annotation.CurrentUser;
 import com.inlaco.crewmgrservice.infrastructure.web.annotation.Filter;
@@ -28,7 +27,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -48,6 +46,16 @@ public class PostController {
   @PublicEndpoint
   public PostDTO getPost(@PathVariable("id") String id) {
     return postMapper.toDTO(postUseCase.getPost(id));
+  }
+
+  @Operation(summary = "Retrieve all posts for a given page")
+  @GetMapping("")
+  @ResponseStatus(HttpStatus.OK)
+  @PageableQueryParams
+  public Page<PostDTO> getAllPosts(
+      @Filter PostSearchCriteria criteria,
+      @PageableDefault(size = 10, page = 0) Pageable pageable) {
+    return postUseCase.getPosts(criteria, pageable).map(postMapper::toDTO);
   }
 
   @Operation(
@@ -77,20 +85,5 @@ public class PostController {
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void deletePost(@CurrentUser User user, @PathVariable("id") String id) {
     postUseCase.deletePost(id, user);
-  }
-
-  @Operation(summary = "Retrieve all posts for a given page")
-  @GetMapping("/web")
-  @ResponseStatus(HttpStatus.OK)
-  @PageableQueryParams
-  public Page<PostDTO> getAllPosts(
-      @Filter PostSearchCriteria criteria,
-      @RequestParam(required = false) PostType type,
-      @PageableDefault(size = 10, page = 0) Pageable pageable) {
-
-    // WARN: This api should be removed after migration at frontend side
-    if (type != null) return postUseCase.getPagePosts(pageable, type).map(postMapper::toDTO);
-
-    return postUseCase.getPosts(criteria, pageable).map(postMapper::toDTO);
   }
 }

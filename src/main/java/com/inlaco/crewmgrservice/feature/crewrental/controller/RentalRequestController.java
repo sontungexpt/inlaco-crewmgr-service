@@ -3,7 +3,7 @@ package com.inlaco.crewmgrservice.feature.crewrental.controller;
 import com.inlaco.crewmgrservice.feature.crewrental.dto.RentalRequestFilterable;
 import com.inlaco.crewmgrservice.feature.crewrental.model.RentalRequest;
 import com.inlaco.crewmgrservice.feature.crewrental.service.RentalRequestService;
-import com.inlaco.crewmgrservice.feature.user.model.User;
+import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import com.inlaco.crewmgrservice.infrastructure.config.openapi.OpenApiConfig;
 import com.inlaco.crewmgrservice.infrastructure.web.annotation.CurrentUser;
 import com.inlaco.crewmgrservice.infrastructure.web.validation.annotation.ObjectId;

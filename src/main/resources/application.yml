@@ -106,9 +106,20 @@ inlaco:
 
   template:
     email:
-      hired:
-        subject: Inlaco - You are hired
-        path: templates/email/html/recruitment/hired.html
+      recruitment:
+        hired:
+          subject: Inlaco - You are hired
+          path: templates/email/html/recruitment/hired.html
+        wait-for-interview:
+          subject: "Inlaco - Your profile is under review"
+          path: "templates/email/html/recruitment/wait-for-interview.html"
+        rejected:
+          subject: "Inlaco Recruitment Rejected"
+          path: "templates/email/html/recruitment/rejected.html"
+        applied:
+          subject: "Inlaco - Application Successful"
+          path: "templates/email/html/recruitment/applied.html"
+
       two-step-verification:
         subject: Inlaco - Verify your email
         path: templates/email/html/two-step-verification.html

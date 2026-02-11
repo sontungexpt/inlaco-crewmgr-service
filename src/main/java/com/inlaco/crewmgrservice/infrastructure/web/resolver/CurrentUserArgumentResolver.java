@@ -1,7 +1,7 @@
 package com.inlaco.crewmgrservice.infrastructure.web.resolver;
 
 import com.inlaco.crewmgrservice.feature.auth.infrastructure.security.SecurityUser;
-import com.inlaco.crewmgrservice.feature.user.model.User;
+import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import com.inlaco.crewmgrservice.infrastructure.web.annotation.CurrentUser;
 import org.springframework.core.MethodParameter;
 import org.springframework.security.core.Authentication;

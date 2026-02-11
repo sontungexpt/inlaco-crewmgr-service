@@ -2,7 +2,7 @@ package com.inlaco.crewmgrservice.infrastructure.security.jwt.filter;
 
 import com.inlaco.crewmgrservice.feature.auth.infrastructure.security.AuthorityResolver;
 import com.inlaco.crewmgrservice.feature.auth.infrastructure.security.SecurityUser;
-import com.inlaco.crewmgrservice.feature.user.repository.UserRepository;
+import com.inlaco.crewmgrservice.feature.user.application.port.out.UserRepository;
 import com.inlaco.crewmgrservice.infrastructure.security.jwt.exception.JwtTokenException;
 import com.inlaco.crewmgrservice.infrastructure.security.jwt.service.JwtAccessTokenService;
 import com.inlaco.crewmgrservice.utils.HttpHeaderUtils;

@@ -1,11 +1,10 @@
 package com.inlaco.crewmgrservice.bootstrap;
 
-import com.inlaco.crewmgrservice.feature.user.enums.UserStatus;
-import com.inlaco.crewmgrservice.feature.user.model.User;
-import com.inlaco.crewmgrservice.feature.user.model.authorization.Right;
-import com.inlaco.crewmgrservice.feature.user.model.authorization.Role;
-import com.inlaco.crewmgrservice.feature.user.repository.RoleRepository;
-import com.inlaco.crewmgrservice.feature.user.repository.UserRepository;
+import com.inlaco.crewmgrservice.feature.user.application.port.out.UserRepository;
+import com.inlaco.crewmgrservice.feature.user.domain.model.User;
+import com.inlaco.crewmgrservice.feature.user.domain.model.authorization.Right;
+import com.inlaco.crewmgrservice.feature.user.domain.model.authorization.Role;
+import com.inlaco.crewmgrservice.feature.user.infrastructure.persistence.mongodb.repository.RoleRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -51,14 +50,8 @@ public class DataInitializer implements CommandLineRunner {
       return;
     }
     User admin =
-        User.builder()
-            .name("Admin")
-            .username(ADMIN_USERNAME)
-            .password(passwordEncoder.encode(ADMIN_PASSWORD))
-            .status(UserStatus.ACTIVE)
-            .right(new Right(roles))
-            .build();
-
+        new User(ADMIN_USERNAME, passwordEncoder.encode(ADMIN_PASSWORD), new Right(roles), "Admin");
+    admin.activate();
     userRepository.save(admin);
   }
 }

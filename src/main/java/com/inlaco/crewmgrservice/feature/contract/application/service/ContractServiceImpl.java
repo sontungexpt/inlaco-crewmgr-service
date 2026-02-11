@@ -18,12 +18,11 @@ import com.inlaco.crewmgrservice.feature.contract.repository.CustomContractRepos
 import com.inlaco.crewmgrservice.feature.contract.repository.CustomLaborContractRepository;
 import com.inlaco.crewmgrservice.feature.crewrental.enums.RentalRequestStatus;
 import com.inlaco.crewmgrservice.feature.crewrental.service.RentalRequestService;
+import com.inlaco.crewmgrservice.feature.recruitment.application.port.in.RecruitmentQueryUseCase;
+import com.inlaco.crewmgrservice.feature.recruitment.domain.model.JobApplication;
 import com.inlaco.crewmgrservice.feature.upload.application.enums.UploadStrategy;
 import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadFactory;
-import com.inlaco.crewmgrservice.feature.user.model.CandidateProfile;
-import com.inlaco.crewmgrservice.feature.user.model.User;
-import com.inlaco.crewmgrservice.feature.user.service.CandidateService;
-import com.inlaco.crewmgrservice.feature.user.service.SailorService;
+import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import com.inlaco.crewmgrservice.utils.JsonMergePatchUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,12 +39,11 @@ public class ContractServiceImpl implements ContractUseCase {
 
   private final ContractRepository contractRepository;
   private final ContractVersionRepository contractVersionRepository;
-  private final SailorService sailorService;
   private final JsonMergePatchUtils jsonMergePatch;
   private final CustomContractRepository customContractRepository;
   private final RentalRequestService rentalRequestService;
   private final CustomLaborContractRepository customLaborContractRepository;
-  private final CandidateService candidateService;
+  private final RecruitmentQueryUseCase recruitmentQueryUseCase;
   private final UploadFactory uploadFactory;
 
   @Override
@@ -114,13 +112,13 @@ public class ContractServiceImpl implements ContractUseCase {
           LaborContract.class, "candidateProfileId", candidateProfileId);
     }
 
-    CandidateProfile candidateProfile =
-        candidateService.getCandidateProfileById(candidateProfileId);
+    JobApplication jobApplication =
+        recruitmentQueryUseCase.getApplicationDetail(candidateProfileId);
 
-    ObjectId accountId = candidateProfile.getAccountId();
+    String accountId = jobApplication.getAccountId();
 
     contract.setCandidateProfileId(new ObjectId(candidateProfileId));
-    contract.setEmployeeId(accountId);
+    contract.setEmployeeId(new ObjectId(accountId));
 
     var newContract = contractRepository.save(contract);
 

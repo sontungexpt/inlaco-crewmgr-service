@@ -1,8 +1,8 @@
 package com.inlaco.crewmgrservice.feature.auth.infrastructure.security;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.inlaco.crewmgrservice.feature.user.enums.UserStatus;
-import com.inlaco.crewmgrservice.feature.user.model.User;
+import com.inlaco.crewmgrservice.feature.user.domain.enums.UserStatus;
+import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import java.util.Collection;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

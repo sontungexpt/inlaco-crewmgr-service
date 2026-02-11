@@ -1,7 +1,7 @@
 package com.inlaco.crewmgrservice.feature.auth.presentation.rest.controller;
 
 import com.inlaco.crewmgrservice.feature.auth.application.port.in.TwoStepVerificationUseCase;
-import com.inlaco.crewmgrservice.feature.user.model.User;
+import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import com.inlaco.crewmgrservice.infrastructure.web.annotation.CurrentUser;
 import com.inlaco.crewmgrservice.infrastructure.web.annotation.PublicEndpoint;
 import io.swagger.v3.oas.annotations.Operation;

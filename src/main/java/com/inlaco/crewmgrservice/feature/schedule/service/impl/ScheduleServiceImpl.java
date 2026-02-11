@@ -1,6 +1,7 @@
 package com.inlaco.crewmgrservice.feature.schedule.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.inlaco.crewmgrservice.feature.crew.domain.model.CrewProfile;
 import com.inlaco.crewmgrservice.feature.schedule.dto.MobilizationResponse;
 import com.inlaco.crewmgrservice.feature.schedule.dto.SailorScheduleResponse;
 import com.inlaco.crewmgrservice.feature.schedule.dto.ScheduleFilterable;
@@ -9,8 +10,6 @@ import com.inlaco.crewmgrservice.feature.schedule.model.AssignedMobilization;
 import com.inlaco.crewmgrservice.feature.schedule.repository.AssignmentScheduleRepository;
 import com.inlaco.crewmgrservice.feature.schedule.repository.CustomScheduleRepository;
 import com.inlaco.crewmgrservice.feature.schedule.service.ScheduleService;
-import com.inlaco.crewmgrservice.feature.user.model.SailorProfile;
-import com.inlaco.crewmgrservice.feature.user.service.SailorService;
 import com.inlaco.crewmgrservice.utils.JsonMergePatchUtils;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +28,6 @@ public class ScheduleServiceImpl implements ScheduleService {
   private final CustomScheduleRepository customScheduleRepository;
   private final JsonMergePatchUtils jsonMergePatch;
   private final ApplicationEventPublisher eventPublisher;
-  private final SailorService sailorService;
 
   @Override
   public AssignedMobilization createSchedule(AssignedMobilization schedule) {
@@ -57,14 +55,15 @@ public class ScheduleServiceImpl implements ScheduleService {
   @Override
   public Page<SailorScheduleResponse> findPaginationSchedulesByCardId(
       String cardId, ScheduleFilterable filterable, Pageable pageable) {
-    var profile = sailorService.findSailorProfileByCardId(cardId);
-    return customScheduleRepository
-        .findPaginationSchedulesByCardId(cardId, filterable, pageable)
-        .map(it -> toSailorScheduleResponse(it, cardId, profile));
+    // var profile = sailorService.findSailorProfileByCardId(cardId);
+    throw new UnsupportedOperationException();
+    // return customScheduleRepository
+    //     .findPaginationSchedulesByCardId(cardId, filterable, pageable)
+    //     .map(it -> toSailorScheduleResponse(it, cardId, profile));
   }
 
   private SailorScheduleResponse toSailorScheduleResponse(
-      AssignedMobilization schedule, String cardId, SailorProfile profile) {
+      AssignedMobilization schedule, String cardId, CrewProfile profile) {
     return SailorScheduleResponse.builder()
         .startDate(schedule.getStartDate())
         .endDate(schedule.getEndDate())
@@ -82,10 +81,11 @@ public class ScheduleServiceImpl implements ScheduleService {
   @Override
   public List<SailorScheduleResponse> findSchedulesByCardId(
       String cardId, ScheduleFilterable filterable) {
-    var profile = sailorService.findSailorProfileByCardId(cardId);
-    return customScheduleRepository.findSchedulesByCardId(cardId, filterable).stream()
-        .map(it -> toSailorScheduleResponse(it, cardId, profile))
-        .toList();
+    // var profile = sailorService.findSailorProfileByCardId(cardId);
+    // return customScheduleRepository.findSchedulesByCardId(cardId, filterable).stream()
+    //     .map(it -> toSailorScheduleResponse(it, cardId, profile))
+    //     .toList();
+    throw new UnsupportedOperationException();
   }
 
   @Override

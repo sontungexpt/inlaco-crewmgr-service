@@ -7,7 +7,7 @@ import com.inlaco.crewmgrservice.feature.auth.application.port.in.LoginUseCase;
 import com.inlaco.crewmgrservice.feature.auth.application.port.in.RefreshTokenManager;
 import com.inlaco.crewmgrservice.feature.auth.domain.model.RefreshToken;
 import com.inlaco.crewmgrservice.feature.auth.infrastructure.security.SecurityUser;
-import com.inlaco.crewmgrservice.feature.user.model.User;
+import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AccountExpiredException;

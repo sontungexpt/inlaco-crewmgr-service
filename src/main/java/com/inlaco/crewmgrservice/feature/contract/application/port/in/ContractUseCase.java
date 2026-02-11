@@ -7,7 +7,7 @@ import com.inlaco.crewmgrservice.feature.contract.domain.model.ContractVersion;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.LaborContract;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.SupplyContract;
 import com.inlaco.crewmgrservice.feature.contract.presentation.dto.ContractFilterable;
-import com.inlaco.crewmgrservice.feature.user.model.User;
+import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

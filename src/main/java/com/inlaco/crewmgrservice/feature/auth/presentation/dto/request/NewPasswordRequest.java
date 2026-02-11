@@ -2,10 +2,13 @@ package com.inlaco.crewmgrservice.feature.auth.presentation.dto.request;
 
 import com.inlaco.crewmgrservice.infrastructure.web.payload.request.constraint.IDiffPassword;
 import com.inlaco.crewmgrservice.infrastructure.web.payload.request.constraint.IMatchPassword;
-import com.inlaco.crewmgrservice.infrastructure.web.validation.password.Password;
+import com.inlaco.crewmgrservice.infrastructure.web.validation.password.StrongPassword;
+import jakarta.validation.constraints.NotBlank;
 
 public record NewPasswordRequest(
-    String oldPassword, @Password String newPassword, String confirmNewPassword)
+    @NotBlank String oldPassword,
+    @StrongPassword String newPassword,
+    @NotBlank String confirmNewPassword)
     implements IMatchPassword, IDiffPassword {
 
   @Override

@@ -9,7 +9,7 @@ import com.inlaco.crewmgrservice.feature.course.presentation.dto.response.Course
 import com.inlaco.crewmgrservice.feature.course.presentation.dto.response.CourseResponse;
 import com.inlaco.crewmgrservice.feature.course.presentation.dto.response.UserCourseResponse;
 import com.inlaco.crewmgrservice.feature.course.presentation.mapper.CourseMapper;
-import com.inlaco.crewmgrservice.feature.user.model.User;
+import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import com.inlaco.crewmgrservice.infrastructure.config.openapi.OpenApiConfig;
 import com.inlaco.crewmgrservice.infrastructure.web.annotation.CurrentUser;
 import com.inlaco.crewmgrservice.infrastructure.web.annotation.Filter;

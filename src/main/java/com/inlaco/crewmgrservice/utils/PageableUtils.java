@@ -19,7 +19,7 @@ public final class PageableUtils {
    * ========================= */
 
   public static Pageable extendDefaultSort(Pageable pageable) {
-    return extendSort(pageable, Order.desc("updatedAt"), Order.desc("createdAt"), Order.asc("id"));
+    return extendSort(pageable, Order.asc("id"));
   }
 
   public static Pageable extendDefaultSort(Pageable pageable, Class<?> entityClass) {

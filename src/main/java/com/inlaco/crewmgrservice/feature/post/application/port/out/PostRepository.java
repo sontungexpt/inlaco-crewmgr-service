@@ -4,6 +4,7 @@ import com.inlaco.crewmgrservice.feature.post.application.model.PostSearchCriter
 import com.inlaco.crewmgrservice.feature.post.domain.enums.PostType;
 import com.inlaco.crewmgrservice.feature.post.domain.model.Post;
 import java.util.Optional;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
@@ -15,7 +16,7 @@ public interface PostRepository {
 
   Page<Post> findAll(Pageable pageable);
 
-  Page<Post> findAll(PostSearchCriteria criteria, Pageable pageable);
+  Page<Post> findAll(@Nullable PostSearchCriteria criteria, Pageable pageable);
 
   Page<Post> findByType(PostType type, Pageable pageable);
 

@@ -2,7 +2,7 @@ package com.inlaco.crewmgrservice.feature.crewrental.service;
 
 import com.inlaco.crewmgrservice.feature.crewrental.dto.RentalRequestFilterable;
 import com.inlaco.crewmgrservice.feature.crewrental.model.RentalRequest;
-import com.inlaco.crewmgrservice.feature.user.model.User;
+import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

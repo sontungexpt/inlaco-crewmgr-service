@@ -2,7 +2,6 @@ package com.inlaco.crewmgrservice.feature.course.presentation.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.inlaco.crewmgrservice.feature.course.domain.enums.CourseMemberStatus;
-import com.inlaco.crewmgrservice.feature.user.dto.SailorProfileDTO;
 import java.time.Instant;
 import lombok.Data;
 
@@ -48,5 +47,5 @@ public class CourseMemberInfoResponse {
   @JsonProperty("enrolledAt")
   private Instant createdAt;
 
-  private SailorProfileDTO sailorProfile;
+  // private SailorProfileDTO sailorProfile;
 }

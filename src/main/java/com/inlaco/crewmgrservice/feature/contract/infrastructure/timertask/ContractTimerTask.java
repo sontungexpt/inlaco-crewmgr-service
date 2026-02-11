@@ -4,10 +4,10 @@ import com.inlaco.crewmgrservice.feature.contract.domain.model.AbstractContract;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.Contract;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.LaborContract;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.SupplyContract;
+import com.inlaco.crewmgrservice.feature.crew.application.port.in.CrewUseCase;
 import com.inlaco.crewmgrservice.feature.crewrental.enums.RentalRequestStatus;
 import com.inlaco.crewmgrservice.feature.crewrental.model.RentalRequest;
 import com.inlaco.crewmgrservice.feature.crewrental.service.RentalRequestService;
-import com.inlaco.crewmgrservice.feature.user.service.SailorService;
 import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -26,7 +26,7 @@ public class ContractTimerTask {
 
   private final MongoTemplate mongoTemplate;
   private final RentalRequestService rentalRequestService;
-  private final SailorService sailorService;
+  private final CrewUseCase crewUseCase;
 
   @Scheduled(cron = "0 0/1 * * * ?")
   private void onContractEffective() {
@@ -111,7 +111,7 @@ public class ContractTimerTask {
     log.info(
         "[ContractTimerTask] Activating LaborContract for employeeId={}", contract.getEmployeeId());
 
-    sailorService.makeSailorOfficial(contract);
+    crewUseCase.makeCrewOfficial(contract);
 
     log.info(
         "[ContractTimerTask] LaborContract activated, sailor marked official employeeId={}",

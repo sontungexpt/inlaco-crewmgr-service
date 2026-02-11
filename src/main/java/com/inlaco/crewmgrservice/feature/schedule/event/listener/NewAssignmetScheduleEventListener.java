@@ -1,12 +1,12 @@
 package com.inlaco.crewmgrservice.feature.schedule.event.listener;
 
+import com.inlaco.crewmgrservice.feature.crew.application.port.in.CrewUseCase;
+import com.inlaco.crewmgrservice.feature.crew.domain.model.CrewProfile;
 import com.inlaco.crewmgrservice.feature.notify.NotificationDispatcher;
 import com.inlaco.crewmgrservice.feature.notify.NotificationPolicy;
 import com.inlaco.crewmgrservice.feature.notify.mail.EmailRequest;
 import com.inlaco.crewmgrservice.feature.schedule.event.NewAssignmentScheduleEvent;
 import com.inlaco.crewmgrservice.feature.schedule.model.AssignedMobilization;
-import com.inlaco.crewmgrservice.feature.user.model.SailorProfile;
-import com.inlaco.crewmgrservice.feature.user.service.SailorService;
 import com.inlaco.crewmgrservice.utils.TextTemplateBuilder;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @RequiredArgsConstructor
 public class NewAssignmetScheduleEventListener {
-  private final SailorService sailorService;
+  private final CrewUseCase crewUseCase;
   private final NotificationDispatcher notificationFactory;
 
   @Value("${inlaco.client.base-url}")
@@ -49,7 +49,7 @@ public class NewAssignmetScheduleEventListener {
       return;
     }
     List<String> cardIds = schedule.getCrewMembers().stream().map(it -> it.getCardId()).toList();
-    List<SailorProfile> profiles = sailorService.findSailorProfilesByCardIds(cardIds);
+    List<CrewProfile> profiles = crewUseCase.getProfilesByCardIds(cardIds);
 
     if (profiles.isEmpty()) {
       log.warn("No sailor profiles found for schedule {}", schedule.getId());
@@ -64,7 +64,7 @@ public class NewAssignmetScheduleEventListener {
   }
 
   private void sendScheduleEmail(
-      SailorProfile profile, AssignedMobilization schedule, String template) {
+      CrewProfile profile, AssignedMobilization schedule, String template) {
     if (profile.getEmail() == null || profile.getEmail().isBlank()) {
       log.warn("Skip notifying sailor {} due to missing email", profile.getId());
       return;

@@ -2,7 +2,7 @@ package com.inlaco.crewmgrservice.feature.auth.application.service;
 
 import com.inlaco.crewmgrservice.feature.auth.application.enums.VerificationPolicy;
 import com.inlaco.crewmgrservice.feature.auth.application.port.in.TwoStepVerificationService;
-import com.inlaco.crewmgrservice.feature.user.model.User;
+import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;

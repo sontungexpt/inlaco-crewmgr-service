@@ -3,15 +3,14 @@ package com.inlaco.crewmgrservice.feature.schedule.repository;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
 import com.inlaco.crewmgrservice.common.model.FacetResult;
+import com.inlaco.crewmgrservice.feature.crew.infrastructure.persistence.mongodb.entity.CrewProfileEntity;
 import com.inlaco.crewmgrservice.feature.schedule.dto.MobilizationResponse;
 import com.inlaco.crewmgrservice.feature.schedule.dto.ScheduleFilterable;
 import com.inlaco.crewmgrservice.feature.schedule.model.AssignedMobilization;
-import com.inlaco.crewmgrservice.feature.user.model.SailorProfile;
 import com.inlaco.crewmgrservice.utils.PageableUtils;
 import java.time.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -49,9 +48,9 @@ public class CustomScheduleRepository {
         newAggregation(
             match(Criteria.where("_id").is(id)),
             lookup(
-                mongoTemplate.getCollectionName(SailorProfile.class),
+                mongoTemplate.getCollectionName(CrewProfileEntity.class),
                 "cardId",
-                "crewMembers.cardId",
+                "crewMembers.employeeCardId",
                 "crewMembers"));
 
     return mongoTemplate
@@ -180,10 +179,5 @@ public class CustomScheduleRepository {
         .as(FacetResult.getDataFacetName());
   }
 
-  private class ScheduleFacetResult extends FacetResult<AssignedMobilization> {
-    public ScheduleFacetResult(
-        List<AssignedMobilization> dataFacet, List<Map<String, Object>> countFacet) {
-      super(dataFacet, countFacet);
-    }
-  }
+  static class ScheduleFacetResult extends FacetResult<AssignedMobilization> {}
 }

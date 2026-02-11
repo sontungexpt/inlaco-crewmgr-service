@@ -31,17 +31,17 @@ public class NewCourseRequest implements Serializable, TimeFrame {
 
   private File wallpaper;
 
-  @NotBlank private final String description;
+  @NotBlank private String description;
 
   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-  private Instant startRegistrationAt = Instant.now().plusSeconds(30);
+  private Instant startRegistrationAt = Instant.now();
 
   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
   private Instant endRegistrationAt;
 
   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
   @NotNull
-  private Instant startDate = Instant.now().plusSeconds(30);
+  private Instant startDate;
 
   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
   @NotNull

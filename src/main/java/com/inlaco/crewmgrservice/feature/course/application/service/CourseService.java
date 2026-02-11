@@ -15,7 +15,7 @@ import com.inlaco.crewmgrservice.feature.course.domain.model.CourseMember;
 import com.inlaco.crewmgrservice.feature.course.domain.model.UserCourse;
 import com.inlaco.crewmgrservice.feature.upload.application.enums.UploadStrategy;
 import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadFactory;
-import com.inlaco.crewmgrservice.feature.user.model.User;
+import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import com.inlaco.crewmgrservice.utils.JsonMergePatchUtils;
 import com.inlaco.crewmgrservice.utils.PrincipalUtils;
 import java.util.List;

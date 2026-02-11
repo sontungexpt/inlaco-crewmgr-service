@@ -2,7 +2,7 @@ package com.inlaco.crewmgrservice.feature.auth.application.service;
 
 import com.inlaco.crewmgrservice.feature.auth.application.enums.VerificationPolicy;
 import com.inlaco.crewmgrservice.feature.auth.application.port.in.TwoStepVerificationUseCase;
-import com.inlaco.crewmgrservice.feature.user.model.User;
+import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

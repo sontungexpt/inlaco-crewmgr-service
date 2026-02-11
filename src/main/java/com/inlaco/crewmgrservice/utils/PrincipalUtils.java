@@ -2,7 +2,7 @@ package com.inlaco.crewmgrservice.utils;
 
 import com.inlaco.crewmgrservice.application.exception.AuthenticationException;
 import com.inlaco.crewmgrservice.feature.auth.infrastructure.security.SecurityUser;
-import com.inlaco.crewmgrservice.feature.user.model.User;
+import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 public class PrincipalUtils {

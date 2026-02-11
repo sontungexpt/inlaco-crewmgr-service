@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.feature.auth.domain.event;
 
-import com.inlaco.crewmgrservice.feature.user.model.User;
+import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import lombok.Getter;
 import org.springframework.context.ApplicationEvent;
 

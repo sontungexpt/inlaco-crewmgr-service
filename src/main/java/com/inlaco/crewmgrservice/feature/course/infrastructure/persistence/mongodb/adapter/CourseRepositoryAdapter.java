@@ -195,12 +195,5 @@ public class CourseRepositoryAdapter implements CourseRepository {
   //   return result.toPage(pageable);
   // }
 
-  // class CourseMemberInfoFacetResult extends FacetResult<CourseMemberInfoResponse> {
-  //   public CourseMemberInfoFacetResult(
-  //       List<CourseMemberInfoResponse> dataFacet, List<Map<String, Object>> countFacet) {
-  //     super(dataFacet, countFacet);
-  //   }
-  // }
-
-  class CourseEntityFacetResult extends FacetResult<CourseEntity> {}
+  static class CourseEntityFacetResult extends FacetResult<CourseEntity> {}
 }

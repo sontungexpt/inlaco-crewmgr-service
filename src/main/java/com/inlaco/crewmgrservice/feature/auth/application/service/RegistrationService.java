@@ -9,12 +9,12 @@ import com.inlaco.crewmgrservice.feature.auth.application.port.in.AccessTokenGen
 import com.inlaco.crewmgrservice.feature.auth.application.port.in.RefreshTokenManager;
 import com.inlaco.crewmgrservice.feature.auth.application.port.in.RegistrationUseCase;
 import com.inlaco.crewmgrservice.feature.auth.domain.model.RefreshToken;
-import com.inlaco.crewmgrservice.feature.user.enums.UsernameType;
-import com.inlaco.crewmgrservice.feature.user.model.User;
-import com.inlaco.crewmgrservice.feature.user.model.authorization.Right;
-import com.inlaco.crewmgrservice.feature.user.model.authorization.Role;
-import com.inlaco.crewmgrservice.feature.user.repository.RoleRepository;
-import com.inlaco.crewmgrservice.feature.user.service.UserService;
+import com.inlaco.crewmgrservice.feature.user.application.port.in.UserService;
+import com.inlaco.crewmgrservice.feature.user.domain.enums.UsernameType;
+import com.inlaco.crewmgrservice.feature.user.domain.model.User;
+import com.inlaco.crewmgrservice.feature.user.domain.model.authorization.Right;
+import com.inlaco.crewmgrservice.feature.user.domain.model.authorization.Role;
+import com.inlaco.crewmgrservice.feature.user.infrastructure.persistence.mongodb.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -50,12 +50,11 @@ public class RegistrationService implements RegistrationUseCase {
 
     User user =
         userService.saveUser(
-            User.builder()
-                .username(username)
-                .password(passwordEncoder.encode(command.password()))
-                .right(new Right(role))
-                .name(command.name())
-                .build());
+            new User(
+                username,
+                passwordEncoder.encode(command.password()),
+                new Right(role),
+                command.name()));
 
     var usernameType = user.getUsernameType();
 

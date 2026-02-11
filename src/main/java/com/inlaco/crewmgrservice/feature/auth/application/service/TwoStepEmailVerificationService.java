@@ -9,8 +9,8 @@ import com.inlaco.crewmgrservice.feature.auth.domain.model.EmailVerificationToke
 import com.inlaco.crewmgrservice.feature.notify.NotificationDispatcher;
 import com.inlaco.crewmgrservice.feature.notify.NotificationPolicy;
 import com.inlaco.crewmgrservice.feature.notify.mail.EmailRequest;
-import com.inlaco.crewmgrservice.feature.user.model.User;
-import com.inlaco.crewmgrservice.feature.user.service.UserService;
+import com.inlaco.crewmgrservice.feature.user.application.port.in.UserService;
+import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import com.inlaco.crewmgrservice.utils.DigestUtils;
 import com.inlaco.crewmgrservice.utils.HttpServletUtils;
 import com.inlaco.crewmgrservice.utils.TextTemplateBuilder;

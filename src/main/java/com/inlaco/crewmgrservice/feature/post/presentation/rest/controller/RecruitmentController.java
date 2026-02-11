@@ -1,7 +1,7 @@
 package com.inlaco.crewmgrservice.feature.post.presentation.rest.controller;
 
 import com.inlaco.crewmgrservice.feature.post.application.port.in.RecruitmentPostUseCase;
-import com.inlaco.crewmgrservice.feature.user.model.User;
+import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import com.inlaco.crewmgrservice.infrastructure.web.annotation.CurrentUser;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.Instant;

@@ -16,6 +16,7 @@ import java.time.Instant;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -37,7 +38,7 @@ public class PostRepositoryAdapter implements PostRepository {
   }
 
   @Override
-  public Page<Post> findAll(PostSearchCriteria criteria, Pageable pageable) {
+  public Page<Post> findAll(@Nullable PostSearchCriteria criteria, Pageable pageable) {
     var query = Criteria.where("deletedAt").exists(false);
 
     if (criteria != null) {

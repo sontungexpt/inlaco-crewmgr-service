@@ -9,7 +9,7 @@ import com.inlaco.crewmgrservice.feature.crewrental.repository.RentalRequestRepo
 import com.inlaco.crewmgrservice.feature.crewrental.service.RentalRequestService;
 import com.inlaco.crewmgrservice.feature.upload.application.enums.UploadStrategy;
 import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadFactory;
-import com.inlaco.crewmgrservice.feature.user.model.User;
+import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
