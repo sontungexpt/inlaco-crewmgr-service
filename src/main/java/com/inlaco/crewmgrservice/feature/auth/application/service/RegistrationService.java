@@ -10,7 +10,6 @@ import com.inlaco.crewmgrservice.feature.auth.application.port.in.RefreshTokenMa
 import com.inlaco.crewmgrservice.feature.auth.application.port.in.RegistrationUseCase;
 import com.inlaco.crewmgrservice.feature.auth.domain.model.RefreshToken;
 import com.inlaco.crewmgrservice.feature.user.application.port.in.UserService;
-import com.inlaco.crewmgrservice.feature.user.domain.enums.UsernameType;
 import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import com.inlaco.crewmgrservice.feature.user.domain.model.authorization.Right;
 import com.inlaco.crewmgrservice.feature.user.domain.model.authorization.Role;
@@ -56,12 +55,14 @@ public class RegistrationService implements RegistrationUseCase {
                 new Right(role),
                 command.name()));
 
-    var usernameType = user.getUsernameType();
-
-    if (usernameType == UsernameType.EMAIL) {
-      twoStepVerificationDispatcher.send(VerificationPolicy.EMAIL, user);
-    } else if (usernameType == UsernameType.PHONE_NUMBER) {
-
+    switch (user.getUsernameType()) {
+      case EMAIL:
+        twoStepVerificationDispatcher.send(VerificationPolicy.EMAIL, user);
+        break;
+      case PHONE_NUMBER:
+        break;
+      default:
+        break;
     }
 
     final String accessToken = accessTokenGenerator.generate(user.getPubId());

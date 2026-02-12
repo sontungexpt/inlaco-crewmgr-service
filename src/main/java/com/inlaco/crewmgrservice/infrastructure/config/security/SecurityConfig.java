@@ -37,6 +37,7 @@ public class SecurityConfig {
   @Bean
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
+    // return new BCryptPasswordEncoder(12);
   }
 
   // @Bean
@@ -93,18 +94,7 @@ public class SecurityConfig {
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
         // authorize
-        .authorizeHttpRequests(
-            auth -> {
-              auth.anyRequest().access(authzManager);
-              // PUBLIC ENDPOINTS (NO JWT)
-              // for (HttpMethod method : HttpMethod.values()) {
-              //   String[] paths = endpointInspector.getPublicSecurityPaths(method);
-              //   if (paths.length > 0) {
-              //     auth.requestMatchers(method, paths).permitAll();
-              //   }
-              // }
-              // auth.anyRequest().authenticated();
-            })
+        .authorizeHttpRequests(auth -> auth.anyRequest().access(authzManager))
         .authenticationProvider(authenticationProvider(passwordEncoder, userDetailsService))
         .addFilterBefore(lazyJwtAuthTokenFilter, UsernamePasswordAuthenticationFilter.class)
         // authorize by endpoints

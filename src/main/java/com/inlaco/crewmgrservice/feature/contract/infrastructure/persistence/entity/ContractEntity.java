@@ -5,13 +5,15 @@ import com.inlaco.crewmgrservice.feature.contract.domain.model.ContractType;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.Party;
 import java.time.Instant;
 import java.util.List;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import org.bson.types.ObjectId;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Getter
-@Setter
+@Data
 @Document("contracts")
 public class ContractEntity {
 
@@ -29,19 +31,25 @@ public class ContractEntity {
 
   private boolean signed = false;
 
-  private ObjectId signedBy;
-
-  private Instant signedAt;
-
   private Instant activationDate;
 
   private boolean activated = false;
 
   private Instant expiredDate;
 
-  private ObjectId templateId;
-
   private int contractFreezeDelay;
 
   private ContractType type;
+
+  private ObjectId signedBy;
+
+  private Instant signedAt;
+
+  @CreatedBy private ObjectId createdBy;
+
+  @CreatedDate private Instant createdAt;
+
+  @LastModifiedBy private ObjectId updatedBy;
+
+  @LastModifiedDate private Instant updatedAt;
 }

@@ -116,4 +116,11 @@ public class CrewProfileRepositoryAdapter implements CrewProfileRepository {
   }
 
   static class CrewProfileEntityFacetResult extends FacetResult<CrewProfileEntity> {}
+
+  @Override
+  public List<CrewProfile> findByIdIn(Iterable<String> ids) {
+    return crewProfileMongoRepository.findByIdIn(ids).stream()
+        .map(crewProfileEntityMapper::toCrewProfile)
+        .toList();
+  }
 }

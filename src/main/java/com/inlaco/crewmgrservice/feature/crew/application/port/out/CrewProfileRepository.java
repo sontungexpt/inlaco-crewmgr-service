@@ -22,5 +22,7 @@ public interface CrewProfileRepository {
 
   Page<CrewProfile> findAll(@Nullable CrewProfileSearchCriteria criteria, Pageable pageable);
 
+  List<CrewProfile> findByIdIn(Iterable<String> ids);
+
   List<CrewProfile> findByEmployeeCardIdIn(Iterable<String> cardIds);
 }

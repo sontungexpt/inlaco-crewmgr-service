@@ -16,8 +16,9 @@ import com.inlaco.crewmgrservice.feature.contract.repository.ContractRepository;
 import com.inlaco.crewmgrservice.feature.contract.repository.ContractVersionRepository;
 import com.inlaco.crewmgrservice.feature.contract.repository.CustomContractRepository;
 import com.inlaco.crewmgrservice.feature.contract.repository.CustomLaborContractRepository;
-import com.inlaco.crewmgrservice.feature.crewrental.enums.RentalRequestStatus;
-import com.inlaco.crewmgrservice.feature.crewrental.service.RentalRequestService;
+import com.inlaco.crewmgrservice.feature.crewrental.application.port.out.CrewRentalRequestRepository;
+import com.inlaco.crewmgrservice.feature.crewrental.domain.enums.CrewRentalRequestStatus;
+import com.inlaco.crewmgrservice.feature.crewrental.domain.model.CrewRentalRequest;
 import com.inlaco.crewmgrservice.feature.recruitment.application.port.in.RecruitmentQueryUseCase;
 import com.inlaco.crewmgrservice.feature.recruitment.domain.model.JobApplication;
 import com.inlaco.crewmgrservice.feature.upload.application.enums.UploadStrategy;
@@ -41,7 +42,7 @@ public class ContractServiceImpl implements ContractUseCase {
   private final ContractVersionRepository contractVersionRepository;
   private final JsonMergePatchUtils jsonMergePatch;
   private final CustomContractRepository customContractRepository;
-  private final RentalRequestService rentalRequestService;
+  private final CrewRentalRequestRepository crewRentalRequestRepository;
   private final CustomLaborContractRepository customLaborContractRepository;
   private final RecruitmentQueryUseCase recruitmentQueryUseCase;
   private final UploadFactory uploadFactory;
@@ -176,7 +177,11 @@ public class ContractServiceImpl implements ContractUseCase {
       String contractFileAssetId,
       String shipImageAssetId,
       User creator) {
-    var request = rentalRequestService.getRequestById(requestId);
+    var request =
+        crewRentalRequestRepository
+            .findById(requestId)
+            .orElseThrow(
+                () -> new ResourceNotFoundException(CrewRentalRequest.class, "id", requestId));
 
     contract.setRentalRequestId(new ObjectId(request.getId()));
     contract.setContractFile(
@@ -187,10 +192,10 @@ public class ContractServiceImpl implements ContractUseCase {
 
     var newContract = contractRepository.save(contract);
 
-    request.setContractId(new ObjectId(newContract.getId()));
-    request.setStatus(RentalRequestStatus.SIGNING);
+    request.setContractId(newContract.getId());
+    request.setStatus(CrewRentalRequestStatus.SIGNING);
 
-    rentalRequestService.saveRequest(request);
+    crewRentalRequestRepository.save(request);
     log.debug("Created supply contract for crew rental request with id: {}", requestId);
 
     return newContract;

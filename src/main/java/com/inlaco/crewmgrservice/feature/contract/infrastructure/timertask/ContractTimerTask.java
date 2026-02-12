@@ -1,13 +1,14 @@
 package com.inlaco.crewmgrservice.feature.contract.infrastructure.timertask;
 
+import com.inlaco.crewmgrservice.application.exception.ResourceNotFoundException;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.AbstractContract;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.Contract;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.LaborContract;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.SupplyContract;
 import com.inlaco.crewmgrservice.feature.crew.application.port.in.CrewUseCase;
-import com.inlaco.crewmgrservice.feature.crewrental.enums.RentalRequestStatus;
-import com.inlaco.crewmgrservice.feature.crewrental.model.RentalRequest;
-import com.inlaco.crewmgrservice.feature.crewrental.service.RentalRequestService;
+import com.inlaco.crewmgrservice.feature.crewrental.application.port.out.CrewRentalRequestRepository;
+import com.inlaco.crewmgrservice.feature.crewrental.domain.enums.CrewRentalRequestStatus;
+import com.inlaco.crewmgrservice.feature.crewrental.domain.model.CrewRentalRequest;
 import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -25,7 +26,7 @@ import org.springframework.stereotype.Component;
 public class ContractTimerTask {
 
   private final MongoTemplate mongoTemplate;
-  private final RentalRequestService rentalRequestService;
+  private final CrewRentalRequestRepository crewRentalRequestRepository;
   private final CrewUseCase crewUseCase;
 
   @Scheduled(cron = "0 0/1 * * * ?")
@@ -92,7 +93,11 @@ public class ContractTimerTask {
   private void activateSupplyContract(SupplyContract contract) {
     String requestId = contract.getRentalRequestId().toHexString();
 
-    RentalRequest request = rentalRequestService.getRequestById(requestId);
+    CrewRentalRequest request =
+        crewRentalRequestRepository
+            .findById(requestId)
+            .orElseThrow(
+                () -> new ResourceNotFoundException(CrewRentalRequest.class, "id", requestId));
 
     if (request == null) {
       log.warn(
@@ -100,8 +105,8 @@ public class ContractTimerTask {
       return;
     }
 
-    request.setStatus(RentalRequestStatus.ACTIVE);
-    rentalRequestService.saveRequest(request);
+    request.setStatus(CrewRentalRequestStatus.ACTIVE);
+    crewRentalRequestRepository.save(request);
 
     log.info(
         "[ContractTimerTask] SupplyContract activated → RentalRequest {} set to ACTIVE", requestId);
