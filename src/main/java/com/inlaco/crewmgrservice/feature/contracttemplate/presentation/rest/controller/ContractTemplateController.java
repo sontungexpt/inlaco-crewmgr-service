@@ -1,10 +1,11 @@
-package com.inlaco.crewmgrservice.feature.contract.presentation.rest.controller;
+package com.inlaco.crewmgrservice.feature.contracttemplate.presentation.rest.controller;
 
-import com.inlaco.crewmgrservice.feature.contract.application.port.in.ContractTemplateService;
-import com.inlaco.crewmgrservice.feature.contract.domain.model.ContractTemplate;
-import com.inlaco.crewmgrservice.feature.user.domain.model.User;
+import com.inlaco.crewmgrservice.feature.contracttemplate.application.port.in.ContractTemplateUseCase;
+import com.inlaco.crewmgrservice.feature.contracttemplate.domain.model.ContractTemplate;
+import com.inlaco.crewmgrservice.feature.contracttemplate.presentation.rest.dto.request.NewContractTemplate;
+import com.inlaco.crewmgrservice.feature.contracttemplate.presentation.rest.dto.response.ContractTemplateResponse;
+import com.inlaco.crewmgrservice.feature.contracttemplate.presentation.rest.mapper.ContractTemplateMapper;
 import com.inlaco.crewmgrservice.infrastructure.config.openapi.OpenApiConfig;
-import com.inlaco.crewmgrservice.infrastructure.web.annotation.CurrentUser;
 import com.inlaco.crewmgrservice.infrastructure.web.annotation.PageableQueryParams;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -26,70 +27,49 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController
-@RequestMapping("/api/v1/contract-templates")
-@RequiredArgsConstructor
 @Tag(name = "Template", description = "APIs for managing contracts")
+@RequiredArgsConstructor
+@RequestMapping("/api/v1/contract-templates")
+@RestController
 public class ContractTemplateController {
 
-  private final ContractTemplateService contractTemplateService;
+  private final ContractTemplateUseCase contractTemplateService;
+  private final ContractTemplateMapper contractTemplateMapper;
 
   @Operation(
       summary = "Get all templates",
-      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
-      description =
-"""
-This API is used to get all templates.
-
-**Usecase**:
-- UC_admin-get-danh-sach-template.
-
-""")
+      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   @RolesAllowed("ADMIN")
   @GetMapping("")
   @PageableQueryParams
-  public Page<ContractTemplate> getAllContractTemplates(
+  public Page<ContractTemplateResponse> getAllContractTemplates(
       @RequestParam(required = false) String type,
       @PageableDefault(page = 0, size = 20) Pageable pageable) {
-    return contractTemplateService.getAllTemplates(type, pageable);
+    return contractTemplateService
+        .getAllTemplates(type, pageable)
+        .map(contractTemplateMapper::toContractTemplateResponse);
   }
 
   @Operation(
       summary = "Upload template",
-      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
-      description =
-"""
-This api is used to upload template.
-
-**usecase**:
-- UC_admin-tao-template-hop-dong.
-
-""")
+      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   @RolesAllowed("ADMIN")
   @PostMapping("")
   @ResponseStatus(HttpStatus.CREATED)
   public ContractTemplate uploadTemplate(
-      @RequestBody @Valid ContractTemplate contractTemplate,
-      @RequestParam String templateFileAssetId,
-      @CurrentUser User user) {
-    return contractTemplateService.uploadTemplate(templateFileAssetId, contractTemplate);
+      @RequestBody @Valid NewContractTemplate contractTemplate,
+      @RequestParam String templateFileAssetId) {
+    return contractTemplateService.uploadTemplate(
+        templateFileAssetId, contractTemplateMapper.toContractTemplate(contractTemplate));
   }
 
   @Operation(
       summary = "Remove template",
-      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)},
-      description =
-"""
-This api is used to remove template.
-
-**usecase**:
-- UC_admin-xoa-template-hop-dong.
-
-""")
+      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   @RolesAllowed("ADMIN")
   @DeleteMapping("/{id}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void removeTemplate(@PathVariable String id, @CurrentUser User user) {
+  public void removeTemplate(@PathVariable String id) {
     contractTemplateService.removeTemplate(id);
   }
 }

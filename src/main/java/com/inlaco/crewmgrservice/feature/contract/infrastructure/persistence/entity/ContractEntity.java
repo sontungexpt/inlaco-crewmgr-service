@@ -1,6 +1,5 @@
 package com.inlaco.crewmgrservice.feature.contract.infrastructure.persistence.entity;
 
-import com.inlaco.crewmgrservice.common.model.File;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.ContractType;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.Party;
 import java.time.Instant;
@@ -23,11 +22,7 @@ public class ContractEntity {
 
   private List<Party> partners;
 
-  private File contractFile;
-
-  private List<File> attachments;
-
-  private List<String> terms;
+  private String payload;
 
   private boolean signed = false;
 

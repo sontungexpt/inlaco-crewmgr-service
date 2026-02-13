@@ -1,4 +1,4 @@
-package com.inlaco.crewmgrservice.feature.contract.application.service;
+package com.inlaco.crewmgrservice.feature.contracttemplate.application.service;
 
 import com.inlaco.crewmgrservice.feature.upload.application.enums.UploadStrategy;
 import com.inlaco.crewmgrservice.feature.upload.application.port.in.CloudinaryService;
