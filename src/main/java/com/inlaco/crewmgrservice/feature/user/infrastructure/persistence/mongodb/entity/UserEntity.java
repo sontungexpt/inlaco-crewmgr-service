@@ -42,11 +42,6 @@ public class UserEntity implements Persistable<String> {
 
   private Instant activatedAt;
 
-  public void activate() {
-    status = UserStatus.ACTIVE;
-    this.activatedAt = Instant.now();
-  }
-
   private Right right;
 
   @CreatedDate private Instant createdAt;
