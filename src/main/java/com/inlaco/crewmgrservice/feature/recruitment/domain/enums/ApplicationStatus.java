@@ -1,19 +1,59 @@
 package com.inlaco.crewmgrservice.feature.recruitment.domain.enums;
 
-public enum ApplicationStatus {
-  APPLIED,
-  WAIT_FOR_INTERVIEW,
-  REJECTED,
-  HIRED
-}
+import java.util.Set;
 
-// public enum CandidateStatus {
-//   APPLIED,                // Đã nộp hồ sơ
-//   SCREENING,              // HR đang review CV
-//   INTERVIEW_SCHEDULED,    // Đã lên lịch phỏng vấn
-//   INTERVIEWED,            // Đã phỏng vấn xong
-//   OFFERED,                // Đã gửi offer
-//   HIRED,                  // Đã ký hợp đồng
-//   REJECTED,               // Bị từ chối
-//   WITHDRAWN               // Ứng viên tự rút
-// }
+public enum ApplicationStatus {
+  APPLIED {
+    @Override
+    public Set<ApplicationStatus> getAllowedTransitions() {
+      return Set.of(SCREENING, REJECTED, WITHDRAWN);
+    }
+  },
+
+  SCREENING {
+    @Override
+    public Set<ApplicationStatus> getAllowedTransitions() {
+      return Set.of(INTERVIEW_SCHEDULED, REJECTED, WITHDRAWN);
+    }
+  },
+
+  INTERVIEW_SCHEDULED {
+    @Override
+    public Set<ApplicationStatus> getAllowedTransitions() {
+      return Set.of(INTERVIEWED, REJECTED, WITHDRAWN);
+    }
+  },
+
+  INTERVIEWED {
+    @Override
+    public Set<ApplicationStatus> getAllowedTransitions() {
+      return Set.of(OFFERED, REJECTED, WITHDRAWN);
+    }
+  },
+
+  OFFERED {
+    @Override
+    public Set<ApplicationStatus> getAllowedTransitions() {
+      return Set.of(CONFIRMED, REJECTED, WITHDRAWN);
+    }
+  },
+
+  CONFIRMED {
+    @Override
+    public Set<ApplicationStatus> getAllowedTransitions() {
+      return Set.of(HIRED, REJECTED, WITHDRAWN);
+    }
+  },
+
+  HIRED,
+  REJECTED,
+  WITHDRAWN;
+
+  public Set<ApplicationStatus> getAllowedTransitions() {
+    return Set.of();
+  }
+
+  public boolean canTransitionTo(ApplicationStatus target) {
+    return getAllowedTransitions().contains(target);
+  }
+}

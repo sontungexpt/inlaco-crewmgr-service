@@ -8,4 +8,6 @@ public interface CrewRentalRequestCommandUseCase {
 
   CrewRentalRequest create(
       CrewRentalRequest request, String detailFileAssetId, String shipImageAssetId);
+
+  CrewRentalRequest markSigning(CrewRentalRequest request, String contractId);
 }

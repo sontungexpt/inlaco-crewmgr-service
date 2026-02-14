@@ -31,7 +31,6 @@ public class MongoConfig {
 
   @Bean
   public MongoCustomConversions customConversions() {
-
     return new MongoCustomConversions(
         List.of(
             apiEndpointNameWritingConverter,
@@ -42,19 +41,13 @@ public class MongoConfig {
   // https://stackoverflow.com/questions/29472931/how-does-createdby-work-in-spring-data-jpa
   @Bean
   public AuditorAware<String> auditorStringProvider() {
-    return () -> {
-      log.debug("derived auditorProvider");
-      return getCurrentUser().map(User::getId);
-    };
+    return () -> getCurrentUser().map(User::getId);
   }
 
   @Bean
   @Primary
   public AuditorAware<ObjectId> auditorObjectIdProvider() {
-    return () -> {
-      log.debug("derived auditorObjectIdProvider");
-      return getCurrentUser().map(u -> new ObjectId(u.getId()));
-    };
+    return () -> getCurrentUser().map(u -> new ObjectId(u.getId()));
   }
 
   private Optional<User> getCurrentUser() {

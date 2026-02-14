@@ -43,4 +43,11 @@ public class CrewRentalRequestCommandService implements CrewRentalRequestCommand
         .setImage(uploadFactory.metadata(UploadStrategy.SHIP_IMAGE, shipImageAssetId));
     return crewRentalRequestRepository.save(request);
   }
+
+  @Override
+  public CrewRentalRequest markSigning(CrewRentalRequest request, String contractId) {
+    request.setContractId(contractId);
+    request.setStatus(CrewRentalRequestStatus.SIGNING);
+    return crewRentalRequestRepository.save(request);
+  }
 }

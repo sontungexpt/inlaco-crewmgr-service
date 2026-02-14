@@ -36,7 +36,6 @@ public class ApplicationQueryController {
       summary = "Retrieve all candidates profiles",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   @GetMapping("")
-  @ResponseStatus(HttpStatus.OK)
   @PageableQueryParams
   @RolesAllowed("ADMIN")
   public Page<JobApplicationResponse> getAllCandidates(

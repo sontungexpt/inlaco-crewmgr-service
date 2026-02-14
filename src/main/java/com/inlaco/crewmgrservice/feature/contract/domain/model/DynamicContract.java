@@ -1,15 +1,12 @@
 package com.inlaco.crewmgrservice.feature.contract.domain.model;
 
-import com.inlaco.crewmgrservice.common.model.DynamicAttribute;
-import io.swagger.v3.oas.annotations.media.Schema;
+import com.inlaco.crewmgrservice.feature.contract.domain.enums.ContractType;
+import com.inlaco.crewmgrservice.feature.contract.domain.objectvalue.DynamicAttribute;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.Builder.Default;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
-@SuperBuilder
 @Getter
 @Setter
 public class DynamicContract extends AbstractContract {
@@ -22,9 +19,5 @@ public class DynamicContract extends AbstractContract {
     super(type);
   }
 
-  @Schema(
-      description = "The list of custom attributes of the contract",
-      example = "[{\"name\":\"custom1\", \"value\": \"value1\"}]")
-  @Default
   private List<DynamicAttribute> customAttributes = new ArrayList<>();
 }

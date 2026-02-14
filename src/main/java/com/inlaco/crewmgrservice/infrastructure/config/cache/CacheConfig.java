@@ -1,6 +1,5 @@
 package com.inlaco.crewmgrservice.infrastructure.config.cache;
 
-import com.github.benmanes.caffeine.cache.CaffeineSpec;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
@@ -44,11 +43,10 @@ public class CacheConfig {
   @Primary
   @Bean("caffeineCacheManager")
   public CacheManager caffeineCacheManager() {
-    CaffeineCacheManager caffeineCacheManager =
-        new CaffeineCacheManager(
-            "comics", "comic", "comic_chapters", "comic_chapter", "comic_categories");
-    caffeineCacheManager.setCaffeineSpec(
-        CaffeineSpec.parse("maximumSize=8000,expireAfterAccess=30000s"));
+    CaffeineCacheManager caffeineCacheManager = new CaffeineCacheManager();
+
+    // caffeineCacheManager.setCaffeineSpec(
+    //     CaffeineSpec.parse("maximumSize=8000,expireAfterAccess=30000s"));
 
     // caffeineCacheManager.registerCustomCache(
     //     "productCategories",

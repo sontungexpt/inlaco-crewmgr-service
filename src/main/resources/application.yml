@@ -110,9 +110,9 @@ inlaco:
         hired:
           subject: Inlaco - You are hired
           path: templates/email/html/recruitment/hired.html
-        wait-for-interview:
+        screening:
           subject: "Inlaco - Your profile is under review"
-          path: "templates/email/html/recruitment/wait-for-interview.html"
+          path: "templates/email/html/recruitment/screening.html"
         rejected:
           subject: "Inlaco Recruitment Rejected"
           path: "templates/email/html/recruitment/rejected.html"

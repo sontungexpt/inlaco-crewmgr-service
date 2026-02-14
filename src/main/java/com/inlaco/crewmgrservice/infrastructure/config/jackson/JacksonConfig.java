@@ -44,9 +44,6 @@ public class JacksonConfig {
         .configOverride(String.class)
         .setSetterInfo(JsonSetter.Value.forValueNulls(Nulls.AS_EMPTY));
 
-    // DefaultSerializerProvider.Impl sp = new DefaultSerializerProvider.Impl();
-    // sp.setNullValueSerializer(new NullToEmptyStringSerializer());
-
     return mapper
         // .setSerializerProvider(sp)
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)

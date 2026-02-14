@@ -1,0 +1,32 @@
+package com.inlaco.crewmgrservice.feature.contract.presentation.dto.response;
+
+import com.inlaco.crewmgrservice.feature.contract.domain.enums.ContractType;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+public class LaborContractResponse extends DynamicContractResponse {
+
+  public LaborContractResponse() {
+    super(ContractType.LABOR_CONTRACT);
+  }
+
+  private String employeeId;
+
+  private String applicationId;
+
+  private String position;
+
+  private String workingLocation;
+
+  private String basicSalary;
+
+  private String allowance;
+
+  private String receiveMethod;
+
+  private String payday;
+
+  private String salaryReviewPeriod;
+}

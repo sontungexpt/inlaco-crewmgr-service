@@ -4,6 +4,7 @@ public enum CrewRentalRequestStatus {
   PENDING,
   APPROVED,
   SIGNING,
+  CONFIRMED,
   ACTIVE,
   DONE,
   REJECTED

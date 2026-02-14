@@ -1,7 +1,6 @@
 package com.inlaco.crewmgrservice.feature.recruitment.application.service;
 
 import com.inlaco.crewmgrservice.application.exception.ResourceNotFoundException;
-import com.inlaco.crewmgrservice.feature.recruitment.application.event.ApplicationReviewedEvent;
 import com.inlaco.crewmgrservice.feature.recruitment.application.port.in.RecruitmentReviewUseCase;
 import com.inlaco.crewmgrservice.feature.recruitment.application.port.out.JobApplicationRepository;
 import com.inlaco.crewmgrservice.feature.recruitment.domain.enums.ApplicationStatus;
@@ -31,8 +30,7 @@ public class RecruitmentReviewService implements RecruitmentReviewUseCase {
 
     // 1️⃣ Change state (Domain validation)
     application.changeStatus(newStatus);
-    var updatedApplication = jobApplicationRepository.save(application);
-
-    eventPublisher.publishEvent(new ApplicationReviewedEvent(updatedApplication));
+    jobApplicationRepository.save(application);
+    application.broadcast(eventPublisher::publishEvent);
   }
 }

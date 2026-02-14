@@ -4,11 +4,26 @@ import com.inlaco.crewmgrservice.common.model.File;
 import com.inlaco.crewmgrservice.feature.recruitment.domain.enums.ApplicationStatus;
 import com.inlaco.crewmgrservice.feature.user.domain.enums.Gender;
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Consumer;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Setter;
 
 @Data
 public class JobApplication {
+
+  private final transient Set<Object> domainEvents = new HashSet<>();
+
+  protected void registerEvent(Object event) {
+    domainEvents.add(event);
+  }
+
+  public void broadcast(Consumer<Object> dispatcher) {
+    domainEvents.forEach(dispatcher);
+    domainEvents.clear();
+  }
 
   private String id;
 
@@ -34,6 +49,7 @@ public class JobApplication {
 
   private File resume;
 
+  @Setter(AccessLevel.PRIVATE)
   private ApplicationStatus status = ApplicationStatus.APPLIED;
 
   private Instant appliedAt;
@@ -41,21 +57,10 @@ public class JobApplication {
   private Instant updatedAt;
 
   public void changeStatus(ApplicationStatus newStatus) throws IllegalStateException {
-    if (this.status == newStatus) return;
-    if (!isValidTransition(this.status, newStatus)) {
-      throw new IllegalStateException(
-          "Invalid status transition from " + this.status + " to " + newStatus);
+    if (status == newStatus) return;
+    if (!status.canTransitionTo(newStatus)) {
+      throw new IllegalStateException("Invalid transition from " + status + " to " + newStatus);
     }
-    this.status = newStatus;
-  }
-
-  private boolean isValidTransition(ApplicationStatus from, ApplicationStatus to) {
-    return switch (from) {
-      case APPLIED ->
-          Set.of(ApplicationStatus.WAIT_FOR_INTERVIEW, ApplicationStatus.REJECTED).contains(to);
-      case WAIT_FOR_INTERVIEW ->
-          Set.of(ApplicationStatus.HIRED, ApplicationStatus.REJECTED).contains(to);
-      default -> false;
-    };
+    status = newStatus;
   }
 }

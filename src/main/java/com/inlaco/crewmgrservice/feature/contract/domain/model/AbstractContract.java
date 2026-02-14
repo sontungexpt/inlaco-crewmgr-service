@@ -1,173 +1,234 @@
 package com.inlaco.crewmgrservice.feature.contract.domain.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.inlaco.crewmgrservice.common.model.File;
-import com.inlaco.crewmgrservice.infrastructure.web.annotation.patch.JsonPatchIgnore;
-import com.inlaco.crewmgrservice.infrastructure.web.payload.request.constraint.TimeFrame;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.FutureOrPresent;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
-import java.io.Serializable;
+import com.inlaco.crewmgrservice.feature.contract.domain.enums.ContractStatus;
+import com.inlaco.crewmgrservice.feature.contract.domain.enums.ContractType;
+import com.inlaco.crewmgrservice.feature.contract.domain.event.ContractActivedEvent;
+import com.inlaco.crewmgrservice.feature.contract.domain.event.ContractExpiredEvent;
+import com.inlaco.crewmgrservice.feature.contract.domain.event.ContractSignedEvent;
+import com.inlaco.crewmgrservice.feature.contract.domain.model.party.Party;
+import com.inlaco.crewmgrservice.feature.contract.domain.objectvalue.ContractStatusHistory;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
-import lombok.Builder.Default;
+import java.util.Set;
+import java.util.function.Consumer;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
-import org.bson.types.ObjectId;
-// import org.checkerframework.common.value.qual.MinLen;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.format.annotation.DateTimeFormat;
 
 @Getter
 @Setter
-@JsonIgnoreProperties(
-    value = {"id", "version", "partyAccountIds", "createdAt", "updatedAt", "prevVersion", "signed"},
-    allowGetters = true)
-@Document("contracts")
-@SuperBuilder
-@JsonTypeInfo(
-    include = JsonTypeInfo.As.EXISTING_PROPERTY,
-    visible = true,
-    use = JsonTypeInfo.Id.NAME,
-    property = "type")
-@JsonSubTypes({
-  @JsonSubTypes.Type(value = DynamicContract.class, name = ContractType.Fields.DYNAMIC_CONTRACT),
-  @JsonSubTypes.Type(value = LaborContract.class, name = ContractType.Fields.LABOR_CONTRACT),
-  @JsonSubTypes.Type(value = SupplyContract.class, name = ContractType.Fields.SUPPLY_CONTRACT)
-})
-public abstract class AbstractContract extends ContractVersion
-    implements Contract, TimeFrame, Serializable {
+public abstract class AbstractContract {
 
-  public AbstractContract(ContractType type) {
-    super();
+  private static final String SYSTEM = "SYSTEM";
+
+  private final transient Set<Object> domainEvents = new HashSet<>();
+
+  protected void registerEvent(Object event) {
+    domainEvents.add(event);
+  }
+
+  public void broadcast(Consumer<Object> dispatcher) {
+    domainEvents.forEach(dispatcher);
+    domainEvents.clear();
+  }
+
+  private String id;
+  private final ContractType type;
+
+  protected AbstractContract(ContractType type) {
     this.type = type;
   }
 
-  @NotBlank
-  @Schema(
-      description = "The title of the contract",
-      example = "The title of the contract",
-      requiredMode = RequiredMode.REQUIRED)
+  // ======================
+  // BASIC INFO
+  // ======================
+
   private String title;
-
-  @Schema(
-      description = "The initiator of the contract (our company)",
-      requiredMode = RequiredMode.REQUIRED)
-  @NotNull
   private Party initiator;
-
-  @Schema(
-      description = "The list of signed partners (example sailor)",
-      requiredMode = RequiredMode.REQUIRED)
-  @Size(min = 1)
-  private List<@Valid Party> partners;
-
-  @Schema(description = "The list of paper contracts", requiredMode = RequiredMode.REQUIRED)
+  private List<Party> partners = new ArrayList<>();
   private File contractFile;
+  private List<File> attachments = new ArrayList<>();
+  private List<String> terms = new ArrayList<>();
+  private int version;
 
-  @Schema(
-      description = "The description of the contract",
-      example = "[{\"name\":\"Hop dong\", \"url\": \"https://....\"}]")
-  private List<@Valid File> attachments = new ArrayList<>();
-
-  @Schema(description = "The list of term of the contract", requiredMode = RequiredMode.REQUIRED)
-  private List<@NotBlank String> terms;
-
-  @JsonPatchIgnore
-  @Schema(description = "The contract is signed or not", hidden = true)
-  private boolean signed = false;
-
-  @JsonPatchIgnore
-  @JsonIgnore
-  @Schema(description = "The user who signed the contract", hidden = true)
-  @JsonSerialize(using = ToStringSerializer.class)
-  private ObjectId signedBy;
-
-  public void sign(ObjectId signedBy) {
-    this.signed = true;
-    this.signedBy = signedBy;
-    this.signedAt = Instant.now();
+  public void incrementVersion() {
+    version++;
   }
 
-  @FutureOrPresent
-  @Schema(description = "The time that the contract is signed")
-  @JsonIgnore
-  @JsonPatchIgnore
-  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-  private Instant signedAt;
+  // ======================
+  // STATUS
+  // ======================
 
-  @Schema(description = "The time that the contract is valid, and active")
-  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+  @Setter(AccessLevel.PRIVATE)
+  private ContractStatus status = ContractStatus.DRAFT;
+
+  private final List<ContractStatusHistory> statusHistories = new ArrayList<>();
+
+  @Setter(AccessLevel.PRIVATE)
+  private Instant lastStatusChangedAt;
+
+  @Setter(AccessLevel.PRIVATE)
+  private String lastStatusChangedBy;
+
+  // ======================
+  // TIME
+  // ======================
+
   private Instant activationDate;
-
-  @JsonIgnore
-  @JsonPatchIgnore
-  @Schema(
-      description =
-          "The contract is activated or not(Only use for timertask to checked if the contract"
-              + " should be check)",
-      hidden = true)
-  private boolean activated = false;
-
-  @Schema(description = "The time that the contract expired")
-  @Future
-  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
   private Instant expiredDate;
+  private int contractFreezeDelayMinutes = 5;
 
-  @Schema(
-      description = "The template id of the contract",
-      type = "String",
-      hidden = true,
-      requiredMode = RequiredMode.REQUIRED)
-  @JsonSerialize(using = ToStringSerializer.class)
-  private ObjectId templateId;
+  // ======================
+  // LIFECYCLE ACTIONS
+  // ======================
 
-  @Schema(
-      description =
-          "The activation grace period in minutes after the contract is created. In this time, the"
-              + " contract is not really active and the user can update it easily. After this"
-              + " period, the contract is activated and the user can't update it anymore. If they"
-              + " want to update the contract it will save the older version (default: 5 minutes)",
-      example = "5")
-  @Min(0)
-  @Default
-  @JsonPatchIgnore
-  private int contractFreezeDelay = 5;
-
-  @Schema(hidden = true)
-  public boolean isFreezed() {
-    return isSigned() && Instant.now().isAfter(getFreezeDate());
+  public void sign(String signedBy, Instant now) {
+    transitionTo(ContractStatus.SIGNED, defaultIfNull(signedBy), "Contract signed", now);
+    registerEvent(new ContractSignedEvent(this));
   }
 
-  @Schema(hidden = true)
+  public void activate(Instant now) {
+    if (!canActivate(now)) {
+      throw new IllegalStateException("Activation date not reached");
+    }
+    transitionTo(ContractStatus.ACTIVE, SYSTEM, "Activation date reached", now);
+    registerEvent(new ContractActivedEvent(this));
+  }
+
+  public void expire(Instant now) {
+    if (!canExpire(now)) {
+      throw new IllegalStateException("Expiration date not reached");
+    }
+    transitionTo(ContractStatus.EXPIRED, SYSTEM, "Contract expired", now);
+    registerEvent(new ContractExpiredEvent(this));
+  }
+
+  public void cancel(String cancelledBy, String reason, Instant now) {
+    transitionTo(ContractStatus.CANCELLED, defaultIfNull(cancelledBy), reason, now);
+  }
+
+  // ======================
+  // AUTO REFRESH
+  // ======================
+
+  public void refreshStatusIfNeeded() {
+    ContractStatus effective = getEffectiveStatus();
+    if (effective != status) {
+      transitionTo(effective, SYSTEM, "Auto transition by temporal rule", Instant.now());
+    }
+  }
+
+  public ContractStatus getEffectiveStatus() {
+    Instant now = Instant.now();
+
+    if (status == ContractStatus.SIGNED
+        && activationDate != null
+        && !now.isBefore(activationDate)) {
+      return ContractStatus.ACTIVE;
+    }
+
+    if (status == ContractStatus.ACTIVE && expiredDate != null && !now.isBefore(expiredDate)) {
+      return ContractStatus.EXPIRED;
+    }
+
+    return status;
+  }
+
+  // ======================
+  // TRANSITION CORE
+  // ======================
+
+  private void transitionTo(
+      ContractStatus newStatus, String changedBy, String reason, Instant now) {
+
+    if (status == newStatus) {
+      return;
+    }
+
+    if (!status.canTransitionTo(newStatus)) {
+      throw new IllegalStateException("Invalid transition from " + status + " to " + newStatus);
+    }
+
+    statusHistories.add(
+        ContractStatusHistory.builder()
+            .fromStatus(status)
+            .toStatus(newStatus)
+            .changedBy(changedBy)
+            .changedAt(now)
+            .reason(reason)
+            .build());
+
+    status = newStatus;
+    lastStatusChangedAt = now;
+    lastStatusChangedBy = changedBy;
+  }
+
+  // ======================
+  // STATE CHECKS (PURE)
+  // ======================
+
+  public boolean canActivate(Instant now) {
+    return status == ContractStatus.SIGNED
+        && activationDate != null
+        && !now.isBefore(activationDate);
+  }
+
+  public boolean canExpire(Instant now) {
+    return status == ContractStatus.ACTIVE && expiredDate != null && !now.isBefore(expiredDate);
+  }
+
+  public boolean isFreezed(Instant now) {
+    return status == ContractStatus.SIGNED
+        && activationDate != null
+        && !now.isBefore(getFreezeDate());
+  }
+
   public Instant getFreezeDate() {
-    return activationDate == null ? null : activationDate.plusSeconds(contractFreezeDelay * 60);
+    Instant signedAt =
+        status == ContractStatus.SIGNED
+            ? lastStatusChangedAt
+            : statusHistories.stream()
+                .filter(history -> history.getToStatus() == ContractStatus.SIGNED)
+                .findFirst()
+                .map(history -> history.getChangedAt())
+                .orElse(null);
+
+    return signedAt == null ? null : signedAt.plusSeconds(contractFreezeDelayMinutes * 60L);
   }
 
-  @Schema(
-      description = "The type of the contract",
-      enumAsRef = true,
-      requiredMode = RequiredMode.REQUIRED)
-  @NotNull
-  @JsonPatchIgnore
-  private ContractType type;
+  public boolean isDraft() {
+    return status == ContractStatus.DRAFT;
+  }
 
-  @Override
-  @JsonIgnore
-  public List<Pair> getTimeFrames() {
-    return List.of(Pair.of(activationDate, expiredDate));
+  public boolean isSigned() {
+    return status == ContractStatus.SIGNED;
+  }
+
+  public boolean isActive() {
+    return status == ContractStatus.ACTIVE;
+  }
+
+  public boolean isExpired() {
+    return status == ContractStatus.EXPIRED;
+  }
+
+  public boolean isCancelled() {
+    return status == ContractStatus.CANCELLED;
+  }
+
+  public List<ContractStatusHistory> getStatusHistories() {
+    return Collections.unmodifiableList(statusHistories);
+  }
+
+  // ======================
+  // UTIL
+  // ======================
+
+  private String defaultIfNull(String value) {
+    return value != null ? value : SYSTEM;
   }
 }

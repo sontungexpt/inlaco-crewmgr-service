@@ -1,22 +1,12 @@
 package com.inlaco.crewmgrservice.feature.contract.infrastructure.timertask;
 
-import com.inlaco.crewmgrservice.application.exception.ResourceNotFoundException;
+import com.inlaco.crewmgrservice.feature.contract.application.port.in.ContractLifecycleUseCase;
+import com.inlaco.crewmgrservice.feature.contract.application.port.out.ContractRepository;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.AbstractContract;
-import com.inlaco.crewmgrservice.feature.contract.domain.model.Contract;
-import com.inlaco.crewmgrservice.feature.contract.domain.model.LaborContract;
-import com.inlaco.crewmgrservice.feature.contract.domain.model.SupplyContract;
-import com.inlaco.crewmgrservice.feature.crew.application.port.in.CrewUseCase;
-import com.inlaco.crewmgrservice.feature.crewrental.application.port.out.CrewRentalRequestRepository;
-import com.inlaco.crewmgrservice.feature.crewrental.domain.enums.CrewRentalRequestStatus;
-import com.inlaco.crewmgrservice.feature.crewrental.domain.model.CrewRentalRequest;
 import java.time.Instant;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -25,101 +15,31 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class ContractTimerTask {
 
-  private final MongoTemplate mongoTemplate;
-  private final CrewRentalRequestRepository crewRentalRequestRepository;
-  private final CrewUseCase crewUseCase;
+  private final ContractRepository contractRepository;
+  private final ContractLifecycleUseCase contractActivationUseCase;
+
+  /** Runs every minute to activate contracts whose activationDate has passed. */
+  @Scheduled(cron = "0 0/1 * * * ?")
+  public void activateSignedContracts() {
+    Instant now = Instant.now();
+    List<AbstractContract> contracts = contractRepository.findDueForActivation(now);
+    if (contracts.isEmpty()) {
+      log.debug("No contracts due for activation at {}", now);
+      return;
+    }
+    log.info("Found {} contract(s) to activate", contracts.size());
+    contractActivationUseCase.activateDueContracts(contracts, now);
+  }
 
   @Scheduled(cron = "0 0/1 * * * ?")
-  private void onContractEffective() {
+  public void expireContracts() {
     Instant now = Instant.now();
-    Criteria criteria = Criteria.where("activated").is(false).and("activationDate").lte(now);
-    Query query = Query.query(criteria);
-
-    log.debug("[ContractTimerTask] Activation query: {}", query);
-
-    List<AbstractContract> contracts = mongoTemplate.find(query, AbstractContract.class);
-
+    List<AbstractContract> contracts = contractRepository.findDueForExpiration(now);
     if (contracts.isEmpty()) {
-      log.debug("[ContractTimerTask] No contracts to activate at {}", now);
+      log.debug("No contracts due for expiration at {}", now);
       return;
     }
-
-    log.info("[ContractTimerTask] Found {} contract(s) to activate", contracts.size());
-
-    contracts.forEach(this::activateContractSafely);
-  }
-
-  private void activateContractSafely(AbstractContract contract) {
-    CompletableFuture.runAsync(
-        () -> {
-          try {
-            log.info(
-                "[ContractTimerTask] Activating contract id={}, title={}",
-                contract.getId(),
-                contract.getTitle());
-
-            contract.setActivated(true);
-            handleContractEffective(contract);
-            mongoTemplate.save(contract);
-
-            log.info("[ContractTimerTask] Contract activated successfully id={}", contract.getId());
-
-          } catch (Exception ex) {
-            log.error(
-                "[ContractTimerTask] Failed to activate contract id={}, title={}",
-                contract.getId(),
-                contract.getTitle(),
-                ex);
-          }
-        });
-  }
-
-  private void handleContractEffective(Contract contract) {
-    if (contract instanceof SupplyContract supplyContract) {
-      activateSupplyContract(supplyContract);
-      return;
-    }
-
-    if (contract instanceof LaborContract laborContract) {
-      activateLaborContract(laborContract);
-      return;
-    }
-
-    log.warn(
-        "[ContractTimerTask] Unsupported contract type: {} (id={})",
-        contract.getClass().getSimpleName());
-  }
-
-  private void activateSupplyContract(SupplyContract contract) {
-    String requestId = contract.getRentalRequestId().toHexString();
-
-    CrewRentalRequest request =
-        crewRentalRequestRepository
-            .findById(requestId)
-            .orElseThrow(
-                () -> new ResourceNotFoundException(CrewRentalRequest.class, "id", requestId));
-
-    if (request == null) {
-      log.warn(
-          "[ContractTimerTask] RentalRequest not found for SupplyContract id={}", contract.getId());
-      return;
-    }
-
-    request.setStatus(CrewRentalRequestStatus.ACTIVE);
-    crewRentalRequestRepository.save(request);
-
-    log.info(
-        "[ContractTimerTask] SupplyContract activated → RentalRequest {} set to ACTIVE", requestId);
-  }
-
-  private void activateLaborContract(LaborContract contract) {
-    log.info(
-        "[ContractTimerTask] Activating LaborContract for employeeId={}", contract.getEmployeeId());
-
-    crewUseCase.makeCrewOfficial(contract);
-
-    log.info(
-        "[ContractTimerTask] LaborContract activated, sailor marked official employeeId={}",
-        contract.getEmployeeId());
+    log.info("Found {} contract(s) to expire", contracts.size());
+    contractActivationUseCase.expireContracts(contracts, now);
   }
 }

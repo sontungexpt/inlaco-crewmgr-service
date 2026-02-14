@@ -18,10 +18,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ApplicationSubmittedEventListener {
 
-  // private final RecruitmentEmailProperties emailProperties;
   private final NotificationDispatcher notificationDispatcher;
-
-  // private final Map<ApplicationStatus, String> templateCache = new ConcurrentHashMap<>();
 
   @EventListener(ApplicationSubmittedEvent.class)
   public void handleApplicationReviewed(ApplicationSubmittedEvent event) {
@@ -52,22 +49,4 @@ public class ApplicationSubmittedEventListener {
     }
     return null;
   }
-
-  // private String getEmailSubject(ApplicationStatus status) {
-  //   return emailProperties.getTemplates().get(status).subject();
-  // }
-
-  // private String loadTemplate(ApplicationStatus status) {
-  //   return templateCache.computeIfAbsent(status, this::fetchTemplate);
-  // }
-
-  // private String fetchTemplate(ApplicationStatus status) {
-  //   try {
-  //     String path = emailProperties.getTemplates().get(status).path();
-  //     ClassPathResource resource = new ClassPathResource(path);
-  //     return new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
-  //   } catch (IOException e) {
-  //     throw new IllegalStateException("Cannot load template for status: " + status, e);
-  //   }
-  // }
 }
