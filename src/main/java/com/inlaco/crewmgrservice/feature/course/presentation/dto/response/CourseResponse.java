@@ -19,15 +19,19 @@ public class CourseResponse implements Serializable {
 
   private String teacherName;
 
+  public String getTeacherName() {
+    return StringUtils.hasText(teacherName) ? teacherName : "In upcoming";
+  }
+
   private String archivedPosition;
 
   private boolean certified;
 
   private Instant forciblyCanceledAt;
 
-  private int limitStudent = Integer.MAX_VALUE;
+  private int limitStudent;
 
-  private int enrolledStudentCount = 0;
+  private int enrolledStudentCount;
 
   private File wallpaper;
 
@@ -35,11 +39,11 @@ public class CourseResponse implements Serializable {
 
   private Instant manuallyRegistrationDisabledAt;
 
-  private Instant startRegistrationAt = Instant.now().plusSeconds(30);
+  private Instant startRegistrationAt;
 
   private Instant endRegistrationAt;
 
-  private Instant startDate = Instant.now().plusSeconds(30);
+  private Instant startDate;
 
   private Instant endDate;
 
@@ -47,39 +51,13 @@ public class CourseResponse implements Serializable {
 
   private Instant updatedAt;
 
-  public String getTeacherName() {
-    return StringUtils.hasText(teacherName) ? teacherName : "In upcoming";
-  }
+  private boolean full;
 
-  public boolean isFull() {
-    return enrolledStudentCount >= limitStudent;
-  }
+  private boolean forciblyCanceled;
 
-  public boolean isForciblyCanceled() {
-    return forciblyCanceledAt != null;
-  }
+  private boolean registrationEnabled;
 
-  public Instant getManuallyRegistrationDisabledAt() {
-    return manuallyRegistrationDisabledAt == null
-        ? endRegistrationAt
-        : manuallyRegistrationDisabledAt;
-  }
+  private boolean expired;
 
-  public boolean inRegistrationPeriod() {
-    var now = Instant.now();
-    return now.isAfter(startRegistrationAt)
-        && (endRegistrationAt == null || now.isBefore(endRegistrationAt));
-  }
-
-  public boolean isRegistrationEnabled() {
-    return manuallyRegistrationDisabledAt == null && !isFull() && inRegistrationPeriod();
-  }
-
-  public boolean isExpired() {
-    return endDate.isBefore(Instant.now());
-  }
-
-  public boolean isLearnable() {
-    return !isForciblyCanceled() && !isExpired();
-  }
+  private boolean learnable;
 }

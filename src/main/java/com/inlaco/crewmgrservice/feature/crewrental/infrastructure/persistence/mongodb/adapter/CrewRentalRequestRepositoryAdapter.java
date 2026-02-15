@@ -2,13 +2,13 @@ package com.inlaco.crewmgrservice.feature.crewrental.infrastructure.persistence.
 
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
-import com.inlaco.crewmgrservice.common.model.FacetResult;
 import com.inlaco.crewmgrservice.feature.crewrental.application.model.CrewRentalRequestSearchCriteria;
 import com.inlaco.crewmgrservice.feature.crewrental.application.port.out.CrewRentalRequestRepository;
 import com.inlaco.crewmgrservice.feature.crewrental.domain.model.CrewRentalRequest;
 import com.inlaco.crewmgrservice.feature.crewrental.infrastructure.persistence.mongodb.entity.CrewRentalRequestEntity;
 import com.inlaco.crewmgrservice.feature.crewrental.infrastructure.persistence.mongodb.mapper.CrewRentalRequestEntityMapper;
 import com.inlaco.crewmgrservice.feature.crewrental.infrastructure.persistence.mongodb.repository.CrewRentalRequestMongoRepository;
+import com.inlaco.crewmgrservice.infrastructure.persistence.mongodb.aggregation.FacetResult;
 import com.inlaco.crewmgrservice.shared.constant.PhoneNumberRegexp;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;

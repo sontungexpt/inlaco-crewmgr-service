@@ -1,7 +1,7 @@
 package com.inlaco.crewmgrservice.feature.crew.application.service;
 
-import com.inlaco.crewmgrservice.application.port.out.SequenceGenerator;
 import com.inlaco.crewmgrservice.feature.crew.application.port.in.CrewIdentityUseCase;
+import com.inlaco.crewmgrservice.shared.application.port.out.SequenceGenerator;
 import java.time.Year;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

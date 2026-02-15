@@ -9,39 +9,55 @@ import com.inlaco.crewmgrservice.feature.post.presentation.dto.NewsPostDTO;
 import com.inlaco.crewmgrservice.feature.post.presentation.dto.PostDTO;
 import com.inlaco.crewmgrservice.feature.post.presentation.dto.RecruitmentPostDTO;
 import org.mapstruct.Mapper;
-import org.mapstruct.ObjectFactory;
-import org.mapstruct.SubclassMapping;
 
 @Mapper(componentModel = "spring")
 public interface PostMapper {
 
-  @ObjectFactory
-  default PostDTO createDTO(Post post) {
-    return switch (post) {
-      case NewsPost p -> new NewsPostDTO();
-      case RecruitmentPost p -> new RecruitmentPostDTO();
-      case EventPost p -> new EventPostDTO();
-      default -> throw new IllegalArgumentException("Unsupported post type: " + post.getClass());
-    };
+  // ===== Subtype mapping (MapStruct generate) =====
+
+  NewsPostDTO toPostDTO(NewsPost post);
+
+  RecruitmentPostDTO toPostDTO(RecruitmentPost post);
+
+  EventPostDTO toPostDTO(EventPost post);
+
+  NewsPost toPost(NewsPostDTO dto);
+
+  RecruitmentPost toPost(RecruitmentPostDTO dto);
+
+  EventPost toPost(EventPostDTO dto);
+
+  // ===== Base mapping dùng default =====
+
+  default PostDTO toPostDTO(Post post) {
+    if (post == null) return null;
+
+    if (post instanceof NewsPost news) {
+      return toPostDTO(news);
+    }
+    if (post instanceof RecruitmentPost recruitment) {
+      return toPostDTO(recruitment);
+    }
+    if (post instanceof EventPost event) {
+      return toPostDTO(event);
+    }
+
+    throw new IllegalArgumentException("Unknown Post type: " + post.getClass());
   }
 
-  @ObjectFactory
-  default Post createDomain(PostDTO dto) {
-    return switch (dto) {
-      case NewsPostDTO p -> new NewsPost();
-      case RecruitmentPostDTO p -> new RecruitmentPost();
-      case EventPostDTO p -> new EventPost();
-      default -> throw new IllegalArgumentException("Unsupported post type: " + dto.getClass());
-    };
+  default Post toPost(PostDTO dto) {
+    if (dto == null) return null;
+
+    if (dto instanceof NewsPostDTO news) {
+      return toPost(news);
+    }
+    if (dto instanceof RecruitmentPostDTO recruitment) {
+      return toPost(recruitment);
+    }
+    if (dto instanceof EventPostDTO event) {
+      return toPost(event);
+    }
+
+    throw new IllegalArgumentException("Unknown PostDTO type: " + dto.getClass());
   }
-
-  @SubclassMapping(source = NewsPost.class, target = NewsPostDTO.class)
-  @SubclassMapping(source = RecruitmentPost.class, target = RecruitmentPostDTO.class)
-  @SubclassMapping(source = EventPost.class, target = EventPostDTO.class)
-  PostDTO toDTO(Post post);
-
-  @SubclassMapping(source = NewsPostDTO.class, target = NewsPost.class)
-  @SubclassMapping(source = RecruitmentPostDTO.class, target = RecruitmentPost.class)
-  @SubclassMapping(source = EventPostDTO.class, target = EventPost.class)
-  Post toDomain(PostDTO entity);
 }

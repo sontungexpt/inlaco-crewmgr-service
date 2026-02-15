@@ -1,7 +1,7 @@
 package com.inlaco.crewmgrservice.infrastructure.security.jwt.service;
 
 import com.inlaco.crewmgrservice.feature.auth.application.port.in.LogoutUseCase;
-import com.inlaco.crewmgrservice.utils.HttpHeaderUtils;
+import com.inlaco.crewmgrservice.infrastructure.web.util.HttpHeaderUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;

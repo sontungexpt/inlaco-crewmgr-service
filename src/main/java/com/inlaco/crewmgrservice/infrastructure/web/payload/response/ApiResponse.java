@@ -1,7 +1,7 @@
 package com.inlaco.crewmgrservice.infrastructure.web.payload.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.inlaco.crewmgrservice.utils.HttpServletUtils;
+import com.inlaco.crewmgrservice.infrastructure.web.util.HttpServletUtils;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

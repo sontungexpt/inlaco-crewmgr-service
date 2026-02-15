@@ -1,6 +1,5 @@
 package com.inlaco.crewmgrservice.feature.contract.application.service;
 
-import com.inlaco.crewmgrservice.application.exception.ResourceAlreadyInUseException;
 import com.inlaco.crewmgrservice.feature.contract.application.port.in.CreateLaborContractUseCase;
 import com.inlaco.crewmgrservice.feature.contract.application.port.out.ContractRepository;
 import com.inlaco.crewmgrservice.feature.contract.application.port.out.LaborContractRepository;
@@ -9,6 +8,7 @@ import com.inlaco.crewmgrservice.feature.contract.domain.model.LaborContract;
 import com.inlaco.crewmgrservice.feature.recruitment.application.port.in.RecruitmentQueryUseCase;
 import com.inlaco.crewmgrservice.feature.recruitment.domain.model.JobApplication;
 import com.inlaco.crewmgrservice.feature.user.domain.model.User;
+import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceAlreadyInUseException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

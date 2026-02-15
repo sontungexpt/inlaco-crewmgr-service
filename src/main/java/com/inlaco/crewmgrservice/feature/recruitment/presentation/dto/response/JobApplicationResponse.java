@@ -31,7 +31,7 @@ public class JobApplicationResponse {
 
   private File resume;
 
-  private ApplicationStatus status = ApplicationStatus.APPLIED;
+  private ApplicationStatus status;
 
   private Instant appliedAt;
 

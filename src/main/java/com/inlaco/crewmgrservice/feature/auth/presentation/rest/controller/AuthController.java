@@ -3,6 +3,7 @@ package com.inlaco.crewmgrservice.feature.auth.presentation.rest.controller;
 import com.inlaco.crewmgrservice.feature.auth.application.model.command.LoginCommand;
 import com.inlaco.crewmgrservice.feature.auth.application.model.command.RegisterCommand;
 import com.inlaco.crewmgrservice.feature.auth.application.port.in.LoginUseCase;
+import com.inlaco.crewmgrservice.feature.auth.application.port.in.LogoutUseCase;
 import com.inlaco.crewmgrservice.feature.auth.application.port.in.RefreshTokenUseCase;
 import com.inlaco.crewmgrservice.feature.auth.application.port.in.RegistrationUseCase;
 import com.inlaco.crewmgrservice.feature.auth.presentation.dto.request.LoginRequest;
@@ -15,7 +16,6 @@ import com.inlaco.crewmgrservice.infrastructure.web.annotation.PublicEndpoint;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.ServletException;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,6 +32,7 @@ public record AuthController(
     RegistrationUseCase registrationUseCase,
     AuthTokenResponseMapper authTokenResultMapper,
     RefreshTokenUseCase refreshTokenUseCase,
+    LogoutUseCase logoutUseCase,
     LoginUseCase loginUseCase) {
 
   @Operation(summary = "Registers a new user to the system")
@@ -54,11 +55,18 @@ public record AuthController(
         loginUseCase.login(new LoginCommand(request.username(), request.password())));
   }
 
+  @Operation(summary = "Logs the user out of the system")
+  @PostMapping("/logout")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void logout(@BearerToken String refreshToken) {
+    logoutUseCase.logout(refreshToken);
+  }
+
   @PostMapping("/refresh-token")
   @Operation(
       summary = "Refresh the expired jwt authentication",
       security = @SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME))
-  public AuthTokenResponse refreshToken(@BearerToken String refreshToken) throws ServletException {
+  public AuthTokenResponse refreshToken(@BearerToken String refreshToken) {
     return authTokenResultMapper.toDTO(refreshTokenUseCase.refresh(refreshToken));
   }
 }

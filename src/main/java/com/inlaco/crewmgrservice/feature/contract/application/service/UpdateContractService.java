@@ -1,13 +1,13 @@
 package com.inlaco.crewmgrservice.feature.contract.application.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.inlaco.crewmgrservice.application.exception.ResourceNotFoundException;
 import com.inlaco.crewmgrservice.feature.contract.application.port.in.UpdateContractUseCase;
 import com.inlaco.crewmgrservice.feature.contract.application.port.out.ContractRepository;
 import com.inlaco.crewmgrservice.feature.contract.application.port.out.ContractSnapshotRepository;
 import com.inlaco.crewmgrservice.feature.contract.domain.exception.FreezeContractUpdateException;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.AbstractContract;
-import com.inlaco.crewmgrservice.utils.JsonMergePatchUtils;
+import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceNotFoundException;
+import com.inlaco.crewmgrservice.shared.support.JsonMergePatchUtils;
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

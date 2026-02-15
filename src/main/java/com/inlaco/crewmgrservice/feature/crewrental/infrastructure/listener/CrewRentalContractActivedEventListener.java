@@ -1,11 +1,11 @@
 package com.inlaco.crewmgrservice.feature.crewrental.infrastructure.listener;
 
-import com.inlaco.crewmgrservice.application.exception.ResourceNotFoundException;
 import com.inlaco.crewmgrservice.feature.contract.domain.event.ContractActivedEvent;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.CrewSupplyContract;
 import com.inlaco.crewmgrservice.feature.crewrental.application.port.out.CrewRentalRequestRepository;
 import com.inlaco.crewmgrservice.feature.crewrental.domain.enums.CrewRentalRequestStatus;
 import com.inlaco.crewmgrservice.feature.crewrental.domain.model.CrewRentalRequest;
+import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

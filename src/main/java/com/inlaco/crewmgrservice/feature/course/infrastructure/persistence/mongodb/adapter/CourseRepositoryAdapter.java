@@ -2,7 +2,6 @@ package com.inlaco.crewmgrservice.feature.course.infrastructure.persistence.mong
 
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
-import com.inlaco.crewmgrservice.common.model.FacetResult;
 import com.inlaco.crewmgrservice.feature.course.application.model.CourseSearchCriteria;
 import com.inlaco.crewmgrservice.feature.course.application.port.out.CourseRepository;
 import com.inlaco.crewmgrservice.feature.course.domain.model.Course;
@@ -11,6 +10,7 @@ import com.inlaco.crewmgrservice.feature.course.infrastructure.persistence.mongo
 import com.inlaco.crewmgrservice.feature.course.infrastructure.persistence.mongodb.entity.CourseMemberEntity;
 import com.inlaco.crewmgrservice.feature.course.infrastructure.persistence.mongodb.mapper.CourseEntityMapper;
 import com.inlaco.crewmgrservice.feature.course.infrastructure.persistence.mongodb.repository.CourseMongoRepository;
+import com.inlaco.crewmgrservice.infrastructure.persistence.mongodb.aggregation.FacetResult;
 import com.inlaco.crewmgrservice.infrastructure.persistence.support.PageableUtils;
 import java.time.Instant;
 import java.util.List;

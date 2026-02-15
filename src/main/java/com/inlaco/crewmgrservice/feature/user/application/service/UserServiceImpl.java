@@ -1,6 +1,5 @@
 package com.inlaco.crewmgrservice.feature.user.application.service;
 
-import com.inlaco.crewmgrservice.application.exception.ResourceNotFoundException;
 import com.inlaco.crewmgrservice.feature.auth.application.port.in.RefreshTokenManager;
 import com.inlaco.crewmgrservice.feature.auth.presentation.dto.request.NewPasswordRequest;
 import com.inlaco.crewmgrservice.feature.auth.presentation.dto.response.AuthTokenResponse;
@@ -10,6 +9,7 @@ import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import com.inlaco.crewmgrservice.feature.user.domain.model.authorization.Role;
 import com.inlaco.crewmgrservice.feature.user.infrastructure.persistence.mongodb.repository.RoleRepository;
 import com.inlaco.crewmgrservice.feature.user.presentation.dto.UserProfile;
+import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

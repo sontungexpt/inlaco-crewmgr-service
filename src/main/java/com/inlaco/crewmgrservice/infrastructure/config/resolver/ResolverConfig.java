@@ -4,7 +4,6 @@ import com.inlaco.crewmgrservice.infrastructure.web.resolver.BearerTokenArgument
 import com.inlaco.crewmgrservice.infrastructure.web.resolver.CurrentUserArgumentResolver;
 import com.inlaco.crewmgrservice.infrastructure.web.resolver.DefaultSortPageableResolver;
 import com.inlaco.crewmgrservice.infrastructure.web.resolver.FilterArgumentResolver;
-import com.inlaco.crewmgrservice.infrastructure.web.resolver.FilterableArgumentResolver;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
@@ -19,7 +18,6 @@ public class ResolverConfig implements WebMvcConfigurer {
   private final BearerTokenArgumentResolver bearerTokenArgumentResolver;
   private final CurrentUserArgumentResolver currentUserArgumentResolver;
 
-  private final FilterableArgumentResolver filterableArgumentResolver;
   private final FilterArgumentResolver filterArgumentResolver;
 
   @Override
@@ -28,7 +26,5 @@ public class ResolverConfig implements WebMvcConfigurer {
     resolvers.add(defaultSortPageableResolver);
     resolvers.add(currentUserArgumentResolver);
     resolvers.add(filterArgumentResolver);
-
-    resolvers.add(filterableArgumentResolver);
   }
 }

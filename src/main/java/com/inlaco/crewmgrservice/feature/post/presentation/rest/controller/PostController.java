@@ -45,7 +45,7 @@ public class PostController {
   @ResponseStatus(HttpStatus.OK)
   @PublicEndpoint
   public PostDTO getPost(@PathVariable("id") String id) {
-    return postMapper.toDTO(postUseCase.getPost(id));
+    return postMapper.toPostDTO(postUseCase.getPost(id));
   }
 
   @Operation(summary = "Retrieve all posts for a given page")
@@ -55,7 +55,7 @@ public class PostController {
   public Page<PostDTO> getAllPosts(
       @Filter PostSearchCriteria criteria,
       @PageableDefault(size = 10, page = 0) Pageable pageable) {
-    return postUseCase.getPosts(criteria, pageable).map(postMapper::toDTO);
+    return postUseCase.getPosts(criteria, pageable).map(postMapper::toPostDTO);
   }
 
   @Operation(
@@ -65,7 +65,7 @@ public class PostController {
   @ResponseStatus(HttpStatus.CREATED)
   @PublicEndpoint(profiles = "dev")
   public PostDTO createPost(@CurrentUser User user, @RequestBody @Valid PostDTO newPost) {
-    return postMapper.toDTO(postUseCase.createPost(postMapper.toDomain(newPost), user));
+    return postMapper.toPostDTO(postUseCase.createPost(postMapper.toPost(newPost), user));
   }
 
   @Operation(
@@ -75,7 +75,7 @@ public class PostController {
   @ResponseStatus(HttpStatus.OK)
   public PostDTO updatePost(
       @CurrentUser User user, @PathVariable("id") String id, @RequestBody JsonNode patch) {
-    return postMapper.toDTO(postUseCase.updatePost(id, patch, user));
+    return postMapper.toPostDTO(postUseCase.updatePost(id, patch, user));
   }
 
   @Operation(

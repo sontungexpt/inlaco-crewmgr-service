@@ -1,6 +1,5 @@
 package com.inlaco.crewmgrservice.feature.crewrental.application.service;
 
-import com.inlaco.crewmgrservice.application.exception.ResourceNotFoundException;
 import com.inlaco.crewmgrservice.feature.crewrental.application.port.in.CrewRentalRequestCommandUseCase;
 import com.inlaco.crewmgrservice.feature.crewrental.application.port.out.CrewRentalRequestRepository;
 import com.inlaco.crewmgrservice.feature.crewrental.domain.enums.CrewRentalRequestStatus;
@@ -8,6 +7,7 @@ import com.inlaco.crewmgrservice.feature.crewrental.domain.model.CrewRentalReque
 import com.inlaco.crewmgrservice.feature.upload.application.enums.UploadStrategy;
 import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadFactory;
 import com.inlaco.crewmgrservice.feature.user.domain.model.User;
+import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

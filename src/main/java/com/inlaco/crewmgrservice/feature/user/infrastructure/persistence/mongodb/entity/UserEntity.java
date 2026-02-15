@@ -9,14 +9,13 @@ import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.domain.Persistable;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter
 @Setter
 @Document(collection = "users")
-public class UserEntity implements Persistable<String> {
+public class UserEntity {
   @Id private String id;
 
   // Why we need this?
@@ -47,9 +46,4 @@ public class UserEntity implements Persistable<String> {
   @CreatedDate private Instant createdAt;
 
   @LastModifiedDate private Instant updatedAt;
-
-  @Override
-  public boolean isNew() {
-    return createdAt == null || id == null;
-  }
 }

@@ -2,16 +2,23 @@ package com.inlaco.crewmgrservice.feature.recruitment.domain.model;
 
 import com.inlaco.crewmgrservice.common.model.File;
 import com.inlaco.crewmgrservice.feature.recruitment.domain.enums.ApplicationStatus;
+import com.inlaco.crewmgrservice.feature.recruitment.domain.event.ApplicationStatusChangedEvent;
 import com.inlaco.crewmgrservice.feature.user.domain.enums.Gender;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
 import lombok.AccessLevel;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Builder.Default;
+import lombok.Getter;
 import lombok.Setter;
 
-@Data
+@Getter
+@Setter
+@Builder
+@AllArgsConstructor
 public class JobApplication {
 
   private final transient Set<Object> domainEvents = new HashSet<>();
@@ -49,6 +56,8 @@ public class JobApplication {
 
   private File resume;
 
+  // must use builder here to map all fields without public setter status
+  @Default
   @Setter(AccessLevel.PRIVATE)
   private ApplicationStatus status = ApplicationStatus.APPLIED;
 
@@ -58,9 +67,8 @@ public class JobApplication {
 
   public void changeStatus(ApplicationStatus newStatus) throws IllegalStateException {
     if (status == newStatus) return;
-    if (!status.canTransitionTo(newStatus)) {
-      throw new IllegalStateException("Invalid transition from " + status + " to " + newStatus);
-    }
+    status.validateTransition(newStatus);
     status = newStatus;
+    registerEvent(new ApplicationStatusChangedEvent(this));
   }
 }

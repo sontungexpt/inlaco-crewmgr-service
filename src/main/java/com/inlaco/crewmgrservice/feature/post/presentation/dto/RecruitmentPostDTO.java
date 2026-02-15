@@ -23,13 +23,7 @@ public class RecruitmentPostDTO extends PostDTO implements TimeFrame {
 
   private String expectedSalary;
 
-  @JsonIgnore private boolean canceled = false;
-
-  public boolean isActive() {
-    return !canceled
-        && recruitmentStartDate.isBefore(Instant.now())
-        && (recruitmentEndDate == null || recruitmentEndDate.isAfter(Instant.now()));
-  }
+  private boolean active;
 
   private String workLocation;
 

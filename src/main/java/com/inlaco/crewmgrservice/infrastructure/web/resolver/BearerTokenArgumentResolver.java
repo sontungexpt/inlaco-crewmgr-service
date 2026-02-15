@@ -1,7 +1,7 @@
 package com.inlaco.crewmgrservice.infrastructure.web.resolver;
 
 import com.inlaco.crewmgrservice.infrastructure.web.annotation.BearerToken;
-import com.inlaco.crewmgrservice.utils.HttpHeaderUtils;
+import com.inlaco.crewmgrservice.infrastructure.web.util.HttpHeaderUtils;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.NativeWebRequest;

@@ -5,7 +5,7 @@ import com.inlaco.crewmgrservice.feature.auth.infrastructure.security.SecurityUs
 import com.inlaco.crewmgrservice.feature.user.application.port.out.UserRepository;
 import com.inlaco.crewmgrservice.infrastructure.security.jwt.exception.JwtTokenException;
 import com.inlaco.crewmgrservice.infrastructure.security.jwt.service.JwtAccessTokenService;
-import com.inlaco.crewmgrservice.utils.HttpHeaderUtils;
+import com.inlaco.crewmgrservice.infrastructure.web.util.HttpHeaderUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

@@ -2,13 +2,13 @@ package com.inlaco.crewmgrservice.feature.schedule.infrastructure.persistence.mo
 
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
-import com.inlaco.crewmgrservice.common.model.FacetResult;
 import com.inlaco.crewmgrservice.feature.schedule.application.model.CrewMobilizationScheduleSearchCriteria;
 import com.inlaco.crewmgrservice.feature.schedule.application.port.out.CrewMobilizationScheduleRepository;
 import com.inlaco.crewmgrservice.feature.schedule.domain.model.CrewMobilizationSchedule;
 import com.inlaco.crewmgrservice.feature.schedule.infrastructure.persistence.mongodb.entity.CrewMobilizationScheduleEntity;
 import com.inlaco.crewmgrservice.feature.schedule.infrastructure.persistence.mongodb.mapper.CrewMobilizationScheduleEntityMapper;
 import com.inlaco.crewmgrservice.feature.schedule.infrastructure.persistence.mongodb.repository.CrewMobilizationScheduleMongoRepository;
+import com.inlaco.crewmgrservice.infrastructure.persistence.mongodb.aggregation.FacetResult;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

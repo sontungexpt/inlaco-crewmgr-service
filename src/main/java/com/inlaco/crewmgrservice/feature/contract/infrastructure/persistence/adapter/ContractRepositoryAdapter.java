@@ -2,7 +2,6 @@ package com.inlaco.crewmgrservice.feature.contract.infrastructure.persistence.ad
 
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
-import com.inlaco.crewmgrservice.common.model.FacetResult;
 import com.inlaco.crewmgrservice.feature.contract.application.model.ContractSearchCriteria;
 import com.inlaco.crewmgrservice.feature.contract.application.port.out.ContractRepository;
 import com.inlaco.crewmgrservice.feature.contract.domain.enums.ContractStatus;
@@ -10,6 +9,7 @@ import com.inlaco.crewmgrservice.feature.contract.domain.model.AbstractContract;
 import com.inlaco.crewmgrservice.feature.contract.infrastructure.persistence.entity.ContractEntity;
 import com.inlaco.crewmgrservice.feature.contract.infrastructure.persistence.mapper.ContractEntityMapper;
 import com.inlaco.crewmgrservice.feature.contract.infrastructure.persistence.repository.ContractMongoRepository;
+import com.inlaco.crewmgrservice.infrastructure.persistence.mongodb.aggregation.FacetResult;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;

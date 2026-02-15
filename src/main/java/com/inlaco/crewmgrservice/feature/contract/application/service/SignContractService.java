@@ -1,10 +1,10 @@
 package com.inlaco.crewmgrservice.feature.contract.application.service;
 
-import com.inlaco.crewmgrservice.application.exception.ResourceNotFoundException;
 import com.inlaco.crewmgrservice.feature.contract.application.port.in.SignContractUseCase;
 import com.inlaco.crewmgrservice.feature.contract.application.port.out.ContractRepository;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.AbstractContract;
 import com.inlaco.crewmgrservice.feature.user.domain.model.User;
+import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceNotFoundException;
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

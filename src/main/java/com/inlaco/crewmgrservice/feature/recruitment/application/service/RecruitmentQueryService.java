@@ -1,10 +1,10 @@
 package com.inlaco.crewmgrservice.feature.recruitment.application.service;
 
-import com.inlaco.crewmgrservice.application.exception.ResourceNotFoundException;
 import com.inlaco.crewmgrservice.feature.recruitment.application.model.JobApplicationSearchCriteria;
 import com.inlaco.crewmgrservice.feature.recruitment.application.port.in.RecruitmentQueryUseCase;
 import com.inlaco.crewmgrservice.feature.recruitment.application.port.out.JobApplicationRepository;
 import com.inlaco.crewmgrservice.feature.recruitment.domain.model.JobApplication;
+import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;

@@ -1,6 +1,5 @@
 package com.inlaco.crewmgrservice.infrastructure.web.advice;
 
-import com.inlaco.crewmgrservice.application.exception.ApplicationException;
 import com.inlaco.crewmgrservice.infrastructure.web.payload.response.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -17,15 +16,6 @@ import org.springframework.web.multipart.support.MissingServletRequestPartExcept
 @Order(Ordered.LOWEST_PRECEDENCE)
 @Slf4j
 public class FallbackExceptionAdvice {
-
-  // ===================== BUSINESS =====================
-  @ExceptionHandler(ApplicationException.class)
-  public ResponseEntity<ApiResponse<Void>> handleBaseException(
-      ApplicationException ex, HttpServletRequest request) {
-    log.warn("Business exception [{}]: {}", ex.getErrorCode(), ex.getMessage());
-    return AdviceUtils.buildErrorResponse(
-        ex.getStatus(), ex.getErrorCode(), ex.getMessage(), request);
-  }
 
   // ===================== CLIENT INPUT =====================
   @ExceptionHandler(MissingServletRequestPartException.class)

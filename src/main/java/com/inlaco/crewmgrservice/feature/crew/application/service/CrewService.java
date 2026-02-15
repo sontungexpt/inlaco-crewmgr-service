@@ -1,6 +1,5 @@
 package com.inlaco.crewmgrservice.feature.crew.application.service;
 
-import com.inlaco.crewmgrservice.application.exception.ResourceNotFoundException;
 import com.inlaco.crewmgrservice.feature.crew.application.model.CrewProfileSearchCriteria;
 import com.inlaco.crewmgrservice.feature.crew.application.port.in.CrewIdentityUseCase;
 import com.inlaco.crewmgrservice.feature.crew.application.port.in.CrewUseCase;
@@ -8,6 +7,7 @@ import com.inlaco.crewmgrservice.feature.crew.application.port.out.CrewProfileRe
 import com.inlaco.crewmgrservice.feature.crew.domain.enums.CrewStatus;
 import com.inlaco.crewmgrservice.feature.crew.domain.model.ApplyLaborContractCommand;
 import com.inlaco.crewmgrservice.feature.crew.domain.model.CrewProfile;
+import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceNotFoundException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,7 +1,6 @@
 package com.inlaco.crewmgrservice.feature.recruitment.application.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.inlaco.crewmgrservice.application.exception.ResourceNotFoundException;
 import com.inlaco.crewmgrservice.common.model.File;
 import com.inlaco.crewmgrservice.feature.post.application.port.in.PostUseCase;
 import com.inlaco.crewmgrservice.feature.post.domain.enums.PostType;
@@ -15,6 +14,7 @@ import com.inlaco.crewmgrservice.feature.recruitment.domain.model.JobApplication
 import com.inlaco.crewmgrservice.feature.upload.application.enums.UploadStrategy;
 import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadFactory;
 import com.inlaco.crewmgrservice.feature.user.domain.model.User;
+import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceNotFoundException;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,26 +37,27 @@ public class JobApplicationService implements JobApplicationUseCase {
   public JobApplication apply(
       String recruitmentPostId, JobApplication application, String resumePublicId, User user) {
     Post post = postUseCase.getPost(recruitmentPostId);
-    if (post instanceof RecruitmentPost recruitmentPost) {
-      if (!recruitmentPost.isActive()) {
-        throw new PostInactiveException("The registration post is closed");
-      }
 
-      File resume = uploadFactory.metadata(UploadStrategy.RESUME, resumePublicId);
-      application.setPosition(recruitmentPost.getPosition());
-      application.setResume(resume);
-      application.setRecruitmentPostId(recruitmentPostId);
-      application.setAccountId(user.getId());
-
-      var newApplication = jobApplicationRepository.save(application);
-
-      eventPublisher.publishEvent(new ApplicationSubmittedEvent(newApplication, recruitmentPost));
-
-      return newApplication;
+    if (!(post instanceof RecruitmentPost recruitmentPost)) {
+      throw new ResourceNotFoundException(
+          Post.class, Map.of("id", recruitmentPostId, "type", PostType.RECRUITMENT));
     }
 
-    throw new ResourceNotFoundException(
-        Post.class, Map.of("id", recruitmentPostId, "type", PostType.RECRUITMENT));
+    if (!recruitmentPost.isActive()) {
+      throw new PostInactiveException("The registration post is closed");
+    }
+
+    File resume = uploadFactory.metadata(UploadStrategy.RESUME, resumePublicId);
+    application.setPosition(recruitmentPost.getPosition());
+    application.setResume(resume);
+    application.setRecruitmentPostId(recruitmentPostId);
+    application.setAccountId(user.getId());
+
+    var newApplication = jobApplicationRepository.save(application);
+
+    eventPublisher.publishEvent(new ApplicationSubmittedEvent(newApplication, recruitmentPost));
+
+    return newApplication;
   }
 
   @Override

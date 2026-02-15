@@ -1,8 +1,9 @@
 package com.inlaco.crewmgrservice.infrastructure.web.advice;
 
-import com.inlaco.crewmgrservice.application.exception.ResourceAlreadyInUseException;
-import com.inlaco.crewmgrservice.application.exception.ResourceNotFoundException;
 import com.inlaco.crewmgrservice.infrastructure.web.payload.response.ApiResponse;
+import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceAlreadyInUseException;
+import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceDeleteFailedException;
+import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
@@ -31,5 +32,12 @@ public class ResourceExceptionAdvice {
     log.debug("Resource not found: {}", ex.getMessage());
     return AdviceUtils.buildErrorResponse(
         HttpStatus.NOT_FOUND, "RESOURCE_NOT_FOUND", ex.getMessage(), request);
+  }
+
+  public ResponseEntity<ApiResponse<Void>> handleResourceDeleteFailed(
+      ResourceDeleteFailedException ex, HttpServletRequest request) {
+    log.debug("Resource delete failed: {}", ex.getMessage());
+    return AdviceUtils.buildErrorResponse(
+        HttpStatus.CONFLICT, "RESOURCE_DELETE_FAILED", ex.getMessage(), request);
   }
 }

@@ -2,13 +2,13 @@ package com.inlaco.crewmgrservice.feature.recruitment.infrastructure.persistence
 
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
-import com.inlaco.crewmgrservice.common.model.FacetResult;
 import com.inlaco.crewmgrservice.feature.recruitment.application.model.JobApplicationSearchCriteria;
 import com.inlaco.crewmgrservice.feature.recruitment.application.port.out.JobApplicationRepository;
 import com.inlaco.crewmgrservice.feature.recruitment.domain.model.JobApplication;
 import com.inlaco.crewmgrservice.feature.recruitment.infrastructure.persistence.mongodb.entity.JobApplicationEntity;
 import com.inlaco.crewmgrservice.feature.recruitment.infrastructure.persistence.mongodb.mapper.JobApplicationEntityMapper;
 import com.inlaco.crewmgrservice.feature.recruitment.infrastructure.persistence.mongodb.repository.JobApplicationMongoRepository;
+import com.inlaco.crewmgrservice.infrastructure.persistence.mongodb.aggregation.FacetResult;
 import com.inlaco.crewmgrservice.infrastructure.persistence.support.PageableUtils;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;

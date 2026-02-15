@@ -20,8 +20,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.logout.LogoutHandler;
-import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -36,8 +34,8 @@ public class SecurityConfig {
 
   @Bean
   public PasswordEncoder passwordEncoder() {
-    return new BCryptPasswordEncoder();
-    // return new BCryptPasswordEncoder(12);
+    // return new BCryptPasswordEncoder();
+    return new BCryptPasswordEncoder(12);
   }
 
   // @Bean
@@ -70,12 +68,12 @@ public class SecurityConfig {
   public SecurityFilterChain securityFilterChain(
       HttpSecurity http,
       JwtAuthenticationFilter lazyJwtAuthTokenFilter,
+      // LogoutHandler logoutHandler,
+      // LogoutSuccessHandler logoutSuccessHandler,
       AuthorizationManager authzManager,
       AuthenticationEntryPoint authenticationEntryPoint,
-      LogoutSuccessHandler logoutSuccessHandler,
-      PasswordEncoder passwordEncoder,
       UserDetailsService userDetailsService,
-      LogoutHandler logoutHandler)
+      PasswordEncoder passwordEncoder)
       throws Exception {
 
     http.cors(cors -> cors.configurationSource(corsApiConfigurationSource()))
@@ -96,14 +94,14 @@ public class SecurityConfig {
         // authorize
         .authorizeHttpRequests(auth -> auth.anyRequest().access(authzManager))
         .authenticationProvider(authenticationProvider(passwordEncoder, userDetailsService))
-        .addFilterBefore(lazyJwtAuthTokenFilter, UsernamePasswordAuthenticationFilter.class)
-        // authorize by endpoints
-        .logout(
-            logout ->
-                logout
-                    .logoutUrl("/api/v1/auth/logout")
-                    .addLogoutHandler(logoutHandler)
-                    .logoutSuccessHandler(logoutSuccessHandler));
+        .addFilterBefore(lazyJwtAuthTokenFilter, UsernamePasswordAuthenticationFilter.class);
+    // authorize by endpoints
+    // .logout(
+    //     logout ->
+    //         logout
+    //             .logoutUrl("/api/v1/auth/logout")
+    //             .addLogoutHandler(logoutHandler)
+    //             .logoutSuccessHandler(logoutSuccessHandler));
 
     return http.build();
   }

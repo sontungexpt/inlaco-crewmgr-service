@@ -1,7 +1,5 @@
 package com.inlaco.crewmgrservice.feature.auth.application.service;
 
-import com.inlaco.crewmgrservice.application.exception.ResourceAlreadyInUseException;
-import com.inlaco.crewmgrservice.application.exception.ResourceNotFoundException;
 import com.inlaco.crewmgrservice.feature.auth.application.enums.VerificationPolicy;
 import com.inlaco.crewmgrservice.feature.auth.application.model.command.RegisterCommand;
 import com.inlaco.crewmgrservice.feature.auth.application.model.result.AuthTokenResult;
@@ -13,6 +11,8 @@ import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import com.inlaco.crewmgrservice.feature.user.domain.model.authorization.Right;
 import com.inlaco.crewmgrservice.feature.user.domain.model.authorization.Role;
 import com.inlaco.crewmgrservice.feature.user.infrastructure.persistence.mongodb.repository.RoleRepository;
+import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceAlreadyInUseException;
+import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;

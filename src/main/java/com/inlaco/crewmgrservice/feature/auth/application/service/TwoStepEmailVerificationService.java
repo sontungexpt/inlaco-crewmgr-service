@@ -11,9 +11,9 @@ import com.inlaco.crewmgrservice.feature.notify.NotificationPolicy;
 import com.inlaco.crewmgrservice.feature.notify.mail.EmailRequest;
 import com.inlaco.crewmgrservice.feature.user.application.port.in.UserService;
 import com.inlaco.crewmgrservice.feature.user.domain.model.User;
+import com.inlaco.crewmgrservice.infrastructure.web.util.HttpServletUtils;
 import com.inlaco.crewmgrservice.shared.crypto.DigestUtils;
 import com.inlaco.crewmgrservice.shared.template.TextTemplateBuilder;
-import com.inlaco.crewmgrservice.utils.HttpServletUtils;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import lombok.RequiredArgsConstructor;
@@ -90,6 +90,7 @@ public class TwoStepEmailVerificationService implements TwoStepVerificationServi
 
     User user = userService.findUserById(token.getUserId());
     user.activate();
+
     userService.saveUser(user);
 
     emailVerificationTokenRepository.deleteById(token.getId());

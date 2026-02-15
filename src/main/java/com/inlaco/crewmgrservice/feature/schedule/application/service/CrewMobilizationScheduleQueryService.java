@@ -1,6 +1,5 @@
 package com.inlaco.crewmgrservice.feature.schedule.application.service;
 
-import com.inlaco.crewmgrservice.application.exception.ResourceNotFoundException;
 import com.inlaco.crewmgrservice.feature.crew.application.port.out.CrewProfileRepository;
 import com.inlaco.crewmgrservice.feature.crew.domain.model.CrewProfile;
 import com.inlaco.crewmgrservice.feature.schedule.application.mapper.CrewMobilizationScheduleDetailMapper;
@@ -11,6 +10,7 @@ import com.inlaco.crewmgrservice.feature.schedule.application.port.in.CrewMobili
 import com.inlaco.crewmgrservice.feature.schedule.application.port.out.CrewMobilizationScheduleRepository;
 import com.inlaco.crewmgrservice.feature.schedule.domain.model.AssignedCrew;
 import com.inlaco.crewmgrservice.feature.schedule.domain.model.CrewMobilizationSchedule;
+import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceNotFoundException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;

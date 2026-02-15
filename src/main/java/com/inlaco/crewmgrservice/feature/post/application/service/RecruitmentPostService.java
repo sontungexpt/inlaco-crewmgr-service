@@ -1,11 +1,11 @@
 package com.inlaco.crewmgrservice.feature.post.application.service;
 
-import com.inlaco.crewmgrservice.application.exception.ResourceNotFoundException;
 import com.inlaco.crewmgrservice.feature.post.application.port.in.RecruitmentPostUseCase;
 import com.inlaco.crewmgrservice.feature.post.application.port.out.PostRepository;
 import com.inlaco.crewmgrservice.feature.post.domain.model.Post;
 import com.inlaco.crewmgrservice.feature.post.domain.model.RecruitmentPost;
 import com.inlaco.crewmgrservice.feature.user.domain.model.User;
+import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceNotFoundException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import lombok.RequiredArgsConstructor;

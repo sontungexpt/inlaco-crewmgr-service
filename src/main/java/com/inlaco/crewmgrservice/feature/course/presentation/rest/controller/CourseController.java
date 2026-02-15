@@ -52,9 +52,9 @@ public class CourseController {
   @GetMapping("")
   @PageableQueryParams
   public Page<CourseResponse> getAllCourses(
-      @Filter CourseSearchCriteria courseFilterable,
+      @Filter CourseSearchCriteria criteria,
       @PageableDefault(page = 0, size = 20) Pageable pageable) {
-    return courseUseCase.getCourses(courseFilterable, pageable).map(courseMapper::toCourseDTO);
+    return courseUseCase.getCourses(criteria, pageable).map(courseMapper::toCourseDTO);
   }
 
   @Operation(

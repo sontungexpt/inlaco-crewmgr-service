@@ -1,12 +1,7 @@
 package com.inlaco.crewmgrservice.feature.contract.domain.model;
 
-<<<<<<< Updated upstream
 import com.inlaco.crewmgrservice.feature.contract.domain.enums.ContractType;
 import com.inlaco.crewmgrservice.feature.contract.domain.objectvalue.DynamicAttribute;
-=======
-import com.inlaco.crewmgrservice.common.model.DynamicAttribute;
-import com.inlaco.crewmgrservice.feature.contract.domain.enums.ContractType;
->>>>>>> Stashed changes
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
@@ -20,7 +15,7 @@ public class DynamicContract extends AbstractContract {
     super(ContractType.DYNAMIC_CONTRACT);
   }
 
-  public DynamicContract(ContractType type) {
+  protected DynamicContract(ContractType type) {
     super(type);
   }
 

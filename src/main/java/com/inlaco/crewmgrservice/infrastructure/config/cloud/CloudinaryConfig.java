@@ -8,8 +8,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@EnableConfigurationProperties(CloudinaryProperties.class)
 @RequiredArgsConstructor
+@EnableConfigurationProperties(CloudinaryProperties.class)
 public class CloudinaryConfig {
 
   private final CloudinaryProperties props;
