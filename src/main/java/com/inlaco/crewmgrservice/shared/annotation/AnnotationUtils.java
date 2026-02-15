@@ -1,4 +1,4 @@
-package com.inlaco.crewmgrservice.utils;
+package com.inlaco.crewmgrservice.infrastructure.persistence.support;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;

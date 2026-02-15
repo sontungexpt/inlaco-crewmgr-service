@@ -11,9 +11,9 @@ import com.inlaco.crewmgrservice.feature.notify.NotificationPolicy;
 import com.inlaco.crewmgrservice.feature.notify.mail.EmailRequest;
 import com.inlaco.crewmgrservice.feature.user.application.port.in.UserService;
 import com.inlaco.crewmgrservice.feature.user.domain.model.User;
-import com.inlaco.crewmgrservice.utils.DigestUtils;
+import com.inlaco.crewmgrservice.shared.crypto.DigestUtils;
+import com.inlaco.crewmgrservice.shared.template.TextTemplateBuilder;
 import com.inlaco.crewmgrservice.utils.HttpServletUtils;
-import com.inlaco.crewmgrservice.utils.TextTemplateBuilder;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import lombok.RequiredArgsConstructor;
@@ -115,7 +115,7 @@ public class TwoStepEmailVerificationService implements TwoStepVerificationServi
   }
 
   private String hash(String raw) {
-    return DigestUtils.digest("SHA-256", raw);
+    return DigestUtils.sha256(raw);
   }
 
   private void sendEmail(User user, String rawToken) {

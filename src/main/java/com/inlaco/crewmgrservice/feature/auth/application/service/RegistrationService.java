@@ -8,7 +8,6 @@ import com.inlaco.crewmgrservice.feature.auth.application.model.result.AuthToken
 import com.inlaco.crewmgrservice.feature.auth.application.port.in.AccessTokenGenerator;
 import com.inlaco.crewmgrservice.feature.auth.application.port.in.RefreshTokenManager;
 import com.inlaco.crewmgrservice.feature.auth.application.port.in.RegistrationUseCase;
-import com.inlaco.crewmgrservice.feature.auth.domain.model.RefreshToken;
 import com.inlaco.crewmgrservice.feature.user.application.port.in.UserService;
 import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import com.inlaco.crewmgrservice.feature.user.domain.model.authorization.Right;
@@ -65,12 +64,12 @@ public class RegistrationService implements RegistrationUseCase {
         break;
     }
 
-    final String accessToken = accessTokenGenerator.generate(user.getPubId());
-    final RefreshToken refreshToken = refreshTokenManager.generate(user.getId());
-    refreshTokenManager.save(refreshToken);
+    String userPubId = user.getPubId();
+    final String newAccessToken = accessTokenGenerator.generate(userPubId);
+    final String newRefreshToken = refreshTokenManager.issue(userPubId);
 
-    log.debug("Account with public id {} logged in successfully", user.getPubId());
+    log.debug("Account with public id {} logged in successfully", userPubId);
 
-    return new AuthTokenResult(accessToken, refreshToken.getToken());
+    return new AuthTokenResult(newAccessToken, newRefreshToken);
   }
 }

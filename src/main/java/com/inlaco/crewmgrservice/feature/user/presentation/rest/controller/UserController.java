@@ -10,7 +10,6 @@ import com.inlaco.crewmgrservice.feature.user.presentation.dto.UserProfile;
 import com.inlaco.crewmgrservice.infrastructure.config.openapi.OpenApiConfig;
 import com.inlaco.crewmgrservice.infrastructure.web.annotation.BearerToken;
 import com.inlaco.crewmgrservice.infrastructure.web.annotation.CurrentUser;
-import com.inlaco.crewmgrservice.utils.ConsoleUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -49,7 +48,6 @@ public class UserController {
   @GetMapping("/me")
   @RolesAllowed("USER")
   public UserProfile getUserProfile(@CurrentUser User currentUser) {
-    ConsoleUtils.prettyPrint(currentUser);
     return userService.getUserProfile(currentUser);
   }
 }

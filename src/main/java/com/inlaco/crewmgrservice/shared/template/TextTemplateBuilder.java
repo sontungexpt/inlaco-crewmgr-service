@@ -1,4 +1,4 @@
-package com.inlaco.crewmgrservice.utils;
+package com.inlaco.crewmgrservice.shared.template;
 
 import java.io.IOException;
 import java.net.URI;

@@ -9,7 +9,7 @@ import com.inlaco.crewmgrservice.feature.recruitment.domain.model.JobApplication
 import com.inlaco.crewmgrservice.feature.recruitment.infrastructure.persistence.mongodb.entity.JobApplicationEntity;
 import com.inlaco.crewmgrservice.feature.recruitment.infrastructure.persistence.mongodb.mapper.JobApplicationEntityMapper;
 import com.inlaco.crewmgrservice.feature.recruitment.infrastructure.persistence.mongodb.repository.JobApplicationMongoRepository;
-import com.inlaco.crewmgrservice.utils.PageableUtils;
+import com.inlaco.crewmgrservice.infrastructure.persistence.support.PageableUtils;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

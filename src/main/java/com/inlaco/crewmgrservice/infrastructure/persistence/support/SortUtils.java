@@ -1,4 +1,4 @@
-package com.inlaco.crewmgrservice.utils;
+package com.inlaco.crewmgrservice.infrastructure.persistence.support;
 
 import java.lang.reflect.Field;
 import java.util.Comparator;
@@ -13,7 +13,6 @@ public class SortUtils {
     Sort sort = pageable.getSort();
 
     if (sort.isSorted()) {
-      @SuppressWarnings({"unchecked", "rawtypes"})
       Comparator<T> comparator =
           sort.stream()
               .map(

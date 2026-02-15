@@ -7,7 +7,7 @@ import com.inlaco.crewmgrservice.feature.notify.NotificationPolicy;
 import com.inlaco.crewmgrservice.feature.notify.mail.EmailRequest;
 import com.inlaco.crewmgrservice.feature.schedule.domain.event.NewCrewMobilizationScheduleEvent;
 import com.inlaco.crewmgrservice.feature.schedule.domain.model.CrewMobilizationSchedule;
-import com.inlaco.crewmgrservice.utils.TextTemplateBuilder;
+import com.inlaco.crewmgrservice.shared.template.TextTemplateBuilder;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;

@@ -7,7 +7,5 @@ public interface RefreshTokenRepository {
 
   RefreshToken save(RefreshToken refreshToken);
 
-  Optional<RefreshToken> findByToken(String token);
-
-  int deleteByToken(String token);
+  Optional<RefreshToken> findByHashedToken(String token);
 }

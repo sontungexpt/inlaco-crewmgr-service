@@ -4,10 +4,10 @@ import com.inlaco.crewmgrservice.feature.auth.application.model.result.AuthToken
 import com.inlaco.crewmgrservice.feature.auth.application.port.in.AccessTokenGenerator;
 import com.inlaco.crewmgrservice.feature.auth.application.port.in.RefreshTokenManager;
 import com.inlaco.crewmgrservice.feature.auth.application.port.in.RefreshTokenUseCase;
-import com.inlaco.crewmgrservice.feature.auth.domain.model.RefreshToken;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -18,21 +18,15 @@ public class RefreshTokenService implements RefreshTokenUseCase {
   private final AccessTokenGenerator accessTokenGenerator;
 
   @Override
+  @Transactional
   public AuthTokenResult refresh(String refreshToken) {
-    RefreshToken current = refreshTokenManager.findByToken(refreshToken);
-    refreshTokenManager.validate(current);
-
-    String userId = current.getUserId();
-    String newAccessToken = accessTokenGenerator.generate(userId);
-
-    refreshTokenManager.save(current); // mark revorked
+    var result = refreshTokenManager.rotate(refreshToken);
 
     // Create new token
-    RefreshToken next = refreshTokenManager.generate(userId);
-    refreshTokenManager.save(next);
+    final String newAccessToken = accessTokenGenerator.generate(result.userPubId());
+    final String newRefreshToken = result.newRefreshToken();
 
-    log.info("Refresh token rotated for user {}", userId);
-
-    return new AuthTokenResult(newAccessToken, current.getToken());
+    log.info("Refresh token rotated for user {}", result.userPubId());
+    return new AuthTokenResult(newAccessToken, newRefreshToken);
   }
 }

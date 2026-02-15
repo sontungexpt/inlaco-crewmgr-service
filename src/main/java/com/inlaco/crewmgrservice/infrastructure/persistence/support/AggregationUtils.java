@@ -1,4 +1,4 @@
-package com.inlaco.crewmgrservice.utils;
+package com.inlaco.crewmgrservice.infrastructure.persistence.support;
 
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.limit;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;

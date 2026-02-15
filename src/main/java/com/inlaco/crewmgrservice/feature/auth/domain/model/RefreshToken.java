@@ -1,6 +1,5 @@
 package com.inlaco.crewmgrservice.feature.auth.domain.model;
 
-import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import java.time.Instant;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -11,9 +10,9 @@ public class RefreshToken {
 
   private String id;
 
-  private String userId;
+  private String hashedToken;
 
-  private String token;
+  private String userPubId;
 
   private Instant expiresAt;
 
@@ -23,10 +22,10 @@ public class RefreshToken {
 
   private Instant updatedAt;
 
-  public RefreshToken(String userId, Instant expiresAt) {
-    this.userId = userId;
+  public RefreshToken(String hashedToken, String userPubId, Instant expiresAt) {
+    this.userPubId = userPubId;
     this.expiresAt = expiresAt;
-    this.token = NanoIdUtils.randomNanoId();
+    this.hashedToken = hashedToken;
   }
 
   public boolean isExpired() {

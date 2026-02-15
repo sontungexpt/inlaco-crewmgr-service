@@ -9,7 +9,7 @@ import com.inlaco.crewmgrservice.feature.crew.domain.model.CrewProfile;
 import com.inlaco.crewmgrservice.feature.crew.infrastructure.persistence.mongodb.entity.CrewProfileEntity;
 import com.inlaco.crewmgrservice.feature.crew.infrastructure.persistence.mongodb.mapper.CrewProfileEntityMapper;
 import com.inlaco.crewmgrservice.feature.crew.infrastructure.persistence.mongodb.repository.CrewProfileMongoRepository;
-import com.inlaco.crewmgrservice.utils.PageableUtils;
+import com.inlaco.crewmgrservice.infrastructure.persistence.support.PageableUtils;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;

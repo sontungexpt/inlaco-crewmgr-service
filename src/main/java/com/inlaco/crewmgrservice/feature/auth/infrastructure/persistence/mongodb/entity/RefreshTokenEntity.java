@@ -2,7 +2,6 @@ package com.inlaco.crewmgrservice.feature.auth.infrastructure.persistence.mongod
 
 import java.time.Instant;
 import lombok.Data;
-import org.bson.types.ObjectId;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -16,9 +15,10 @@ public class RefreshTokenEntity implements Persistable<String> {
 
   @Id private String id;
 
-  private ObjectId userId;
+  private String userPubId;
 
-  @Indexed private String token;
+  @Indexed(unique = true)
+  private String hashedToken;
 
   private Instant expiresAt;
 

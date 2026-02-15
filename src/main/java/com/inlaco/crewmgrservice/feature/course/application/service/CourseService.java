@@ -17,7 +17,6 @@ import com.inlaco.crewmgrservice.feature.upload.application.enums.UploadStrategy
 import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadFactory;
 import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import com.inlaco.crewmgrservice.utils.JsonMergePatchUtils;
-import com.inlaco.crewmgrservice.utils.PrincipalUtils;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -44,7 +43,6 @@ public class CourseService implements CourseUseCase {
 
   @Override
   public Page<Course> getCourses(CourseSearchCriteria criteria, Pageable pageable) {
-    courseRepository.findAllEnrolled(PrincipalUtils.getUserId(), pageable);
     return courseRepository.findAll(criteria, pageable);
   }
 

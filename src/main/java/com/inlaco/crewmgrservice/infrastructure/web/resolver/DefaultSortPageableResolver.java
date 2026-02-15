@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.infrastructure.web.resolver;
 
-import com.inlaco.crewmgrservice.utils.PageableUtils;
+import com.inlaco.crewmgrservice.infrastructure.persistence.support.PageableUtils;
 import org.springframework.core.MethodParameter;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;

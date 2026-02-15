@@ -2,7 +2,6 @@ package com.inlaco.crewmgrservice.feature.auth.application.service;
 
 import com.inlaco.crewmgrservice.feature.auth.application.port.in.LogoutUseCase;
 import com.inlaco.crewmgrservice.feature.auth.application.port.in.RefreshTokenManager;
-import com.inlaco.crewmgrservice.feature.auth.domain.model.RefreshToken;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,8 +15,6 @@ public class LogoutService implements LogoutUseCase {
   @Override
   @Transactional
   public void logout(String refreshToken) {
-    RefreshToken token = refreshTokenManager.findByToken(refreshToken);
-    token.revoke();
-    refreshTokenManager.save(token);
+    refreshTokenManager.revoke(refreshToken);
   }
 }

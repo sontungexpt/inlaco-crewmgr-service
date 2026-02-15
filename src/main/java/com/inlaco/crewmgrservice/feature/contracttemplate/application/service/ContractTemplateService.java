@@ -7,7 +7,7 @@ import com.inlaco.crewmgrservice.feature.contracttemplate.application.port.out.C
 import com.inlaco.crewmgrservice.feature.contracttemplate.domain.model.ContractTemplate;
 import com.inlaco.crewmgrservice.feature.upload.application.enums.UploadStrategy;
 import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadFactory;
-import com.inlaco.crewmgrservice.utils.ConsoleUtils;
+import com.inlaco.crewmgrservice.shared.support.ConsoleUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;

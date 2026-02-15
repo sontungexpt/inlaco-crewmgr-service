@@ -11,7 +11,7 @@ import com.inlaco.crewmgrservice.feature.course.infrastructure.persistence.mongo
 import com.inlaco.crewmgrservice.feature.course.infrastructure.persistence.mongodb.entity.CourseMemberEntity;
 import com.inlaco.crewmgrservice.feature.course.infrastructure.persistence.mongodb.mapper.CourseEntityMapper;
 import com.inlaco.crewmgrservice.feature.course.infrastructure.persistence.mongodb.repository.CourseMongoRepository;
-import com.inlaco.crewmgrservice.utils.PageableUtils;
+import com.inlaco.crewmgrservice.infrastructure.persistence.support.PageableUtils;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;

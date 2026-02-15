@@ -25,6 +25,7 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ReflectionUtils;
 
 /**
  * Utility service for applying RFC 7386 (JSON Merge Patch) to MongoDB entities.
@@ -212,7 +213,7 @@ public class JsonMergePatchUtils {
     List<String> toRemove = new ArrayList<>();
 
     for (Map.Entry<String, JsonNode> entry : objectNode.properties()) {
-      Field field = ReflectionUtils.getDeclaredField(clazz, entry.getKey());
+      Field field = ReflectionUtils.findField(clazz, entry.getKey());
       if (field == null) continue;
 
       if (ignoredAnnotations.stream().anyMatch(field::isAnnotationPresent)) {

@@ -7,7 +7,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface RefreshTokenMongoRepository extends MongoRepository<RefreshTokenEntity, String> {
-  Optional<RefreshTokenEntity> findByToken(String token);
-
-  int deleteByToken(String token);
+  Optional<RefreshTokenEntity> findByHashedToken(String token);
 }

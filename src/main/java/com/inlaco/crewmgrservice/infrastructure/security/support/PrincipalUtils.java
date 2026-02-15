@@ -1,4 +1,4 @@
-package com.inlaco.crewmgrservice.utils;
+package com.inlaco.crewmgrservice.infrastructure.security.support;
 
 import com.inlaco.crewmgrservice.application.exception.AuthenticationException;
 import com.inlaco.crewmgrservice.feature.auth.infrastructure.security.SecurityUser;

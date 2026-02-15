@@ -1,9 +1,13 @@
 package com.inlaco.crewmgrservice.feature.auth.application.service;
 
+import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
+import com.inlaco.crewmgrservice.feature.auth.application.model.result.RefreshRotationResult;
 import com.inlaco.crewmgrservice.feature.auth.application.port.in.RefreshTokenManager;
 import com.inlaco.crewmgrservice.feature.auth.application.port.out.RefreshTokenRepository;
 import com.inlaco.crewmgrservice.feature.auth.domain.exception.RefreshTokenException;
 import com.inlaco.crewmgrservice.feature.auth.domain.model.RefreshToken;
+import com.inlaco.crewmgrservice.shared.crypto.DigestUtils;
+import com.mongodb.DuplicateKeyException;
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,17 +19,65 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class RefreshTokenManagerImpl implements RefreshTokenManager {
 
-  @Value("${auth.refresh-token.expiration}")
-  private long refreshTokenExpiration;
+  private static short MAX_RETRY = 5;
 
-  private final RefreshTokenRepository refreshTokenRepository;
+  @Value("${auth.refresh-token.expiration}")
+  private long REFRESH_TOKEN_EXPIRATION;
+
+  private final RefreshTokenRepository repository;
 
   @Override
-  public RefreshToken generate(String subject) {
-    return new RefreshToken(subject, Instant.now().plusMillis(refreshTokenExpiration));
+  public String issue(String userPubId) {
+    for (int attempt = 0; attempt < MAX_RETRY; attempt++) {
+      String rawToken = generateRaw();
+      String hash = hash(rawToken);
+      RefreshToken token =
+          new RefreshToken(hash, userPubId, Instant.now().plusMillis(REFRESH_TOKEN_EXPIRATION));
+      try {
+        repository.save(token);
+        return rawToken;
+      } catch (DuplicateKeyException e) {
+        log.warn("Refresh token collision detected. Retrying... attempt={}", attempt + 1);
+      }
+    }
+    log.error("Unable to generate unique refresh token after 5 attempts");
+    throw new IllegalStateException("Unable to generate unique refresh token after 5 attempts");
   }
 
   @Override
+  public RefreshRotationResult rotate(String rawToken) {
+    String hash = hash(rawToken);
+    RefreshToken current =
+        repository
+            .findByHashedToken(hash)
+            .orElseThrow(() -> new RefreshTokenException(null, "Token not found"));
+
+    validate(current);
+
+    String userPubId = current.getUserPubId();
+
+    current.revoke();
+    repository.save(current);
+
+    String newRaw = issue(userPubId);
+
+    return new RefreshRotationResult(userPubId, newRaw);
+  }
+
+  @Override
+  public void revoke(String rawToken) {
+
+    String hash = hash(rawToken);
+
+    RefreshToken token =
+        repository
+            .findByHashedToken(hash)
+            .orElseThrow(() -> new RefreshTokenException(null, "Token not found"));
+
+    token.revoke();
+    repository.save(token);
+  }
+
   public void validate(RefreshToken refreshToken) {
     if (refreshToken.isRevoked()) {
       throw new RefreshTokenException(refreshToken, "Refresh token revoked");
@@ -34,19 +86,11 @@ public class RefreshTokenManagerImpl implements RefreshTokenManager {
     }
   }
 
-  @Override
-  public RefreshToken findByToken(String token) {
-    return refreshTokenRepository
-        .findByToken(token)
-        .orElseThrow(
-            () -> {
-              log.warn("Refresh token {} not found", token);
-              return new RefreshTokenException(null, "Refresh token not found");
-            });
+  private String generateRaw() {
+    return NanoIdUtils.randomNanoId();
   }
 
-  @Override
-  public RefreshToken save(RefreshToken refreshToken) {
-    return refreshTokenRepository.save(refreshToken);
+  private String hash(String raw) {
+    return DigestUtils.sha256(raw);
   }
 }

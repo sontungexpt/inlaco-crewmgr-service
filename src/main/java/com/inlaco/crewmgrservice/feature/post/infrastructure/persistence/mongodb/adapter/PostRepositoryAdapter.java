@@ -11,12 +11,12 @@ import com.inlaco.crewmgrservice.feature.post.domain.model.Post;
 import com.inlaco.crewmgrservice.feature.post.infrastructure.persistence.mongodb.entity.PostEntity;
 import com.inlaco.crewmgrservice.feature.post.infrastructure.persistence.mongodb.mapper.PostEntityMapper;
 import com.inlaco.crewmgrservice.feature.post.infrastructure.persistence.mongodb.repository.PostMongoRepository;
-import com.inlaco.crewmgrservice.utils.PrincipalUtils;
 import java.time.Instant;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.jspecify.annotations.Nullable;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -31,6 +31,7 @@ public class PostRepositoryAdapter implements PostRepository {
   private final PostMongoRepository postMongoRepository;
   private final PostEntityMapper mapper;
   private final MongoTemplate mongoTemplate;
+  private final AuditorAware<ObjectId> auditorAware;
 
   @Override
   public Page<Post> findAll(Pageable pageable) {
@@ -87,7 +88,7 @@ public class PostRepositoryAdapter implements PostRepository {
             .findByIdAndDeletedAtIsNull(new ObjectId(id))
             .orElseThrow(() -> new ResourceNotFoundException(PostEntity.class, "id", id));
     entity.setDeletedAt(Instant.now());
-    entity.setDeletedBy(new ObjectId(PrincipalUtils.getUser().getId()));
+    entity.setDeletedBy(auditorAware.getCurrentAuditor().orElse(null));
     return mapper.toPost(postMongoRepository.save(entity));
   }
 

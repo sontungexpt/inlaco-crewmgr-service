@@ -5,7 +5,7 @@ import com.inlaco.crewmgrservice.feature.notify.NotificationPolicy;
 import com.inlaco.crewmgrservice.feature.notify.mail.EmailRequest;
 import com.inlaco.crewmgrservice.feature.recruitment.application.event.ApplicationSubmittedEvent;
 import com.inlaco.crewmgrservice.feature.recruitment.domain.model.JobApplication;
-import com.inlaco.crewmgrservice.utils.TextTemplateBuilder;
+import com.inlaco.crewmgrservice.shared.template.TextTemplateBuilder;
 import java.io.IOException;
 import java.time.Year;
 import lombok.RequiredArgsConstructor;

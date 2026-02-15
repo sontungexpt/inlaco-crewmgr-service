@@ -1,14 +1,25 @@
 package com.inlaco.crewmgrservice.feature.auth.application.port.in;
 
-import com.inlaco.crewmgrservice.feature.auth.domain.model.RefreshToken;
+import com.inlaco.crewmgrservice.feature.auth.application.model.result.RefreshRotationResult;
 
 public interface RefreshTokenManager {
+  String issue(String userPubId);
 
-  void validate(RefreshToken refreshToken);
+  RefreshRotationResult rotate(String rawToken);
 
-  RefreshToken generate(String subject);
+  void revoke(String rawToken);
 
-  RefreshToken findByToken(String token);
+  // void validate(RefreshToken refreshToken);
 
-  RefreshToken save(RefreshToken refreshToken);
+  // String hashToken(String token);
+
+  // RefreshToken generate(String hashedToken, String subject);
+
+  // String generateToken(String subject);
+
+  // RefreshToken findByToken(String token);
+
+  // RefreshToken save(RefreshToken refreshToken);
+
+  // void deleteByToken(String token);
 }

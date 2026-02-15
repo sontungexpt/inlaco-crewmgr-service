@@ -9,7 +9,7 @@ import com.inlaco.crewmgrservice.feature.recruitment.domain.enums.ApplicationSta
 import com.inlaco.crewmgrservice.feature.recruitment.domain.event.ApplicationStatusChangedEvent;
 import com.inlaco.crewmgrservice.feature.recruitment.domain.model.JobApplication;
 import com.inlaco.crewmgrservice.feature.recruitment.infrastructure.config.RecruitmentEmailProperties;
-import com.inlaco.crewmgrservice.utils.TextTemplateBuilder;
+import com.inlaco.crewmgrservice.shared.template.TextTemplateBuilder;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;

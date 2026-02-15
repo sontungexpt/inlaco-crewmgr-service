@@ -1,6 +1,7 @@
-package com.inlaco.crewmgrservice.utils;
+package com.inlaco.crewmgrservice.infrastructure.persistence.support;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.springframework.data.annotation.CreatedDate;
@@ -71,9 +72,23 @@ public final class PageableUtils {
       Class<?> entityClass,
       Class<? extends Annotation> annotation,
       Sort.Direction direction) {
-    String field = AnnotationUtils.getFirstAnnotationFieldName(entityClass, annotation);
+    String field = findFirstAnnotationFieldName(entityClass, annotation);
     if (field != null) {
       orders.add(new Order(direction, field));
     }
+  }
+
+  private static String findFirstAnnotationFieldName(
+      Class<?> entityClass, Class<? extends Annotation> annotation) {
+    Class<?> clazz = entityClass;
+    do {
+      for (Field field : clazz.getDeclaredFields()) {
+        if (field.isAnnotationPresent(annotation)) {
+          return field.getName();
+        }
+      }
+      clazz = clazz.getSuperclass();
+    } while (clazz != null);
+    return null;
   }
 }
