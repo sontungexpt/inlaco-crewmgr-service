@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.inlaco.crewmgrservice.common.model.File;
+import com.inlaco.crewmgrservice.common.model.Asset;
 import com.inlaco.crewmgrservice.feature.upload.application.enums.UploadStrategy;
 import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadFactory;
 import java.io.IOException;
@@ -15,12 +15,12 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class FileDeserializer extends JsonDeserializer<File> {
+public class FileDeserializer extends JsonDeserializer<Asset> {
 
   private final UploadFactory uploadFactory;
 
   @Override
-  public File deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+  public Asset deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
     JsonNode node = p.getCodec().readTree(p);
     if (node == null || node.isEmpty()) {
       return null;

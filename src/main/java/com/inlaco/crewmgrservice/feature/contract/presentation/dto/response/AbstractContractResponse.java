@@ -1,11 +1,13 @@
 package com.inlaco.crewmgrservice.feature.contract.presentation.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.inlaco.crewmgrservice.common.model.File;
+import com.inlaco.crewmgrservice.common.model.Asset;
 import com.inlaco.crewmgrservice.feature.contract.domain.enums.ContractStatus;
 import com.inlaco.crewmgrservice.feature.contract.domain.enums.ContractType;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.party.Party;
+import com.inlaco.crewmgrservice.feature.contract.domain.objectvalue.DynamicAttribute;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,8 +32,10 @@ public abstract class AbstractContractResponse {
 
   private List<String> terms;
 
-  private File contractFile;
-  private List<File> attachments;
+  private Asset contractFile;
+  private List<Asset> attachments;
+
+  private List<DynamicAttribute> customAttributes = new ArrayList<>();
 
   private int version;
 

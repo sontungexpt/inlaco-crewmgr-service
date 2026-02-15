@@ -48,7 +48,7 @@ public class ShipInfo implements Serializable {
   @Schema(description = "Optional description of the ship", example = "Large container ship")
   private String description;
 
-  private File image;
+  private Asset image;
 
   @Schema(description = "Type of the ship")
   private String type;

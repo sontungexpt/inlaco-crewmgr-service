@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.feature.contracttemplate.infrastructure.persistence.mongodb.entity;
 
-import com.inlaco.crewmgrservice.common.model.File;
+import com.inlaco.crewmgrservice.common.model.Asset;
 import java.time.Instant;
 import lombok.Data;
 import org.bson.types.ObjectId;
@@ -21,7 +21,7 @@ public class ContractTemplateEntity {
 
   private String description;
 
-  private File metadata;
+  private Asset metadata;
 
   private String type;
 

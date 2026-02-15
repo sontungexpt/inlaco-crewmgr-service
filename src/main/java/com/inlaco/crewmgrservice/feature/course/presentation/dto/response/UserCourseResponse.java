@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.feature.course.presentation.dto.response;
 
-import com.inlaco.crewmgrservice.common.model.File;
+import com.inlaco.crewmgrservice.common.model.Asset;
 import com.inlaco.crewmgrservice.feature.course.domain.enums.CourseMemberStatus;
 import java.time.Instant;
 import lombok.Data;
@@ -19,7 +19,7 @@ public class UserCourseResponse {
 
   private Instant enrolledAt;
 
-  private File certificate;
+  private Asset certificate;
 
   public boolean isEnrolled() {
     return enrolledAt != null;

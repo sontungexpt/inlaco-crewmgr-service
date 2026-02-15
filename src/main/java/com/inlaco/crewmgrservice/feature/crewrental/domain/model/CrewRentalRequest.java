@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.feature.crewrental.domain.model;
 
-import com.inlaco.crewmgrservice.common.model.File;
+import com.inlaco.crewmgrservice.common.model.Asset;
 import com.inlaco.crewmgrservice.common.model.ShipInfo;
 import com.inlaco.crewmgrservice.feature.crewrental.domain.enums.CrewRentalRequestStatus;
 import java.time.Instant;
@@ -11,7 +11,7 @@ public class CrewRentalRequest {
 
   private String id;
 
-  private File detailFile;
+  private Asset detailFile;
 
   private String companyName;
 

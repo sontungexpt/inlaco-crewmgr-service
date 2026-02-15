@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.feature.contracttemplate.application.service;
 
-import com.inlaco.crewmgrservice.common.model.File;
+import com.inlaco.crewmgrservice.common.model.Asset;
 import com.inlaco.crewmgrservice.feature.contracttemplate.application.port.in.ContractTemplateUseCase;
 import com.inlaco.crewmgrservice.feature.contracttemplate.application.port.out.ContractTemplateRepository;
 import com.inlaco.crewmgrservice.feature.contracttemplate.domain.model.ContractTemplate;
@@ -38,7 +38,7 @@ public class ContractTemplateService implements ContractTemplateUseCase {
 
   @Override
   public ContractTemplate uploadTemplate(String templateFilePubId, ContractTemplate template) {
-    File metadata = uploadFactory.metadata(UploadStrategy.CONTRACT_TEMPLATE, templateFilePubId);
+    Asset metadata = uploadFactory.metadata(UploadStrategy.CONTRACT_TEMPLATE, templateFilePubId);
     ConsoleUtils.prettyPrint(metadata);
     template.setMetadata(metadata);
     return contractTemplateRepository.save(template);

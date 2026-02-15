@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.inlaco.crewmgrservice.feature.contract.domain.enums.ContractType;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.AbstractContract;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.CrewSupplyContract;
-import com.inlaco.crewmgrservice.feature.contract.domain.model.DynamicContract;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.LaborContract;
 import com.inlaco.crewmgrservice.feature.contract.infrastructure.persistence.entity.ContractEntity;
 import com.inlaco.crewmgrservice.feature.contract.infrastructure.persistence.entity.ContractSnapshotEntity;
@@ -50,7 +49,6 @@ public class ContractEntityMapper {
   static {
     TYPE_REGISTRY.put(ContractType.LABOR_CONTRACT, LaborContract.class);
     TYPE_REGISTRY.put(ContractType.SUPPLY_CONTRACT, CrewSupplyContract.class);
-    TYPE_REGISTRY.put(ContractType.DYNAMIC_CONTRACT, DynamicContract.class);
   }
 
   private final ObjectIdMapper objectIdMapper;
@@ -117,7 +115,6 @@ public class ContractEntityMapper {
         CrewSupplyContract supply = (CrewSupplyContract) contract;
         yield Map.of("requestId", supply.getCrewRentalRequestId());
       }
-      case DYNAMIC_CONTRACT -> Map.of();
     };
   }
 

@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.feature.post.infrastructure.persistence.mongodb.entity;
 
-import com.inlaco.crewmgrservice.common.model.File;
+import com.inlaco.crewmgrservice.common.model.Asset;
 import com.inlaco.crewmgrservice.feature.post.domain.enums.PostType;
 import java.time.Instant;
 import java.util.List;
@@ -29,9 +29,9 @@ public abstract class PostEntity {
 
   private String description;
 
-  private List<File> attachments;
+  private List<Asset> attachments;
 
-  private File image;
+  private Asset image;
 
   private String company;
 

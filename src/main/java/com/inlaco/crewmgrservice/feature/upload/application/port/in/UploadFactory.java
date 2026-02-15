@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.feature.upload.application.port.in;
 
-import com.inlaco.crewmgrservice.common.model.File;
+import com.inlaco.crewmgrservice.common.model.Asset;
 import com.inlaco.crewmgrservice.feature.upload.application.enums.UploadStrategy;
 import com.inlaco.crewmgrservice.feature.upload.application.service.DefaultUploadMetadataService;
 import com.inlaco.crewmgrservice.feature.upload.domain.model.CloudinarySignParams;
@@ -45,7 +45,7 @@ public class UploadFactory {
     return service.getUploadOptions(params);
   }
 
-  public File metadata(UploadStrategy stragegy, String assetId) {
+  public Asset metadata(UploadStrategy stragegy, String assetId) {
     if (stragegy == null) {
       return uploadMetadataService.metadata(assetId);
     }

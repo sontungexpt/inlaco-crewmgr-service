@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.feature.contract.domain.model;
 
-import com.inlaco.crewmgrservice.common.model.File;
+import com.inlaco.crewmgrservice.common.model.Asset;
 import com.inlaco.crewmgrservice.feature.contract.domain.enums.ContractStatus;
 import com.inlaco.crewmgrservice.feature.contract.domain.enums.ContractType;
 import com.inlaco.crewmgrservice.feature.contract.domain.event.ContractActivedEvent;
@@ -8,6 +8,7 @@ import com.inlaco.crewmgrservice.feature.contract.domain.event.ContractExpiredEv
 import com.inlaco.crewmgrservice.feature.contract.domain.event.ContractSignedEvent;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.party.Party;
 import com.inlaco.crewmgrservice.feature.contract.domain.objectvalue.ContractStatusHistory;
+import com.inlaco.crewmgrservice.feature.contract.domain.objectvalue.DynamicAttribute;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -50,10 +51,11 @@ public abstract class AbstractContract {
   private String title;
   private Party initiator;
   private List<Party> partners = new ArrayList<>();
-  private File contractFile;
-  private List<File> attachments = new ArrayList<>();
+  private Asset contractFile;
+  private List<Asset> attachments = new ArrayList<>();
   private List<String> terms = new ArrayList<>();
   private int version;
+  private List<DynamicAttribute> customAttributes = new ArrayList<>();
 
   public void incrementVersion() {
     version++;

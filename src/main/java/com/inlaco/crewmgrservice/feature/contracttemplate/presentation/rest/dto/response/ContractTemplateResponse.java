@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.feature.contracttemplate.presentation.rest.dto.response;
 
-import com.inlaco.crewmgrservice.common.model.File;
+import com.inlaco.crewmgrservice.common.model.Asset;
 import lombok.Data;
 
 @Data
@@ -12,7 +12,7 @@ public class ContractTemplateResponse {
 
   private String description;
 
-  private File metadata;
+  private Asset metadata;
 
   private String type;
 }

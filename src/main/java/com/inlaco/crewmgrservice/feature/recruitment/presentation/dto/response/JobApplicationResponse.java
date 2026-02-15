@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.feature.recruitment.presentation.dto.response;
 
-import com.inlaco.crewmgrservice.common.model.File;
+import com.inlaco.crewmgrservice.common.model.Asset;
 import com.inlaco.crewmgrservice.feature.recruitment.domain.enums.ApplicationStatus;
 import com.inlaco.crewmgrservice.feature.user.domain.enums.Gender;
 import java.time.Instant;
@@ -29,7 +29,7 @@ public class JobApplicationResponse {
 
   private String experiences;
 
-  private File resume;
+  private Asset resume;
 
   private ApplicationStatus status;
 

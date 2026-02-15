@@ -13,7 +13,14 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public interface PostMapper {
 
-  // ===== Subtype mapping (MapStruct generate) =====
+  default PostDTO toPostDTO(Post post) {
+    return switch (post) {
+      case NewsPost p -> toPostDTO(p);
+      case RecruitmentPost p -> toPostDTO(p);
+      case EventPost p -> toPostDTO(p);
+      default -> throw new IllegalArgumentException("Unknown Post type: " + post.getClass());
+    };
+  }
 
   NewsPostDTO toPostDTO(NewsPost post);
 
@@ -21,43 +28,18 @@ public interface PostMapper {
 
   EventPostDTO toPostDTO(EventPost post);
 
+  default Post toPost(PostDTO dto) {
+    return switch (dto) {
+      case NewsPostDTO p -> toPost(p);
+      case RecruitmentPostDTO p -> toPost(p);
+      case EventPostDTO p -> toPost(p);
+      default -> throw new IllegalArgumentException("Unknown PostDTO type: " + dto.getClass());
+    };
+  }
+
   NewsPost toPost(NewsPostDTO dto);
 
   RecruitmentPost toPost(RecruitmentPostDTO dto);
 
   EventPost toPost(EventPostDTO dto);
-
-  // ===== Base mapping dùng default =====
-
-  default PostDTO toPostDTO(Post post) {
-    if (post == null) return null;
-
-    if (post instanceof NewsPost news) {
-      return toPostDTO(news);
-    }
-    if (post instanceof RecruitmentPost recruitment) {
-      return toPostDTO(recruitment);
-    }
-    if (post instanceof EventPost event) {
-      return toPostDTO(event);
-    }
-
-    throw new IllegalArgumentException("Unknown Post type: " + post.getClass());
-  }
-
-  default Post toPost(PostDTO dto) {
-    if (dto == null) return null;
-
-    if (dto instanceof NewsPostDTO news) {
-      return toPost(news);
-    }
-    if (dto instanceof RecruitmentPostDTO recruitment) {
-      return toPost(recruitment);
-    }
-    if (dto instanceof EventPostDTO event) {
-      return toPost(event);
-    }
-
-    throw new IllegalArgumentException("Unknown PostDTO type: " + dto.getClass());
-  }
 }

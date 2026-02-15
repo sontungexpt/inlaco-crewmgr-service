@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.feature.course.domain.model;
 
-import com.inlaco.crewmgrservice.common.model.File;
+import com.inlaco.crewmgrservice.common.model.Asset;
 import com.inlaco.crewmgrservice.feature.course.domain.enums.CourseMemberStatus;
 import java.time.Instant;
 import lombok.Getter;
@@ -54,7 +54,7 @@ public class CourseMember {
     this.cancelledAt = Instant.now();
   }
 
-  private File certificate;
+  private Asset certificate;
 
   private Instant expiredAt;
 

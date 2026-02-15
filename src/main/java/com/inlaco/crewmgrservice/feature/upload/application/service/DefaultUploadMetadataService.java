@@ -3,7 +3,7 @@ package com.inlaco.crewmgrservice.feature.upload.application.service;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.api.ApiResponse;
 import com.cloudinary.utils.ObjectUtils;
-import com.inlaco.crewmgrservice.common.model.File;
+import com.inlaco.crewmgrservice.common.model.Asset;
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,9 +16,9 @@ public class DefaultUploadMetadataService {
 
   private final Cloudinary cloudinary;
 
-  public File buildMetadata(ApiResponse response) {
-    File metadata =
-        File.builder()
+  public Asset buildMetadata(ApiResponse response) {
+    Asset metadata =
+        Asset.builder()
             .publicId((String) response.get("public_id"))
             .assetId((String) response.get("asset_id"))
             .displayName((String) response.get("display_name"))
@@ -30,7 +30,7 @@ public class DefaultUploadMetadataService {
     return metadata;
   }
 
-  public File metadata(String assetId) {
+  public Asset metadata(String assetId) {
     try {
       ApiResponse response = cloudinary.api().resourceByAssetID(assetId, ObjectUtils.asMap());
       if (response == null || response.isEmpty()) {

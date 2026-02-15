@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.feature.course.domain.model;
 
-import com.inlaco.crewmgrservice.common.model.File;
+import com.inlaco.crewmgrservice.common.model.Asset;
 import java.time.Instant;
 import lombok.Data;
 import org.bson.types.ObjectId;
@@ -14,7 +14,7 @@ public class Course {
 
   private String trainingProviderName;
 
-  private File trainingProviderLogo;
+  private Asset trainingProviderLogo;
 
   private String teacherName;
 
@@ -46,7 +46,7 @@ public class Course {
     return enrolledStudentCount >= limitStudent;
   }
 
-  private File wallpaper;
+  private Asset wallpaper;
 
   private String description;
 

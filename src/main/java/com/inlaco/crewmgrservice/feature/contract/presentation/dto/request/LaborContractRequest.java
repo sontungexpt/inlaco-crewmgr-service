@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class LaborContractRequest extends DynamicContractRequest {
+public class LaborContractRequest extends AbstractContractRequest {
 
   public LaborContractRequest() {
     super(ContractType.LABOR_CONTRACT);

@@ -1,7 +1,7 @@
 package com.inlaco.crewmgrservice.feature.recruitment.application.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.inlaco.crewmgrservice.common.model.File;
+import com.inlaco.crewmgrservice.common.model.Asset;
 import com.inlaco.crewmgrservice.feature.post.application.port.in.PostUseCase;
 import com.inlaco.crewmgrservice.feature.post.domain.enums.PostType;
 import com.inlaco.crewmgrservice.feature.post.domain.exception.PostInactiveException;
@@ -47,7 +47,7 @@ public class JobApplicationService implements JobApplicationUseCase {
       throw new PostInactiveException("The registration post is closed");
     }
 
-    File resume = uploadFactory.metadata(UploadStrategy.RESUME, resumePublicId);
+    Asset resume = uploadFactory.metadata(UploadStrategy.RESUME, resumePublicId);
     application.setPosition(recruitmentPost.getPosition());
     application.setResume(resume);
     application.setRecruitmentPostId(recruitmentPostId);

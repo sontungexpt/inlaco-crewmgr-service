@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr353.JSR353Module;
-import com.inlaco.crewmgrservice.common.model.File;
+import com.inlaco.crewmgrservice.common.model.Asset;
 import com.inlaco.crewmgrservice.infrastructure.serialization.deserializer.FileDeserializer;
 import com.inlaco.crewmgrservice.infrastructure.serialization.serializer.FileSerializer;
 import lombok.RequiredArgsConstructor;
@@ -29,8 +29,8 @@ public class JacksonConfig {
     ObjectMapper mapper = new ObjectMapper();
 
     SimpleModule fileModule = new SimpleModule();
-    fileModule.addSerializer(File.class, fileSerializer);
-    fileModule.addDeserializer(File.class, fileDeserializer);
+    fileModule.addSerializer(Asset.class, fileSerializer);
+    fileModule.addDeserializer(Asset.class, fileDeserializer);
     mapper.registerModule(fileModule);
 
     mapper

@@ -6,7 +6,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
-import com.inlaco.crewmgrservice.common.model.File;
+import com.inlaco.crewmgrservice.common.model.Asset;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -14,12 +14,12 @@ import org.springframework.stereotype.Component;
 @JacksonStdImpl
 @Component
 @RequiredArgsConstructor
-public class FileSerializer extends JsonSerializer<File> {
+public class FileSerializer extends JsonSerializer<Asset> {
 
   private final Cloudinary cloudinary;
 
   @Override
-  public void serialize(File value, JsonGenerator gen, SerializerProvider provider)
+  public void serialize(Asset value, JsonGenerator gen, SerializerProvider provider)
       throws JsonGenerationException, IOException {
     gen.writeStartObject();
 

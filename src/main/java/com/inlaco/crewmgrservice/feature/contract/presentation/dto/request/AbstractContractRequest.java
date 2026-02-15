@@ -3,9 +3,9 @@ package com.inlaco.crewmgrservice.feature.contract.presentation.dto.request;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.inlaco.crewmgrservice.common.model.File;
 import com.inlaco.crewmgrservice.feature.contract.domain.enums.ContractType;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.party.Party;
+import com.inlaco.crewmgrservice.feature.contract.domain.objectvalue.DynamicAttribute;
 import com.inlaco.crewmgrservice.infrastructure.web.payload.request.constraint.TimeFrame;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Future;
@@ -26,7 +26,6 @@ import org.springframework.format.annotation.DateTimeFormat;
     use = JsonTypeInfo.Id.NAME,
     property = "type")
 @JsonSubTypes({
-  @Type(value = DynamicContractRequest.class, name = ContractType.Fields.DYNAMIC_CONTRACT),
   @Type(value = LaborContractRequest.class, name = ContractType.Fields.LABOR_CONTRACT),
   @Type(value = CrewSupplyContractRequest.class, name = ContractType.Fields.SUPPLY_CONTRACT)
 })
@@ -47,11 +46,11 @@ public abstract class AbstractContractRequest implements TimeFrame, Serializable
   @Size(min = 1)
   private List<@Valid Party> partners;
 
-  private File contractFile;
+  // private String contractFile;
 
-  private List<@Valid File> attachments;
-
+  // private List<String> attachments;
   private List<@NotBlank String> terms;
+  private List<DynamicAttribute> customAttributes;
 
   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
   private Instant activationDate;
@@ -61,7 +60,7 @@ public abstract class AbstractContractRequest implements TimeFrame, Serializable
   private Instant expiredDate;
 
   @Min(0)
-  private int contractFreezeDelay = 5;
+  private int contractFreezeDelayMinutes = 5;
 
   @Override
   public List<Pair> getTimeFrames() {

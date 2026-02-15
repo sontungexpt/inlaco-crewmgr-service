@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.feature.user.infrastructure.persistence.mongodb.entity;
 
-import com.inlaco.crewmgrservice.common.model.File;
+import com.inlaco.crewmgrservice.common.model.Asset;
 import com.inlaco.crewmgrservice.feature.user.domain.enums.UserStatus;
 import com.inlaco.crewmgrservice.feature.user.domain.model.authorization.Right;
 import java.time.Instant;
@@ -31,7 +31,7 @@ public class UserEntity {
   @Indexed(unique = true)
   private String username;
 
-  private File avatar;
+  private Asset avatar;
 
   private String password;
 

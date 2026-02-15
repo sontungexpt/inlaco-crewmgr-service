@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.feature.course.presentation.dto.request;
 
-import com.inlaco.crewmgrservice.common.model.File;
+import com.inlaco.crewmgrservice.common.model.Asset;
 import com.inlaco.crewmgrservice.infrastructure.web.payload.request.constraint.TimeFrame;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -18,7 +18,7 @@ public class NewCourseRequest implements Serializable, TimeFrame {
 
   private String trainingProviderName;
 
-  private File trainingProviderLogo;
+  private Asset trainingProviderLogo;
 
   private String teacherName;
 
@@ -29,7 +29,7 @@ public class NewCourseRequest implements Serializable, TimeFrame {
   @Min(1)
   private int limitStudent = Integer.MAX_VALUE;
 
-  private File wallpaper;
+  private Asset wallpaper;
 
   @NotBlank private String description;
 

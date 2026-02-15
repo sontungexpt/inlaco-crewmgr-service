@@ -14,7 +14,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-public class File implements Serializable {
+public class Asset implements Serializable {
 
   private String publicId;
 

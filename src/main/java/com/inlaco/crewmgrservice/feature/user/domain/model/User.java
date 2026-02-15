@@ -1,7 +1,7 @@
 package com.inlaco.crewmgrservice.feature.user.domain.model;
 
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
-import com.inlaco.crewmgrservice.common.model.File;
+import com.inlaco.crewmgrservice.common.model.Asset;
 import com.inlaco.crewmgrservice.feature.user.domain.enums.UserStatus;
 import com.inlaco.crewmgrservice.feature.user.domain.enums.UsernameType;
 import com.inlaco.crewmgrservice.feature.user.domain.model.authorization.Right;
@@ -26,7 +26,7 @@ public class User {
 
   private String username;
 
-  private File avatar;
+  private Asset avatar;
 
   private String password;
 

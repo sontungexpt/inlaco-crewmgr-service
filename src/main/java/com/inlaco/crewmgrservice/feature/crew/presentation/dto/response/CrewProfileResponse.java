@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.feature.crew.presentation.dto.response;
 
-import com.inlaco.crewmgrservice.common.model.File;
+import com.inlaco.crewmgrservice.common.model.Asset;
 import com.inlaco.crewmgrservice.feature.crew.domain.enums.CrewStatus;
 import java.time.Instant;
 import java.util.List;
@@ -24,9 +24,9 @@ public class CrewProfileResponse {
 
   private String socialInsuranceCode;
 
-  private List<File> socialInsuranceImages;
+  private List<Asset> socialInsuranceImages;
 
   private String accidentInsuranceCode;
 
-  private List<File> accidentInsuranceImages;
+  private List<Asset> accidentInsuranceImages;
 }

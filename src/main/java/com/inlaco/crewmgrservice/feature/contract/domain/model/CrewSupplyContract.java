@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class CrewSupplyContract extends DynamicContract {
+public class CrewSupplyContract extends AbstractContract {
 
   public CrewSupplyContract() {
     super(ContractType.SUPPLY_CONTRACT);

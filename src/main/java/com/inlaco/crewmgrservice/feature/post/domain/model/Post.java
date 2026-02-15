@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.feature.post.domain.model;
 
-import com.inlaco.crewmgrservice.common.model.File;
+import com.inlaco.crewmgrservice.common.model.Asset;
 import com.inlaco.crewmgrservice.feature.post.domain.enums.PostType;
 import com.inlaco.crewmgrservice.infrastructure.web.annotation.patch.JsonPatchIgnore;
 import java.io.Serializable;
@@ -23,9 +23,9 @@ public abstract class Post implements Serializable {
 
   private String description;
 
-  private List<File> attachments;
+  private List<Asset> attachments;
 
-  private File image;
+  private Asset image;
 
   private String company;
 

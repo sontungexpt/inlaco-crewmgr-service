@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.feature.course.infrastructure.persistence.mongodb.entity;
 
-import com.inlaco.crewmgrservice.common.model.File;
+import com.inlaco.crewmgrservice.common.model.Asset;
 import java.time.Instant;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,7 +24,7 @@ public class CourseEntity {
 
   private String trainingProviderName;
 
-  private File trainingProviderLogo;
+  private Asset trainingProviderLogo;
 
   private String teacherName;
 
@@ -41,7 +41,7 @@ public class CourseEntity {
 
   private int enrolledStudentCount = 0;
 
-  private File wallpaper;
+  private Asset wallpaper;
 
   private String description;
 

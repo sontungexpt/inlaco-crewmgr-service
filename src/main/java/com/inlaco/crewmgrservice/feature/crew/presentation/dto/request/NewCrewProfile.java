@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.feature.crew.presentation.dto.request;
 
-import com.inlaco.crewmgrservice.common.model.File;
+import com.inlaco.crewmgrservice.common.model.Asset;
 import java.time.Instant;
 import java.util.List;
 import lombok.Data;
@@ -17,9 +17,9 @@ public class NewCrewProfile {
 
   private String socialInsuranceCode;
 
-  private List<File> socialInsuranceImages;
+  private List<Asset> socialInsuranceImages;
 
   private String accidentInsuranceCode;
 
-  private List<File> accidentInsuranceImages;
+  private List<Asset> accidentInsuranceImages;
 }
