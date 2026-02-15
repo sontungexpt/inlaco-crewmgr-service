@@ -46,9 +46,9 @@ public abstract class AbstractContractRequest implements TimeFrame, Serializable
   @Size(min = 1)
   private List<@Valid Party> partners;
 
-  // private String contractFile;
+  private String contractFile;
+  private List<String> attachments;
 
-  // private List<String> attachments;
   private List<@NotBlank String> terms;
   private List<DynamicAttribute> customAttributes;
 

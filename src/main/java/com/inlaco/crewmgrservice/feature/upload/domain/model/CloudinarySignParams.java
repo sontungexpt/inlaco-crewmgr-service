@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CloudinarySignParams {
 
-  private Map<String, Object> signParams =
+  private final Map<String, Object> signParams =
       new HashMap<>() {
         {
           put("timestamp", System.currentTimeMillis() / 1000);

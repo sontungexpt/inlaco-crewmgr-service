@@ -1,5 +1,6 @@
 package com.inlaco.crewmgrservice.feature.contract.presentation.rest.controller;
 
+import com.inlaco.crewmgrservice.feature.contract.application.model.ContractAssets;
 import com.inlaco.crewmgrservice.feature.contract.application.port.in.CreateLaborContractUseCase;
 import com.inlaco.crewmgrservice.feature.contract.presentation.dto.request.LaborContractRequest;
 import com.inlaco.crewmgrservice.feature.contract.presentation.dto.response.AbstractContractResponse;
@@ -44,6 +45,11 @@ public class LaborContractController {
       @RequestBody @Valid LaborContractRequest request) {
     return contractMapper.toContractResponse(
         laborContractUseCase.create(
-            applicationId, contractMapper.toLaborContract(request), contractFileAssetId, user));
+            applicationId,
+            contractMapper.toLaborContract(request),
+            new ContractAssets(
+                request.getContractFile() != null ? request.getContractFile() : contractFileAssetId,
+                request.getAttachments()),
+            user));
   }
 }

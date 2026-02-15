@@ -9,32 +9,34 @@ import com.inlaco.crewmgrservice.feature.contract.presentation.dto.request.Labor
 import com.inlaco.crewmgrservice.feature.contract.presentation.dto.response.AbstractContractResponse;
 import com.inlaco.crewmgrservice.feature.contract.presentation.dto.response.CrewSupplyContractResponse;
 import com.inlaco.crewmgrservice.feature.contract.presentation.dto.response.LaborContractResponse;
+import org.mapstruct.InheritConfiguration;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.SubclassExhaustiveStrategy;
+import org.mapstruct.SubclassMapping;
 
-@Mapper(componentModel = "spring")
+@Mapper(
+    componentModel = "spring",
+    subclassExhaustiveStrategy = SubclassExhaustiveStrategy.RUNTIME_EXCEPTION)
 public interface ContractMapper {
 
-  default AbstractContractResponse toContractResponse(AbstractContract abstractContract) {
-    return switch (abstractContract) {
-      case LaborContract contract -> toLaborContractResponse(contract);
-      case CrewSupplyContract contract -> toCrewSupplyContractResponse(contract);
-      default -> throw new IllegalArgumentException("Unsupported contract type");
-    };
-  }
+  @SubclassMapping(source = LaborContract.class, target = LaborContractResponse.class)
+  @SubclassMapping(source = CrewSupplyContract.class, target = CrewSupplyContractResponse.class)
+  AbstractContractResponse toContractResponse(AbstractContract contract);
 
   LaborContractResponse toLaborContractResponse(LaborContract contract);
 
   CrewSupplyContractResponse toCrewSupplyContractResponse(CrewSupplyContract contract);
 
-  default AbstractContract toContract(AbstractContractRequest request) {
-    return switch (request) {
-      case LaborContractRequest contract -> toLaborContract(contract);
-      case CrewSupplyContractRequest contract -> toCrewSupplyContract(contract);
-      default -> throw new IllegalArgumentException("Unsupported contract type");
-    };
-  }
+  @SubclassMapping(source = LaborContractRequest.class, target = LaborContract.class)
+  @SubclassMapping(source = CrewSupplyContractRequest.class, target = CrewSupplyContract.class)
+  @Mapping(target = "contractFile", ignore = true)
+  @Mapping(target = "attachments", ignore = true)
+  AbstractContract toContract(AbstractContractRequest request);
 
+  @InheritConfiguration(name = "toContract")
   LaborContract toLaborContract(LaborContractRequest request);
 
+  @InheritConfiguration(name = "toContract")
   CrewSupplyContract toCrewSupplyContract(CrewSupplyContractRequest request);
 }
