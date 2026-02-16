@@ -9,45 +9,71 @@ import com.inlaco.crewmgrservice.feature.post.infrastructure.persistence.mongodb
 import com.inlaco.crewmgrservice.feature.post.infrastructure.persistence.mongodb.entity.PostEntity;
 import com.inlaco.crewmgrservice.feature.post.infrastructure.persistence.mongodb.entity.RecruitmentPostEntity;
 import com.inlaco.crewmgrservice.shared.mapper.ObjectIdMapper;
+import org.mapstruct.InheritConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.ObjectFactory;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.ReportingPolicy;
+import org.mapstruct.SubclassExhaustiveStrategy;
 import org.mapstruct.SubclassMapping;
 
-@Mapper(componentModel = "spring", uses = ObjectIdMapper.class)
+@Mapper(
+    componentModel = "spring",
+    unmappedTargetPolicy = ReportingPolicy.IGNORE,
+    unmappedSourcePolicy = ReportingPolicy.IGNORE,
+    uses = ObjectIdMapper.class,
+    subclassExhaustiveStrategy = SubclassExhaustiveStrategy.RUNTIME_EXCEPTION)
 public interface PostEntityMapper {
 
-  @ObjectFactory
-  default PostEntity createEntity(Post post) {
-    return switch (post) {
-      case NewsPost p -> new NewsPostEntity();
-      case RecruitmentPost p -> new RecruitmentPostEntity();
-      case EventPost p -> new EventPostEntity();
-      default -> throw new IllegalArgumentException("Unsupported post type: " + post.getClass());
-    };
-  }
-
-  @ObjectFactory
-  default Post createDomain(PostEntity entity) {
-    return switch (entity) {
-      case NewsPostEntity p -> new NewsPost();
-      case RecruitmentPostEntity p -> new RecruitmentPost();
-      case EventPostEntity p -> new EventPost();
-      default -> throw new IllegalArgumentException("Unsupported post type: " + entity.getClass());
-    };
-  }
-
-  @SubclassMapping(source = NewsPost.class, target = NewsPostEntity.class)
-  @SubclassMapping(source = RecruitmentPost.class, target = RecruitmentPostEntity.class)
-  @SubclassMapping(source = EventPost.class, target = EventPostEntity.class)
-  @Mapping(target = "authorId", source = "authorId", qualifiedByName = "stringToObjectId")
-  @Mapping(target = "id", source = "id", qualifiedByName = "stringToObjectId")
-  PostEntity toPostEntity(Post post);
-
+  // =================== Mapping PostEntity to Post ==================
   @SubclassMapping(source = NewsPostEntity.class, target = NewsPost.class)
   @SubclassMapping(source = RecruitmentPostEntity.class, target = RecruitmentPost.class)
   @SubclassMapping(source = EventPostEntity.class, target = EventPost.class)
   @Mapping(target = "authorId", source = "authorId", qualifiedByName = "objectIdToString")
-  @Mapping(target = "id", source = "id", qualifiedByName = "objectIdToString")
   Post toPost(PostEntity entity);
+
+  @InheritConfiguration(name = "toPost")
+  NewsPost toNewsPost(NewsPostEntity entity);
+
+  @InheritConfiguration(name = "toPost")
+  RecruitmentPost toRecruitmentPost(RecruitmentPostEntity entity);
+
+  @InheritConfiguration(name = "toPost")
+  EventPost toEventPost(EventPostEntity entity);
+
+  // =================== Mapping Post to PostEntity ==================
+  @SubclassMapping(source = NewsPost.class, target = NewsPostEntity.class)
+  @SubclassMapping(source = RecruitmentPost.class, target = RecruitmentPostEntity.class)
+  @SubclassMapping(source = EventPost.class, target = EventPostEntity.class)
+  @Mapping(target = "authorId", source = "authorId", qualifiedByName = "stringToObjectId")
+  PostEntity toPostEntity(Post post);
+
+  @InheritConfiguration(name = "toPostEntity")
+  NewsPostEntity toNewsPostEntity(NewsPost post);
+
+  @InheritConfiguration(name = "toPostEntity")
+  RecruitmentPostEntity toRecruitmentPostEntity(RecruitmentPost post);
+
+  @InheritConfiguration(name = "toPostEntity")
+  EventPostEntity toEventPostEntity(EventPost post);
+
+  // =================== Update PostEntity from Post ==================
+  // NOTE: WAITING FOR PULL REQUEST MERGED
+  default void updateFromPost(Post post, @MappingTarget PostEntity entity) {
+    switch (post) {
+      case NewsPost p -> updateFromPost(p, (NewsPostEntity) entity);
+      case EventPost p -> updateFromPost(p, (EventPostEntity) entity);
+      case RecruitmentPost p -> updateFromPost(p, (RecruitmentPostEntity) entity);
+      default -> throw new IllegalArgumentException("Unsupported type");
+    }
+  }
+
+  @Mapping(target = "authorId", source = "authorId", qualifiedByName = "stringToObjectId")
+  void updateFromPost(NewsPost post, @MappingTarget NewsPostEntity entity);
+
+  @Mapping(target = "authorId", source = "authorId", qualifiedByName = "stringToObjectId")
+  void updateFromPost(EventPost post, @MappingTarget EventPostEntity entity);
+
+  @Mapping(target = "authorId", source = "authorId", qualifiedByName = "stringToObjectId")
+  void updateFromPost(RecruitmentPost post, @MappingTarget RecruitmentPostEntity entity);
 }

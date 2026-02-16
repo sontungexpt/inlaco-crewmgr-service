@@ -25,22 +25,18 @@ import org.springframework.util.StringUtils;
 @RequiredArgsConstructor
 @Slf4j
 public class CrewRentalRequestRepositoryAdapter implements CrewRentalRequestRepository {
-  private final CrewRentalRequestMongoRepository crewRentalRequestMongoRepository;
-  private final CrewRentalRequestEntityMapper crewRentalRequestEntityMapper;
+  private final CrewRentalRequestMongoRepository repository;
+  private final CrewRentalRequestEntityMapper mapper;
   private final MongoTemplate mongoTemplate;
 
   @Override
   public Optional<CrewRentalRequest> findById(String id) {
-    return crewRentalRequestMongoRepository
-        .findById(id)
-        .map(crewRentalRequestEntityMapper::toCrewRentalRequest);
+    return repository.findById(id).map(mapper::toCrewRentalRequest);
   }
 
   @Override
   public Page<CrewRentalRequest> findAll(Pageable pageable) {
-    return crewRentalRequestMongoRepository
-        .findAll(pageable)
-        .map(crewRentalRequestEntityMapper::toCrewRentalRequest);
+    return repository.findAll(pageable).map(mapper::toCrewRentalRequest);
   }
 
   @Override
@@ -80,14 +76,28 @@ public class CrewRentalRequestRepositoryAdapter implements CrewRentalRequestRepo
             aggregation, CrewRentalRequestEntity.class, CrewRentalRequestEntityFacetResult.class)
         .getUniqueMappedResult()
         .toPage(pageable)
-        .map(crewRentalRequestEntityMapper::toCrewRentalRequest);
+        .map(mapper::toCrewRentalRequest);
   }
 
   @Override
   public CrewRentalRequest save(CrewRentalRequest request) {
-    return crewRentalRequestEntityMapper.toCrewRentalRequest(
-        crewRentalRequestMongoRepository.save(
-            crewRentalRequestEntityMapper.toCrewRentalRequestEntity(request)));
+    CrewRentalRequestEntity entity;
+    if (request.getId() == null) {
+      // INSERT
+      entity = mapper.toCrewRentalRequestEntity(request);
+    } else {
+      entity =
+          repository
+              .findById(request.getId())
+              .map(
+                  existing -> {
+                    mapper.updateFromCrewRentalRequest(request, existing);
+                    return existing;
+                  })
+              .orElseGet(() -> mapper.toCrewRentalRequestEntity(request));
+    }
+
+    return mapper.toCrewRentalRequest(repository.save(entity));
   }
 
   static class CrewRentalRequestEntityFacetResult extends FacetResult<CrewRentalRequestEntity> {}

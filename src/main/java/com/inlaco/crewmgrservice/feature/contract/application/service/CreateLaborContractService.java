@@ -37,10 +37,12 @@ public class CreateLaborContractService implements CreateLaborContractUseCase {
     JobApplication jobApplication = recruitmentQueryUseCase.getApplicationDetail(applicationId);
 
     String accountId = jobApplication.getAccountId();
+
     contract.setContractFile(
         uploadFactory.metadata(UploadStrategy.CONTRACT_FILE, assets.getContractFile()));
+
     contract.setApplicationId(applicationId);
-    contract.setEmployeeId(accountId);
+    contract.setAccountId(accountId);
 
     var newContract = contractRepository.save(contract);
 

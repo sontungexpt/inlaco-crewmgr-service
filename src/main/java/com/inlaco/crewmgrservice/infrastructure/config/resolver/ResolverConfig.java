@@ -17,7 +17,6 @@ public class ResolverConfig implements WebMvcConfigurer {
   private final DefaultSortPageableResolver defaultSortPageableResolver;
   private final BearerTokenArgumentResolver bearerTokenArgumentResolver;
   private final CurrentUserArgumentResolver currentUserArgumentResolver;
-
   private final FilterArgumentResolver filterArgumentResolver;
 
   @Override

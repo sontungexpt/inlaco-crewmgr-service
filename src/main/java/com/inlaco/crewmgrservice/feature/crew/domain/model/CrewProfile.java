@@ -24,7 +24,13 @@ public class CrewProfile {
 
   private Gender gender;
 
-  private CrewStatus status;
+  private CrewStatus status = CrewStatus.DRAFT;
+
+  public void changeStatus(CrewStatus newStatus) throws IllegalStateException {
+    if (status == newStatus) return;
+    status.validateTransition(newStatus);
+    status = newStatus;
+  }
 
   private String professionalPosition;
 

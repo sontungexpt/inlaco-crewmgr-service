@@ -18,9 +18,7 @@ public class CrewContractSignedEventListener {
 
   private final CrewUseCase crewUseCase;
 
-  @TransactionalEventListener(
-      value = ContractSignedEvent.class,
-      phase = TransactionPhase.AFTER_COMMIT)
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void handle(ContractSignedEvent event) {
     if (!(event.contract() instanceof LaborContract contract)) {
       return;
@@ -30,7 +28,7 @@ public class CrewContractSignedEventListener {
 
     crewUseCase.applyLaborContract(
         new ApplyLaborContractCommand(
-            contract.getEmployeeId(),
+            contract.getAccountId(),
             party.getRepresenter(),
             party.getAddress(),
             party.getPhone(),

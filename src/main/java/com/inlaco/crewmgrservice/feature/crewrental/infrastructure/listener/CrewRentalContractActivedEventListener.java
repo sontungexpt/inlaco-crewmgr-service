@@ -19,22 +19,20 @@ public class CrewRentalContractActivedEventListener {
 
   private final CrewRentalRequestRepository crewRentalRequestRepository;
 
-  @TransactionalEventListener(
-      value = ContractActivedEvent.class,
-      phase = TransactionPhase.AFTER_COMMIT)
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void handle(ContractActivedEvent event) {
-    if (!(event.contract() instanceof CrewSupplyContract supplyContract)) {
-      return;
+    for (var c : event.contracts()) {
+      if (!(c instanceof CrewSupplyContract supplyContract)) continue;
+
+      String requestId = supplyContract.getCrewRentalRequestId();
+      CrewRentalRequest request =
+          crewRentalRequestRepository
+              .findById(requestId)
+              .orElseThrow(
+                  () -> new ResourceNotFoundException(CrewRentalRequest.class, "id", requestId));
+
+      request.setStatus(CrewRentalRequestStatus.ACTIVE);
+      crewRentalRequestRepository.save(request);
     }
-
-    String requestId = supplyContract.getCrewRentalRequestId();
-    CrewRentalRequest request =
-        crewRentalRequestRepository
-            .findById(requestId)
-            .orElseThrow(
-                () -> new ResourceNotFoundException(CrewRentalRequest.class, "id", requestId));
-
-    request.setStatus(CrewRentalRequestStatus.ACTIVE);
-    crewRentalRequestRepository.save(request);
   }
 }

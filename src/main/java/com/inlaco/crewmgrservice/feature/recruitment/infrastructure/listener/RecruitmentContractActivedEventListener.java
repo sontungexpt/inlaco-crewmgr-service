@@ -17,15 +17,12 @@ public class RecruitmentContractActivedEventListener {
 
   private final RecruitmentReviewUseCase recruitmentReviewUseCase;
 
-  @TransactionalEventListener(
-      value = ContractActivedEvent.class,
-      phase = TransactionPhase.AFTER_COMMIT)
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void handle(ContractActivedEvent event) {
-    if (!(event.contract() instanceof LaborContract contract)) {
-      return;
+    for (var c : event.contracts()) {
+      if (!(c instanceof LaborContract contract)) continue;
+      recruitmentReviewUseCase.reviewApplication(
+          contract.getApplicationId(), ApplicationStatus.HIRED);
     }
-
-    recruitmentReviewUseCase.reviewApplication(
-        contract.getApplicationId(), ApplicationStatus.HIRED);
   }
 }

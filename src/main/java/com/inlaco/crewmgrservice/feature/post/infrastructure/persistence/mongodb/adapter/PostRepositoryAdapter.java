@@ -73,19 +73,32 @@ public class PostRepositoryAdapter implements PostRepository {
 
   @Override
   public Optional<Post> findById(String id) {
-    return postMongoRepository.findByIdAndDeletedAtIsNull(new ObjectId(id)).map(mapper::toPost);
+    return postMongoRepository.findByIdAndDeletedAtIsNull(id).map(mapper::toPost);
   }
 
   @Override
   public Post save(Post post) {
-    return mapper.toPost(postMongoRepository.save(mapper.toPostEntity(post)));
+    String id = post.getId();
+    if (id == null) {
+      return mapper.toPost(postMongoRepository.insert(mapper.toPostEntity(post)));
+    }
+    PostEntity entity =
+        postMongoRepository
+            .findById(id)
+            .map(
+                existing -> {
+                  mapper.updateFromPost(post, existing);
+                  return existing;
+                })
+            .orElseGet(() -> mapper.toPostEntity(post)); // INSERT with custom id
+    return mapper.toPost(postMongoRepository.save(entity));
   }
 
   @Override
   public Post deleteById(String id) {
     PostEntity entity =
         postMongoRepository
-            .findByIdAndDeletedAtIsNull(new ObjectId(id))
+            .findByIdAndDeletedAtIsNull(id)
             .orElseThrow(() -> new ResourceNotFoundException(PostEntity.class, "id", id));
     entity.setDeletedAt(Instant.now());
     entity.setDeletedBy(auditorAware.getCurrentAuditor().orElse(null));

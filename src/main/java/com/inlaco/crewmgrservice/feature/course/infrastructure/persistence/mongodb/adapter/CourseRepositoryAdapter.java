@@ -37,18 +37,18 @@ import org.springframework.util.StringUtils;
 @Slf4j
 public class CourseRepositoryAdapter implements CourseRepository {
 
-  private final CourseMongoRepository courseMongoRepository;
+  private final CourseMongoRepository repository;
   private final MongoTemplate mongoTemplate;
-  private final CourseEntityMapper courseMapper;
+  private final CourseEntityMapper mapper;
 
   @Override
   public Optional<Course> findById(String id) {
-    return courseMongoRepository.findByIdAndDeletedAtIsNull(id).map(courseMapper::toCourse);
+    return repository.findByIdAndDeletedAtIsNull(id).map(mapper::toCourse);
   }
 
   @Override
   public Page<Course> findAll(Pageable pageable) {
-    return courseMongoRepository.findByDeletedAtIsNull(pageable).map(courseMapper::toCourse);
+    return repository.findByDeletedAtIsNull(pageable).map(mapper::toCourse);
   }
 
   @Override
@@ -89,12 +89,25 @@ public class CourseRepositoryAdapter implements CourseRepository {
         .aggregate(aggregation, CourseEntity.class, CourseEntityFacetResult.class)
         .getUniqueMappedResult()
         .toPage(pageable)
-        .map(courseMapper::toCourse);
+        .map(mapper::toCourse);
   }
 
   @Override
   public Course save(Course course) {
-    return courseMapper.toCourse(courseMongoRepository.save(courseMapper.toEntity(course)));
+    String id = course.getId();
+    if (id == null) {
+      return mapper.toCourse(repository.insert(mapper.toCourseEntity(course)));
+    }
+    CourseEntity entity =
+        repository
+            .findById(id)
+            .map(
+                existing -> {
+                  mapper.updateFromCourse(course, existing);
+                  return existing;
+                })
+            .orElseGet(() -> mapper.toCourseEntity(course));
+    return mapper.toCourse(repository.save(entity));
   }
 
   @Override
@@ -157,7 +170,7 @@ public class CourseRepositoryAdapter implements CourseRepository {
                   CourseEntity courseEntity =
                       converter.read(CourseEntity.class, (Document) doc.get("course"));
                   UserCourse userCourse = converter.read(UserCourse.class, doc);
-                  userCourse.setCourse(courseMapper.toCourse(courseEntity));
+                  userCourse.setCourse(mapper.toCourse(courseEntity));
                   return userCourse;
                 })
             .toList();

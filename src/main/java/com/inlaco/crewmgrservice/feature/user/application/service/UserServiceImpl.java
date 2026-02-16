@@ -13,9 +13,11 @@ import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceNotFoundExcepti
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
+@Transactional
 public record UserServiceImpl(
     RefreshTokenManager refreshTokenService,
     UserRepository userRepository,
@@ -86,9 +88,10 @@ public record UserServiceImpl(
         roleRepository
             .findByName("SAILOR")
             .orElseThrow(() -> new ResourceNotFoundException(Role.class, "name", "SAILOR"));
-    // user.promoteJobState();
-    user.getRight().addRole(sailorRole);
-    return userRepository.save(user);
+    if (user.getRight().addRole(sailorRole)) {
+      return userRepository.save(user);
+    }
+    return user;
   }
 
   @Override

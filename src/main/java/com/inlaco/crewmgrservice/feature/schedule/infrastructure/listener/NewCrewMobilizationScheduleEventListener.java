@@ -36,7 +36,7 @@ public class NewCrewMobilizationScheduleEventListener {
 
   private volatile String cachedTemplate;
 
-  @EventListener(NewCrewMobilizationScheduleEvent.class)
+  @EventListener
   public void handleNewAssignmentScheduleEvent(NewCrewMobilizationScheduleEvent event) {
     var schedule = event.schedule();
     log.info("Handling schedule notification [id={}]", schedule.getId());
@@ -50,7 +50,7 @@ public class NewCrewMobilizationScheduleEventListener {
     }
 
     List<String> cardIds = schedule.getCrews().stream().map(it -> it.getEmployeeCardId()).toList();
-    List<CrewProfile> profiles = crewProfileRepository.findByEmployeeCardIdIn(cardIds);
+    List<CrewProfile> profiles = crewProfileRepository.findAllByEmployeeCardId(cardIds);
 
     if (profiles.isEmpty()) {
       log.warn("No sailor profiles found for schedule {}", schedule.getId());

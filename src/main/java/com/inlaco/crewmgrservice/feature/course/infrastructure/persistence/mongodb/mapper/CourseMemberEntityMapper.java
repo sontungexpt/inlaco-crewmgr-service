@@ -3,17 +3,22 @@ package com.inlaco.crewmgrservice.feature.course.infrastructure.persistence.mong
 import com.inlaco.crewmgrservice.feature.course.domain.model.CourseMember;
 import com.inlaco.crewmgrservice.feature.course.infrastructure.persistence.mongodb.entity.CourseMemberEntity;
 import com.inlaco.crewmgrservice.shared.mapper.ObjectIdMapper;
+import org.mapstruct.InheritConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring", uses = ObjectIdMapper.class)
 public interface CourseMemberEntityMapper {
 
-  @Mapping(target = "courseId", source = "courseId", qualifiedByName = "stringToObjectId")
-  @Mapping(target = "userId", source = "userId", qualifiedByName = "stringToObjectId")
-  CourseMemberEntity totEntity(CourseMember course);
-
   @Mapping(target = "courseId", source = "courseId", qualifiedByName = "objectIdToString")
   @Mapping(target = "userId", source = "userId", qualifiedByName = "objectIdToString")
   CourseMember toDomain(CourseMemberEntity entity);
+
+  @Mapping(target = "courseId", source = "courseId", qualifiedByName = "stringToObjectId")
+  @Mapping(target = "userId", source = "userId", qualifiedByName = "stringToObjectId")
+  CourseMemberEntity toEntity(CourseMember course);
+
+  @InheritConfiguration(name = "toEntity")
+  void updateFromDomain(CourseMember courseMember, @MappingTarget CourseMemberEntity existing);
 }

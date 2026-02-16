@@ -30,13 +30,11 @@ public class Right {
     roles.add(role);
   }
 
-  public Right addRole(Role role) {
-    roles.add(role);
-    return this;
+  public boolean addRole(Role role) {
+    return roles.add(role);
   }
 
-  public Right removeRole(Role role) {
-    roles.remove(role);
-    return this;
+  public boolean removeRole(Role role) {
+    return roles.remove(role);
   }
 }

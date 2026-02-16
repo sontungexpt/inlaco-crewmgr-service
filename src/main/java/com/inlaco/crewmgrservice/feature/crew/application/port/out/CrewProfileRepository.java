@@ -12,6 +12,8 @@ public interface CrewProfileRepository {
 
   CrewProfile save(CrewProfile profile);
 
+  List<CrewProfile> saveAll(Iterable<CrewProfile> profiles);
+
   Optional<CrewProfile> findById(String profileId);
 
   Optional<CrewProfile> findByAccountId(String accountId);
@@ -22,7 +24,9 @@ public interface CrewProfileRepository {
 
   Page<CrewProfile> findAll(@Nullable CrewProfileSearchCriteria criteria, Pageable pageable);
 
-  List<CrewProfile> findByIdIn(Iterable<String> ids);
+  List<CrewProfile> findAllById(Iterable<String> ids);
 
-  List<CrewProfile> findByEmployeeCardIdIn(Iterable<String> cardIds);
+  List<CrewProfile> findAllByAccountId(Iterable<String> accountIds);
+
+  List<CrewProfile> findAllByEmployeeCardId(Iterable<String> cardIds);
 }

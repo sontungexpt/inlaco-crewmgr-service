@@ -12,10 +12,7 @@ import com.inlaco.crewmgrservice.feature.contract.domain.objectvalue.DynamicAttr
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.function.Consumer;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,17 +22,6 @@ import lombok.Setter;
 public abstract class AbstractContract {
 
   private static final String SYSTEM = "SYSTEM";
-
-  private final transient Set<Object> domainEvents = new HashSet<>();
-
-  protected void registerEvent(Object event) {
-    domainEvents.add(event);
-  }
-
-  public void broadcast(Consumer<Object> dispatcher) {
-    domainEvents.forEach(dispatcher);
-    domainEvents.clear();
-  }
 
   private String id;
   private final ContractType type;

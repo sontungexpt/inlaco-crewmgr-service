@@ -45,7 +45,7 @@ public class CrewService implements CrewUseCase {
 
   @Override
   public List<CrewProfile> getProfilesByCardIds(Iterable<String> cardIds) {
-    return crewProfileRepository.findByEmployeeCardIdIn(cardIds);
+    return crewProfileRepository.findAllByEmployeeCardId(cardIds);
   }
 
   @Override
@@ -66,7 +66,7 @@ public class CrewService implements CrewUseCase {
     }
 
     if (crewPrrofile.getStatus() == null) {
-      crewPrrofile.setStatus(CrewStatus.READY_FOR_ASSIGNMENT);
+      crewPrrofile.setStatus(CrewStatus.DRAFT);
     }
 
     crewProfileRepository.save(crewPrrofile);

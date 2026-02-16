@@ -28,35 +28,46 @@ import org.springframework.util.StringUtils;
 public class JobApplicationRepositoryAdapter implements JobApplicationRepository {
 
   private final MongoTemplate mongoTemplate;
-  private final JobApplicationEntityMapper jobApplicationEntityMapper;
-  private final JobApplicationMongoRepository jobApplicationMongoRepository;
+  private final JobApplicationEntityMapper mapper;
+  private final JobApplicationMongoRepository repository;
 
   @Override
   public JobApplication save(JobApplication jobApplication) {
-    return jobApplicationEntityMapper.toJobApplication(
-        jobApplicationMongoRepository.save(
-            jobApplicationEntityMapper.toJobApplicationEntity(jobApplication)));
+    String id = jobApplication.getId();
+    JobApplicationEntity entity;
+    if (id == null) {
+      // INSERT
+      entity = mapper.toJobApplicationEntity(jobApplication);
+    } else {
+      entity =
+          repository
+              .findById(id)
+              .map(
+                  existing -> {
+                    mapper.updateFromJobApplication(jobApplication, existing);
+                    return existing;
+                  })
+              .orElseGet(() -> mapper.toJobApplicationEntity(jobApplication));
+    }
+
+    return mapper.toJobApplication(repository.save(entity));
   }
 
   @Override
   public Page<JobApplication> findByAccountId(String accountId, Pageable pageable) {
-    return jobApplicationMongoRepository
+    return repository
         .findByAccountId(new ObjectId(accountId), pageable)
-        .map(jobApplicationEntityMapper::toJobApplication);
+        .map(mapper::toJobApplication);
   }
 
   @Override
   public Optional<JobApplication> findById(String id) {
-    return jobApplicationMongoRepository
-        .findById(id)
-        .map(jobApplicationEntityMapper::toJobApplication);
+    return repository.findById(id).map(mapper::toJobApplication);
   }
 
   @Override
   public Page<JobApplication> findAll(Pageable pageable) {
-    return jobApplicationMongoRepository
-        .findAll(pageable)
-        .map(jobApplicationEntityMapper::toJobApplication);
+    return repository.findAll(pageable).map(mapper::toJobApplication);
   }
 
   @Override
@@ -91,7 +102,7 @@ public class JobApplicationRepositoryAdapter implements JobApplicationRepository
         .aggregate(aggregation, JobApplicationEntity.class, JobApplicationEntityFacetResult.class)
         .getUniqueMappedResult()
         .toPage(pageable)
-        .map(jobApplicationEntityMapper::toJobApplication);
+        .map(mapper::toJobApplication);
   }
 
   static class JobApplicationEntityFacetResult extends FacetResult<JobApplicationEntity> {}

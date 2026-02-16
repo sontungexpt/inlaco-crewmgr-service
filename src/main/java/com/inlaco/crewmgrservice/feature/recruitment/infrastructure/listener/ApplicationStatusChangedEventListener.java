@@ -30,7 +30,7 @@ public class ApplicationStatusChangedEventListener {
   private final NotificationDispatcher notificationDispatcher;
   private final Map<ApplicationStatus, String> templateCache = new ConcurrentHashMap<>();
 
-  @EventListener(ApplicationStatusChangedEvent.class)
+  @EventListener
   public void handleApplicationReviewed(ApplicationStatusChangedEvent event) {
     JobApplication application = event.application();
 

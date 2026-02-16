@@ -2,6 +2,8 @@ package com.inlaco.crewmgrservice.feature.contract.application.service;
 
 import com.inlaco.crewmgrservice.feature.contract.application.port.in.ContractLifecycleUseCase;
 import com.inlaco.crewmgrservice.feature.contract.application.port.out.ContractRepository;
+import com.inlaco.crewmgrservice.feature.contract.domain.event.ContractActivedEvent;
+import com.inlaco.crewmgrservice.feature.contract.domain.event.ContractExpiredEvent;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.AbstractContract;
 import java.time.Instant;
 import java.util.List;
@@ -23,9 +25,9 @@ public class ContractLifecycleService implements ContractLifecycleUseCase {
   public void activateDueContracts(List<AbstractContract> contracts, Instant now) {
     for (var contract : contracts) {
       contract.activate(now);
-      contract.broadcast(eventPublisher::publishEvent);
     }
-    contractRepository.saveAll(contracts);
+    eventPublisher.publishEvent(
+        new ContractActivedEvent(contractRepository.saveAll(contracts), now));
   }
 
   @Override
@@ -33,10 +35,8 @@ public class ContractLifecycleService implements ContractLifecycleUseCase {
   public void expireContracts(List<AbstractContract> contracts, Instant now) {
     for (var contract : contracts) {
       contract.expire(now);
-      contract.broadcast(eventPublisher::publishEvent);
     }
-    contractRepository.saveAll(contracts);
+    eventPublisher.publishEvent(
+        new ContractExpiredEvent(contractRepository.saveAll(contracts), now));
   }
-
-  //   private void activateSupplyContract(SupplyContract contract) {
 }

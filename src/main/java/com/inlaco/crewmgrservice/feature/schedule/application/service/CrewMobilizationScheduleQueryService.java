@@ -55,7 +55,7 @@ public class CrewMobilizationScheduleQueryService implements CrewMobilizationSch
     }
 
     // Fetch profiles
-    var profiles = crewProfileRepository.findByEmployeeCardIdIn(employeeCardIds);
+    var profiles = crewProfileRepository.findAllByEmployeeCardId(employeeCardIds);
 
     // Build profile map
     Map<String, CrewProfile> profileMap = new HashMap<>(profiles.size());

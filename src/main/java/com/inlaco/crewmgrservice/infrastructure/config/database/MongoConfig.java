@@ -14,6 +14,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.AuditorAware;
+import org.springframework.data.mongodb.MongoDatabaseFactory;
+import org.springframework.data.mongodb.MongoTransactionManager;
 import org.springframework.data.mongodb.config.EnableMongoAuditing;
 import org.springframework.data.mongodb.core.convert.MongoCustomConversions;
 import org.springframework.security.core.Authentication;
@@ -36,6 +38,11 @@ public class MongoConfig {
             apiEndpointNameWritingConverter,
             apiEndpointNameReadingConverter,
             apiEndpointNameCodeReadingConverter));
+  }
+
+  @Bean
+  public MongoTransactionManager transactionManager(MongoDatabaseFactory dbFactory) {
+    return new MongoTransactionManager(dbFactory);
   }
 
   // https://stackoverflow.com/questions/29472931/how-does-createdby-work-in-spring-data-jpa

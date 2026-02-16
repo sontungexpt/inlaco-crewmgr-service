@@ -12,7 +12,7 @@ public class LaborContract extends AbstractContract {
     super(ContractType.LABOR_CONTRACT);
   }
 
-  private String employeeId;
+  private String accountId;
 
   private String applicationId;
 

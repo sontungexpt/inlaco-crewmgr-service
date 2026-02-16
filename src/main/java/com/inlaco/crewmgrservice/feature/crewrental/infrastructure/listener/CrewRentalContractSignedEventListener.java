@@ -19,9 +19,7 @@ public class CrewRentalContractSignedEventListener {
 
   private final CrewRentalRequestRepository crewRentalRequestRepository;
 
-  @TransactionalEventListener(
-      value = ContractSignedEvent.class,
-      phase = TransactionPhase.AFTER_COMMIT)
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void handle(ContractSignedEvent event) {
     if (!(event.contract() instanceof CrewSupplyContract supplyContract)) {
       return;

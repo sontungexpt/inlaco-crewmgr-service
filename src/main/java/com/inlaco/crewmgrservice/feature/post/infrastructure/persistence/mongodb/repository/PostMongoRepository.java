@@ -3,16 +3,15 @@ package com.inlaco.crewmgrservice.feature.post.infrastructure.persistence.mongod
 import com.inlaco.crewmgrservice.feature.post.domain.enums.PostType;
 import com.inlaco.crewmgrservice.feature.post.infrastructure.persistence.mongodb.entity.PostEntity;
 import java.util.Optional;
-import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface PostMongoRepository extends MongoRepository<PostEntity, ObjectId> {
+public interface PostMongoRepository extends MongoRepository<PostEntity, String> {
 
-  Optional<PostEntity> findByIdAndDeletedAtIsNull(ObjectId id);
+  Optional<PostEntity> findByIdAndDeletedAtIsNull(String id);
 
   Page<PostEntity> findByDeletedAtIsNull(Pageable pageable);
 

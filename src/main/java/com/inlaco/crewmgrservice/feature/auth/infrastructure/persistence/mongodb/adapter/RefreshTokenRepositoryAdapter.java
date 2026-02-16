@@ -12,17 +12,16 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class RefreshTokenRepositoryAdapter implements RefreshTokenRepository {
 
-  private final RefreshTokenMongoRepository refreshTokenMongoRepository;
-  private final RefreshTokenEntityMapper refreshTokenMapper;
+  private final RefreshTokenMongoRepository repository;
+  private final RefreshTokenEntityMapper mapper;
 
   @Override
   public Optional<RefreshToken> findByHashedToken(String token) {
-    return refreshTokenMongoRepository.findByHashedToken(token).map(refreshTokenMapper::toDomain);
+    return repository.findByHashedToken(token).map(mapper::toDomain);
   }
 
   @Override
   public RefreshToken save(RefreshToken refreshToken) {
-    return refreshTokenMapper.toDomain(
-        refreshTokenMongoRepository.save(refreshTokenMapper.toEntity(refreshToken)));
+    return mapper.toDomain(repository.save(mapper.toEntity(refreshToken)));
   }
 }

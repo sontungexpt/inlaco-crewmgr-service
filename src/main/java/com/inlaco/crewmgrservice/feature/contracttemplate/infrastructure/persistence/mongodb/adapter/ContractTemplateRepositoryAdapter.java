@@ -2,6 +2,7 @@ package com.inlaco.crewmgrservice.feature.contracttemplate.infrastructure.persis
 
 import com.inlaco.crewmgrservice.feature.contracttemplate.application.port.out.ContractTemplateRepository;
 import com.inlaco.crewmgrservice.feature.contracttemplate.domain.model.ContractTemplate;
+import com.inlaco.crewmgrservice.feature.contracttemplate.infrastructure.persistence.mongodb.entity.ContractTemplateEntity;
 import com.inlaco.crewmgrservice.feature.contracttemplate.infrastructure.persistence.mongodb.mapper.ContractTemplateEntityMapper;
 import com.inlaco.crewmgrservice.feature.contracttemplate.infrastructure.persistence.mongodb.repository.ContractTemplateMongoRepository;
 import java.util.Optional;
@@ -31,7 +32,23 @@ public class ContractTemplateRepositoryAdapter implements ContractTemplateReposi
 
   @Override
   public ContractTemplate save(ContractTemplate template) {
-    return mapper.toContractTemplate(repository.save(mapper.toContractTemplateEntity(template)));
+    ContractTemplateEntity entity;
+    if (template.getId() == null) {
+      // INSERT
+      entity = mapper.toContractTemplateEntity(template);
+    } else {
+      entity =
+          repository
+              .findById(template.getId())
+              .map(
+                  existing -> {
+                    mapper.updateFromContractTemplate(template, existing);
+                    return existing;
+                  })
+              .orElseGet(() -> mapper.toContractTemplateEntity(template));
+    }
+
+    return mapper.toContractTemplate(repository.save(entity));
   }
 
   @Override

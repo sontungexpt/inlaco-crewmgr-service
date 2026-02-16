@@ -109,7 +109,7 @@ public class ContractEntityMapper {
         LaborContract labor = (LaborContract) contract;
         yield Map.of(
             "applicationId", labor.getApplicationId(),
-            "employeeId", labor.getEmployeeId());
+            "employeeId", labor.getAccountId());
       }
       case SUPPLY_CONTRACT -> {
         CrewSupplyContract supply = (CrewSupplyContract) contract;
