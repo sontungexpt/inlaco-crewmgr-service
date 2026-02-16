@@ -20,6 +20,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.jspecify.annotations.Nullable;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -42,6 +44,7 @@ public class CourseRepositoryAdapter implements CourseRepository {
   private final CourseEntityMapper mapper;
 
   @Override
+  @Cacheable(value = "courses", key = "#id", unless = "#result.empty")
   public Optional<Course> findById(String id) {
     return repository.findByIdAndDeletedAtIsNull(id).map(mapper::toCourse);
   }
@@ -93,6 +96,7 @@ public class CourseRepositoryAdapter implements CourseRepository {
   }
 
   @Override
+  @CacheEvict(value = "courses", key = "#result.id")
   public Course save(Course course) {
     String id = course.getId();
     if (id == null) {
@@ -111,6 +115,7 @@ public class CourseRepositoryAdapter implements CourseRepository {
   }
 
   @Override
+  @CacheEvict(value = "courses", key = "#id")
   public void deleteById(String id) {
     mongoTemplate.updateFirst(
         Query.query(Criteria.where("_id").is(id)),

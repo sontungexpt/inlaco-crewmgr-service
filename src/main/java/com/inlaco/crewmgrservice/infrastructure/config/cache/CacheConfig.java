@@ -10,9 +10,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
-// @ImportAutoConfiguration({
-//   CacheAutoConfiguration.class,
-// })
 @Configuration
 @EnableCaching
 @RequiredArgsConstructor
@@ -45,24 +42,14 @@ public class CacheConfig {
   @Primary
   @Bean("caffeineCacheManager")
   public CacheManager caffeineCacheManager() {
-    CaffeineCacheManager manager = new CaffeineCacheManager("roles");
+    CaffeineCacheManager manager = new CaffeineCacheManager();
 
-    manager.setCaffeine(
-        Caffeine.newBuilder()
-            .maximumSize(10) // max 1000 roles
-            .expireAfterWrite(30, TimeUnit.MINUTES) // TTL 30 minutes
-            .recordStats());
+    manager.registerCustomCache(
+        "roles", Caffeine.newBuilder().maximumSize(20).expireAfterWrite(1, TimeUnit.HOURS).build());
 
-    // caffeineCacheManager.setCaffeineSpec(
-    //     CaffeineSpec.parse("maximumSize=8000,expireAfterAccess=30000s"));
-
-    // caffeineCacheManager.registerCustomCache(
-    //     "productCategories",
-    //     Caffeine.newBuilder()
-    //         .expireAfterWrite(Duration.ofDays(4))
-    //         .initialCapacity(1)
-    //         .maximumSize(30)
-    //         .build());
+    manager.registerCustomCache(
+        "courses",
+        Caffeine.newBuilder().maximumSize(1000).expireAfterWrite(10, TimeUnit.MINUTES).build());
 
     return manager;
   }

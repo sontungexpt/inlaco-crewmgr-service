@@ -32,7 +32,7 @@ public class RoleRepositoryAdapter implements RoleRepository {
   }
 
   @Override
-  @Cacheable(value = "roles", key = "#id")
+  @Cacheable(value = "roles", key = "#id", unless = "#result.empty")
   public Optional<Role> findById(String id) {
     return repository.findById(id).map(mapper::toRole);
   }
