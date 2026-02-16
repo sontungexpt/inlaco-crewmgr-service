@@ -8,10 +8,9 @@ import com.inlaco.crewmgrservice.feature.post.infrastructure.persistence.mongodb
 import com.inlaco.crewmgrservice.feature.post.infrastructure.persistence.mongodb.entity.NewsPostEntity;
 import com.inlaco.crewmgrservice.feature.post.infrastructure.persistence.mongodb.entity.PostEntity;
 import com.inlaco.crewmgrservice.feature.post.infrastructure.persistence.mongodb.entity.RecruitmentPostEntity;
-import com.inlaco.crewmgrservice.shared.mapper.ObjectIdMapper;
+import com.inlaco.crewmgrservice.shared.mapper.CentralMapperConfig;
 import org.mapstruct.InheritConfiguration;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.SubclassExhaustiveStrategy;
@@ -21,7 +20,7 @@ import org.mapstruct.SubclassMapping;
     componentModel = "spring",
     unmappedTargetPolicy = ReportingPolicy.IGNORE,
     unmappedSourcePolicy = ReportingPolicy.IGNORE,
-    uses = ObjectIdMapper.class,
+    config = CentralMapperConfig.class,
     subclassExhaustiveStrategy = SubclassExhaustiveStrategy.RUNTIME_EXCEPTION)
 public interface PostEntityMapper {
 
@@ -29,7 +28,6 @@ public interface PostEntityMapper {
   @SubclassMapping(source = NewsPostEntity.class, target = NewsPost.class)
   @SubclassMapping(source = RecruitmentPostEntity.class, target = RecruitmentPost.class)
   @SubclassMapping(source = EventPostEntity.class, target = EventPost.class)
-  @Mapping(target = "authorId", source = "authorId", qualifiedByName = "objectIdToString")
   Post toPost(PostEntity entity);
 
   @InheritConfiguration(name = "toPost")
@@ -45,7 +43,6 @@ public interface PostEntityMapper {
   @SubclassMapping(source = NewsPost.class, target = NewsPostEntity.class)
   @SubclassMapping(source = RecruitmentPost.class, target = RecruitmentPostEntity.class)
   @SubclassMapping(source = EventPost.class, target = EventPostEntity.class)
-  @Mapping(target = "authorId", source = "authorId", qualifiedByName = "stringToObjectId")
   PostEntity toPostEntity(Post post);
 
   @InheritConfiguration(name = "toPostEntity")
@@ -68,12 +65,9 @@ public interface PostEntityMapper {
     }
   }
 
-  @Mapping(target = "authorId", source = "authorId", qualifiedByName = "stringToObjectId")
   void updateFromPost(NewsPost post, @MappingTarget NewsPostEntity entity);
 
-  @Mapping(target = "authorId", source = "authorId", qualifiedByName = "stringToObjectId")
   void updateFromPost(EventPost post, @MappingTarget EventPostEntity entity);
 
-  @Mapping(target = "authorId", source = "authorId", qualifiedByName = "stringToObjectId")
   void updateFromPost(RecruitmentPost post, @MappingTarget RecruitmentPostEntity entity);
 }

@@ -4,11 +4,15 @@ import com.inlaco.crewmgrservice.feature.schedule.domain.model.AssignedCrew;
 import com.inlaco.crewmgrservice.feature.schedule.domain.model.CrewMobilizationSchedule;
 import com.inlaco.crewmgrservice.feature.schedule.infrastructure.persistence.mongodb.entity.AssignedCrewEntity;
 import com.inlaco.crewmgrservice.feature.schedule.infrastructure.persistence.mongodb.entity.CrewMobilizationScheduleEntity;
-import com.inlaco.crewmgrservice.shared.mapper.ObjectIdMapper;
+import com.inlaco.crewmgrservice.shared.mapper.CentralMapperConfig;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring", uses = ObjectIdMapper.class)
+@Mapper(
+    unmappedSourcePolicy = ReportingPolicy.IGNORE,
+    unmappedTargetPolicy = ReportingPolicy.IGNORE,
+    config = CentralMapperConfig.class,
+    componentModel = "spring")
 public interface CrewMobilizationScheduleEntityMapper {
 
   CrewMobilizationSchedule toCrewMobilizationSchedule(CrewMobilizationScheduleEntity entity);
@@ -16,9 +20,7 @@ public interface CrewMobilizationScheduleEntityMapper {
   CrewMobilizationScheduleEntity toCrewMobilizationScheduleEntity(
       CrewMobilizationSchedule schedule);
 
-  @Mapping(target = "id", source = "id", qualifiedByName = "stringToObjectId")
   AssignedCrewEntity toAssignedCrewEntity(AssignedCrew assignedCrew);
 
-  @Mapping(target = "id", source = "id", qualifiedByName = "objectIdToString")
   AssignedCrew toAssignedCrew(AssignedCrewEntity entity);
 }

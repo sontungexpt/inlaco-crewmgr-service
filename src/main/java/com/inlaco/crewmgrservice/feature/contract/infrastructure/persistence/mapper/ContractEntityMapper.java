@@ -19,7 +19,7 @@ import tools.jackson.databind.json.JsonMapper;
 
 @Component
 @RequiredArgsConstructor
-public class ContractEntityMapper {
+public class ContractEntityMapper implements ObjectIdMapper {
 
   private static final int CURRENT_SCHEMA_VERSION = 1;
 
@@ -50,8 +50,6 @@ public class ContractEntityMapper {
     TYPE_REGISTRY.put(ContractType.LABOR_CONTRACT, LaborContract.class);
     TYPE_REGISTRY.put(ContractType.SUPPLY_CONTRACT, CrewSupplyContract.class);
   }
-
-  private final ObjectIdMapper objectIdMapper;
 
   // ============================================================
   // DOMAIN -> ENTITY
@@ -86,7 +84,7 @@ public class ContractEntityMapper {
   // ============================================================
   public ContractSnapshotEntity toSnapshot(AbstractContract contract) {
     return ContractSnapshotEntity.builder()
-        .contractId(objectIdMapper.toObjectId(contract.getId()))
+        .contractId(map(contract.getId()))
         .status(contract.getStatus())
         .type(contract.getType())
         .version(contract.getVersion())
