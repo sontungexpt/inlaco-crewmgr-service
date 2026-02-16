@@ -4,7 +4,6 @@ import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import com.inlaco.crewmgrservice.common.model.Asset;
 import com.inlaco.crewmgrservice.feature.user.domain.enums.UserStatus;
 import com.inlaco.crewmgrservice.feature.user.domain.enums.UsernameType;
-import com.inlaco.crewmgrservice.feature.user.domain.model.authorization.Right;
 import com.inlaco.crewmgrservice.shared.constant.PhoneNumberRegexp;
 import java.time.Instant;
 import lombok.Getter;
@@ -36,10 +35,12 @@ public class User {
 
   private Instant activatedAt;
 
-  public User(String username, String password, Right right, String name) {
+  private UserAuthority authority;
+
+  public User(String username, String password, UserAuthority right, String name) {
     this.username = username;
     this.password = password;
-    this.right = right;
+    this.authority = right;
     this.name = name;
   }
 
@@ -55,6 +56,4 @@ public class User {
     status = UserStatus.ACTIVE;
     this.activatedAt = Instant.now();
   }
-
-  private Right right;
 }

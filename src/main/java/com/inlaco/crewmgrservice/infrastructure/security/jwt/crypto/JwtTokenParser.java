@@ -28,23 +28,23 @@ public class JwtTokenParser {
           .parseSignedClaims(token)
           .getPayload();
     } catch (MalformedJwtException ex) {
-      log.info("Malformed JWT token");
+      log.debug("[JWT] Malformed JWT token");
       throw new JwtTokenException(token, "Malformed jwt token");
 
     } catch (ExpiredJwtException ex) {
-      log.info("JWT token expired");
+      log.debug("[JWT] JWT token expired");
       throw new JwtTokenException(token, "Token expired. Refresh required");
 
     } catch (UnsupportedJwtException ex) {
-      log.info("Unsupported JWT token");
+      log.debug("Unsupported JWT token");
       throw new JwtTokenException(token, "Unsupported JWT token");
 
     } catch (IllegalArgumentException ex) {
-      log.info("Illegal argument token");
+      log.debug("Illegal argument token");
       throw new JwtTokenException(token, "Illegal argument token");
 
     } catch (JwtException ex) {
-      log.info("Invalid JWT token");
+      log.debug("Invalid JWT token");
       throw new JwtTokenException(token, "Invalid JWT token");
     }
   }

@@ -1,5 +1,7 @@
 package com.inlaco.crewmgrservice.infrastructure.config.cache;
 
+import com.github.benmanes.caffeine.cache.Caffeine;
+import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
@@ -43,7 +45,13 @@ public class CacheConfig {
   @Primary
   @Bean("caffeineCacheManager")
   public CacheManager caffeineCacheManager() {
-    CaffeineCacheManager caffeineCacheManager = new CaffeineCacheManager();
+    CaffeineCacheManager manager = new CaffeineCacheManager("roles");
+
+    manager.setCaffeine(
+        Caffeine.newBuilder()
+            .maximumSize(10) // max 1000 roles
+            .expireAfterWrite(30, TimeUnit.MINUTES) // TTL 30 minutes
+            .recordStats());
 
     // caffeineCacheManager.setCaffeineSpec(
     //     CaffeineSpec.parse("maximumSize=8000,expireAfterAccess=30000s"));
@@ -56,7 +64,7 @@ public class CacheConfig {
     //         .maximumSize(30)
     //         .build());
 
-    return caffeineCacheManager;
+    return manager;
   }
 
   // @Bean

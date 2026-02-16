@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.feature.user.application.port.in;
 
-import com.inlaco.crewmgrservice.feature.user.domain.model.authorization.EndpointPermission;
+import com.inlaco.crewmgrservice.feature.user.infrastructure.persistence.mongodb.entity.EndpointPermission;
 import java.util.List;
 import org.springframework.data.domain.Page;
 

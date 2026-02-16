@@ -10,10 +10,10 @@ import com.inlaco.crewmgrservice.feature.crew.infrastructure.persistence.mongodb
 import com.inlaco.crewmgrservice.feature.crew.infrastructure.persistence.mongodb.repository.CrewProfileMongoRepository;
 import com.inlaco.crewmgrservice.infrastructure.persistence.mongodb.aggregation.FacetResult;
 import com.inlaco.crewmgrservice.infrastructure.persistence.support.PageableUtils;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -81,44 +81,51 @@ public class CrewProfileRepositoryAdapter implements CrewProfileRepository {
 
   @Override
   public List<CrewProfile> saveAll(Iterable<CrewProfile> profiles) {
-    if (profiles == null) {
-      return Collections.emptyList();
-    }
-
+    if (profiles == null) return Collections.emptyList();
     List<CrewProfile> domainList = StreamSupport.stream(profiles.spliterator(), false).toList();
+    if (domainList.isEmpty()) return Collections.emptyList();
 
-    if (domainList.isEmpty()) {
-      return Collections.emptyList();
+    // split new and existing
+    List<CrewProfile> newProfiles = new ArrayList<>();
+    List<CrewProfile> existingProfiles = new ArrayList<>();
+
+    for (CrewProfile profile : domainList) {
+      if (profile.getId() == null) {
+        newProfiles.add(profile);
+      } else {
+        existingProfiles.add(profile);
+      }
     }
 
-    // Collect ids for batch lookup
-    List<String> ids =
-        domainList.stream().map(CrewProfile::getId).filter(Objects::nonNull).toList();
+    List<CrewProfile> result = new ArrayList<>(domainList.size());
 
-    Map<String, CrewProfileEntity> existingMap =
-        repository.findAllById(ids).stream()
-            .collect(Collectors.toMap(CrewProfileEntity::getId, Function.identity()));
+    if (!existingProfiles.isEmpty()) {
+      Map<String, CrewProfileEntity> existingMap =
+          repository
+              .findAllById(existingProfiles.stream().map(CrewProfile::getId).toList())
+              .stream()
+              .collect(Collectors.toMap(CrewProfileEntity::getId, Function.identity()));
 
-    List<CrewProfileEntity> entitiesToSave =
-        domainList.stream()
-            .map(
-                profile -> {
-                  if (profile.getId() == null) {
-                    return mapper.toCrewProfileEntity(profile); // new insert
-                  }
+      for (CrewProfile profile : existingProfiles) {
+        CrewProfileEntity existing = existingMap.get(profile.getId());
+        if (existing == null) {
+          // If not existing, treat as insert
+          newProfiles.add(profile);
+        } else {
+          mapper.updateFromCrewProfile(profile, existing);
+          result.add(mapper.toCrewProfile(repository.save(existing)));
+        }
+      }
+    }
 
-                  CrewProfileEntity existing = existingMap.get(profile.getId());
+    // bulk insert
+    if (!newProfiles.isEmpty()) {
+      List<CrewProfileEntity> newEntities =
+          newProfiles.stream().map(mapper::toCrewProfileEntity).toList();
+      result.addAll(repository.insert(newEntities).stream().map(mapper::toCrewProfile).toList());
+    }
 
-                  if (existing == null) {
-                    return mapper.toCrewProfileEntity(profile); // treat as insert
-                  }
-
-                  mapper.updateFromCrewProfile(profile, existing); // merge
-                  return existing;
-                })
-            .toList();
-
-    return repository.saveAll(entitiesToSave).stream().map(mapper::toCrewProfile).toList();
+    return result;
   }
 
   @Override

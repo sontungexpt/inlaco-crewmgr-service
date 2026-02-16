@@ -2,6 +2,7 @@ package com.inlaco.crewmgrservice.feature.contract.application.service;
 
 import com.inlaco.crewmgrservice.feature.contract.application.port.in.SignContractUseCase;
 import com.inlaco.crewmgrservice.feature.contract.application.port.out.ContractRepository;
+import com.inlaco.crewmgrservice.feature.contract.domain.event.ContractSignedEvent;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.AbstractContract;
 import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceNotFoundException;
@@ -32,8 +33,7 @@ public class SignContractService implements SignContractUseCase {
 
     log.debug("Actived contract with id: {}", contractId);
     var signedContract = contractRepository.save(contract);
-    contract.broadcast(eventPublisher::publishEvent);
-
+    eventPublisher.publishEvent(new ContractSignedEvent(signedContract));
     return signedContract;
   }
 }

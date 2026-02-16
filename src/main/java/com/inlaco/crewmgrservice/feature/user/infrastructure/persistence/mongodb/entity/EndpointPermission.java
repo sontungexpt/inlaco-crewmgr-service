@@ -1,4 +1,4 @@
-package com.inlaco.crewmgrservice.feature.user.domain.model.authorization;
+package com.inlaco.crewmgrservice.feature.user.infrastructure.persistence.mongodb.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.inlaco.crewmgrservice.endpoint.APIEndpointName;

@@ -2,7 +2,7 @@ package com.inlaco.crewmgrservice.feature.user.infrastructure.persistence.mongod
 
 import com.inlaco.crewmgrservice.common.model.Asset;
 import com.inlaco.crewmgrservice.feature.user.domain.enums.UserStatus;
-import com.inlaco.crewmgrservice.feature.user.domain.model.authorization.Right;
+import com.inlaco.crewmgrservice.feature.user.domain.model.UserAuthority;
 import java.time.Instant;
 import lombok.Getter;
 import lombok.Setter;
@@ -41,7 +41,7 @@ public class UserEntity {
 
   private Instant activatedAt;
 
-  private Right right;
+  private UserAuthority authority;
 
   @CreatedDate private Instant createdAt;
 

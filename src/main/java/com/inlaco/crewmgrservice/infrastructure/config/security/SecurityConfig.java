@@ -87,21 +87,22 @@ public class SecurityConfig {
         .exceptionHandling(
             exception -> exception.authenticationEntryPoint(authenticationEntryPoint))
 
-        // session management
-        .sessionManagement(
-            session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
         // authorize
         .authorizeHttpRequests(auth -> auth.anyRequest().access(authzManager))
         .authenticationProvider(authenticationProvider(passwordEncoder, userDetailsService))
-        .addFilterBefore(lazyJwtAuthTokenFilter, UsernamePasswordAuthenticationFilter.class);
-    // authorize by endpoints
-    // .logout(
-    //     logout ->
-    //         logout
-    //             .logoutUrl("/api/v1/auth/logout")
-    //             .addLogoutHandler(logoutHandler)
-    //             .logoutSuccessHandler(logoutSuccessHandler));
+        .addFilterBefore(lazyJwtAuthTokenFilter, UsernamePasswordAuthenticationFilter.class)
+        // disable login and logout because we use JWT
+        // session management
+        .sessionManagement(
+            session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .formLogin(login -> login.disable())
+        // .logout(
+        //     logout ->
+        //         logout
+        //             .logoutUrl("/api/v1/auth/logout")
+        //             .addLogoutHandler(logoutHandler)
+        //             .logoutSuccessHandler(logoutSuccessHandler));
+        .logout(logout -> logout.disable());
 
     return http.build();
   }

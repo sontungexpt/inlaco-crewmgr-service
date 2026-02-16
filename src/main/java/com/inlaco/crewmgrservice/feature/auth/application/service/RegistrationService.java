@@ -6,16 +6,12 @@ import com.inlaco.crewmgrservice.feature.auth.application.model.result.AuthToken
 import com.inlaco.crewmgrservice.feature.auth.application.port.in.AccessTokenGenerator;
 import com.inlaco.crewmgrservice.feature.auth.application.port.in.RefreshTokenManager;
 import com.inlaco.crewmgrservice.feature.auth.application.port.in.RegistrationUseCase;
-import com.inlaco.crewmgrservice.feature.user.application.port.in.UserService;
+import com.inlaco.crewmgrservice.feature.user.application.port.in.UserUseCase;
+import com.inlaco.crewmgrservice.feature.user.application.port.model.CreateUserCommand;
 import com.inlaco.crewmgrservice.feature.user.domain.model.User;
-import com.inlaco.crewmgrservice.feature.user.domain.model.authorization.Right;
-import com.inlaco.crewmgrservice.feature.user.domain.model.authorization.Role;
-import com.inlaco.crewmgrservice.feature.user.infrastructure.persistence.mongodb.repository.RoleRepository;
 import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceAlreadyInUseException;
-import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -23,53 +19,36 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class RegistrationService implements RegistrationUseCase {
 
-  private final UserService userService;
-  private final RoleRepository roleRepository;
+  private final UserUseCase userUseCase;
   private final TwoStepVerificationDispatcher twoStepVerificationDispatcher;
-  private final PasswordEncoder passwordEncoder;
   private final AccessTokenGenerator accessTokenGenerator;
   private final RefreshTokenManager refreshTokenManager;
 
   @Override
   public AuthTokenResult register(RegisterCommand command) {
-    String username = command.username();
 
-    if (userService.existsByUsername(username)) {
-      log.debug("User with username {} already exists", username);
-      throw new ResourceAlreadyInUseException(User.class, "username", username);
+    if (userUseCase.existsByUsername(command.username())) {
+      throw new ResourceAlreadyInUseException(User.class, "username", command.username());
     }
 
-    log.debug("Starting registration for user {}", username);
+    User newUser =
+        userUseCase.create(
+            new CreateUserCommand(command.username(), command.password(), command.name()));
 
-    Role role =
-        roleRepository
-            .findByName("USER")
-            .orElseThrow(() -> new ResourceNotFoundException(Role.class, "name", "ROLE_USER"));
+    sendVerificationIfNeeded(newUser);
 
-    User user =
-        userService.saveUser(
-            new User(
-                username,
-                passwordEncoder.encode(command.password()),
-                new Right(role),
-                command.name()));
+    return generateTokens(newUser.getPubId());
+  }
 
+  private void sendVerificationIfNeeded(User user) {
     switch (user.getUsernameType()) {
-      case EMAIL:
-        twoStepVerificationDispatcher.send(VerificationPolicy.EMAIL, user);
-        break;
-      case PHONE_NUMBER:
-        break;
-      default:
-        break;
+      case EMAIL -> twoStepVerificationDispatcher.send(VerificationPolicy.EMAIL, user);
+      case PHONE_NUMBER -> {}
     }
+  }
 
-    String userPubId = user.getPubId();
-    final String newAccessToken = accessTokenGenerator.generate(userPubId);
-    final String newRefreshToken = refreshTokenManager.issue(userPubId);
-
-    log.debug("Account with public id {} logged in successfully", userPubId);
-
-    return new AuthTokenResult(newAccessToken, newRefreshToken);
+  private AuthTokenResult generateTokens(String pubId) {
+    return new AuthTokenResult(
+        accessTokenGenerator.generate(pubId), refreshTokenManager.issue(pubId));
   }
 }

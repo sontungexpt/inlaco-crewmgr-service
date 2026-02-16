@@ -3,9 +3,6 @@ package com.inlaco.crewmgrservice.feature.contract.domain.model;
 import com.inlaco.crewmgrservice.common.model.Asset;
 import com.inlaco.crewmgrservice.feature.contract.domain.enums.ContractStatus;
 import com.inlaco.crewmgrservice.feature.contract.domain.enums.ContractType;
-import com.inlaco.crewmgrservice.feature.contract.domain.event.ContractActivedEvent;
-import com.inlaco.crewmgrservice.feature.contract.domain.event.ContractExpiredEvent;
-import com.inlaco.crewmgrservice.feature.contract.domain.event.ContractSignedEvent;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.party.Party;
 import com.inlaco.crewmgrservice.feature.contract.domain.objectvalue.ContractStatusHistory;
 import com.inlaco.crewmgrservice.feature.contract.domain.objectvalue.DynamicAttribute;
@@ -76,7 +73,6 @@ public abstract class AbstractContract {
 
   public void sign(String signedBy, Instant now) {
     transitionTo(ContractStatus.SIGNED, defaultIfNull(signedBy), "Contract signed", now);
-    registerEvent(new ContractSignedEvent(this));
   }
 
   public void activate(Instant now) {
@@ -84,7 +80,6 @@ public abstract class AbstractContract {
       throw new IllegalStateException("Activation date not reached");
     }
     transitionTo(ContractStatus.ACTIVE, SYSTEM, "Activation date reached", now);
-    registerEvent(new ContractActivedEvent(this));
   }
 
   public void expire(Instant now) {
@@ -92,7 +87,6 @@ public abstract class AbstractContract {
       throw new IllegalStateException("Expiration date not reached");
     }
     transitionTo(ContractStatus.EXPIRED, SYSTEM, "Contract expired", now);
-    registerEvent(new ContractExpiredEvent(this));
   }
 
   public void cancel(String cancelledBy, String reason, Instant now) {

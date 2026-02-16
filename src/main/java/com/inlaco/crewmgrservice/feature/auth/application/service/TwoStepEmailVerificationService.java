@@ -9,7 +9,7 @@ import com.inlaco.crewmgrservice.feature.auth.domain.model.EmailVerificationToke
 import com.inlaco.crewmgrservice.feature.notify.NotificationDispatcher;
 import com.inlaco.crewmgrservice.feature.notify.NotificationPolicy;
 import com.inlaco.crewmgrservice.feature.notify.mail.EmailRequest;
-import com.inlaco.crewmgrservice.feature.user.application.port.in.UserService;
+import com.inlaco.crewmgrservice.feature.user.application.port.in.UserUseCase;
 import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import com.inlaco.crewmgrservice.infrastructure.web.util.HttpServletUtils;
 import com.inlaco.crewmgrservice.shared.crypto.DigestUtils;
@@ -29,7 +29,7 @@ import org.yaml.snakeyaml.util.UriEncoder;
 public class TwoStepEmailVerificationService implements TwoStepVerificationService {
 
   private final EmailVerificationTokenRepository emailVerificationTokenRepository;
-  private final UserService userService;
+  private final UserUseCase userService;
   private final NotificationDispatcher notificationFactory;
 
   @Value("${inlaco.server.base-url}")
@@ -88,16 +88,13 @@ public class TwoStepEmailVerificationService implements TwoStepVerificationServi
             .findByHashToken(hash)
             .orElseThrow(() -> new TwoStepVerificationException("Token expired or invalid"));
 
-    User user = userService.findUserById(token.getUserId());
-    user.activate();
-
-    userService.saveUser(user);
+    userService.activate(token.getUserId());
 
     emailVerificationTokenRepository.deleteById(token.getId());
 
-    log.debug("Email verified for user {}", user.getUsername());
+    log.debug("Email verified for user {}", token.getUserId());
 
-    redirectToLogin(user);
+    redirectToLogin(token.getUserId());
   }
 
   public void revoke(User user) {
@@ -124,14 +121,14 @@ public class TwoStepEmailVerificationService implements TwoStepVerificationServi
         NotificationPolicy.EMAIL, generateEmailRequest(user, rawToken));
   }
 
-  private void redirectToLogin(User user) {
+  private void redirectToLogin(String userId) {
     HttpServletUtils.getResponse()
         .ifPresent(
             response -> {
               try {
                 response.sendRedirect(LOGIN_CLIENT_URL);
               } catch (IOException e) {
-                log.error("Redirect failed for user {}", user.getUsername(), e);
+                log.error("Redirect failed for user {}", userId, e);
               }
             });
   }

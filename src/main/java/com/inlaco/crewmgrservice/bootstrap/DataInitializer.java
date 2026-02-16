@@ -1,10 +1,10 @@
 package com.inlaco.crewmgrservice.bootstrap;
 
+import com.inlaco.crewmgrservice.feature.user.application.port.out.RoleRepository;
 import com.inlaco.crewmgrservice.feature.user.application.port.out.UserRepository;
+import com.inlaco.crewmgrservice.feature.user.domain.model.Role;
 import com.inlaco.crewmgrservice.feature.user.domain.model.User;
-import com.inlaco.crewmgrservice.feature.user.domain.model.authorization.Right;
-import com.inlaco.crewmgrservice.feature.user.domain.model.authorization.Role;
-import com.inlaco.crewmgrservice.feature.user.infrastructure.persistence.mongodb.repository.RoleRepository;
+import com.inlaco.crewmgrservice.feature.user.domain.model.UserAuthority;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,7 +39,9 @@ public class DataInitializer implements CommandLineRunner {
     roleNames.forEach(
         name -> {
           if (!roleRepository.existsByName(name)) {
-            roleRepository.save(Role.builder().name(name).build());
+            Role role = new Role();
+            role.setName(name);
+            roleRepository.save(role);
           }
         });
     return roleRepository.findAll();
@@ -50,7 +52,11 @@ public class DataInitializer implements CommandLineRunner {
       return;
     }
     User admin =
-        new User(ADMIN_USERNAME, passwordEncoder.encode(ADMIN_PASSWORD), new Right(roles), "Admin");
+        new User(
+            ADMIN_USERNAME,
+            passwordEncoder.encode(ADMIN_PASSWORD),
+            new UserAuthority(roles.stream().map(Role::getId).toList()),
+            "Admin");
     admin.activate();
     userRepository.save(admin);
   }

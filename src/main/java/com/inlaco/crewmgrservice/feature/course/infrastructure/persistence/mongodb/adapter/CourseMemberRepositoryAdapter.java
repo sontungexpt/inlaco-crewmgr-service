@@ -7,10 +7,10 @@ import com.inlaco.crewmgrservice.feature.course.domain.model.CourseMember;
 import com.inlaco.crewmgrservice.feature.course.infrastructure.persistence.mongodb.entity.CourseMemberEntity;
 import com.inlaco.crewmgrservice.feature.course.infrastructure.persistence.mongodb.mapper.CourseMemberEntityMapper;
 import com.inlaco.crewmgrservice.feature.course.infrastructure.persistence.mongodb.repository.CourseMemberMongoRepository;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -80,33 +80,53 @@ public class CourseMemberRepositoryAdapter implements CourseMemberRepository {
     if (courseMembers == null) return Collections.emptyList();
     List<CourseMember> domains = StreamSupport.stream(courseMembers.spliterator(), false).toList();
 
-    // Collect existing entities in batch
-    Map<String, CourseMemberEntity> existingMap =
-        repository
-            .findAllById(
-                domains.stream().map(CourseMember::getId).filter(Objects::nonNull).toList())
-            .stream()
-            .collect(Collectors.toMap(CourseMemberEntity::getId, Function.identity()));
+    if (domains.isEmpty()) return Collections.emptyList();
 
-    List<CourseMemberEntity> entities =
-        domains.stream()
-            .map(
-                domain -> {
-                  if (domain.getId() == null) {
-                    return mapper.toEntity(domain); // new entity
-                  }
+    List<CourseMember> newDomains = new ArrayList<>();
+    List<CourseMember> existingDomains = new ArrayList<>();
 
-                  CourseMemberEntity existing = existingMap.get(domain.getId());
+    // 1️⃣ Split new / existing
+    for (CourseMember domain : domains) {
+      if (domain.getId() == null) {
+        newDomains.add(domain);
+      } else {
+        existingDomains.add(domain);
+      }
+    }
 
-                  if (existing == null) {
-                    return mapper.toEntity(domain); // treat as insert
-                  }
+    List<CourseMember> result = new ArrayList<>(domains.size());
 
-                  mapper.updateFromDomain(domain, existing); // merge changes
-                  return existing;
-                })
-            .toList();
+    // 2️⃣ Handle existing (update)
+    if (!existingDomains.isEmpty()) {
 
-    return repository.saveAll(entities).stream().map(mapper::toDomain).toList();
+      List<String> ids = existingDomains.stream().map(CourseMember::getId).toList();
+
+      Map<String, CourseMemberEntity> existingMap =
+          repository.findAllById(ids).stream()
+              .collect(Collectors.toMap(CourseMemberEntity::getId, Function.identity()));
+
+      for (CourseMember domain : existingDomains) {
+
+        CourseMemberEntity existing = existingMap.get(domain.getId());
+
+        if (existing == null) {
+          // If id exists but not in DB → treat as insert
+          newDomains.add(domain);
+        } else {
+          mapper.updateFromDomain(domain, existing);
+          result.add(mapper.toDomain(repository.save(existing)));
+        }
+      }
+    }
+
+    // 3️⃣ Bulk insert
+    if (!newDomains.isEmpty()) {
+
+      List<CourseMemberEntity> newEntities = newDomains.stream().map(mapper::toEntity).toList();
+
+      result.addAll(repository.insert(newEntities).stream().map(mapper::toDomain).toList());
+    }
+
+    return result;
   }
 }
