@@ -1,7 +1,7 @@
 package com.inlaco.crewmgrservice.feature.schedule.presentation.rest.dto.response;
 
-import com.inlaco.crewmgrservice.common.model.ShipInfo;
 import com.inlaco.crewmgrservice.feature.schedule.domain.enums.CrewMobilizationScheduleStatus;
+import com.inlaco.crewmgrservice.shared.objectvalue.ShipInfo;
 import java.time.Instant;
 import java.util.List;
 import lombok.Data;

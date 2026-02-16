@@ -2,6 +2,7 @@ package com.inlaco.crewmgrservice.feature.auth.application.service;
 
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import com.inlaco.crewmgrservice.feature.auth.application.enums.VerificationPolicy;
+import com.inlaco.crewmgrservice.feature.auth.application.model.event.TwoStepVerificationSucceedEvent;
 import com.inlaco.crewmgrservice.feature.auth.application.port.in.TwoStepVerificationService;
 import com.inlaco.crewmgrservice.feature.auth.application.port.out.EmailVerificationTokenRepository;
 import com.inlaco.crewmgrservice.feature.auth.domain.exception.TwoStepVerificationException;
@@ -11,7 +12,6 @@ import com.inlaco.crewmgrservice.feature.notify.NotificationPolicy;
 import com.inlaco.crewmgrservice.feature.notify.mail.EmailRequest;
 import com.inlaco.crewmgrservice.feature.user.application.port.in.UserUseCase;
 import com.inlaco.crewmgrservice.feature.user.domain.model.User;
-import com.inlaco.crewmgrservice.infrastructure.web.util.HttpServletUtils;
 import com.inlaco.crewmgrservice.shared.crypto.DigestUtils;
 import com.inlaco.crewmgrservice.shared.template.TextTemplateBuilder;
 import java.io.IOException;
@@ -19,24 +19,25 @@ import java.nio.charset.StandardCharsets;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.yaml.snakeyaml.util.UriEncoder;
 
 @RequiredArgsConstructor
 @Slf4j
 @Service
+@Transactional
 public class TwoStepEmailVerificationService implements TwoStepVerificationService {
 
   private final EmailVerificationTokenRepository emailVerificationTokenRepository;
-  private final UserUseCase userService;
+  private final UserUseCase userUseCase;
   private final NotificationDispatcher notificationFactory;
+  private final ApplicationEventPublisher eventPublisher;
 
   @Value("${inlaco.server.base-url}")
   private String SERVER_BASE_URL;
-
-  @Value("${inlaco.client.endpoint.login}")
-  private String LOGIN_CLIENT_URL;
 
   @Value("${inlaco.template.email.two-step-verification.subject:Inlaco - Verify your email}")
   private String SUBJECT;
@@ -88,22 +89,12 @@ public class TwoStepEmailVerificationService implements TwoStepVerificationServi
             .findByHashToken(hash)
             .orElseThrow(() -> new TwoStepVerificationException("Token expired or invalid"));
 
-    userService.activate(token.getUserId());
-
+    userUseCase.activate(token.getUserId(), "Email verified successful");
     emailVerificationTokenRepository.deleteById(token.getId());
 
+    eventPublisher.publishEvent(new TwoStepVerificationSucceedEvent(token));
+
     log.debug("Email verified for user {}", token.getUserId());
-
-    redirectToLogin(token.getUserId());
-  }
-
-  public void revoke(User user) {
-    emailVerificationTokenRepository.deleteByUserId(user.getId());
-    log.debug("Verification token revoked for user {}", user.getUsername());
-  }
-
-  public boolean hasActiveToken(User user) {
-    return emailVerificationTokenRepository.findByUserId(user.getId()).isPresent();
   }
 
   private TokenPair generateTokenPair() {
@@ -119,18 +110,6 @@ public class TwoStepEmailVerificationService implements TwoStepVerificationServi
   private void sendEmail(User user, String rawToken) {
     notificationFactory.sendNotificationAsync(
         NotificationPolicy.EMAIL, generateEmailRequest(user, rawToken));
-  }
-
-  private void redirectToLogin(String userId) {
-    HttpServletUtils.getResponse()
-        .ifPresent(
-            response -> {
-              try {
-                response.sendRedirect(LOGIN_CLIENT_URL);
-              } catch (IOException e) {
-                log.error("Redirect failed for user {}", userId, e);
-              }
-            });
   }
 
   private EmailRequest generateEmailRequest(User user, String token) {

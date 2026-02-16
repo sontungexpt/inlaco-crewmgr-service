@@ -1,12 +1,12 @@
 package com.inlaco.crewmgrservice.feature.contracttemplate.application.service;
 
-import com.inlaco.crewmgrservice.common.model.Asset;
 import com.inlaco.crewmgrservice.feature.contracttemplate.application.port.in.ContractTemplateUseCase;
 import com.inlaco.crewmgrservice.feature.contracttemplate.application.port.out.ContractTemplateRepository;
 import com.inlaco.crewmgrservice.feature.contracttemplate.domain.model.ContractTemplate;
 import com.inlaco.crewmgrservice.feature.upload.application.enums.UploadStrategy;
 import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadFactory;
 import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceNotFoundException;
+import com.inlaco.crewmgrservice.shared.objectvalue.Asset;
 import com.inlaco.crewmgrservice.shared.support.ConsoleUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

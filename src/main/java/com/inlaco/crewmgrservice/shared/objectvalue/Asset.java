@@ -1,4 +1,4 @@
-package com.inlaco.crewmgrservice.common.model;
+package com.inlaco.crewmgrservice.shared.objectvalue;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;

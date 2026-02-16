@@ -6,6 +6,10 @@ import com.inlaco.crewmgrservice.infrastructure.web.annotation.CurrentUser;
 import com.inlaco.crewmgrservice.infrastructure.web.annotation.PublicEndpoint;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,13 +22,21 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/auth/two-step-verification")
 @PublicEndpoint
-public record TwoStepVerificationController(TwoStepVerificationUseCase twoStepVerificationUseCase) {
+@RequiredArgsConstructor
+public class TwoStepVerificationController {
+
+  private final TwoStepVerificationUseCase twoStepVerificationUseCase;
+
+  @Value("${inlaco.client.endpoint.login}")
+  private String LOGIN_CLIENT_URL;
 
   @Operation(summary = "Verify the two step verification")
   @GetMapping("")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void verifyTwoStepVerification(@RequestParam("token") String token) {
+  public void verifyTwoStepVerification(
+      HttpServletResponse response, @RequestParam("token") String token) throws IOException {
     twoStepVerificationUseCase.verify(token);
+    response.sendRedirect(LOGIN_CLIENT_URL);
   }
 
   @Operation(summary = "Resend the two step verification")

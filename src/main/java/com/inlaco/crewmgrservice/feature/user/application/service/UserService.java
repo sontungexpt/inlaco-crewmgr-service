@@ -94,9 +94,9 @@ public class UserService implements UserUseCase {
   }
 
   @Override
-  public User activate(String userId) {
+  public User activate(String userId, String reason) {
     User user = findById(userId);
-    user.activate();
+    user.activate(reason);
     return userRepository.save(user);
   }
 

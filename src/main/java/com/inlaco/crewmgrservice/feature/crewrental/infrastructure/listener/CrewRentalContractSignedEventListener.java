@@ -8,6 +8,8 @@ import com.inlaco.crewmgrservice.feature.crewrental.domain.model.CrewRentalReque
 import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -20,6 +22,10 @@ public class CrewRentalContractSignedEventListener {
   private final CrewRentalRequestRepository crewRentalRequestRepository;
 
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  @Retryable(
+      retryFor = Exception.class,
+      maxAttempts = 5,
+      backoff = @Backoff(delay = 2000, multiplier = 2))
   public void handle(ContractSignedEvent event) {
     if (!(event.contract() instanceof CrewSupplyContract supplyContract)) {
       return;

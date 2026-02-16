@@ -3,7 +3,7 @@ package com.inlaco.crewmgrservice.feature.upload.application.service;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.api.ApiResponse;
 import com.cloudinary.utils.ObjectUtils;
-import com.inlaco.crewmgrservice.common.model.Asset;
+import com.inlaco.crewmgrservice.shared.objectvalue.Asset;
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

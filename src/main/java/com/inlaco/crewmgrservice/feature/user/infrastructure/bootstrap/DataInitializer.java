@@ -1,4 +1,4 @@
-package com.inlaco.crewmgrservice.bootstrap;
+package com.inlaco.crewmgrservice.feature.user.infrastructure.bootstrap;
 
 import com.inlaco.crewmgrservice.feature.user.application.port.out.RoleRepository;
 import com.inlaco.crewmgrservice.feature.user.application.port.out.UserRepository;
@@ -57,7 +57,7 @@ public class DataInitializer implements CommandLineRunner {
             passwordEncoder.encode(ADMIN_PASSWORD),
             new UserAuthority(roles.stream().map(Role::getId).toList()),
             "Admin");
-    admin.activate();
+    admin.activate("Admin account created");
     userRepository.save(admin);
   }
 }

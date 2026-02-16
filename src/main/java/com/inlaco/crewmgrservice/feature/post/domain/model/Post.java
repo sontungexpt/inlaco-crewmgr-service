@@ -1,8 +1,8 @@
 package com.inlaco.crewmgrservice.feature.post.domain.model;
 
-import com.inlaco.crewmgrservice.common.model.Asset;
 import com.inlaco.crewmgrservice.feature.post.domain.enums.PostType;
 import com.inlaco.crewmgrservice.infrastructure.web.annotation.patch.JsonPatchIgnore;
+import com.inlaco.crewmgrservice.shared.objectvalue.Asset;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;

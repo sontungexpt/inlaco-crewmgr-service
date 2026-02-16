@@ -1,9 +1,12 @@
 package com.inlaco.crewmgrservice.feature.user.infrastructure.persistence.mongodb.entity;
 
-import com.inlaco.crewmgrservice.common.model.Asset;
 import com.inlaco.crewmgrservice.feature.user.domain.enums.UserStatus;
 import com.inlaco.crewmgrservice.feature.user.domain.model.UserAuthority;
+import com.inlaco.crewmgrservice.feature.user.domain.objectvalue.UserStatusHistory;
+import com.inlaco.crewmgrservice.shared.objectvalue.Asset;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
@@ -39,7 +42,7 @@ public class UserEntity {
 
   private UserStatus status;
 
-  private Instant activatedAt;
+  private List<UserStatusHistory> statusHistories = new ArrayList<>();
 
   private UserAuthority authority;
 

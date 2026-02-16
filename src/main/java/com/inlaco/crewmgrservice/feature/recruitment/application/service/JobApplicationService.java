@@ -1,7 +1,6 @@
 package com.inlaco.crewmgrservice.feature.recruitment.application.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.inlaco.crewmgrservice.common.model.Asset;
 import com.inlaco.crewmgrservice.feature.post.application.port.in.PostUseCase;
 import com.inlaco.crewmgrservice.feature.post.domain.enums.PostType;
 import com.inlaco.crewmgrservice.feature.post.domain.exception.PostInactiveException;
@@ -15,6 +14,7 @@ import com.inlaco.crewmgrservice.feature.upload.application.enums.UploadStrategy
 import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadFactory;
 import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceNotFoundException;
+import com.inlaco.crewmgrservice.shared.objectvalue.Asset;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

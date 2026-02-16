@@ -1,11 +1,11 @@
 package com.inlaco.crewmgrservice.feature.contract.domain.model;
 
-import com.inlaco.crewmgrservice.common.model.Asset;
 import com.inlaco.crewmgrservice.feature.contract.domain.enums.ContractStatus;
 import com.inlaco.crewmgrservice.feature.contract.domain.enums.ContractType;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.party.Party;
 import com.inlaco.crewmgrservice.feature.contract.domain.objectvalue.ContractStatusHistory;
 import com.inlaco.crewmgrservice.feature.contract.domain.objectvalue.DynamicAttribute;
+import com.inlaco.crewmgrservice.shared.objectvalue.Asset;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;

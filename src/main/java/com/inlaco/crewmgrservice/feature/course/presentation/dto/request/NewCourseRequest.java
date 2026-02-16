@@ -1,7 +1,7 @@
 package com.inlaco.crewmgrservice.feature.course.presentation.dto.request;
 
-import com.inlaco.crewmgrservice.common.model.Asset;
 import com.inlaco.crewmgrservice.infrastructure.web.payload.request.constraint.TimeFrame;
+import com.inlaco.crewmgrservice.shared.objectvalue.Asset;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

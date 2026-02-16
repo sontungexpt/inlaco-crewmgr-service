@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.feature.course.domain.model;
 
-import com.inlaco.crewmgrservice.common.model.Asset;
+import com.inlaco.crewmgrservice.shared.objectvalue.Asset;
 import java.time.Instant;
 import lombok.Data;
 import org.bson.types.ObjectId;

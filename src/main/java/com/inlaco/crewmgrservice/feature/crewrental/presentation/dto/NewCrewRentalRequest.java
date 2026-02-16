@@ -1,8 +1,8 @@
 package com.inlaco.crewmgrservice.feature.crewrental.presentation.dto;
 
-import com.inlaco.crewmgrservice.common.model.ShipInfo;
 import com.inlaco.crewmgrservice.feature.crewrental.domain.enums.CrewRentalRequestStatus;
 import com.inlaco.crewmgrservice.infrastructure.web.validation.phone.PhoneNumber;
+import com.inlaco.crewmgrservice.shared.objectvalue.ShipInfo;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;

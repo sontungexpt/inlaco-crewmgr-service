@@ -1,9 +1,10 @@
-package com.inlaco.crewmgrservice.common.model;
+package com.inlaco.crewmgrservice.shared.objectvalue;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
 import jakarta.validation.constraints.NotBlank;
 import java.io.Serializable;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

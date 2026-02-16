@@ -1,7 +1,7 @@
 package com.inlaco.crewmgrservice.feature.course.presentation.dto.response;
 
-import com.inlaco.crewmgrservice.common.model.Asset;
 import com.inlaco.crewmgrservice.feature.course.domain.enums.CourseMemberStatus;
+import com.inlaco.crewmgrservice.shared.objectvalue.Asset;
 import java.time.Instant;
 import lombok.Data;
 

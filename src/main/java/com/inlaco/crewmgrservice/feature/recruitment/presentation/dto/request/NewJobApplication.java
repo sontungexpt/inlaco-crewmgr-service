@@ -1,8 +1,8 @@
 package com.inlaco.crewmgrservice.feature.recruitment.presentation.dto.request;
 
-import com.inlaco.crewmgrservice.common.model.Asset;
 import com.inlaco.crewmgrservice.feature.user.domain.enums.Gender;
 import com.inlaco.crewmgrservice.infrastructure.web.validation.phone.PhoneNumber;
+import com.inlaco.crewmgrservice.shared.objectvalue.Asset;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;

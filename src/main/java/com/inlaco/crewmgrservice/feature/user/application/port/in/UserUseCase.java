@@ -19,7 +19,7 @@ public interface UserUseCase {
 
   void changePassword(String userId, String encodedPassword);
 
-  User activate(String userId);
+  User activate(String userId, String reason);
 
   User assignRole(String userId, String roleId);
 

@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.feature.course.presentation.dto.response;
 
-import com.inlaco.crewmgrservice.common.model.Asset;
+import com.inlaco.crewmgrservice.shared.objectvalue.Asset;
 import java.io.Serializable;
 import java.time.Instant;
 import lombok.Data;
