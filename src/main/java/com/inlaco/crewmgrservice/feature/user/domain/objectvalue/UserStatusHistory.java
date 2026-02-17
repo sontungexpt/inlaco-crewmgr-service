@@ -6,6 +6,6 @@ import java.time.Instant;
 public record UserStatusHistory(
     UserStatus from,
     UserStatus to,
-    String changedBy, // adminId hoặc system
+    String changedBy, // adminId or system
     String reason,
     Instant changedAt) {}

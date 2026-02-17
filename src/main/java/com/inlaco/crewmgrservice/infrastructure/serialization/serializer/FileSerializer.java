@@ -39,9 +39,8 @@ public class FileSerializer extends JsonSerializer<Asset> {
     gen.writeStringField("displayName", value.getDisplayName());
     gen.writeStringField("resourceType", value.getResourceType());
     gen.writeStringField("format", value.getFormat());
-    if (value.getBytes() != null) gen.writeNumberField("bytes", value.getBytes());
-    gen.writeObjectField("uploadedAt", value.getUploadedAt());
-
+    if (value.getSize() != null) gen.writeNumberField("size", value.getSize());
+    if (value.getSize() != null) gen.writeNumberField("bytes", value.getSize());
     gen.writeEndObject();
   }
 }

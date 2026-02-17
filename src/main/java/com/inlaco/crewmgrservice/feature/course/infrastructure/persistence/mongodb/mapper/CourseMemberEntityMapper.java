@@ -2,7 +2,7 @@ package com.inlaco.crewmgrservice.feature.course.infrastructure.persistence.mong
 
 import com.inlaco.crewmgrservice.feature.course.domain.model.CourseMember;
 import com.inlaco.crewmgrservice.feature.course.infrastructure.persistence.mongodb.entity.CourseMemberEntity;
-import com.inlaco.crewmgrservice.shared.mapper.CentralMapperConfig;
+import com.inlaco.crewmgrservice.shared.mapstruct.config.CentralMapperConfig;
 import org.mapstruct.InheritConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;

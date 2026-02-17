@@ -1,7 +1,7 @@
 package com.inlaco.crewmgrservice.feature.crewrental.presentation.dto;
 
 import com.inlaco.crewmgrservice.feature.crewrental.domain.enums.CrewRentalRequestStatus;
-import com.inlaco.crewmgrservice.shared.objectvalue.Asset;
+import com.inlaco.crewmgrservice.shared.objectvalue.AssetResponse;
 import com.inlaco.crewmgrservice.shared.objectvalue.ShipInfo;
 import java.time.Instant;
 import lombok.Data;
@@ -11,7 +11,7 @@ public class CrewRentalRequestResponse {
 
   private String id;
 
-  private Asset detailFile;
+  private AssetResponse detailFile;
 
   private String companyName;
 

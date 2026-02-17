@@ -4,7 +4,7 @@ import com.inlaco.crewmgrservice.feature.schedule.domain.model.AssignedCrew;
 import com.inlaco.crewmgrservice.feature.schedule.domain.model.CrewMobilizationSchedule;
 import com.inlaco.crewmgrservice.feature.schedule.infrastructure.persistence.mongodb.entity.AssignedCrewEntity;
 import com.inlaco.crewmgrservice.feature.schedule.infrastructure.persistence.mongodb.entity.CrewMobilizationScheduleEntity;
-import com.inlaco.crewmgrservice.shared.mapper.CentralMapperConfig;
+import com.inlaco.crewmgrservice.shared.mapstruct.config.CentralMapperConfig;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 

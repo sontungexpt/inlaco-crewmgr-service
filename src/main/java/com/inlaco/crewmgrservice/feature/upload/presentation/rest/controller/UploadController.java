@@ -1,7 +1,7 @@
 package com.inlaco.crewmgrservice.feature.upload.presentation.rest.controller;
 
-import com.inlaco.crewmgrservice.feature.upload.application.enums.UploadStrategy;
-import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadFactory;
+import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadDispatcher;
+import com.inlaco.crewmgrservice.feature.upload.domain.enums.AssetType;
 import com.inlaco.crewmgrservice.infrastructure.config.openapi.OpenApiConfig;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Upload", description = "Upload API")
 public class UploadController {
 
-  private final UploadFactory uploadFactory;
+  private final UploadDispatcher uploadDispatcher;
 
   @Operation(
       summary = "This endpoint is used to upload a file",
@@ -30,7 +30,7 @@ public class UploadController {
   @GetMapping("")
   @RolesAllowed("USER")
   public Map<String, Object> getUploadOptions(
-      @RequestParam UploadStrategy strategy, @RequestParam Map<String, String> params) {
-    return uploadFactory.getUploadOptions(strategy, params);
+      @RequestParam AssetType strategy, @RequestParam Map<String, String> params) {
+    return uploadDispatcher.signParams(strategy, null);
   }
 }

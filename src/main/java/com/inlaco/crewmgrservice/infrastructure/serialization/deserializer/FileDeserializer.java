@@ -4,8 +4,9 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.inlaco.crewmgrservice.feature.upload.application.enums.UploadStrategy;
-import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadFactory;
+import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadDispatcher;
+import com.inlaco.crewmgrservice.feature.upload.domain.enums.AssetType;
+// import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadFactory;
 import com.inlaco.crewmgrservice.shared.objectvalue.Asset;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class FileDeserializer extends JsonDeserializer<Asset> {
 
-  private final UploadFactory uploadFactory;
+  private final UploadDispatcher uploadDispatcher;
 
   @Override
   public Asset deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
@@ -27,7 +28,7 @@ public class FileDeserializer extends JsonDeserializer<Asset> {
     }
 
     String assetId = node.get("assetId").asText();
-    UploadStrategy strategy = p.getCodec().treeToValue(node.get("strategy"), UploadStrategy.class);
-    return uploadFactory.metadata(strategy, assetId);
+    AssetType strategy = p.getCodec().treeToValue(node.get("strategy"), AssetType.class);
+    return uploadDispatcher.fetch(strategy, assetId);
   }
 }

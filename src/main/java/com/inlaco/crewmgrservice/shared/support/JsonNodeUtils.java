@@ -1,9 +1,9 @@
 package com.inlaco.crewmgrservice.shared.support;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.Collection;
 import java.util.Map;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
 
 public final class JsonNodeUtils {
 
@@ -92,7 +92,7 @@ public final class JsonNodeUtils {
     if (node == null || fieldType == null) return false;
     else if (node.isNull()) {
       return !fieldType.isPrimitive();
-    } else if (node.isTextual()) {
+    } else if (node.isString()) {
       return fieldType == String.class || fieldType.isEnum();
     } else if (node.isNumber()) {
       return Number.class.isAssignableFrom(fieldType) || isPrimitiveNumber(fieldType);

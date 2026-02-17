@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr353.JSR353Module;
-import com.inlaco.crewmgrservice.infrastructure.serialization.deserializer.FileDeserializer;
 import com.inlaco.crewmgrservice.infrastructure.serialization.serializer.FileSerializer;
 import com.inlaco.crewmgrservice.shared.objectvalue.Asset;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +20,8 @@ import org.springframework.context.annotation.Primary;
 public class JacksonConfig {
 
   private final FileSerializer fileSerializer;
-  private final FileDeserializer fileDeserializer;
+
+  // private final FileDeserializer fileDeserializer;
 
   @Bean
   @Primary
@@ -30,7 +30,7 @@ public class JacksonConfig {
 
     SimpleModule fileModule = new SimpleModule();
     fileModule.addSerializer(Asset.class, fileSerializer);
-    fileModule.addDeserializer(Asset.class, fileDeserializer);
+    // fileModule.addDeserializer(Asset.class, fileDeserializer);
     mapper.registerModule(fileModule);
 
     mapper

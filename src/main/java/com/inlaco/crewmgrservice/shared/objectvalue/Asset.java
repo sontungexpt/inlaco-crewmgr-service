@@ -1,32 +1,19 @@
 package com.inlaco.crewmgrservice.shared.objectvalue;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.io.Serializable;
-import java.time.Instant;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.experimental.SuperBuilder;
 
 @Getter
-@Setter
-@SuperBuilder
+@Builder
 @AllArgsConstructor
-@NoArgsConstructor
-public class Asset implements Serializable {
-
-  private String publicId;
-
-  @JsonIgnore private String assetId;
-
-  private String displayName;
-
-  private String resourceType;
-
-  private String format;
-
-  private Long bytes;
-
-  private Instant uploadedAt;
+// @AllArgsConstructor(access = AccessLevel.PRIVATE)
+public class Asset {
+  private final String type;
+  private final String assetId;
+  private final String publicId;
+  private final String displayName;
+  private final String resourceType;
+  private final Long size;
+  private final String format;
 }

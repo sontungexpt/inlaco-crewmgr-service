@@ -11,8 +11,8 @@ import com.inlaco.crewmgrservice.feature.course.domain.exception.RegistrationClo
 import com.inlaco.crewmgrservice.feature.course.domain.model.Course;
 import com.inlaco.crewmgrservice.feature.course.domain.model.CourseMember;
 import com.inlaco.crewmgrservice.feature.course.domain.model.UserCourse;
-import com.inlaco.crewmgrservice.feature.upload.application.enums.UploadStrategy;
-import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadFactory;
+import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadDispatcher;
+import com.inlaco.crewmgrservice.feature.upload.domain.enums.AssetType;
 import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceAlreadyInUseException;
 import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceNotFoundException;
@@ -32,9 +32,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class CourseService implements CourseUseCase {
 
   private final JsonMergePatchUtils jsonMergePatchUtils;
-  private final UploadFactory uploadFactory;
   private final CourseRepository courseRepository;
   private final CourseMemberRepository courseMemberRepository;
+  private final UploadDispatcher uploadDispatcher;
 
   @Override
   public void deleteCourse(String id) {
@@ -91,11 +91,9 @@ public class CourseService implements CourseUseCase {
 
   @Override
   public Course createCourse(Course newCourse, String wallpaperAssetId, String logoAssetId) {
-    newCourse.setWallpaper(
-        uploadFactory.metadata(UploadStrategy.COURSE_WALLPAPER, wallpaperAssetId));
+    newCourse.setWallpaper(uploadDispatcher.fetch(AssetType.COURSE_WALLPAPER, wallpaperAssetId));
     newCourse.setTrainingProviderLogo(
-        uploadFactory.metadata(UploadStrategy.TRAINING_PROVIDER_LOGO, logoAssetId));
-
+        uploadDispatcher.fetch(AssetType.TRAINING_PROVIDER_LOGO, logoAssetId));
     return courseRepository.save(newCourse);
   }
 

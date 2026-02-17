@@ -10,8 +10,8 @@ import com.inlaco.crewmgrservice.feature.recruitment.application.event.Applicati
 import com.inlaco.crewmgrservice.feature.recruitment.application.port.in.JobApplicationUseCase;
 import com.inlaco.crewmgrservice.feature.recruitment.application.port.out.JobApplicationRepository;
 import com.inlaco.crewmgrservice.feature.recruitment.domain.model.JobApplication;
-import com.inlaco.crewmgrservice.feature.upload.application.enums.UploadStrategy;
-import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadFactory;
+import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadDispatcher;
+import com.inlaco.crewmgrservice.feature.upload.domain.enums.AssetType;
 import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceNotFoundException;
 import com.inlaco.crewmgrservice.shared.objectvalue.Asset;
@@ -30,7 +30,7 @@ public class JobApplicationService implements JobApplicationUseCase {
 
   private final JobApplicationRepository jobApplicationRepository;
   private final PostUseCase postUseCase;
-  private final UploadFactory uploadFactory;
+  private final UploadDispatcher uploadDispatcher;
   private final ApplicationEventPublisher eventPublisher;
 
   @Override
@@ -47,7 +47,7 @@ public class JobApplicationService implements JobApplicationUseCase {
       throw new PostInactiveException("The registration post is closed");
     }
 
-    Asset resume = uploadFactory.metadata(UploadStrategy.RESUME, resumePublicId);
+    Asset resume = uploadDispatcher.fetch(AssetType.RESUME, resumePublicId);
     application.setPosition(recruitmentPost.getPosition());
     application.setResume(resume);
     application.setRecruitmentPostId(recruitmentPostId);

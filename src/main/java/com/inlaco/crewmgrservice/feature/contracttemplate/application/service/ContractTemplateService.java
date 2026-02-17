@@ -3,11 +3,10 @@ package com.inlaco.crewmgrservice.feature.contracttemplate.application.service;
 import com.inlaco.crewmgrservice.feature.contracttemplate.application.port.in.ContractTemplateUseCase;
 import com.inlaco.crewmgrservice.feature.contracttemplate.application.port.out.ContractTemplateRepository;
 import com.inlaco.crewmgrservice.feature.contracttemplate.domain.model.ContractTemplate;
-import com.inlaco.crewmgrservice.feature.upload.application.enums.UploadStrategy;
-import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadFactory;
+import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadDispatcher;
+import com.inlaco.crewmgrservice.feature.upload.domain.enums.AssetType;
 import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceNotFoundException;
 import com.inlaco.crewmgrservice.shared.objectvalue.Asset;
-import com.inlaco.crewmgrservice.shared.support.ConsoleUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
@@ -21,7 +20,7 @@ import org.springframework.stereotype.Service;
 public class ContractTemplateService implements ContractTemplateUseCase {
 
   private final ContractTemplateRepository contractTemplateRepository;
-  private final UploadFactory uploadFactory;
+  private final UploadDispatcher uploadDispatcher;
 
   @Override
   public ContractTemplate getTemplateById(String id) {
@@ -38,8 +37,7 @@ public class ContractTemplateService implements ContractTemplateUseCase {
 
   @Override
   public ContractTemplate uploadTemplate(String templateFilePubId, ContractTemplate template) {
-    Asset metadata = uploadFactory.metadata(UploadStrategy.CONTRACT_TEMPLATE, templateFilePubId);
-    ConsoleUtils.prettyPrint(metadata);
+    Asset metadata = uploadDispatcher.fetch(AssetType.CONTRACT_TEMPLATE, templateFilePubId);
     template.setMetadata(metadata);
     return contractTemplateRepository.save(template);
   }

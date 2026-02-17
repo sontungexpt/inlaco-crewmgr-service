@@ -29,7 +29,7 @@ import org.yaml.snakeyaml.util.UriEncoder;
 @Slf4j
 @Service
 @Transactional
-public class TwoStepEmailVerificationService implements TwoStepVerificationService {
+public class EmailTwoStepVerificationService implements TwoStepVerificationService {
 
   private final EmailVerificationTokenRepository emailVerificationTokenRepository;
   private final UserUseCase userUseCase;

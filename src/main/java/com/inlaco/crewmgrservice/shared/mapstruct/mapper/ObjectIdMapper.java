@@ -1,4 +1,4 @@
-package com.inlaco.crewmgrservice.shared.mapper;
+package com.inlaco.crewmgrservice.shared.mapstruct.mapper;
 
 import org.bson.types.ObjectId;
 

@@ -8,8 +8,8 @@ import com.inlaco.crewmgrservice.feature.contract.domain.model.AbstractContract;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.LaborContract;
 import com.inlaco.crewmgrservice.feature.recruitment.application.port.in.RecruitmentQueryUseCase;
 import com.inlaco.crewmgrservice.feature.recruitment.domain.model.JobApplication;
-import com.inlaco.crewmgrservice.feature.upload.application.enums.UploadStrategy;
-import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadFactory;
+import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadDispatcher;
+import com.inlaco.crewmgrservice.feature.upload.domain.enums.AssetType;
 import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceAlreadyInUseException;
 import lombok.RequiredArgsConstructor;
@@ -24,8 +24,7 @@ public class CreateLaborContractService implements CreateLaborContractUseCase {
   private final RecruitmentQueryUseCase recruitmentQueryUseCase;
   private final ContractRepository contractRepository;
   private final LaborContractRepository laborContractRepository;
-
-  private final UploadFactory uploadFactory;
+  private final UploadDispatcher uploadDispatcher;
 
   @Override
   public AbstractContract create(
@@ -39,7 +38,7 @@ public class CreateLaborContractService implements CreateLaborContractUseCase {
     String accountId = jobApplication.getAccountId();
 
     contract.setContractFile(
-        uploadFactory.metadata(UploadStrategy.CONTRACT_FILE, assets.getContractFile()));
+        uploadDispatcher.fetch(AssetType.CONTRACT_FILE, assets.getContractFile()));
 
     contract.setApplicationId(applicationId);
     contract.setAccountId(accountId);

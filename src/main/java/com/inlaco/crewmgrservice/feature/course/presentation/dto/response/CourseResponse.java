@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.feature.course.presentation.dto.response;
 
-import com.inlaco.crewmgrservice.shared.objectvalue.Asset;
+import com.inlaco.crewmgrservice.shared.objectvalue.AssetResponse;
 import java.io.Serializable;
 import java.time.Instant;
 import lombok.Data;
@@ -15,7 +15,7 @@ public class CourseResponse implements Serializable {
 
   private String trainingProviderName;
 
-  private Asset trainingProviderLogo;
+  private AssetResponse trainingProviderLogo;
 
   private String teacherName;
 
@@ -33,7 +33,7 @@ public class CourseResponse implements Serializable {
 
   private int enrolledStudentCount;
 
-  private Asset wallpaper;
+  private AssetResponse wallpaper;
 
   private String description;
 

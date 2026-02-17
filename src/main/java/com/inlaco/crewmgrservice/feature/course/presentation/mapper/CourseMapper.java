@@ -7,11 +7,20 @@ import com.inlaco.crewmgrservice.feature.course.presentation.dto.request.NewCour
 import com.inlaco.crewmgrservice.feature.course.presentation.dto.response.CourseMemberInfoResponse;
 import com.inlaco.crewmgrservice.feature.course.presentation.dto.response.CourseResponse;
 import com.inlaco.crewmgrservice.feature.course.presentation.dto.response.UserCourseResponse;
+import com.inlaco.crewmgrservice.shared.mapstruct.mapper.AssetResponseMapper;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring")
+@Mapper(
+    componentModel = "spring",
+    unmappedSourcePolicy = ReportingPolicy.IGNORE,
+    unmappedTargetPolicy = ReportingPolicy.IGNORE,
+    uses = AssetResponseMapper.class)
 public interface CourseMapper {
 
+  @Mapping(target = "wallpaper", ignore = true)
+  @Mapping(target = "trainingProviderLogo", ignore = true)
   Course toCourse(CourseResponse dto);
 
   Course toCourse(NewCourseRequest request);

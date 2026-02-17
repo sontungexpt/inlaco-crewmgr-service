@@ -168,7 +168,7 @@ public class JsonMergePatchUtils {
     JsonNode node = patch.deepCopy();
 
     if (ignorePaths != null && ignorePaths.length > 0) {
-      node = JsonNodeUtils.removeFields(node, ignorePaths);
+      // node = JsonNodeUtils.removeFields(node, ignorePaths);
     }
 
     node = removeAnnotatedIgnoreFields(node, clazz);
@@ -251,7 +251,8 @@ public class JsonMergePatchUtils {
    */
   private JsonNode removeJsonPatchIgnorePropertiesFields(JsonNode node, Class<?> clazz) {
     JsonPatchIgnoreProperties props = clazz.getAnnotation(JsonPatchIgnoreProperties.class);
-    return props == null ? node : JsonNodeUtils.removeFields(node, props.value());
+    // return props == null ? node : JsonNodeUtils.removeFields(node, props.value());
+    return null;
   }
 
   /**

@@ -98,17 +98,14 @@ public class CourseMemberRepositoryAdapter implements CourseMemberRepository {
 
     // 2️⃣ Handle existing (update)
     if (!existingDomains.isEmpty()) {
-
-      List<String> ids = existingDomains.stream().map(CourseMember::getId).toList();
-
       Map<String, CourseMemberEntity> existingMap =
-          repository.findAllById(ids).stream()
+          repository
+              .findAllById(existingDomains.stream().map(CourseMember::getId).toList())
+              .stream()
               .collect(Collectors.toMap(CourseMemberEntity::getId, Function.identity()));
 
       for (CourseMember domain : existingDomains) {
-
         CourseMemberEntity existing = existingMap.get(domain.getId());
-
         if (existing == null) {
           // If id exists but not in DB → treat as insert
           newDomains.add(domain);
@@ -121,9 +118,7 @@ public class CourseMemberRepositoryAdapter implements CourseMemberRepository {
 
     // 3️⃣ Bulk insert
     if (!newDomains.isEmpty()) {
-
       List<CourseMemberEntity> newEntities = newDomains.stream().map(mapper::toEntity).toList();
-
       result.addAll(repository.insert(newEntities).stream().map(mapper::toDomain).toList());
     }
 

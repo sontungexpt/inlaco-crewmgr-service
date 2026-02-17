@@ -8,7 +8,7 @@ import com.inlaco.crewmgrservice.feature.contract.domain.model.CrewSupplyContrac
 import com.inlaco.crewmgrservice.feature.contract.domain.model.LaborContract;
 import com.inlaco.crewmgrservice.feature.contract.infrastructure.persistence.entity.ContractEntity;
 import com.inlaco.crewmgrservice.feature.contract.infrastructure.persistence.entity.ContractSnapshotEntity;
-import com.inlaco.crewmgrservice.shared.mapper.ObjectIdMapper;
+import com.inlaco.crewmgrservice.shared.mapstruct.mapper.ObjectIdMapper;
 import java.util.EnumMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -55,7 +55,6 @@ public class ContractEntityMapper implements ObjectIdMapper {
   // DOMAIN -> ENTITY
   // ============================================================
   public ContractEntity toContractEntity(AbstractContract contract) {
-    contract.refreshStatusIfNeeded();
     return ContractEntity.builder()
         .id(contract.getId())
         .type(contract.getType())
@@ -75,7 +74,6 @@ public class ContractEntityMapper implements ObjectIdMapper {
   public AbstractContract toContract(ContractEntity entity) {
     AbstractContract contract = deserialize(entity.getPayload(), entity.getType());
     contract.setId(entity.getId());
-    contract.refreshStatusIfNeeded();
     return contract;
   }
 

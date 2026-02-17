@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.feature.contracttemplate.presentation.rest.dto.response;
 
-import com.inlaco.crewmgrservice.shared.objectvalue.Asset;
+import com.inlaco.crewmgrservice.shared.objectvalue.AssetResponse;
 import lombok.Data;
 
 @Data
@@ -12,7 +12,7 @@ public class ContractTemplateResponse {
 
   private String description;
 
-  private Asset metadata;
+  private AssetResponse metadata;
 
   private String type;
 }

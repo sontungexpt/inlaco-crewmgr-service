@@ -2,7 +2,7 @@ package com.inlaco.crewmgrservice.feature.recruitment.infrastructure.persistence
 
 import com.inlaco.crewmgrservice.feature.recruitment.domain.model.JobApplication;
 import com.inlaco.crewmgrservice.feature.recruitment.infrastructure.persistence.mongodb.entity.JobApplicationEntity;
-import com.inlaco.crewmgrservice.shared.mapper.CentralMapperConfig;
+import com.inlaco.crewmgrservice.shared.mapstruct.config.CentralMapperConfig;
 import org.mapstruct.InheritConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;

@@ -2,7 +2,7 @@ package com.inlaco.crewmgrservice.feature.crewrental.infrastructure.persistence.
 
 import com.inlaco.crewmgrservice.feature.crewrental.domain.model.CrewRentalRequest;
 import com.inlaco.crewmgrservice.feature.crewrental.infrastructure.persistence.mongodb.entity.CrewRentalRequestEntity;
-import com.inlaco.crewmgrservice.shared.mapper.CentralMapperConfig;
+import com.inlaco.crewmgrservice.shared.mapstruct.config.CentralMapperConfig;
 import org.mapstruct.InheritConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;

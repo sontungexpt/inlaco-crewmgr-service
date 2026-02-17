@@ -1,0 +1,76 @@
+package com.inlaco.crewmgrservice.feature.upload.application.service;
+
+import com.inlaco.crewmgrservice.feature.upload.application.mapper.AssetMapper;
+import com.inlaco.crewmgrservice.feature.upload.application.port.in.AssetValidationUseCase;
+import com.inlaco.crewmgrservice.feature.upload.application.port.in.GenerateSignatureUseCase;
+import com.inlaco.crewmgrservice.feature.upload.application.port.in.MetadataFetchUseCase;
+import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadDispatcher;
+import com.inlaco.crewmgrservice.feature.upload.application.service.fallback.DefaultAssetValidationService;
+import com.inlaco.crewmgrservice.feature.upload.application.service.fallback.DefaultGenerateSignatureService;
+import com.inlaco.crewmgrservice.feature.upload.application.service.fallback.DefaultMetadataFetchService;
+import com.inlaco.crewmgrservice.feature.upload.domain.enums.AssetType;
+import com.inlaco.crewmgrservice.feature.upload.domain.model.AssetMetadata;
+import com.inlaco.crewmgrservice.feature.upload.domain.model.UploadContext;
+import com.inlaco.crewmgrservice.shared.objectvalue.Asset;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
+import org.springframework.stereotype.Component;
+
+@Component
+public class UploadDispatcherImpl implements UploadDispatcher {
+
+  private final Map<AssetType, GenerateSignatureUseCase> generateStrategies;
+  private final Map<AssetType, MetadataFetchUseCase> metadataStrategies;
+  private final Map<AssetType, AssetValidationUseCase> validationStrategies;
+  private final DefaultGenerateSignatureService defaultGenerateSignatureService;
+  private final DefaultMetadataFetchService defaultMetadataFetchService;
+  private final DefaultAssetValidationService defaultAssetValidationService;
+  private final AssetMapper assetMapper;
+
+  public UploadDispatcherImpl(
+      List<GenerateSignatureUseCase> generateStrategies,
+      List<MetadataFetchUseCase> metadataStrategies,
+      List<AssetValidationUseCase> validationStrategies,
+      DefaultGenerateSignatureService defaultGenerateSignatureService,
+      DefaultMetadataFetchService defaultMetadataFetchService,
+      DefaultAssetValidationService defaultAssetValidationService,
+      AssetMapper assetMapper) {
+    this.defaultMetadataFetchService = defaultMetadataFetchService;
+    this.defaultGenerateSignatureService = defaultGenerateSignatureService;
+    this.defaultAssetValidationService = defaultAssetValidationService;
+    this.assetMapper = assetMapper;
+
+    this.generateStrategies = new EnumMap<>(AssetType.class);
+    this.metadataStrategies = new EnumMap<>(AssetType.class);
+    this.validationStrategies = new EnumMap<>(AssetType.class);
+
+    generateStrategies.forEach(
+        strategy -> this.generateStrategies.put(strategy.supports(), strategy));
+    metadataStrategies.forEach(
+        strategy -> this.metadataStrategies.put(strategy.supports(), strategy));
+    validationStrategies.forEach(
+        strategy -> this.validationStrategies.put(strategy.supports(), strategy));
+  }
+
+  @Override
+  public Map<String, Object> signParams(AssetType type, UploadContext context) {
+    var service = generateStrategies.get(type);
+    if (service != null) return service.signParams(context);
+    return defaultGenerateSignatureService.signParams(type, context);
+  }
+
+  @Override
+  public Asset fetch(AssetType type, String assetId) {
+    var service = metadataStrategies.get(type);
+    if (service != null) return assetMapper.toAsset(service.fetch(assetId));
+    return assetMapper.toAsset(defaultMetadataFetchService.fetch(type, assetId));
+  }
+
+  @Override
+  public void validate(AssetType type, AssetMetadata metadata) {
+    var service = validationStrategies.get(type);
+    if (service != null) service.validate(metadata);
+    defaultAssetValidationService.validate(type, metadata);
+  }
+}

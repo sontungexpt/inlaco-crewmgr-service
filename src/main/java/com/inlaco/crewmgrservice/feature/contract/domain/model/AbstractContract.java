@@ -10,7 +10,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -36,7 +35,6 @@ public abstract class AbstractContract {
   private List<Party> partners = new ArrayList<>();
   private Asset contractFile;
   private List<Asset> attachments = new ArrayList<>();
-  private List<String> terms = new ArrayList<>();
   private int version;
   private List<DynamicAttribute> customAttributes = new ArrayList<>();
 
@@ -48,16 +46,9 @@ public abstract class AbstractContract {
   // STATUS
   // ======================
 
-  @Setter(AccessLevel.PRIVATE)
   private ContractStatus status = ContractStatus.DRAFT;
 
-  private final List<ContractStatusHistory> statusHistories = new ArrayList<>();
-
-  @Setter(AccessLevel.PRIVATE)
-  private Instant lastStatusChangedAt;
-
-  @Setter(AccessLevel.PRIVATE)
-  private String lastStatusChangedBy;
+  private List<ContractStatusHistory> statusHistories = new ArrayList<>();
 
   // ======================
   // TIME
@@ -97,13 +88,6 @@ public abstract class AbstractContract {
   // AUTO REFRESH
   // ======================
 
-  public void refreshStatusIfNeeded() {
-    ContractStatus effective = getEffectiveStatus();
-    if (effective != status) {
-      transitionTo(effective, SYSTEM, "Auto transition by temporal rule", Instant.now());
-    }
-  }
-
   public ContractStatus getEffectiveStatus() {
     Instant now = Instant.now();
 
@@ -128,19 +112,8 @@ public abstract class AbstractContract {
       throws IllegalStateException {
     if (status == newStatus) return;
     status.validateTransition(newStatus);
-
-    statusHistories.add(
-        ContractStatusHistory.builder()
-            .fromStatus(status)
-            .toStatus(newStatus)
-            .changedBy(changedBy)
-            .changedAt(now)
-            .reason(reason)
-            .build());
-
+    statusHistories.add(new ContractStatusHistory(status, newStatus, changedBy, now, reason));
     status = newStatus;
-    lastStatusChangedAt = now;
-    lastStatusChangedBy = changedBy;
   }
 
   // ======================
@@ -165,13 +138,11 @@ public abstract class AbstractContract {
 
   public Instant getFreezeDate() {
     Instant signedAt =
-        status == ContractStatus.SIGNED
-            ? lastStatusChangedAt
-            : statusHistories.stream()
-                .filter(history -> history.getToStatus() == ContractStatus.SIGNED)
-                .findFirst()
-                .map(history -> history.getChangedAt())
-                .orElse(null);
+        statusHistories.stream()
+            .filter(history -> history.toStatus() == ContractStatus.SIGNED)
+            .findFirst()
+            .map(history -> history.changedAt())
+            .orElse(null);
 
     return signedAt == null ? null : signedAt.plusSeconds(contractFreezeDelayMinutes * 60L);
   }
