@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class CrewSupplyContract extends AbstractContract {
+public class CrewSupplyContract extends Contract {
 
   public CrewSupplyContract() {
     super(ContractType.SUPPLY_CONTRACT);

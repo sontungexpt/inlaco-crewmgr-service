@@ -1,5 +1,5 @@
 package com.inlaco.crewmgrservice.feature.contract.domain.event;
 
-import com.inlaco.crewmgrservice.feature.contract.domain.model.AbstractContract;
+import com.inlaco.crewmgrservice.feature.contract.domain.model.Contract;
 
-public record ContractSignedEvent(AbstractContract contract) {}
+public record ContractSignedEvent(Contract contract) {}

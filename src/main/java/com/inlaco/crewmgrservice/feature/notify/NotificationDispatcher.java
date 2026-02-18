@@ -1,9 +1,9 @@
 package com.inlaco.crewmgrservice.feature.notify;
 
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -12,11 +12,8 @@ public class NotificationDispatcher {
   private final Map<NotificationPolicy, NotificationService> serviceMap;
 
   public NotificationDispatcher(List<NotificationService> notificationServices) {
-    serviceMap =
-        notificationServices.stream()
-            .collect(
-                Collectors.toMap(
-                    NotificationService::getPolicy, notificationService -> notificationService));
+    serviceMap = new EnumMap<>(NotificationPolicy.class);
+    notificationServices.forEach(service -> serviceMap.put(service.getPolicy(), service));
   }
 
   public <S, R> void sendNotification(

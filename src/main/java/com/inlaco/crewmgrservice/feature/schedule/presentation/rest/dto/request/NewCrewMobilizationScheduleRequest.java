@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.inlaco.crewmgrservice.feature.schedule.domain.enums.CrewMobilizationScheduleStatus;
 import com.inlaco.crewmgrservice.infrastructure.web.payload.request.constraint.TimeFrame;
-import com.inlaco.crewmgrservice.infrastructure.web.payload.request.constraint.TimeFrame.Pair;
+import com.inlaco.crewmgrservice.infrastructure.web.payload.request.constraint.TimeFrame.Range;
 import com.inlaco.crewmgrservice.infrastructure.web.validation.phone.PhoneNumber;
 import com.inlaco.crewmgrservice.shared.objectvalue.ShipInfo;
 import jakarta.validation.Valid;
@@ -33,7 +33,7 @@ public record NewCrewMobilizationScheduleRequest(
 
   @Override
   @JsonIgnore
-  public List<Pair> getTimeFrames() {
-    return List.of(Pair.of(startDate, endDate));
+  public List<Range> getTimeFrames() {
+    return List.of(Range.of(startDate, endDate));
   }
 }

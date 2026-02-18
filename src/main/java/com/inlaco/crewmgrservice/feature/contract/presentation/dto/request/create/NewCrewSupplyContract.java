@@ -1,4 +1,4 @@
-package com.inlaco.crewmgrservice.feature.contract.presentation.dto.request;
+package com.inlaco.crewmgrservice.feature.contract.presentation.dto.request.create;
 
 import com.inlaco.crewmgrservice.feature.contract.domain.enums.ContractType;
 import com.inlaco.crewmgrservice.shared.objectvalue.ShipInfo;
@@ -7,9 +7,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class CrewSupplyContractRequest extends AbstractContractRequest {
+public class NewCrewSupplyContract extends NewContract {
 
-  public CrewSupplyContractRequest() {
+  public NewCrewSupplyContract() {
     super(ContractType.SUPPLY_CONTRACT);
   }
 

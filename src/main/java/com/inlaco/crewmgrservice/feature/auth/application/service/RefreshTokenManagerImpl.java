@@ -31,10 +31,9 @@ public class RefreshTokenManagerImpl implements RefreshTokenManager {
     for (int attempt = 0; attempt < MAX_RETRY; attempt++) {
       String rawToken = generateRaw();
       String hash = hash(rawToken);
-      RefreshToken token =
-          new RefreshToken(hash, userPubId, Instant.now().plusMillis(REFRESH_TOKEN_EXPIRATION));
       try {
-        repository.save(token);
+        repository.save(
+            new RefreshToken(hash, userPubId, Instant.now().plusMillis(REFRESH_TOKEN_EXPIRATION)));
         return rawToken;
       } catch (DuplicateKeyException e) {
         log.warn("Refresh token collision detected. Retrying... attempt={}", attempt + 1);

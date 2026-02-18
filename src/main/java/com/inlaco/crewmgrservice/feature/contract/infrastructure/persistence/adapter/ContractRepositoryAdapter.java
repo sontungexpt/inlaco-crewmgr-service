@@ -5,8 +5,8 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 import com.inlaco.crewmgrservice.feature.contract.application.model.ContractSearchCriteria;
 import com.inlaco.crewmgrservice.feature.contract.application.port.out.ContractRepository;
 import com.inlaco.crewmgrservice.feature.contract.domain.enums.ContractStatus;
-import com.inlaco.crewmgrservice.feature.contract.domain.model.AbstractContract;
-import com.inlaco.crewmgrservice.feature.contract.infrastructure.persistence.entity.ContractEntity;
+import com.inlaco.crewmgrservice.feature.contract.domain.model.Contract;
+import com.inlaco.crewmgrservice.feature.contract.infrastructure.persistence.entity.contract.ContractEntity;
 import com.inlaco.crewmgrservice.feature.contract.infrastructure.persistence.mapper.ContractEntityMapper;
 import com.inlaco.crewmgrservice.feature.contract.infrastructure.persistence.repository.ContractMongoRepository;
 import com.inlaco.crewmgrservice.infrastructure.persistence.mongodb.aggregation.FacetResult;
@@ -33,12 +33,12 @@ public class ContractRepositoryAdapter implements ContractRepository {
   private final ContractMongoRepository repository;
 
   @Override
-  public Page<AbstractContract> findAll(Pageable pageable) {
+  public Page<Contract> findAll(Pageable pageable) {
     return repository.findAll(pageable).map(mapper::toContract);
   }
 
   @Override
-  public Page<AbstractContract> findAll(ContractSearchCriteria criteria, Pageable pageable) {
+  public Page<Contract> findAll(ContractSearchCriteria criteria, Pageable pageable) {
     Criteria query = new Criteria();
     if (criteria != null) {
       if (criteria.getType() != null) {
@@ -57,7 +57,11 @@ public class ContractRepositoryAdapter implements ContractRepository {
         query.and("expiredDate").lte(criteria.getExpiredDateEnd());
       }
       if (criteria.getSigned() != null) {
-        query.and("signed").is(criteria.getSigned());
+        if (criteria.getSigned()) {
+          query.and("status").ne(ContractStatus.DRAFT);
+        } else {
+          query.and("status").is(ContractStatus.DRAFT);
+        }
       }
     }
 
@@ -80,26 +84,40 @@ public class ContractRepositoryAdapter implements ContractRepository {
   }
 
   @Override
-  public Optional<AbstractContract> findById(String id) {
+  public Optional<Contract> findById(String id) {
     return repository.findById(id).map(mapper::toContract);
   }
 
   @Override
-  public AbstractContract save(AbstractContract contract) {
-    return mapper.toContract(repository.save(mapper.toContractEntity(contract)));
+  public Contract save(Contract contract) {
+    String id = contract.getId();
+    if (id == null) {
+      return mapper.toContract(repository.insert(mapper.toContractEntity(contract)));
+    }
+
+    ContractEntity entity =
+        repository
+            .findById(id)
+            .map(
+                existing -> {
+                  mapper.updateFromContract(contract, existing);
+                  return existing;
+                })
+            .orElseGet(() -> mapper.toContractEntity(contract)); // INSERT with custom id
+    return mapper.toContract(repository.save(entity));
   }
 
   @Override
-  public List<AbstractContract> saveAll(Iterable<AbstractContract> contracts) {
+  public List<Contract> saveAll(Iterable<Contract> contracts) {
     List<ContractEntity> entities = new ArrayList<>();
-    for (AbstractContract contract : contracts) {
+    for (Contract contract : contracts) {
       entities.add(mapper.toContractEntity(contract));
     }
     return repository.saveAll(entities).stream().map(mapper::toContract).toList();
   }
 
   @Override
-  public List<AbstractContract> findDueForActivation(Instant now) {
+  public List<Contract> findDueForActivation(Instant now) {
     Query query =
         Query.query(
             Criteria.where("status").is(ContractStatus.SIGNED).and("activationDate").lte(now));
@@ -108,7 +126,7 @@ public class ContractRepositoryAdapter implements ContractRepository {
   }
 
   @Override
-  public List<AbstractContract> findDueForExpiration(Instant now) {
+  public List<Contract> findDueForExpiration(Instant now) {
     Query query =
         Query.query(Criteria.where("status").is(ContractStatus.ACTIVE).and("expiredDate").lte(now));
     List<ContractEntity> entities = mongoTemplate.find(query, ContractEntity.class);

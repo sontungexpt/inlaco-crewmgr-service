@@ -5,6 +5,7 @@ import com.inlaco.crewmgrservice.feature.contract.domain.enums.ContractType;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.party.Party;
 import com.inlaco.crewmgrservice.feature.contract.domain.objectvalue.ContractStatusHistory;
 import com.inlaco.crewmgrservice.feature.contract.domain.objectvalue.DynamicAttribute;
+import com.inlaco.crewmgrservice.feature.contract.domain.objectvalue.Version;
 import com.inlaco.crewmgrservice.shared.objectvalue.Asset;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -15,14 +16,14 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public abstract class AbstractContract {
+public abstract class Contract {
 
   private static final String SYSTEM = "SYSTEM";
 
   private String id;
   private final ContractType type;
 
-  protected AbstractContract(ContractType type) {
+  protected Contract(ContractType type) {
     this.type = type;
   }
 
@@ -35,19 +36,13 @@ public abstract class AbstractContract {
   private List<Party> partners = new ArrayList<>();
   private Asset contractFile;
   private List<Asset> attachments = new ArrayList<>();
-  private int version;
+  private Version version = new Version(1, Instant.now());
   private List<DynamicAttribute> customAttributes = new ArrayList<>();
-
-  public void incrementVersion() {
-    version++;
-  }
 
   // ======================
   // STATUS
   // ======================
-
   private ContractStatus status = ContractStatus.DRAFT;
-
   private List<ContractStatusHistory> statusHistories = new ArrayList<>();
 
   // ======================
@@ -57,6 +52,19 @@ public abstract class AbstractContract {
   private Instant activationDate;
   private Instant expiredDate;
   private int contractFreezeDelayMinutes = 5;
+
+  private void incrementVersion() {
+    version = new Version(version.num() + 1, Instant.now());
+  }
+
+  public void update(UpdateContractCommand patch) {
+    patch.getTitle().ifUpdated(this::setTitle);
+    patch.getActivationDate().ifUpdated(this::setActivationDate);
+    patch.getExpiredDate().ifUpdated(this::setExpiredDate);
+    patch.getContractFreezeDelayMinutes().ifUpdated(this::setContractFreezeDelayMinutes);
+
+    incrementVersion();
+  }
 
   // ======================
   // LIFECYCLE ACTIONS
@@ -84,13 +92,15 @@ public abstract class AbstractContract {
     transitionTo(ContractStatus.CANCELLED, defaultIfNull(cancelledBy), reason, now);
   }
 
-  // ======================
-  // AUTO REFRESH
-  // ======================
+  public void refreshStatus() {
+    transitionTo(
+        getEffectiveStatus(Instant.now()),
+        SYSTEM,
+        "Auto transition by temporal rule",
+        Instant.now());
+  }
 
-  public ContractStatus getEffectiveStatus() {
-    Instant now = Instant.now();
-
+  public ContractStatus getEffectiveStatus(Instant now) {
     if (status == ContractStatus.SIGNED
         && activationDate != null
         && !now.isBefore(activationDate)) {
@@ -137,14 +147,11 @@ public abstract class AbstractContract {
   }
 
   public Instant getFreezeDate() {
-    Instant signedAt =
-        statusHistories.stream()
-            .filter(history -> history.toStatus() == ContractStatus.SIGNED)
-            .findFirst()
-            .map(history -> history.changedAt())
-            .orElse(null);
-
-    return signedAt == null ? null : signedAt.plusSeconds(contractFreezeDelayMinutes * 60L);
+    return statusHistories.stream()
+        .filter(history -> history.toStatus() == ContractStatus.SIGNED)
+        .findFirst()
+        .map(history -> history.changedAt().plusSeconds(contractFreezeDelayMinutes * 60L))
+        .orElse(null);
   }
 
   public boolean isDraft() {

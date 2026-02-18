@@ -2,7 +2,7 @@ package com.inlaco.crewmgrservice.feature.contract.application.service;
 
 import com.inlaco.crewmgrservice.feature.contract.application.port.in.CreateSupplyContractUseCase;
 import com.inlaco.crewmgrservice.feature.contract.application.port.out.ContractRepository;
-import com.inlaco.crewmgrservice.feature.contract.domain.model.AbstractContract;
+import com.inlaco.crewmgrservice.feature.contract.domain.model.Contract;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.CrewSupplyContract;
 import com.inlaco.crewmgrservice.feature.crewrental.application.port.in.CrewRentalRequestCommandUseCase;
 import com.inlaco.crewmgrservice.feature.crewrental.application.port.in.CrewRentalRequestQueryUseCase;
@@ -26,7 +26,7 @@ public class CreateSupplyContractService implements CreateSupplyContractUseCase 
 
   @Override
   @Transactional
-  public AbstractContract create(
+  public Contract create(
       String requestId,
       CrewSupplyContract contract,
       String contractFileAssetId,

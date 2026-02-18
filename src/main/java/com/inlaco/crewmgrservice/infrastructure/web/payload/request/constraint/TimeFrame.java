@@ -5,61 +5,42 @@ import com.fasterxml.jackson.databind.ser.std.NullSerializer;
 import jakarta.validation.Valid;
 import java.time.Instant;
 import java.util.List;
-import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
 
 @Valid
 @com.inlaco.crewmgrservice.infrastructure.web.validation.timeframe.TimeFrame
 public interface TimeFrame {
 
-  @NoArgsConstructor
-  public static class Pair {
-    private Instant start;
-    private Instant end;
+  @Getter
+  @AllArgsConstructor
+  @Builder
+  public static class Range {
+    private final Instant start;
+    private final Instant end;
+    private final boolean requiredStart;
+    private final boolean requiredEnd;
+    private final boolean requiredBothIfEitherPresent;
 
-    private boolean requiredFirst = true; // default is required
-
-    // default is not required its mean that it is any time
-    // in future.
-    private boolean requiredSecond = true;
-
-    public Pair(Instant start, Instant end) {
-      this.start = start;
-      this.end = end;
+    public Range(Instant start, Instant end) {
+      this(start, end, true, false, false);
     }
 
-    public Pair(Instant start, Instant end, boolean requiredFirst, boolean requiredSecond) {
-      this.start = start;
-      this.end = end;
-      this.requiredFirst = requiredFirst;
-      this.requiredSecond = requiredSecond;
+    public static Range of(Instant start, Instant end) {
+      return new Range(start, end);
     }
 
-    public static Pair of(Instant start, Instant end) {
-      return new Pair(start, end);
-    }
-
-    public static Pair of(
+    public static Range of(
         Instant start, Instant end, boolean requiredFirst, boolean requiredSecond) {
-      return new Pair(start, end, requiredFirst, requiredSecond);
+      return new Range(start, end, requiredFirst, requiredSecond, false);
     }
 
-    public Instant getStart() {
-      return start;
-    }
-
-    public Instant getEnd() {
-      return end;
-    }
-
-    public boolean isRequiredFirst() {
-      return requiredFirst;
-    }
-
-    public boolean isRequiredSecond() {
-      return requiredSecond;
+    public static Range of(Instant start, Instant end, boolean requiredBothIfEitherPresent) {
+      return new Range(start, end, false, false, true);
     }
   }
 
   @JsonSerialize(using = NullSerializer.class)
-  List<Pair> getTimeFrames();
+  List<Range> getTimeFrames();
 }

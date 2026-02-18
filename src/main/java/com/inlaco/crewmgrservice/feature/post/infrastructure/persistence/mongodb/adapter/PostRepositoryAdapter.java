@@ -10,7 +10,6 @@ import com.inlaco.crewmgrservice.feature.post.infrastructure.persistence.mongodb
 import com.inlaco.crewmgrservice.feature.post.infrastructure.persistence.mongodb.mapper.PostEntityMapper;
 import com.inlaco.crewmgrservice.feature.post.infrastructure.persistence.mongodb.repository.PostMongoRepository;
 import com.inlaco.crewmgrservice.infrastructure.persistence.mongodb.aggregation.FacetResult;
-import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceNotFoundException;
 import java.time.Instant;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -22,20 +21,22 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
 public class PostRepositoryAdapter implements PostRepository {
 
-  private final PostMongoRepository postMongoRepository;
+  private final PostMongoRepository repository;
   private final PostEntityMapper mapper;
   private final MongoTemplate mongoTemplate;
   private final AuditorAware<ObjectId> auditorAware;
 
   @Override
   public Page<Post> findAll(Pageable pageable) {
-    return postMongoRepository.findByDeletedAtIsNull(pageable).map(mapper::toPost);
+    return repository.findByDeletedAtIsNull(pageable).map(mapper::toPost);
   }
 
   @Override
@@ -68,22 +69,22 @@ public class PostRepositoryAdapter implements PostRepository {
 
   @Override
   public Page<Post> findByType(PostType type, Pageable pageable) {
-    return postMongoRepository.findByTypeAndDeletedAtIsNull(type, pageable).map(mapper::toPost);
+    return repository.findByTypeAndDeletedAtIsNull(type, pageable).map(mapper::toPost);
   }
 
   @Override
   public Optional<Post> findById(String id) {
-    return postMongoRepository.findByIdAndDeletedAtIsNull(id).map(mapper::toPost);
+    return repository.findByIdAndDeletedAtIsNull(id).map(mapper::toPost);
   }
 
   @Override
   public Post save(Post post) {
     String id = post.getId();
     if (id == null) {
-      return mapper.toPost(postMongoRepository.insert(mapper.toPostEntity(post)));
+      return mapper.toPost(repository.insert(mapper.toPostEntity(post)));
     }
     PostEntity entity =
-        postMongoRepository
+        repository
             .findById(id)
             .map(
                 existing -> {
@@ -91,18 +92,17 @@ public class PostRepositoryAdapter implements PostRepository {
                   return existing;
                 })
             .orElseGet(() -> mapper.toPostEntity(post)); // INSERT with custom id
-    return mapper.toPost(postMongoRepository.save(entity));
+    return mapper.toPost(repository.save(entity));
   }
 
   @Override
-  public Post deleteById(String id) {
-    PostEntity entity =
-        postMongoRepository
-            .findByIdAndDeletedAtIsNull(id)
-            .orElseThrow(() -> new ResourceNotFoundException(PostEntity.class, "id", id));
-    entity.setDeletedAt(Instant.now());
-    entity.setDeletedBy(auditorAware.getCurrentAuditor().orElse(null));
-    return mapper.toPost(postMongoRepository.save(entity));
+  public void deleteById(String id) {
+    mongoTemplate.updateFirst(
+        Query.query(Criteria.where("_id").is(id).and("deletedAt").exists(false)),
+        new Update()
+            .addToSet("deletedBy", auditorAware.getCurrentAuditor().orElse(null))
+            .addToSet("deletedAt", Instant.now()),
+        PostEntity.class);
   }
 
   class PostEntityFacetResult extends FacetResult<PostEntity> {}

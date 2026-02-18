@@ -37,7 +37,7 @@ public class RecruitmentPostDTO extends PostDTO implements TimeFrame {
 
   @Override
   @JsonIgnore
-  public List<Pair> getTimeFrames() {
-    return List.of(Pair.of(recruitmentStartDate, recruitmentEndDate, true, false));
+  public List<Range> getTimeFrames() {
+    return List.of(Range.of(recruitmentStartDate, recruitmentEndDate, true, false));
   }
 }

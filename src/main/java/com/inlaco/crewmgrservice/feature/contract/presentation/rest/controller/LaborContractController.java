@@ -2,8 +2,8 @@ package com.inlaco.crewmgrservice.feature.contract.presentation.rest.controller;
 
 import com.inlaco.crewmgrservice.feature.contract.application.model.ContractAssets;
 import com.inlaco.crewmgrservice.feature.contract.application.port.in.CreateLaborContractUseCase;
-import com.inlaco.crewmgrservice.feature.contract.presentation.dto.request.LaborContractRequest;
-import com.inlaco.crewmgrservice.feature.contract.presentation.dto.response.AbstractContractResponse;
+import com.inlaco.crewmgrservice.feature.contract.presentation.dto.request.create.NewLaborContract;
+import com.inlaco.crewmgrservice.feature.contract.presentation.dto.response.ContractResponse;
 import com.inlaco.crewmgrservice.feature.contract.presentation.mapper.ContractMapper;
 import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import com.inlaco.crewmgrservice.infrastructure.config.openapi.OpenApiConfig;
@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -38,18 +37,15 @@ public class LaborContractController {
   @PostMapping("/{applicationId}")
   @RolesAllowed("ADMIN")
   @ResponseStatus(HttpStatus.CREATED)
-  public AbstractContractResponse create(
-      @PathVariable("applicationId") String applicationId,
-      @RequestParam(required = false) String contractFileAssetId,
+  public ContractResponse create(
+      @PathVariable String applicationId,
       @CurrentUser User user,
-      @RequestBody @Valid LaborContractRequest request) {
+      @RequestBody @Valid NewLaborContract request) {
     return contractMapper.toContractResponse(
         laborContractUseCase.create(
             applicationId,
             contractMapper.toLaborContract(request),
-            new ContractAssets(
-                request.getContractFile() != null ? request.getContractFile() : contractFileAssetId,
-                request.getAttachments()),
+            new ContractAssets(request.getContractFile(), request.getAttachments()),
             user));
   }
 }

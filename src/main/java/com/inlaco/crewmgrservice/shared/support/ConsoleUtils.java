@@ -40,9 +40,17 @@ public class ConsoleUtils {
     }
 
     for (Object object : objects) {
-      System.out.println(
-          "------------------ Type: " + object.getClass().getSimpleName() + " ------------------");
-      System.out.println(OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(object));
+      if (object == null) {
+        System.out.println("------------------ Type: " + null + " ------------------");
+        System.out.println("null");
+      } else {
+        System.out.println(
+            "------------------ Type: "
+                + object.getClass().getSimpleName()
+                + " ------------------");
+        System.out.println(
+            OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(object));
+      }
     }
   }
 }

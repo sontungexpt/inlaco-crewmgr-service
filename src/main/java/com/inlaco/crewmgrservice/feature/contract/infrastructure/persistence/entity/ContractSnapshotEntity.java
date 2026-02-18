@@ -2,6 +2,7 @@ package com.inlaco.crewmgrservice.feature.contract.infrastructure.persistence.en
 
 import com.inlaco.crewmgrservice.feature.contract.domain.enums.ContractStatus;
 import com.inlaco.crewmgrservice.feature.contract.domain.enums.ContractType;
+import com.inlaco.crewmgrservice.feature.contract.domain.objectvalue.Version;
 import java.time.Instant;
 import java.util.Map;
 import lombok.Builder;
@@ -13,26 +14,25 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @Builder
-@CompoundIndex(name = "idx_contract_version", def = "{'contractId':1, 'version':1}", unique = true)
 @Document("contract_snapshots")
+@CompoundIndex(name = "idx_contract_version", def = "{'contractId':1, 'version':1}", unique = true)
 public class ContractSnapshotEntity {
 
   @Id private String id;
 
   private ObjectId contractId;
+  private Version version;
 
   private ContractType type;
-
   private ContractStatus status;
-
-  private int version;
 
   private int schemaVersion;
 
-  // full domain state
+  private Map<String, Object> searchMeta;
+
+  // full aggregate serialized
   private Map<String, Object> payload;
 
-  // audit
   @CreatedDate private Instant createdAt;
   @CreatedBy private ObjectId createdBy;
 }

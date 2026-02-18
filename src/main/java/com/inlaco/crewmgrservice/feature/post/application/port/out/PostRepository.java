@@ -22,5 +22,5 @@ public interface PostRepository {
 
   Post save(Post post);
 
-  Post deleteById(String id);
+  void deleteById(String id);
 }

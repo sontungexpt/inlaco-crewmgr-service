@@ -1,8 +1,8 @@
 package com.inlaco.crewmgrservice.feature.contract.presentation.rest.controller;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.inlaco.crewmgrservice.feature.contract.application.port.in.UpdateContractUseCase;
-import com.inlaco.crewmgrservice.feature.contract.presentation.dto.response.AbstractContractResponse;
+import com.inlaco.crewmgrservice.feature.contract.presentation.dto.request.update.UpdateContractRequest;
+import com.inlaco.crewmgrservice.feature.contract.presentation.dto.response.ContractResponse;
 import com.inlaco.crewmgrservice.feature.contract.presentation.mapper.ContractMapper;
 import com.inlaco.crewmgrservice.infrastructure.config.openapi.OpenApiConfig;
 import com.inlaco.crewmgrservice.infrastructure.web.validation.annotation.ObjectId;
@@ -29,8 +29,9 @@ public class ContractCommandController {
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   @RolesAllowed("ADMIN")
   @PatchMapping(value = "/{id}", consumes = "application/merge-patch+json")
-  public AbstractContractResponse updateContract(
-      @ObjectId @PathVariable("id") String id, @RequestBody JsonNode patch) {
-    return contractMapper.toContractResponse(updateContractUseCase.update(id, patch));
+  public ContractResponse updateContract(
+      @ObjectId @PathVariable("id") String id, @RequestBody UpdateContractRequest patch) {
+    return contractMapper.toContractResponse(
+        updateContractUseCase.update(id, contractMapper.toUpdateContractCommand(patch)));
   }
 }

@@ -4,7 +4,7 @@ import com.inlaco.crewmgrservice.feature.contract.application.port.in.ContractLi
 import com.inlaco.crewmgrservice.feature.contract.application.port.out.ContractRepository;
 import com.inlaco.crewmgrservice.feature.contract.domain.event.ContractActivedEvent;
 import com.inlaco.crewmgrservice.feature.contract.domain.event.ContractExpiredEvent;
-import com.inlaco.crewmgrservice.feature.contract.domain.model.AbstractContract;
+import com.inlaco.crewmgrservice.feature.contract.domain.model.Contract;
 import java.time.Instant;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ public class ContractLifecycleService implements ContractLifecycleUseCase {
 
   @Override
   @Transactional
-  public void activateDueContracts(List<AbstractContract> contracts, Instant now) {
+  public void activateDueContracts(List<Contract> contracts, Instant now) {
     for (var contract : contracts) {
       contract.activate(now);
     }
@@ -32,7 +32,7 @@ public class ContractLifecycleService implements ContractLifecycleUseCase {
 
   @Override
   @Transactional
-  public void expireContracts(List<AbstractContract> contracts, Instant now) {
+  public void expireContracts(List<Contract> contracts, Instant now) {
     for (var contract : contracts) {
       contract.expire(now);
     }

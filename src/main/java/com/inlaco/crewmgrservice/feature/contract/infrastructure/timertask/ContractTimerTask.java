@@ -2,7 +2,7 @@ package com.inlaco.crewmgrservice.feature.contract.infrastructure.timertask;
 
 import com.inlaco.crewmgrservice.feature.contract.application.port.in.ContractLifecycleUseCase;
 import com.inlaco.crewmgrservice.feature.contract.application.port.out.ContractRepository;
-import com.inlaco.crewmgrservice.feature.contract.domain.model.AbstractContract;
+import com.inlaco.crewmgrservice.feature.contract.domain.model.Contract;
 import java.time.Instant;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ public class ContractTimerTask {
   @Scheduled(cron = "0 0/1 * * * ?")
   public void activateSignedContracts() {
     Instant now = Instant.now();
-    List<AbstractContract> contracts = contractRepository.findDueForActivation(now);
+    List<Contract> contracts = contractRepository.findDueForActivation(now);
     if (contracts.isEmpty()) {
       log.debug("No contracts due for activation at {}", now);
       return;
@@ -34,7 +34,7 @@ public class ContractTimerTask {
   @Scheduled(cron = "0 0/1 * * * ?")
   public void expireContracts() {
     Instant now = Instant.now();
-    List<AbstractContract> contracts = contractRepository.findDueForExpiration(now);
+    List<Contract> contracts = contractRepository.findDueForExpiration(now);
     if (contracts.isEmpty()) {
       log.debug("No contracts due for expiration at {}", now);
       return;

@@ -1,11 +1,11 @@
-package com.inlaco.crewmgrservice.feature.contract.presentation.dto.request;
+package com.inlaco.crewmgrservice.feature.contract.presentation.dto.request.create;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.inlaco.crewmgrservice.feature.contract.domain.enums.ContractType;
-import com.inlaco.crewmgrservice.feature.contract.domain.model.party.Party;
 import com.inlaco.crewmgrservice.feature.contract.domain.objectvalue.DynamicAttribute;
+import com.inlaco.crewmgrservice.feature.contract.presentation.dto.party.PartyDTO;
 import com.inlaco.crewmgrservice.infrastructure.web.payload.request.constraint.TimeFrame;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Future;
@@ -26,30 +26,28 @@ import org.springframework.format.annotation.DateTimeFormat;
     use = JsonTypeInfo.Id.NAME,
     property = "type")
 @JsonSubTypes({
-  @Type(value = LaborContractRequest.class, name = ContractType.Fields.LABOR_CONTRACT),
-  @Type(value = CrewSupplyContractRequest.class, name = ContractType.Fields.SUPPLY_CONTRACT)
+  @Type(value = NewLaborContract.class, name = ContractType.Fields.LABOR_CONTRACT),
+  @Type(value = NewCrewSupplyContract.class, name = ContractType.Fields.SUPPLY_CONTRACT)
 })
 @Getter
 @Setter
-public abstract class AbstractContractRequest implements TimeFrame, Serializable {
+public abstract class NewContract implements TimeFrame, Serializable {
 
   private final ContractType type;
 
-  public AbstractContractRequest(ContractType type) {
+  public NewContract(ContractType type) {
     this.type = type;
   }
 
   @NotBlank private String title;
 
-  @NotNull private Party initiator;
+  @NotNull private PartyDTO initiator;
 
   @Size(min = 1)
-  private List<@Valid Party> partners;
+  private List<@Valid PartyDTO> partners;
 
-  private String contractFile;
+  @NotBlank private String contractFile;
   private List<String> attachments;
-
-  private List<@NotBlank String> terms;
   private List<DynamicAttribute> customAttributes;
 
   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
@@ -63,7 +61,7 @@ public abstract class AbstractContractRequest implements TimeFrame, Serializable
   private int contractFreezeDelayMinutes = 5;
 
   @Override
-  public List<Pair> getTimeFrames() {
-    return List.of(Pair.of(activationDate, expiredDate));
+  public List<Range> getTimeFrames() {
+    return List.of(Range.of(activationDate, expiredDate));
   }
 }

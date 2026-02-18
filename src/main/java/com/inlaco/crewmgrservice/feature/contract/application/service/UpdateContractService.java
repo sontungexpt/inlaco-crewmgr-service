@@ -1,13 +1,11 @@
 package com.inlaco.crewmgrservice.feature.contract.application.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.inlaco.crewmgrservice.feature.contract.application.port.in.UpdateContractUseCase;
 import com.inlaco.crewmgrservice.feature.contract.application.port.out.ContractRepository;
 import com.inlaco.crewmgrservice.feature.contract.application.port.out.ContractSnapshotRepository;
-import com.inlaco.crewmgrservice.feature.contract.domain.exception.FreezeContractUpdateException;
-import com.inlaco.crewmgrservice.feature.contract.domain.model.AbstractContract;
+import com.inlaco.crewmgrservice.feature.contract.domain.model.Contract;
+import com.inlaco.crewmgrservice.feature.contract.domain.model.UpdateContractCommand;
 import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceNotFoundException;
-import com.inlaco.crewmgrservice.shared.support.JsonMergePatchUtils;
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,27 +19,20 @@ public class UpdateContractService implements UpdateContractUseCase {
 
   private final ContractRepository contractRepository;
   private final ContractSnapshotRepository contractSnapshotRepository;
-  private final JsonMergePatchUtils jsonMergePatchUtils;
 
   @Override
   @Transactional
-  public AbstractContract update(String id, JsonNode patch) {
-    AbstractContract current =
+  public Contract update(String id, UpdateContractCommand patch) {
+    Contract current =
         contractRepository
             .findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException(AbstractContract.class, "id", id));
+            .orElseThrow(() -> new ResourceNotFoundException(Contract.class, "id", id));
 
     if (current.isFreezed(Instant.now())) {
-      throw new FreezeContractUpdateException(
-          "Contract is freezed, please create a new contract or add sub terms");
+      contractSnapshotRepository.save(current);
     }
 
-    var snapshot = contractSnapshotRepository.save(current);
-
-    // jsonMergePatchUtils.apply(current, patch);
-
-    current.incrementVersion();
-
+    current.update(patch);
     return contractRepository.save(current);
   }
 }

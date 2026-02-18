@@ -1,8 +1,8 @@
 package com.inlaco.crewmgrservice.feature.contract.presentation.rest.controller;
 
 import com.inlaco.crewmgrservice.feature.contract.application.port.in.CreateSupplyContractUseCase;
-import com.inlaco.crewmgrservice.feature.contract.presentation.dto.request.CrewSupplyContractRequest;
-import com.inlaco.crewmgrservice.feature.contract.presentation.dto.response.AbstractContractResponse;
+import com.inlaco.crewmgrservice.feature.contract.presentation.dto.request.create.NewCrewSupplyContract;
+import com.inlaco.crewmgrservice.feature.contract.presentation.dto.response.ContractResponse;
 import com.inlaco.crewmgrservice.feature.contract.presentation.mapper.ContractMapper;
 import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import com.inlaco.crewmgrservice.infrastructure.config.openapi.OpenApiConfig;
@@ -38,12 +38,12 @@ public class CrewSupplyContractController {
   @PostMapping("/{requestId}")
   @RolesAllowed("ADMIN")
   @ResponseStatus(HttpStatus.CREATED)
-  public AbstractContractResponse create(
+  public ContractResponse create(
       @ObjectId @PathVariable("requestId") String requestId,
       @RequestParam String contractFileAssetId,
       @RequestParam String shipImageAssetId,
       @CurrentUser User creator,
-      @RequestBody @Valid CrewSupplyContractRequest contract) {
+      @RequestBody @Valid NewCrewSupplyContract contract) {
     return contractMapper.toContractResponse(
         supplyContractUseCase.create(
             requestId,

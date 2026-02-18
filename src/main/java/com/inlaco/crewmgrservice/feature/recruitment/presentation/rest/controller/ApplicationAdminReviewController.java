@@ -26,7 +26,9 @@ public class ApplicationAdminReviewController {
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void reviewApplication(
       @PathVariable("id") String id, @RequestParam ApplicationStatus status) {
-    if (status == ApplicationStatus.HIRED) {
+    if (status == ApplicationStatus.HIRED
+        || status == ApplicationStatus.CONTRACT_SIGNED
+        || status == ApplicationStatus.CONTRACT_PENDING_SIGNATURE) {
       throw new IllegalArgumentException("Invalid status: " + status);
     }
     reviewUseCase.reviewApplication(id, status);

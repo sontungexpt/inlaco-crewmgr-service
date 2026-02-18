@@ -22,6 +22,7 @@ import org.bson.types.ObjectId;
 import org.jspecify.annotations.Nullable;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -41,6 +42,7 @@ public class CourseRepositoryAdapter implements CourseRepository {
 
   private final CourseMongoRepository repository;
   private final MongoTemplate mongoTemplate;
+  private final AuditorAware<ObjectId> auditorAware;
   private final CourseEntityMapper mapper;
 
   @Override
@@ -118,9 +120,11 @@ public class CourseRepositoryAdapter implements CourseRepository {
   @CacheEvict(value = "courses", key = "#id")
   public void deleteById(String id) {
     mongoTemplate.updateFirst(
-        Query.query(Criteria.where("_id").is(id)),
-        new Update().addToSet("deletedAt", Instant.now()),
-        Course.class);
+        Query.query(Criteria.where("_id").is(id).and("deletedAt").exists(false)),
+        new Update()
+            .addToSet("deletedBy", auditorAware.getCurrentAuditor().orElse(null))
+            .addToSet("deletedAt", Instant.now()),
+        CourseEntity.class);
   }
 
   @Override

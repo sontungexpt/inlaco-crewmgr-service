@@ -2,8 +2,9 @@ package com.inlaco.crewmgrservice.feature.contract.presentation.rest.controller;
 
 import com.inlaco.crewmgrservice.feature.contract.application.model.ContractSearchCriteria;
 import com.inlaco.crewmgrservice.feature.contract.application.port.in.ContractQueryUseCase;
+import com.inlaco.crewmgrservice.feature.contract.application.port.in.LaborContractQueryUseCase;
 import com.inlaco.crewmgrservice.feature.contract.domain.enums.ContractType;
-import com.inlaco.crewmgrservice.feature.contract.presentation.dto.response.AbstractContractResponse;
+import com.inlaco.crewmgrservice.feature.contract.presentation.dto.response.ContractResponse;
 import com.inlaco.crewmgrservice.feature.contract.presentation.mapper.ContractMapper;
 import com.inlaco.crewmgrservice.infrastructure.config.openapi.OpenApiConfig;
 import com.inlaco.crewmgrservice.infrastructure.web.annotation.Filter;
@@ -29,14 +30,25 @@ public class ContractQueryController {
 
   private final ContractQueryUseCase contractQueryUseCase;
   private final ContractMapper contractMapper;
+  private final LaborContractQueryUseCase laborContractQueryUseCase;
 
   @Operation(
       summary = "Get contract detail",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   @GetMapping("/{id}")
   @RolesAllowed("ADMIN")
-  public AbstractContractResponse getContract(@PathVariable String id) {
+  public ContractResponse getContract(@PathVariable String id) {
     return contractMapper.toContractResponse(contractQueryUseCase.getContract(id));
+  }
+
+  @Operation(
+      summary = "Get contract detail for application",
+      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
+  @GetMapping("/applications/{applicationId}")
+  @RolesAllowed("ADMIN")
+  public ContractResponse getContractForApplication(@PathVariable String applicationId) {
+    return contractMapper.toContractResponse(
+        laborContractQueryUseCase.getContractByApplicationId(applicationId));
   }
 
   @Operation(
@@ -44,7 +56,7 @@ public class ContractQueryController {
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   @GetMapping
   @RolesAllowed("ADMIN")
-  public Page<AbstractContractResponse> getContracts(
+  public Page<ContractResponse> getContracts(
       @Filter ContractSearchCriteria criteria,
       @RequestParam(required = false) ContractType type,
       @RequestParam(required = false) Boolean signed,

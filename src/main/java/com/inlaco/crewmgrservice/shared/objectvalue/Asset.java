@@ -7,7 +7,6 @@ import lombok.Getter;
 @Getter
 @Builder
 @AllArgsConstructor
-// @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Asset {
   private final String type;
   private final String assetId;

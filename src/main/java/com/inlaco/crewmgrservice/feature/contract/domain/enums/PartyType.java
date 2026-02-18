@@ -5,9 +5,6 @@ import lombok.experimental.FieldNameConstants;
 @FieldNameConstants
 public enum PartyType {
   @FieldNameConstants.Include
-  DYNAMIC,
-
-  @FieldNameConstants.Include
   STATIC,
 
   @FieldNameConstants.Include

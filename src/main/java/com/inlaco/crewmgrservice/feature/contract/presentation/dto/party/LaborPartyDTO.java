@@ -1,4 +1,4 @@
-package com.inlaco.crewmgrservice.feature.contract.presentation.dto.request.party;
+package com.inlaco.crewmgrservice.feature.contract.presentation.dto.party;
 
 import com.inlaco.crewmgrservice.feature.contract.domain.enums.PartyType;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -10,9 +10,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class LaborParty extends DynamicParty {
+public class LaborPartyDTO extends PartyDTO {
 
-  public LaborParty() {
+  public LaborPartyDTO() {
     super(PartyType.LABOR);
   }
 

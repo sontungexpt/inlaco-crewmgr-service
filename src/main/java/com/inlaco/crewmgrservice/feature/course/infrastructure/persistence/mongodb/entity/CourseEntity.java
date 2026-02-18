@@ -37,6 +37,8 @@ public class CourseEntity {
   @Indexed(partialFilter = "{ deletedAt: null }")
   private Instant deletedAt;
 
+  private ObjectId deletedBy;
+
   private int limitStudent = Integer.MAX_VALUE;
 
   private int enrolledStudentCount = 0;

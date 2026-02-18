@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class LaborParty extends DynamicParty {
+public class LaborParty extends Party {
 
   public LaborParty() {
     super(PartyType.LABOR);

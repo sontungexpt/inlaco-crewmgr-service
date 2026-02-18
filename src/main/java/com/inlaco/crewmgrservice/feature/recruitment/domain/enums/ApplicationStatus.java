@@ -11,7 +11,9 @@ public enum ApplicationStatus {
   INTERVIEWED,
   OFFERED,
   CONFIRMED,
-  HIRED,
+  CONTRACT_PENDING_SIGNATURE,
+  CONTRACT_SIGNED,
+  HIRED, // onboarding when contract is signed and active
   REJECTED,
   WITHDRAWN;
 
@@ -23,7 +25,9 @@ public enum ApplicationStatus {
     INTERVIEW_SCHEDULED.allowedTransitions = EnumSet.of(INTERVIEWED, REJECTED, WITHDRAWN);
     INTERVIEWED.allowedTransitions = EnumSet.of(OFFERED, REJECTED, WITHDRAWN);
     OFFERED.allowedTransitions = EnumSet.of(CONFIRMED, REJECTED, WITHDRAWN);
-    CONFIRMED.allowedTransitions = EnumSet.of(HIRED, REJECTED, WITHDRAWN);
+    CONFIRMED.allowedTransitions = EnumSet.of(CONTRACT_PENDING_SIGNATURE, REJECTED, WITHDRAWN);
+    CONTRACT_PENDING_SIGNATURE.allowedTransitions = EnumSet.of(HIRED, REJECTED, WITHDRAWN);
+    CONTRACT_SIGNED.allowedTransitions = EnumSet.of(HIRED, REJECTED, WITHDRAWN);
     HIRED.allowedTransitions = EnumSet.noneOf(ApplicationStatus.class);
     REJECTED.allowedTransitions = EnumSet.noneOf(ApplicationStatus.class);
     WITHDRAWN.allowedTransitions = EnumSet.noneOf(ApplicationStatus.class);
