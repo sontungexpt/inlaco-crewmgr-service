@@ -62,6 +62,6 @@ public abstract class NewContract implements TimeFrame, Serializable {
 
   @Override
   public List<Range> getTimeFrames() {
-    return List.of(Range.of(activationDate, expiredDate));
+    return List.of(Range.bothRequired(activationDate, expiredDate));
   }
 }

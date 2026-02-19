@@ -1,15 +1,23 @@
 package com.inlaco.crewmgrservice.shared.support;
 
+import com.inlaco.crewmgrservice.infrastructure.serialization.serializer.PatchSerializer;
+import com.inlaco.crewmgrservice.shared.application.model.Patch;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.module.SimpleModule;
 
 @Slf4j
 public class ConsoleUtils {
 
   private static final ObjectMapper OBJECT_MAPPER =
       JsonMapper.builder()
+          .addModules(
+              new SimpleModule()
+                  .addSerializer(Patch.Updated.class, new PatchSerializer())
+                  .addSerializer(Patch.Unchanged.class, new PatchSerializer())
+                  .addSerializer(Patch.class, new PatchSerializer()))
           // .changeDefaultPropertyInclusion(
           //     incl -> incl.withValueInclusion(JsonInclude.Include.NON_NULL))
           // .changeDefaultPropertyInclusion(
@@ -21,14 +29,6 @@ public class ConsoleUtils {
           //             .withGetterVisibility(JsonAutoDetect.Visibility.NONE)
           //             .withIsGetterVisibility(JsonAutoDetect.Visibility.NONE))
           .build();
-
-  // static {
-  //   objectMapper.registerModule(new JavaTimeModule());
-
-  //   //
-  // https://stackoverflow.com/questions/45662820/how-to-set-format-of-string-for-java-time-instant-using-objectmapper
-  //   objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-  // }
 
   @SneakyThrows
   public static void print(Object... objects) {

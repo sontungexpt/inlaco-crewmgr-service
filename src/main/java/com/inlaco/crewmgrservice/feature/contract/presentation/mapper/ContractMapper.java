@@ -4,6 +4,7 @@ import com.inlaco.crewmgrservice.feature.contract.domain.model.Contract;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.CrewSupplyContract;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.LaborContract;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.UpdateContractCommand;
+import com.inlaco.crewmgrservice.feature.contract.domain.model.UpdateLaborContractCommand;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.party.LaborParty;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.party.Party;
 import com.inlaco.crewmgrservice.feature.contract.domain.objectvalue.Version;
@@ -12,11 +13,13 @@ import com.inlaco.crewmgrservice.feature.contract.presentation.dto.party.PartyDT
 import com.inlaco.crewmgrservice.feature.contract.presentation.dto.request.create.NewContract;
 import com.inlaco.crewmgrservice.feature.contract.presentation.dto.request.create.NewCrewSupplyContract;
 import com.inlaco.crewmgrservice.feature.contract.presentation.dto.request.create.NewLaborContract;
-import com.inlaco.crewmgrservice.feature.contract.presentation.dto.request.update.UpdateContractRequest;
+import com.inlaco.crewmgrservice.feature.contract.presentation.dto.request.update.ContractPatchRequest;
+import com.inlaco.crewmgrservice.feature.contract.presentation.dto.request.update.LaborContractPatchRequest;
 import com.inlaco.crewmgrservice.feature.contract.presentation.dto.response.ContractResponse;
 import com.inlaco.crewmgrservice.feature.contract.presentation.dto.response.CrewSupplyContractResponse;
 import com.inlaco.crewmgrservice.feature.contract.presentation.dto.response.LaborContractResponse;
-import com.inlaco.crewmgrservice.shared.mapstruct.mapper.FieldUpdateMapper;
+import com.inlaco.crewmgrservice.shared.application.model.Patch;
+import java.util.List;
 import org.mapstruct.InheritConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -28,7 +31,6 @@ import org.mapstruct.SubclassMapping;
     componentModel = "spring",
     unmappedSourcePolicy = ReportingPolicy.IGNORE,
     unmappedTargetPolicy = ReportingPolicy.IGNORE,
-    uses = {FieldUpdateMapper.class},
     subclassExhaustiveStrategy = SubclassExhaustiveStrategy.RUNTIME_EXCEPTION)
 public interface ContractMapper {
 
@@ -55,21 +57,34 @@ public interface ContractMapper {
   CrewSupplyContract toCrewSupplyContract(NewCrewSupplyContract request);
 
   // update request to command
-  UpdateContractCommand toUpdateContractCommand(UpdateContractRequest request);
+  @SubclassMapping(
+      source = LaborContractPatchRequest.class,
+      target = UpdateLaborContractCommand.class)
+  UpdateContractCommand toUpdateContractCommand(ContractPatchRequest request);
+
+  UpdateLaborContractCommand toLaborContractCommand(LaborContractPatchRequest request);
 
   @SubclassMapping(source = LaborPartyDTO.class, target = LaborParty.class)
   Party toParty(PartyDTO partyRequest);
 
   @InheritConfiguration(name = "toParty")
-  LaborParty toLaborParty(PartyDTO partyRequest);
+  LaborParty toLaborParty(LaborPartyDTO partyRequest);
 
   @SubclassMapping(source = LaborParty.class, target = LaborPartyDTO.class)
-  PartyDTO toPartyRequest(Party party);
+  PartyDTO toPartyDTO(Party party);
 
-  @InheritConfiguration(name = "toPartyRequest")
-  LaborPartyDTO toLaborPartyRequest(PartyDTO partyRequest);
+  @InheritConfiguration(name = "toPartyDTO")
+  LaborPartyDTO toLaborPartyDTO(LaborParty partyRequest);
 
   default int map(Version version) {
     return version.num();
+  }
+
+  default Patch<Party> map(Patch<PartyDTO> patch) {
+    return patch.map(this::toParty);
+  }
+
+  default Patch<List<Party>> mapPartners(Patch<List<PartyDTO>> patch) {
+    return patch.map(parties -> parties.stream().map(this::toParty).toList());
   }
 }

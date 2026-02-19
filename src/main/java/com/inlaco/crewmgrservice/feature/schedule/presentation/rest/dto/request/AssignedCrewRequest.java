@@ -17,6 +17,6 @@ public record AssignedCrewRequest(
 
   @Override
   public List<Range> getTimeFrames() {
-    return List.of(Range.of(startDate, endDate));
+    return List.of(Range.bothRequired(startDate, endDate));
   }
 }

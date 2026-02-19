@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.infrastructure.config.validtion;
 
-import com.inlaco.crewmgrservice.infrastructure.web.validation.extractor.FieldUpdateValueExtractor;
+import com.inlaco.crewmgrservice.infrastructure.web.validation.extractor.PatchValueExtractor;
 import jakarta.validation.Configuration;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
@@ -13,6 +13,6 @@ public class ValidationConfig extends LocalValidatorFactoryBean {
   @Override
   protected void postProcessConfiguration(Configuration<?> configuration) {
     super.postProcessConfiguration(configuration);
-    configuration.addValueExtractor(new FieldUpdateValueExtractor());
+    configuration.addValueExtractor(new PatchValueExtractor());
   }
 }

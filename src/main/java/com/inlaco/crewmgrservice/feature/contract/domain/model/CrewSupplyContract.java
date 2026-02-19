@@ -14,8 +14,6 @@ public class CrewSupplyContract extends Contract {
   }
 
   private int numOfCrews;
-
   private String crewRentalRequestId;
-
   private ShipInfo shipInfo;
 }

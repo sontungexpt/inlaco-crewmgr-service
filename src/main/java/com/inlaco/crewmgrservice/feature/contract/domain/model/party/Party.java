@@ -27,8 +27,4 @@ public class Party {
   private String address;
 
   private List<DynamicAttribute> customAttributes;
-
-  public String getPartyName() {
-    return name;
-  }
 }

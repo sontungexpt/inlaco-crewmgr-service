@@ -29,7 +29,7 @@ public class FallbackExceptionAdvice {
   public ResponseEntity<ApiResponse<Void>> handleInvalidBody(
       HttpMessageNotReadableException ex, HttpServletRequest request) {
     return AdviceUtils.buildErrorResponse(
-        HttpStatus.UNPROCESSABLE_ENTITY, "INVALID_REQUEST_BODY", "Invalid request body", request);
+        HttpStatus.UNPROCESSABLE_CONTENT, "INVALID_REQUEST_BODY", "Invalid request body", request);
   }
 
   // ===================== INFRA / TECH =====================

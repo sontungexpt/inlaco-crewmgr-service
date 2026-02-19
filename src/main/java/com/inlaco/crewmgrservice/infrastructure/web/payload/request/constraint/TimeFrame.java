@@ -1,46 +1,54 @@
 package com.inlaco.crewmgrservice.infrastructure.web.payload.request.constraint;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.NullSerializer;
 import jakarta.validation.Valid;
 import java.time.Instant;
 import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
 
 @Valid
 @com.inlaco.crewmgrservice.infrastructure.web.validation.timeframe.TimeFrame
 public interface TimeFrame {
 
-  @Getter
-  @AllArgsConstructor
-  @Builder
-  public static class Range {
-    private final Instant start;
-    private final Instant end;
-    private final boolean requiredStart;
-    private final boolean requiredEnd;
-    private final boolean requiredBothIfEitherPresent;
+  List<Range> getTimeFrames();
 
-    public Range(Instant start, Instant end) {
-      this(start, end, true, false, false);
-    }
-
-    public static Range of(Instant start, Instant end) {
-      return new Range(start, end);
-    }
-
-    public static Range of(
-        Instant start, Instant end, boolean requiredFirst, boolean requiredSecond) {
-      return new Range(start, end, requiredFirst, requiredSecond, false);
-    }
-
-    public static Range of(Instant start, Instant end, boolean requiredBothIfEitherPresent) {
-      return new Range(start, end, false, false, true);
-    }
+  enum RequirementPolicy {
+    NONE,
+    START_REQUIRED,
+    END_REQUIRED,
+    BOTH_REQUIRED,
+    BOTH_REQUIRED_IF_EITHER_PRESENT
   }
 
-  @JsonSerialize(using = NullSerializer.class)
-  List<Range> getTimeFrames();
+  record Range(Instant start, Instant end, RequirementPolicy policy) {
+
+    public Range {
+      // Defensive default
+      if (policy == null) {
+        policy = RequirementPolicy.NONE;
+      }
+    }
+
+    public static Range of(Instant start, Instant end, RequirementPolicy policy) {
+      return new Range(start, end, policy);
+    }
+
+    public static Range optional(Instant start, Instant end) {
+      return new Range(start, end, RequirementPolicy.NONE);
+    }
+
+    public static Range startRequired(Instant start, Instant end) {
+      return new Range(start, end, RequirementPolicy.START_REQUIRED);
+    }
+
+    public static Range endRequired(Instant start, Instant end) {
+      return new Range(start, end, RequirementPolicy.END_REQUIRED);
+    }
+
+    public static Range bothRequired(Instant start, Instant end) {
+      return new Range(start, end, RequirementPolicy.BOTH_REQUIRED);
+    }
+
+    public static Range bothRequiredIfEitherPresent(Instant start, Instant end) {
+      return new Range(start, end, RequirementPolicy.BOTH_REQUIRED_IF_EITHER_PRESENT);
+    }
+  }
 }

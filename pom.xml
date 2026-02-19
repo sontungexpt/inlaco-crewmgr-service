@@ -55,7 +55,6 @@
     <org.mapstruct.version>1.6.3</org.mapstruct.version>
     <spring-retry.version>2.0.12</spring-retry.version>
     <spring-aop.version>4.0.0-M2</spring-aop.version>
-    <jackson-databind-nullable.version>0.2.9</jackson-databind-nullable.version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -216,13 +215,6 @@
       <version>${jnanoid.version}</version>
     </dependency>
     <!-- json patch -->
-    <!-- Source: https://mvnrepository.com/artifact/org.openapitools/jackson-databind-nullable -->
-    <dependency>
-      <groupId>org.openapitools</groupId>
-      <artifactId>jackson-databind-nullable</artifactId>
-      <version>${jackson-databind-nullable.version}</version>
-      <scope>compile</scope>
-    </dependency>
     <dependency>
       <!-- Source: https://mvnrepository.com/artifact/com.github.java-json-tools/json-patch -->
       <groupId>com.github.java-json-tools</groupId>

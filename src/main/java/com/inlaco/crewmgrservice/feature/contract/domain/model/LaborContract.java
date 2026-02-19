@@ -13,20 +13,27 @@ public class LaborContract extends Contract {
   }
 
   private String accountId;
-
   private String applicationId;
-
   private String position;
-
   private String workingLocation;
-
   private String basicSalary;
-
   private String allowance;
-
   private String receiveMethod;
-
   private String payday;
-
   private String salaryReviewPeriod;
+
+  @Override
+  protected <T extends UpdateContractCommand> boolean applyChanges(T command) {
+    boolean changed = super.applyChanges(command);
+    if (!(command instanceof UpdateLaborContractCommand laborCommand)) return changed;
+
+    return changed
+        | laborCommand.getPosition().ifUpdated(this::setPosition)
+        | laborCommand.getWorkingLocation().ifUpdated(this::setWorkingLocation)
+        | laborCommand.getBasicSalary().ifUpdated(this::setBasicSalary)
+        | laborCommand.getAllowance().ifUpdated(this::setAllowance)
+        | laborCommand.getReceiveMethod().ifUpdated(this::setReceiveMethod)
+        | laborCommand.getPayday().ifUpdated(this::setPayday)
+        | laborCommand.getSalaryReviewPeriod().ifUpdated(this::setSalaryReviewPeriod);
+  }
 }

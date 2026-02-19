@@ -17,12 +17,12 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.server.PathContainer;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
@@ -67,8 +67,8 @@ public class ApiEndpointAuthorizationManager
   // }
 
   @Override
-  public @org.jspecify.annotations.Nullable AuthorizationResult authorize(
-      Supplier<? extends @org.jspecify.annotations.Nullable Authentication> authentication,
+  public @Nullable AuthorizationResult authorize(
+      Supplier<? extends @Nullable Authentication> authentication,
       RequestAuthorizationContext context) {
     HttpServletRequest request = context.getRequest();
 

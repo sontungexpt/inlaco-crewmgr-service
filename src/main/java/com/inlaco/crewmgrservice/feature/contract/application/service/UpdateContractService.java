@@ -28,11 +28,12 @@ public class UpdateContractService implements UpdateContractUseCase {
             .findById(id)
             .orElseThrow(() -> new ResourceNotFoundException(Contract.class, "id", id));
 
-    if (current.isFreezed(Instant.now())) {
+    Instant now = Instant.now();
+    if (current.isFreezed(now)) {
       contractSnapshotRepository.save(current);
     }
 
-    current.update(patch);
+    current.amend(patch, now);
     return contractRepository.save(current);
   }
 }

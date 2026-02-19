@@ -1,7 +1,5 @@
 package com.inlaco.crewmgrservice.feature.course.infrastructure.persistence.mongodb.adapter;
 
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
-
 import com.inlaco.crewmgrservice.feature.course.application.port.out.CourseMemberRepository;
 import com.inlaco.crewmgrservice.feature.course.domain.model.CourseMember;
 import com.inlaco.crewmgrservice.feature.course.infrastructure.persistence.mongodb.entity.CourseMemberEntity;

@@ -57,13 +57,29 @@ public abstract class Contract {
     version = new Version(version.num() + 1, Instant.now());
   }
 
-  public void update(UpdateContractCommand patch) {
-    patch.getTitle().ifUpdated(this::setTitle);
-    patch.getActivationDate().ifUpdated(this::setActivationDate);
-    patch.getExpiredDate().ifUpdated(this::setExpiredDate);
-    patch.getContractFreezeDelayMinutes().ifUpdated(this::setContractFreezeDelayMinutes);
+  protected <T extends UpdateContractCommand> boolean applyChanges(T patch) {
+    return patch.getTitle().ifUpdated(this::setTitle)
+        | patch.getActivationDate().ifUpdated(this::setActivationDate)
+        | patch.getExpiredDate().ifUpdated(this::setExpiredDate)
+        | patch.getContractFreezeDelayMinutes().ifUpdated(this::setContractFreezeDelayMinutes)
+        | patch.getInitiator().ifUpdated(this::setInitiator)
+        | patch.getPartners().ifUpdated(this::setPartners);
+  }
 
-    incrementVersion();
+  public <T extends UpdateContractCommand> void amend(T patch, Instant now) {
+    if (!applyChanges(patch)) return;
+    if (isFreezed(now)) {
+      restartLifecycle(now);
+      incrementVersion();
+    }
+  }
+
+  private void restartLifecycle(Instant now) {
+    statusHistories.clear();
+    ContractStatus oldStatus = status;
+    status = ContractStatus.DRAFT;
+    statusHistories.add(
+        new ContractStatusHistory(oldStatus, status, SYSTEM, now, "New version created"));
   }
 
   // ======================

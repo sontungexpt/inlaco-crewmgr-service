@@ -22,9 +22,7 @@ import lombok.Data;
 })
 public class PartyDTO {
 
-  private String accountId;
-
-  private PartyType type;
+  private final PartyType type;
 
   protected PartyDTO(PartyType type) {
     this.type = type;
@@ -37,6 +35,10 @@ public class PartyDTO {
   @JsonAlias({"partyName", "name"})
   @NotBlank
   private String name;
+
+  public String getPartyName() {
+    return name;
+  }
 
   @NotBlank private String representer;
   @NotBlank private String representerPosition;

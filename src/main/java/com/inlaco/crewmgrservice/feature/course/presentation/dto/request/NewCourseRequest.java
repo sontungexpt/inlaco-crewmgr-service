@@ -50,7 +50,7 @@ public class NewCourseRequest implements Serializable, TimeFrame {
   @Override
   public List<Range> getTimeFrames() {
     return List.of(
-        Range.of(startRegistrationAt, endRegistrationAt, true, false),
-        Range.of(startDate, endDate));
+        Range.startRequired(startRegistrationAt, endRegistrationAt),
+        Range.bothRequired(startDate, endDate));
   }
 }
