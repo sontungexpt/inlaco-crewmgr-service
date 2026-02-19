@@ -1,9 +1,9 @@
 package com.inlaco.crewmgrservice.feature.course.application.port.in;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.inlaco.crewmgrservice.feature.course.application.model.CourseSearchCriteria;
 import com.inlaco.crewmgrservice.feature.course.domain.model.Course;
 import com.inlaco.crewmgrservice.feature.course.domain.model.CourseMember;
+import com.inlaco.crewmgrservice.feature.course.domain.model.CourseUpdateCommand;
 import com.inlaco.crewmgrservice.feature.course.domain.model.UserCourse;
 import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import org.springframework.data.domain.Page;
@@ -19,9 +19,9 @@ public interface CourseUseCase {
 
   Page<UserCourse> getEnrolledUserCourses(User user, Pageable pageable);
 
-  Course createCourse(Course newCourse, String wallpaperAssetId, String logoAssetId);
+  Course createCourse(Course newCourse);
 
-  Course updateCourse(String id, JsonNode updatedPatch);
+  Course updateCourse(String id, CourseUpdateCommand updatedPatch);
 
   void cancelCourse(String id);
 

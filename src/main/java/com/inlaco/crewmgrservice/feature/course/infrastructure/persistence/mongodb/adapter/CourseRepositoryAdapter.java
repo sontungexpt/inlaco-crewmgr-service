@@ -46,7 +46,7 @@ public class CourseRepositoryAdapter implements CourseRepository {
   private final CourseEntityMapper mapper;
 
   @Override
-  @Cacheable(value = "courses", key = "#id", unless = "#result.empty")
+  @Cacheable(value = "courses", key = "#id", unless = "#result == null")
   public Optional<Course> findById(String id) {
     return repository.findByIdAndDeletedAtIsNull(id).map(mapper::toCourse);
   }

@@ -1,9 +1,9 @@
 package com.inlaco.crewmgrservice.feature.course.presentation.rest.controller;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.inlaco.crewmgrservice.feature.course.application.model.CourseSearchCriteria;
 import com.inlaco.crewmgrservice.feature.course.application.port.in.CourseUseCase;
 import com.inlaco.crewmgrservice.feature.course.domain.model.Course;
+import com.inlaco.crewmgrservice.feature.course.presentation.dto.request.CoursePatchRequest;
 import com.inlaco.crewmgrservice.feature.course.presentation.dto.request.NewCourseRequest;
 import com.inlaco.crewmgrservice.feature.course.presentation.dto.response.CourseMemberInfoResponse;
 import com.inlaco.crewmgrservice.feature.course.presentation.dto.response.CourseResponse;
@@ -33,7 +33,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -54,7 +53,7 @@ public class CourseController {
   public Page<CourseResponse> getAllCourses(
       @Filter CourseSearchCriteria criteria,
       @PageableDefault(page = 0, size = 20) Pageable pageable) {
-    return courseUseCase.getCourses(criteria, pageable).map(courseMapper::toCourseDTO);
+    return courseUseCase.getCourses(criteria, pageable).map(courseMapper::toCourseResponse);
   }
 
   @Operation(
@@ -64,7 +63,7 @@ public class CourseController {
   @RolesAllowed("SAILOR")
   public UserCourseResponse getUserCourse(
       @CurrentUser User user, @ObjectId @PathVariable("id") String id) {
-    return courseMapper.toUserCourseDTO(courseUseCase.getUserCourse(id, user));
+    return courseMapper.toUserCourseResponse(courseUseCase.getUserCourse(id, user));
   }
 
   @Operation(
@@ -73,13 +72,9 @@ public class CourseController {
   @PostMapping("")
   @RolesAllowed("ADMIN")
   @ResponseStatus(HttpStatus.CREATED)
-  public CourseResponse createNewCourse(
-      @RequestParam String wallpaperAssetId,
-      @RequestParam String logoAssetId,
-      @Valid @RequestBody NewCourseRequest newCourse) {
-    return courseMapper.toCourseDTO(
-        courseUseCase.createCourse(
-            courseMapper.toCourse(newCourse), wallpaperAssetId, logoAssetId));
+  public CourseResponse createNewCourse(@Valid @RequestBody NewCourseRequest newCourse) {
+    return courseMapper.toCourseResponse(
+        courseUseCase.createCourse(courseMapper.toCourse(newCourse)));
   }
 
   @Operation(
@@ -97,8 +92,9 @@ public class CourseController {
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   @RolesAllowed("ADMIN")
   @PatchMapping(value = "/{id}", consumes = "application/merge-patch+json")
-  public Course updateCourse(@PathVariable("id") @ObjectId String id, @RequestBody JsonNode patch) {
-    return courseUseCase.updateCourse(id, patch);
+  public Course updateCourse(
+      @PathVariable("id") @ObjectId String id, @RequestBody CoursePatchRequest patch) {
+    return courseUseCase.updateCourse(id, courseMapper.toCourseUpdateCommand(patch));
   }
 
   @Operation(
@@ -111,7 +107,7 @@ public class CourseController {
       @ObjectId @PathVariable("courseId") String courseId,
       @PageableDefault(page = 0, size = 20) Pageable pageable) {
     return courseUseCase.getCourseMembers(courseId, pageable).stream()
-        .map(courseMapper::toCourseMemberInfoDTO)
+        .map(courseMapper::toCourseMemberInfoResponse)
         .collect(Collectors.toList());
   }
 

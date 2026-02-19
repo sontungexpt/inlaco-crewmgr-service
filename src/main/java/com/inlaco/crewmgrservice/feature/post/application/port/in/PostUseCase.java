@@ -1,9 +1,9 @@
 package com.inlaco.crewmgrservice.feature.post.application.port.in;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.inlaco.crewmgrservice.feature.post.application.model.PostSearchCriteria;
 import com.inlaco.crewmgrservice.feature.post.domain.enums.PostType;
 import com.inlaco.crewmgrservice.feature.post.domain.model.Post;
+import com.inlaco.crewmgrservice.feature.post.domain.model.PostUpdateCommand;
 import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
@@ -13,7 +13,7 @@ public interface PostUseCase {
 
   Post createPost(Post post, User user);
 
-  Post updatePost(String postId, JsonNode patch, User user);
+  Post updatePost(String postId, PostUpdateCommand patch, User user);
 
   void deletePost(String postId, User user);
 

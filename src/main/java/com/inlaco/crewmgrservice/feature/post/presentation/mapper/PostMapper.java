@@ -3,43 +3,107 @@ package com.inlaco.crewmgrservice.feature.post.presentation.mapper;
 import com.inlaco.crewmgrservice.feature.post.domain.model.EventPost;
 import com.inlaco.crewmgrservice.feature.post.domain.model.NewsPost;
 import com.inlaco.crewmgrservice.feature.post.domain.model.Post;
+import com.inlaco.crewmgrservice.feature.post.domain.model.PostUpdateCommand;
 import com.inlaco.crewmgrservice.feature.post.domain.model.RecruitmentPost;
 import com.inlaco.crewmgrservice.feature.post.presentation.dto.EventPostDTO;
 import com.inlaco.crewmgrservice.feature.post.presentation.dto.NewsPostDTO;
 import com.inlaco.crewmgrservice.feature.post.presentation.dto.PostDTO;
 import com.inlaco.crewmgrservice.feature.post.presentation.dto.RecruitmentPostDTO;
+import com.inlaco.crewmgrservice.feature.post.presentation.dto.request.update.PostPatchRequest;
+import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadDispatcher;
+import com.inlaco.crewmgrservice.feature.upload.domain.enums.AssetType;
+import com.inlaco.crewmgrservice.shared.application.model.Patch;
+import com.inlaco.crewmgrservice.shared.mapstruct.mapper.AssetResponseMapper;
+import com.inlaco.crewmgrservice.shared.objectvalue.Asset;
+import java.util.List;
+import org.mapstruct.InheritConfiguration;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
+import org.mapstruct.ReportingPolicy;
+import org.mapstruct.SubclassExhaustiveStrategy;
+import org.mapstruct.SubclassMapping;
+import org.springframework.beans.factory.annotation.Autowired;
 
-@Mapper(componentModel = "spring")
-public interface PostMapper {
+@Mapper(
+    componentModel = "spring",
+    subclassExhaustiveStrategy = SubclassExhaustiveStrategy.RUNTIME_EXCEPTION,
+    uses = {AssetResponseMapper.class},
+    unmappedSourcePolicy = ReportingPolicy.IGNORE,
+    unmappedTargetPolicy = ReportingPolicy.IGNORE)
+public abstract class PostMapper {
 
-  default PostDTO toPostDTO(Post post) {
-    return switch (post) {
-      case NewsPost p -> toPostDTO(p);
-      case RecruitmentPost p -> toPostDTO(p);
-      case EventPost p -> toPostDTO(p);
-      default -> throw new IllegalArgumentException("Unknown Post type: " + post.getClass());
-    };
+  @Autowired private UploadDispatcher uploadDispatcher;
+
+  // ===== DOMAIN → DTO =====
+
+  @SubclassMapping(source = NewsPost.class, target = NewsPostDTO.class)
+  @SubclassMapping(source = RecruitmentPost.class, target = RecruitmentPostDTO.class)
+  @SubclassMapping(source = EventPost.class, target = EventPostDTO.class)
+  public abstract PostDTO toPostDTO(Post post);
+
+  @InheritConfiguration(name = "toPostDTO")
+  public abstract NewsPostDTO toNewsPostDTO(NewsPost post);
+
+  @InheritConfiguration(name = "toPostDTO")
+  public abstract RecruitmentPostDTO toRecruitmentPostDTO(RecruitmentPost post);
+
+  @InheritConfiguration(name = "toPostDTO")
+  public abstract EventPostDTO toEventPostDTO(EventPost post);
+
+  // ===== DTO → DOMAIN =====
+
+  @SubclassMapping(source = NewsPostDTO.class, target = NewsPost.class)
+  @SubclassMapping(source = RecruitmentPostDTO.class, target = RecruitmentPost.class)
+  @SubclassMapping(source = EventPostDTO.class, target = EventPost.class)
+  @Mapping(
+      target = "attachments",
+      source = "attachmentAssetIds",
+      qualifiedByName = "mapIdsToAttachments")
+  @Mapping(target = "image", source = "imageAssetId", qualifiedByName = "mapImageAssetIdToAsset")
+  public abstract Post toPost(PostDTO dto);
+
+  @InheritConfiguration(name = "toPost")
+  public abstract NewsPost toNewsPost(NewsPostDTO dto);
+
+  @InheritConfiguration(name = "toPost")
+  public abstract RecruitmentPost toRecruitmentPost(RecruitmentPostDTO dto);
+
+  @InheritConfiguration(name = "toPost")
+  public abstract EventPost toEventPost(EventPostDTO dto);
+
+  @Mapping(target = "image", source = "image", qualifiedByName = "toAssetImagePatch")
+  @Mapping(
+      target = "attachments",
+      source = "attachments",
+      qualifiedByName = "toAssetAttachmentsPatch")
+  public abstract PostUpdateCommand toPostUpdateCommand(PostPatchRequest patchRequest);
+
+  @Named("toAssetImagePatch")
+  public Patch<Asset> toAssetImagePatch(Patch<String> patch) {
+    return patch.map(assetId -> mapImageAssetIdToAsset(assetId));
   }
 
-  NewsPostDTO toPostDTO(NewsPost post);
-
-  RecruitmentPostDTO toPostDTO(RecruitmentPost post);
-
-  EventPostDTO toPostDTO(EventPost post);
-
-  default Post toPost(PostDTO dto) {
-    return switch (dto) {
-      case NewsPostDTO p -> toPost(p);
-      case RecruitmentPostDTO p -> toPost(p);
-      case EventPostDTO p -> toPost(p);
-      default -> throw new IllegalArgumentException("Unknown PostDTO type: " + dto.getClass());
-    };
+  @Named("toAssetAttachmentsPatch")
+  public Patch<List<Asset>> toAssetAttachmentsPatch(Patch<List<String>> patch) {
+    return patch.map(
+        assetIds ->
+            assetIds.stream()
+                .map(assetId -> uploadDispatcher.fetch(AssetType.POST_ATTACHMENT, assetId))
+                .toList());
   }
 
-  NewsPost toPost(NewsPostDTO dto);
+  @Named("mapIdsToAttachments")
+  protected List<Asset> mapIdsToAttachments(List<String> ids) {
+    if (ids == null) return null;
+    return ids.stream()
+        .map(assetId -> uploadDispatcher.fetch(AssetType.POST_ATTACHMENT, assetId))
+        .toList();
+  }
 
-  RecruitmentPost toPost(RecruitmentPostDTO dto);
-
-  EventPost toPost(EventPostDTO dto);
+  @Named("mapImageAssetIdToAsset")
+  protected Asset mapImageAssetIdToAsset(String assetId) {
+    if (assetId == null) return null;
+    return uploadDispatcher.fetch(AssetType.POST_IMAGE, assetId);
+  }
 }

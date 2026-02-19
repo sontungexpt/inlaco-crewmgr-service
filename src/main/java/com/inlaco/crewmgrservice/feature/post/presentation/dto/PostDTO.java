@@ -1,12 +1,14 @@
 package com.inlaco.crewmgrservice.feature.post.presentation.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.inlaco.crewmgrservice.feature.post.domain.enums.PostType;
 import com.inlaco.crewmgrservice.infrastructure.web.annotation.patch.JsonPatchIgnoreProperties;
-import com.inlaco.crewmgrservice.shared.objectvalue.Asset;
+import com.inlaco.crewmgrservice.shared.objectvalue.AssetResponse;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
@@ -40,9 +42,19 @@ public abstract class PostDTO {
 
   private String description;
 
-  private List<Asset> attachments;
+  @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+  @JsonAlias({"image"})
+  private String imageAssetId;
 
-  private Asset image;
+  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+  private AssetResponse image;
+
+  @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+  @JsonAlias({"attachments"})
+  private List<String> attachmentAssetIds;
+
+  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+  private List<AssetResponse> attachments;
 
   private String company;
 

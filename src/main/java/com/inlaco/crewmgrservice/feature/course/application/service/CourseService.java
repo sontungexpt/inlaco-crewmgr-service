@@ -1,8 +1,5 @@
 package com.inlaco.crewmgrservice.feature.course.application.service;
 
-import static java.util.concurrent.CompletableFuture.supplyAsync;
-
-import com.fasterxml.jackson.databind.JsonNode;
 import com.inlaco.crewmgrservice.feature.course.application.model.CourseSearchCriteria;
 import com.inlaco.crewmgrservice.feature.course.application.port.in.CourseUseCase;
 import com.inlaco.crewmgrservice.feature.course.application.port.out.CourseMemberRepository;
@@ -10,13 +7,11 @@ import com.inlaco.crewmgrservice.feature.course.application.port.out.CourseRepos
 import com.inlaco.crewmgrservice.feature.course.domain.exception.RegistrationClosedException;
 import com.inlaco.crewmgrservice.feature.course.domain.model.Course;
 import com.inlaco.crewmgrservice.feature.course.domain.model.CourseMember;
+import com.inlaco.crewmgrservice.feature.course.domain.model.CourseUpdateCommand;
 import com.inlaco.crewmgrservice.feature.course.domain.model.UserCourse;
-import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadDispatcher;
-import com.inlaco.crewmgrservice.feature.upload.domain.enums.AssetType;
 import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceAlreadyInUseException;
 import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceNotFoundException;
-import com.inlaco.crewmgrservice.shared.support.JsonMergePatchUtils;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -31,10 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CourseService implements CourseUseCase {
 
-  private final JsonMergePatchUtils jsonMergePatchUtils;
   private final CourseRepository courseRepository;
   private final CourseMemberRepository courseMemberRepository;
-  private final UploadDispatcher uploadDispatcher;
 
   @Override
   public void deleteCourse(String id) {
@@ -55,51 +48,45 @@ public class CourseService implements CourseUseCase {
 
   @Override
   public UserCourse getUserCourse(String id, User user) {
-    return supplyAsync(
-            () -> {
-              log.debug("Fetching course with id: {}", id);
-              return courseRepository
-                  .findById(id)
-                  .orElseThrow(() -> new ResourceNotFoundException(Course.class, "id", id));
-            })
-        .thenCombine(
-            supplyAsync(
-                () -> {
-                  log.debug(
-                      "Fetching course courseMember with courseId: {} and userId: {}",
-                      id,
-                      user.getId());
-                  return courseMemberRepository
-                      .findByCourseIdAndUserId(id, user.getId())
-                      .orElse(null);
-                }),
-            (course, courseMember) -> {
-              var builder = UserCourse.builder().course(course);
-              if (courseMember != null) {
-                builder
-                    .certificate(courseMember.getCertificate())
-                    .cancelledAt(courseMember.getCancelledAt())
-                    .status(courseMember.getStatus())
-                    .completionProgress(courseMember.getCompletionProgress())
-                    .note(courseMember.getNote())
-                    .enrolledAt(courseMember.getCreatedAt());
-              }
-              return builder.build();
-            })
-        .join();
+    log.debug("Fetching course with id: {}", id);
+    Course course =
+        courseRepository
+            .findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException(Course.class, "id", id));
+
+    var builder = UserCourse.builder().course(course);
+    log.debug("Fetching courseMember with courseId: {} and userId: {}", id, user.getId());
+    courseMemberRepository
+        .findByCourseIdAndUserId(id, user.getId())
+        .ifPresent(
+            courseMember -> {
+              builder
+                  .certificate(courseMember.getCertificate())
+                  .cancelledAt(courseMember.getCancelledAt())
+                  .status(courseMember.getStatus())
+                  .completionProgress(courseMember.getCompletionProgress())
+                  .note(courseMember.getNote())
+                  .enrolledAt(courseMember.getCreatedAt());
+            });
+
+    return builder.build();
   }
 
   @Override
-  public Course createCourse(Course newCourse, String wallpaperAssetId, String logoAssetId) {
-    newCourse.setWallpaper(uploadDispatcher.fetch(AssetType.COURSE_WALLPAPER, wallpaperAssetId));
-    newCourse.setTrainingProviderLogo(
-        uploadDispatcher.fetch(AssetType.TRAINING_PROVIDER_LOGO, logoAssetId));
+  public Course createCourse(Course newCourse) {
     return courseRepository.save(newCourse);
   }
 
   @Override
-  public Course updateCourse(String id, JsonNode updatedPatch) {
-    return jsonMergePatchUtils.patch(id, Course.class, updatedPatch);
+  public Course updateCourse(String id, CourseUpdateCommand updatedPatch) {
+    return courseRepository
+        .findById(id)
+        .map(
+            course -> {
+              course.update(updatedPatch);
+              return courseRepository.save(course);
+            })
+        .orElseThrow(() -> new ResourceNotFoundException(Course.class, "id", id));
   }
 
   @Override

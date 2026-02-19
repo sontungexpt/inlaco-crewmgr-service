@@ -1,9 +1,9 @@
 package com.inlaco.crewmgrservice.feature.post.presentation.rest.controller;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.inlaco.crewmgrservice.feature.post.application.model.PostSearchCriteria;
 import com.inlaco.crewmgrservice.feature.post.application.port.in.PostUseCase;
 import com.inlaco.crewmgrservice.feature.post.presentation.dto.PostDTO;
+import com.inlaco.crewmgrservice.feature.post.presentation.dto.request.update.PostPatchRequest;
 import com.inlaco.crewmgrservice.feature.post.presentation.mapper.PostMapper;
 import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import com.inlaco.crewmgrservice.infrastructure.config.openapi.OpenApiConfig;
@@ -74,8 +74,9 @@ public class PostController {
   @PatchMapping(value = "/{id}", consumes = "application/merge-patch+json")
   @ResponseStatus(HttpStatus.OK)
   public PostDTO updatePost(
-      @CurrentUser User user, @PathVariable("id") String id, @RequestBody JsonNode patch) {
-    return postMapper.toPostDTO(postUseCase.updatePost(id, patch, user));
+      @CurrentUser User user, @PathVariable("id") String id, @RequestBody PostPatchRequest patch) {
+    return postMapper.toPostDTO(
+        postUseCase.updatePost(id, postMapper.toPostUpdateCommand(patch), user));
   }
 
   @Operation(

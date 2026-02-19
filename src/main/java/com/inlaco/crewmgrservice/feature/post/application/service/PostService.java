@@ -1,14 +1,13 @@
 package com.inlaco.crewmgrservice.feature.post.application.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.inlaco.crewmgrservice.feature.post.application.model.PostSearchCriteria;
 import com.inlaco.crewmgrservice.feature.post.application.port.in.PostUseCase;
 import com.inlaco.crewmgrservice.feature.post.application.port.out.PostRepository;
 import com.inlaco.crewmgrservice.feature.post.domain.enums.PostType;
 import com.inlaco.crewmgrservice.feature.post.domain.model.Post;
+import com.inlaco.crewmgrservice.feature.post.domain.model.PostUpdateCommand;
 import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceNotFoundException;
-import com.inlaco.crewmgrservice.shared.support.JsonMergePatchUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
@@ -24,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class PostService implements PostUseCase {
 
   private final PostRepository postRepository;
-  private final JsonMergePatchUtils jsonPatchUtils;
 
   @Override
   public Post createPost(Post post, User user) {
@@ -50,10 +48,10 @@ public class PostService implements PostUseCase {
   }
 
   @Override
-  public Post updatePost(String postId, JsonNode patch, User user) {
+  public Post updatePost(String postId, PostUpdateCommand patch, User user) {
     Post current = getPost(postId);
-    Post updated = jsonPatchUtils.apply(current, patch);
-    return postRepository.save(updated);
+    current.update(patch);
+    return postRepository.save(current);
   }
 
   @Override

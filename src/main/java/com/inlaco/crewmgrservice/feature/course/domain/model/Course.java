@@ -9,20 +9,26 @@ import org.bson.types.ObjectId;
 public class Course {
 
   private String id;
-
   private String name;
-
   private String trainingProviderName;
-
   private Asset trainingProviderLogo;
-
   private String teacherName;
-
   private String archivedPosition;
-
   private boolean certified;
-
   private Instant forciblyCanceledAt;
+  private Asset wallpaper;
+  private String description;
+  private Instant manuallyRegistrationDisabledAt;
+  private Instant startRegistrationAt;
+  private Instant endRegistrationAt;
+  private Instant startDate;
+  private Instant endDate;
+  private int limitStudent;
+  private int enrolledStudentCount = 0;
+  private ObjectId createdBy;
+  private ObjectId updatedBy;
+  private Instant createdAt;
+  private Instant updatedAt;
 
   public void forceCancel() {
     this.forciblyCanceledAt = Instant.now();
@@ -31,10 +37,6 @@ public class Course {
   public boolean isForciblyCanceled() {
     return forciblyCanceledAt != null;
   }
-
-  private int limitStudent;
-
-  private int enrolledStudentCount = 0;
 
   public void increaseEnrolledStudentCount() {
     if (enrolledStudentCount < limitStudent) {
@@ -45,12 +47,6 @@ public class Course {
   public boolean isFull() {
     return enrolledStudentCount >= limitStudent;
   }
-
-  private Asset wallpaper;
-
-  private String description;
-
-  private Instant manuallyRegistrationDisabledAt;
 
   public void manuallyDisableRegistration() {
     this.manuallyRegistrationDisabledAt = Instant.now();
@@ -66,14 +62,6 @@ public class Course {
     return manuallyRegistrationDisabledAt == null && !isFull() && inRegistrationPeriod();
   }
 
-  private Instant startRegistrationAt;
-
-  private Instant endRegistrationAt;
-
-  private Instant startDate;
-
-  private Instant endDate;
-
   public boolean isExpired() {
     return endDate.isBefore(Instant.now());
   }
@@ -82,11 +70,19 @@ public class Course {
     return !isForciblyCanceled() && !isExpired();
   }
 
-  private ObjectId createdBy;
-
-  private ObjectId updatedBy;
-
-  private Instant createdAt;
-
-  private Instant updatedAt;
+  public boolean update(CourseUpdateCommand command) {
+    return command.getName().ifUpdated(this::setName)
+        | command.getTrainingProviderName().ifUpdated(this::setTrainingProviderName)
+        | command.getTrainingProviderLogo().ifUpdated(this::setTrainingProviderLogo)
+        | command.getTeacherName().ifUpdated(this::setTeacherName)
+        | command.getArchivedPosition().ifUpdated(this::setArchivedPosition)
+        | command.getCertified().ifUpdated(this::setCertified)
+        | command.getWallpaper().ifUpdated(this::setWallpaper)
+        | command.getDescription().ifUpdated(this::setDescription)
+        | command.getStartRegistrationAt().ifUpdated(this::setStartRegistrationAt)
+        | command.getEndRegistrationAt().ifUpdated(this::setEndRegistrationAt)
+        | command.getStartDate().ifUpdated(this::setStartDate)
+        | command.getEndDate().ifUpdated(this::setEndDate)
+        | command.getLimitStudent().ifUpdated(this::setLimitStudent);
+  }
 }
