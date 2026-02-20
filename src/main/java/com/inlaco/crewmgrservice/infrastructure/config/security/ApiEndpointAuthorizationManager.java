@@ -5,17 +5,15 @@ import static org.springframework.http.HttpMethod.GET;
 import com.inlaco.crewmgrservice.infrastructure.web.annotation.PublicEndpoint;
 import jakarta.servlet.http.HttpServletRequest;
 import java.lang.annotation.Annotation;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -40,31 +38,6 @@ import org.springframework.web.util.pattern.PathPatternParser;
 @Slf4j
 public class ApiEndpointAuthorizationManager
     implements AuthorizationManager<RequestAuthorizationContext> {
-
-  // @Override
-  // public @org.jspecify.annotations.Nullable AuthorizationResult authorize(
-  //     Supplier<Authentication> authentication,
-  //     RequestAuthorizationContext context) {
-  //   HttpServletRequest request = context.getRequest();
-
-  //   // Public endpoints
-  //   if (isUnsecureJwtRequest(request)) {
-  //     return new AuthorizationDecision(true);
-  //   }
-
-  //   // Optional JWT
-  //   if (isOptionalJwtSecurityPath(request)) {
-  //     return new AuthorizationDecision(true);
-  //   }
-
-  //   // Auth required
-  //   Authentication auth = authentication.get();
-  //   boolean granted =
-  //       auth != null && auth.isAuthenticated() && !(auth instanceof
-  // AnonymousAuthenticationToken);
-
-  //   return new AuthorizationDecision(granted);
-  // }
 
   @Override
   public @Nullable AuthorizationResult authorize(
@@ -93,32 +66,21 @@ public class ApiEndpointAuthorizationManager
   /* ==========================================================
    * Internal model
    * ========================================================== */
-  @Getter
-  @EqualsAndHashCode(of = "pattern")
-  @ToString(of = "pattern")
-  @AllArgsConstructor
-  private static final class APIPath {
-    private final PathPattern pattern;
-    private final boolean dynamic;
-    private final boolean filterJwt;
-  }
+  private final record APIPath(PathPattern pattern, boolean dynamic, boolean filterJwt) {}
 
   /* ==========================================================
    * Fields
    * ========================================================== */
   private final Environment environment;
-  private static final PathPatternParser PATH_PARSER = new PathPatternParser();
-  private static final Map<HttpMethod, Set<APIPath>> publicEndpoints = new ConcurrentHashMap<>();
-  private static final Map<HttpMethod, Set<PathPattern>> staticEndpoints =
-      new ConcurrentHashMap<>();
+  private final PathPatternParser PATH_PARSER = new PathPatternParser();
+  private final Map<HttpMethod, Set<APIPath>> publicEndpoints = new ConcurrentHashMap<>();
+  private final Map<HttpMethod, Set<PathPattern>> staticEndpoints = new ConcurrentHashMap<>();
 
   /* ==========================================================
    * Constructor
    * ========================================================== */
   public ApiEndpointAuthorizationManager(
       RequestMappingHandlerMapping handlerMapping, Environment environment) {
-
-    // this.handlerMapping = handlerMapping;
     this.environment = environment;
 
     // default public endpoints
@@ -133,11 +95,12 @@ public class ApiEndpointAuthorizationManager
     // register static endpoints that manually added
     publicEndpoints.forEach(
         (method, apiPaths) ->
-            apiPaths.forEach(apiPath -> registerStaticEndpoint(apiPath.getPattern(), method)));
+            apiPaths.forEach(apiPath -> registerStaticEndpoint(apiPath.pattern(), method)));
 
     Map<RequestMappingInfo, HandlerMethod> mappings = handlerMapping.getHandlerMethods();
     mappings.forEach(this::registerStaticEndpoint);
 
+    // Scan @PublicEndpoint
     mappings.forEach(
         (info, method) -> {
           PublicEndpoint annotation = getAnnotation(method, PublicEndpoint.class);
@@ -156,7 +119,7 @@ public class ApiEndpointAuthorizationManager
   public boolean isOptionalJwtSecurityPath(@NonNull HttpServletRequest request) {
     HttpMethod method = HttpMethod.valueOf(request.getMethod());
     return publicEndpoints.getOrDefault(method, Set.of()).stream()
-        .filter(APIPath::isFilterJwt)
+        .filter(APIPath::filterJwt)
         .anyMatch(p -> matchPath(p, request));
   }
 
@@ -172,7 +135,7 @@ public class ApiEndpointAuthorizationManager
     HttpMethod method = HttpMethod.valueOf(request.getMethod());
 
     return publicEndpoints.getOrDefault(method, Set.of()).stream()
-        .filter(p -> !p.isFilterJwt())
+        .filter(p -> !p.filterJwt())
         .anyMatch(p -> matchPath(p, request));
   }
 
@@ -245,18 +208,12 @@ public class ApiEndpointAuthorizationManager
     return method.getBeanType().getAnnotation(clazz);
   }
 
-  // private boolean matchPath(String pattern, String uri, String method) {
-  //   boolean matched = antPathMatcher.match(pattern, uri);
-  //   if (!isPathVariablePattern(pattern)) return matched;
-  //   return matched && !staticEndpointExists(uri, method);
-  // }
-  //
   private boolean matchPath(APIPath apiPath, HttpServletRequest request) {
-    PathPattern pattern = apiPath.getPattern();
+    PathPattern pattern = apiPath.pattern();
     boolean matched = pattern.matches(PathContainer.parsePath(request.getRequestURI()));
     if (!matched) return false;
     // No {var} → match immediately
-    else if (!apiPath.isDynamic()) {
+    else if (!apiPath.dynamic()) {
       return true;
     }
     // Has {var} → check static
@@ -270,34 +227,78 @@ public class ApiEndpointAuthorizationManager
   }
 
   private void logInitializedEndpoints() {
+    if (!log.isInfoEnabled()) {
+      return;
+    }
 
-    log.info(
-        "Registered static endpoints:\n{}",
-        staticEndpoints.entrySet().stream()
-            .map(
-                e ->
-                    e.getKey().name()
-                        + ":\n"
-                        + e.getValue().stream()
-                            .map(p -> "  - " + p.getPatternString())
-                            .sorted()
-                            .collect(Collectors.joining("\n")))
-            .collect(Collectors.joining("\n")));
+    StringBuilder sb = new StringBuilder(1024);
 
-    StringBuilder publicLog = new StringBuilder();
-    publicLog.append("[SECURITY] Public endpoints initialized:\n");
+    sb.append("\n================ SECURITY ENDPOINTS ================\n");
 
-    for (Map.Entry<HttpMethod, Set<APIPath>> entry : publicEndpoints.entrySet()) {
-      publicLog.append("  ").append(entry.getKey().name()).append(":\n");
-      for (APIPath apiPath : entry.getValue()) {
-        publicLog
-            .append("    - ")
-            .append(apiPath.getPattern().getPatternString())
-            .append(apiPath.isFilterJwt() ? " [PUBLIC + OPTIONAL JWT]" : " [PUBLIC]")
-            .append("\n");
+    /* ================= STATIC ================= */
+
+    sb.append("\n[STATIC ENDPOINTS]\n");
+
+    List<HttpMethod> staticMethods = new ArrayList<>(staticEndpoints.keySet());
+    Collections.sort(staticMethods);
+
+    for (HttpMethod method : staticMethods) {
+
+      sb.append(method.name()).append(":\n");
+
+      Set<PathPattern> patternsSet = staticEndpoints.get(method);
+      if (patternsSet == null || patternsSet.isEmpty()) {
+        continue;
+      }
+
+      List<String> patterns = new ArrayList<>(patternsSet.size());
+
+      for (PathPattern pattern : patternsSet) {
+        patterns.add(pattern.getPatternString());
+      }
+
+      Collections.sort(patterns);
+
+      for (String pattern : patterns) {
+        sb.append("  - ").append(pattern).append('\n');
       }
     }
 
-    log.info(publicLog.toString());
+    /* ================= PUBLIC ================= */
+
+    sb.append("\n[PUBLIC ENDPOINTS]\n");
+
+    List<HttpMethod> publicMethods = new ArrayList<>(publicEndpoints.keySet());
+    Collections.sort(publicMethods);
+
+    for (HttpMethod method : publicMethods) {
+
+      sb.append(method.name()).append(":\n");
+
+      Set<APIPath> apiPaths = publicEndpoints.get(method);
+      if (apiPaths == null || apiPaths.isEmpty()) {
+        continue;
+      }
+
+      List<APIPath> sortedPaths = new ArrayList<>(apiPaths);
+      sortedPaths.sort(
+          new Comparator<APIPath>() {
+            @Override
+            public int compare(APIPath a, APIPath b) {
+              return a.pattern().getPatternString().compareTo(b.pattern().getPatternString());
+            }
+          });
+
+      for (APIPath apiPath : sortedPaths) {
+        sb.append("  - ")
+            .append(apiPath.pattern().getPatternString())
+            .append(apiPath.filterJwt() ? " [PUBLIC + OPTIONAL JWT]" : " [PUBLIC]")
+            .append('\n');
+      }
+    }
+
+    sb.append("====================================================\n");
+
+    log.info(sb.toString());
   }
 }

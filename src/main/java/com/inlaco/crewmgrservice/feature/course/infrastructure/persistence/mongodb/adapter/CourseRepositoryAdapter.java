@@ -58,7 +58,7 @@ public class CourseRepositoryAdapter implements CourseRepository {
 
   @Override
   public Page<Course> findAll(@Nullable CourseSearchCriteria criteria, Pageable pageable) {
-    pageable = PageableUtils.extendDefaultSort(pageable);
+    pageable = PageableUtils.enforceIdSort(pageable);
 
     var query = Criteria.where("deletedAt").exists(false);
 

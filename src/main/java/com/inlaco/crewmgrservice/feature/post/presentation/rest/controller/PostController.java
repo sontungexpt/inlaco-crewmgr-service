@@ -52,6 +52,7 @@ public class PostController {
   @GetMapping("")
   @ResponseStatus(HttpStatus.OK)
   @PageableQueryParams
+  @PublicEndpoint
   public Page<PostDTO> getAllPosts(
       @Filter PostSearchCriteria criteria,
       @PageableDefault(size = 10, page = 0) Pageable pageable) {

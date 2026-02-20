@@ -41,7 +41,6 @@ public class AuthorizedAdvice {
 
   @ExceptionHandler(LockedException.class)
   public ResponseEntity<?> handleLocked(LockedException ex, HttpServletRequest request) {
-
     return AdviceUtils.buildErrorResponse(
         HttpStatus.LOCKED, "ACCOUNT_LOCKED", "Account locked", request);
   }

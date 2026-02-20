@@ -1,5 +1,7 @@
 debug: false
 
+logging:
+
 admin:
   username: ${ADMIN_USERNAME}
   password: ${ADMIN_PASSWORD}
@@ -40,8 +42,8 @@ resend:
 spring:
   application:
     name: "crewmgrservice"
-  # profiles:
-  #   active: dev
+  profiles:
+    active: dev
   mail:
     host: smtp.gmail.com
     port: 587

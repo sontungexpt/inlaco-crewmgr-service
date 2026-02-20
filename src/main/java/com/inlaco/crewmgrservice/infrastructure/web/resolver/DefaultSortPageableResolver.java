@@ -22,12 +22,10 @@ public class DefaultSortPageableResolver extends PageableHandlerMethodArgumentRe
       WebDataBinderFactory binderFactory) {
     Pageable pageable =
         super.resolveArgument(methodParameter, mavContainer, webRequest, binderFactory);
-
     // If client sorted then respect
     if (pageable.getSort().isSorted()) {
       return pageable;
     }
-
-    return PageableUtils.extendDefaultSort(pageable);
+    return PageableUtils.enforceIdSort(pageable);
   }
 }

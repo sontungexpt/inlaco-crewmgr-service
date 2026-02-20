@@ -1,0 +1,3 @@
+logging:
+  level:
+    com.inlaco.crewmgrservice.infrastructure.web.filter.AdvancedLoggingFilter: DEBUG

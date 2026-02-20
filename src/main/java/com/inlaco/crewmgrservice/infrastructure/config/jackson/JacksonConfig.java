@@ -8,6 +8,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr353.JSR353Module;
 import com.inlaco.crewmgrservice.infrastructure.serialization.deserializer.PatchDeserializer;
 import com.inlaco.crewmgrservice.infrastructure.serialization.serializer.FileSerializer;
+import com.inlaco.crewmgrservice.infrastructure.serialization.serializer.SortSerializer;
 import com.inlaco.crewmgrservice.shared.application.model.Patch;
 import com.inlaco.crewmgrservice.shared.objectvalue.Asset;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import org.springframework.boot.jackson.autoconfigure.JsonMapperBuilderCustomize
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.domain.Sort;
 import tools.jackson.databind.module.SimpleModule;
 
 @Configuration
@@ -54,6 +56,8 @@ public class JacksonConfig {
   public JsonMapperBuilderCustomizer jsonCustomizerJackson3() {
     return builder ->
         builder.addModules(
-            new SimpleModule().addDeserializer(Patch.class, fieldUpdateDeserializer));
+            new SimpleModule()
+                .addSerializer(Sort.class, new SortSerializer())
+                .addDeserializer(Patch.class, fieldUpdateDeserializer));
   }
 }

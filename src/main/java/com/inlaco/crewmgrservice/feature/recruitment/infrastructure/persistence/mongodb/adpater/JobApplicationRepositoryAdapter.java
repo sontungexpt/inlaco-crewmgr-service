@@ -72,7 +72,6 @@ public class JobApplicationRepositoryAdapter implements JobApplicationRepository
 
   @Override
   public Page<JobApplication> findAll(JobApplicationSearchCriteria criteria, Pageable pageable) {
-    pageable = PageableUtils.extendDefaultSort(pageable);
     var query = new Criteria();
 
     if (criteria != null) {
@@ -87,6 +86,7 @@ public class JobApplicationRepositoryAdapter implements JobApplicationRepository
       }
     }
 
+    pageable = PageableUtils.enforceIdSort(pageable);
     Aggregation aggregation =
         newAggregation(
             match(query),

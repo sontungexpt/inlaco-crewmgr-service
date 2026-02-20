@@ -10,6 +10,7 @@ import com.inlaco.crewmgrservice.feature.post.infrastructure.persistence.mongodb
 import com.inlaco.crewmgrservice.feature.post.infrastructure.persistence.mongodb.mapper.PostEntityMapper;
 import com.inlaco.crewmgrservice.feature.post.infrastructure.persistence.mongodb.repository.PostMongoRepository;
 import com.inlaco.crewmgrservice.infrastructure.persistence.mongodb.aggregation.FacetResult;
+import com.inlaco.crewmgrservice.infrastructure.persistence.support.PageableUtils;
 import java.time.Instant;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -51,6 +52,7 @@ public class PostRepositoryAdapter implements PostRepository {
       }
     }
 
+    pageable = PageableUtils.enforceIdSort(pageable, PostEntity.class);
     Aggregation aggregation =
         newAggregation(
             match(query),
@@ -81,7 +83,7 @@ public class PostRepositoryAdapter implements PostRepository {
   }
 
   @Override
-  @CacheEvict(value = "posts", key = "#result.id")
+  @CacheEvict(value = "posts", key = "#post.id", condition = "#post.id != null")
   public Post save(Post post) {
     String id = post.getId();
     if (id == null) {

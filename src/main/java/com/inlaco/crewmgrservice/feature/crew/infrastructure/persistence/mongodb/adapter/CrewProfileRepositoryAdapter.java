@@ -136,7 +136,7 @@ public class CrewProfileRepositoryAdapter implements CrewProfileRepository {
   @Override
   public Page<CrewProfile> findAll(
       @Nullable CrewProfileSearchCriteria criteria, Pageable pageable) {
-    pageable = PageableUtils.extendDefaultSort(pageable);
+    pageable = PageableUtils.enforceIdSort(pageable);
     var query = new Criteria();
 
     if (criteria != null) {
