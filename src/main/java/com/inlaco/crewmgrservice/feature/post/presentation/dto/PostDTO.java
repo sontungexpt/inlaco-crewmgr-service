@@ -58,11 +58,11 @@ public abstract class PostDTO {
 
   private String company;
 
-  @NotNull private PostType type;
-
   private String authorId;
 
   private Instant updatedAt;
+
+  @NotNull private final PostType type;
 
   protected PostDTO(PostType type) {
     this.type = type;

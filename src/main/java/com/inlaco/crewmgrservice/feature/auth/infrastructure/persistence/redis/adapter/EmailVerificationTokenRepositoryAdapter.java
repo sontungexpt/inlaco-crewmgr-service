@@ -2,8 +2,8 @@ package com.inlaco.crewmgrservice.feature.auth.infrastructure.persistence.redis.
 
 import com.inlaco.crewmgrservice.feature.auth.application.port.out.EmailVerificationTokenRepository;
 import com.inlaco.crewmgrservice.feature.auth.domain.model.EmailVerificationToken;
-import com.inlaco.crewmgrservice.feature.auth.infrastructure.persistence.redis.mapper.EmailVerificationTokenRedisMapper;
-import com.inlaco.crewmgrservice.feature.auth.infrastructure.persistence.redis.repository.RedisEmailVerificationTokenRepository;
+import com.inlaco.crewmgrservice.feature.auth.infrastructure.persistence.redis.mapper.EmailVerificationTokenMapper;
+import com.inlaco.crewmgrservice.feature.auth.infrastructure.persistence.redis.repository.EmailVerificationTokenRedisRepository;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -11,42 +11,36 @@ import org.springframework.stereotype.Repository;
 @Repository
 @RequiredArgsConstructor
 public class EmailVerificationTokenRepositoryAdapter implements EmailVerificationTokenRepository {
-  private final RedisEmailVerificationTokenRepository redisEmailVerificationTokenRepository;
-  private final EmailVerificationTokenRedisMapper emailVerificationTokenRedisMapper;
+  private final EmailVerificationTokenRedisRepository repository;
+  private final EmailVerificationTokenMapper mapper;
 
   @Override
   public Optional<EmailVerificationToken> findByHashToken(String hashToken) {
-    return redisEmailVerificationTokenRepository
-        .findByHashToken(hashToken)
-        .map(emailVerificationTokenRedisMapper::toDomain);
+    return repository.findByHashToken(hashToken).map(mapper::toDomain);
   }
 
   @Override
   public void deleteByHashToken(String token) {
-    redisEmailVerificationTokenRepository.deleteByHashToken(token);
+    repository.deleteByHashToken(token);
   }
 
   @Override
   public Optional<EmailVerificationToken> findByUserId(String userId) {
-    return redisEmailVerificationTokenRepository
-        .findByUserId(userId)
-        .map(emailVerificationTokenRedisMapper::toDomain);
+    return repository.findByUserId(userId).map(mapper::toDomain);
   }
 
   @Override
   public void deleteByUserId(String userId) {
-    redisEmailVerificationTokenRepository.deleteByUserId(userId);
+    repository.deleteByUserId(userId);
   }
 
   @Override
   public EmailVerificationToken save(EmailVerificationToken token) {
-    return emailVerificationTokenRedisMapper.toDomain(
-        redisEmailVerificationTokenRepository.save(
-            emailVerificationTokenRedisMapper.toEntity(token)));
+    return mapper.toDomain(repository.save(mapper.toEntity(token)));
   }
 
   @Override
   public void deleteById(String userId) {
-    redisEmailVerificationTokenRepository.deleteById(userId);
+    repository.deleteById(userId);
   }
 }

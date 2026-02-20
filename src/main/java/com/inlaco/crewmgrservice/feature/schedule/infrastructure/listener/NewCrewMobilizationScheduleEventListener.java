@@ -7,16 +7,14 @@ import com.inlaco.crewmgrservice.feature.notify.NotificationPolicy;
 import com.inlaco.crewmgrservice.feature.notify.mail.EmailRequest;
 import com.inlaco.crewmgrservice.feature.schedule.domain.event.NewCrewMobilizationScheduleEvent;
 import com.inlaco.crewmgrservice.feature.schedule.domain.model.CrewMobilizationSchedule;
-import com.inlaco.crewmgrservice.shared.template.TextTemplateBuilder;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 @Component
 @Slf4j
@@ -24,17 +22,16 @@ import org.springframework.stereotype.Component;
 public class NewCrewMobilizationScheduleEventListener {
   private final CrewProfileRepository crewProfileRepository;
   private final NotificationDispatcher notificationFactory;
+  private final SpringTemplateEngine templateEngine;
 
   @Value("${inlaco.client.base-url}")
   private String CLIENT_HOME_PAGE_LINK;
 
   @Value("${inlaco.template.email.sailor-schedule.path}")
-  private String EMAIL_TEMPLATE_PATH;
+  private String TEMPLATE_PATH;
 
   @Value("${inlaco.template.email.sailor-schedule.subject}")
   private String EMAIL_SUBJECT;
-
-  private volatile String cachedTemplate;
 
   @EventListener
   public void handleNewAssignmentScheduleEvent(NewCrewMobilizationScheduleEvent event) {
@@ -56,33 +53,17 @@ public class NewCrewMobilizationScheduleEventListener {
       log.warn("No sailor profiles found for schedule {}", schedule.getId());
       return;
     }
-
-    String emailTemplate = getEmailTemplate();
-    if (emailTemplate == null) {
-      return;
-    }
-    profiles.forEach(profile -> sendScheduleEmail(profile, schedule, emailTemplate));
+    profiles.forEach(profile -> sendScheduleEmail(profile, schedule));
   }
 
-  private void sendScheduleEmail(
-      CrewProfile profile, CrewMobilizationSchedule schedule, String template) {
+  private void sendScheduleEmail(CrewProfile profile, CrewMobilizationSchedule schedule) {
     if (profile.getEmail() == null || profile.getEmail().isBlank()) {
       log.warn("Skip notifying sailor {} due to missing email", profile.getId());
       return;
     }
 
     EmailRequest emailRequest =
-        EmailRequest.html(
-                profile.getEmail(),
-                TextTemplateBuilder.content(template)
-                    .var("recipient_name", profile.getFullName())
-                    .var("company_name", "Inlaco")
-                    .var("start_date", schedule.getStartDate().toString())
-                    .var("estimated_end_date", schedule.getEndDate().toString())
-                    .var("home_page_link", CLIENT_HOME_PAGE_LINK)
-                    .var("info_link", "")
-                    .buildContent(),
-                EMAIL_SUBJECT)
+        EmailRequest.html(profile.getEmail(), buildBodyContent(profile, schedule), EMAIL_SUBJECT)
             .build();
 
     log.debug(
@@ -93,22 +74,14 @@ public class NewCrewMobilizationScheduleEventListener {
     notificationFactory.sendNotificationAsync(NotificationPolicy.EMAIL, emailRequest);
   }
 
-  /** Lazy-load the HTML template */
-  private String getEmailTemplate() {
-    if (cachedTemplate == null) {
-      synchronized (this) {
-        if (cachedTemplate == null) {
-          try {
-            ClassPathResource resource = new ClassPathResource(EMAIL_TEMPLATE_PATH);
-            cachedTemplate =
-                new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
-          } catch (IOException e) {
-            log.error("Failed to load email template with path {}", EMAIL_TEMPLATE_PATH, e);
-            throw new RuntimeException("Failed to generate email request");
-          }
-        }
-      }
-    }
-    return cachedTemplate;
+  private String buildBodyContent(CrewProfile profile, CrewMobilizationSchedule schedule) {
+    var context = new Context();
+    context.setVariable("recipient_name", profile.getFullName());
+    context.setVariable("company_name", "INLACO");
+    context.setVariable("start_date", schedule.getStartDate().toString());
+    context.setVariable("estimated_end_date", schedule.getEndDate().toString());
+    context.setVariable("home_page_link", CLIENT_HOME_PAGE_LINK);
+    context.setVariable("info_link", "");
+    return templateEngine.process(TEMPLATE_PATH, context);
   }
 }

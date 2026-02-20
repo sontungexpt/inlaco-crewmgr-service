@@ -1,9 +1,12 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Application Successful - ${company_name}</title>
+    <title th:text="'Application Successful - ' + ${companyName}">
+      Application Successful
+    </title>
+
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -50,21 +53,29 @@
       }
     </style>
   </head>
+
   <body>
     <div class="email-container">
       <!-- Header -->
       <div class="header">
-        <h1>Congratulations, ${candidate_name}!</h1>
+        <h1 th:text="'Congratulations, ' + ${candidateName} + '!'">
+          Congratulations!
+        </h1>
       </div>
 
       <!-- Content -->
       <div class="content">
-        <p>Dear ${candidate_name},</p>
+        <p>
+          Dear
+          <span th:text="${candidateName}">Candidate</span>,
+        </p>
 
         <p>
           We are pleased to confirm that your application for the position of
-          <strong>${position_name}</strong> at
-          <strong>${company_name}</strong> has been successfully submitted.
+          <strong th:text="${positionName}">Position</strong>
+          at
+          <strong th:text="${companyName}">Company</strong>
+          has been successfully submitted.
         </p>
 
         <p>
@@ -76,24 +87,33 @@
         <p>
           If you have any questions in the meantime, please do not hesitate to
           reach out to us at
-          <a href="mailto:${contact_email}">${contact_email}</a>.
+          <a th:href="'mailto:' + ${contactEmail}" th:text="${contactEmail}">
+            contact@example.com </a
+          >.
         </p>
 
         <p class="highlight">We wish you the best of luck!</p>
 
         <p>
           Thank you for your interest in joining the team at
-          <strong>${company_name}</strong>. We look forward to connecting with
-          you soon!
+          <strong th:text="${companyName}">Company</strong>. We look forward to
+          connecting with you soon!
         </p>
 
         <p>Sincerely,</p>
-        <p><strong>The ${company_name} Recruitment Team</strong></p>
+        <p>
+          <strong>
+            The <span th:text="${companyName}">Company</span> Recruitment Team
+          </strong>
+        </p>
       </div>
 
       <!-- Footer -->
       <div class="footer">
-        <p>© ${current_year} ${company_name}. All rights reserved.</p>
+        <p>
+          © <span th:text="${currentYear}">2025</span>
+          <span th:text="${companyName}">Company</span>. All rights reserved.
+        </p>
       </div>
     </div>
   </body>

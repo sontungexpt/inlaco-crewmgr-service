@@ -5,7 +5,7 @@ import com.inlaco.crewmgrservice.feature.auth.infrastructure.persistence.redis.e
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
-public interface EmailVerificationTokenRedisMapper {
+public interface EmailVerificationTokenMapper {
 
   EmailVerificationToken toDomain(EmailVerificationTokenEntity tokenEntity);
 

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.inlaco.crewmgrservice.feature.post.domain.enums.PostType;
 import com.inlaco.crewmgrservice.infrastructure.web.payload.request.constraint.TimeFrame;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.List;
 import lombok.Getter;
@@ -28,16 +27,14 @@ public class RecruitmentPostDTO extends PostDTO implements TimeFrame {
   private String workLocation;
 
   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-  @NotNull
   private Instant recruitmentStartDate;
 
   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-  @NotNull
   private Instant recruitmentEndDate;
 
   @Override
   @JsonIgnore
   public List<Range> getTimeFrames() {
-    return List.of(Range.startRequired(recruitmentStartDate, recruitmentEndDate));
+    return List.of(Range.bothRequired(recruitmentStartDate, recruitmentEndDate));
   }
 }

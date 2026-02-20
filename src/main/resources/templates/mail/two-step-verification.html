@@ -1,17 +1,23 @@
 <!doctype html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
   <head>
     <meta charset="UTF-8" />
     <title>Email Verification</title>
   </head>
   <body>
     <h1>Verify Your Email</h1>
-    <p>Hello ${name},</p>
+
+    <p>Hello <span th:text="${name}">User</span>,</p>
+
     <p>
       Thank you for signing up! Please verify your email by clicking the link
       below:
     </p>
-    <a href="${verificationLink}" style="color: #007bff; text-decoration: none">
+
+    <a
+      th:href="${verificationLink}"
+      style="color: #007bff; text-decoration: none"
+    >
       Verify Email
     </a>
   </body>

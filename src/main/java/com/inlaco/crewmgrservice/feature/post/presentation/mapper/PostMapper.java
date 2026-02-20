@@ -16,7 +16,6 @@ import com.inlaco.crewmgrservice.shared.application.model.Patch;
 import com.inlaco.crewmgrservice.shared.mapstruct.mapper.AssetResponseMapper;
 import com.inlaco.crewmgrservice.shared.objectvalue.Asset;
 import java.util.List;
-import org.mapstruct.InheritConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -42,15 +41,6 @@ public abstract class PostMapper {
   @SubclassMapping(source = EventPost.class, target = EventPostDTO.class)
   public abstract PostDTO toPostDTO(Post post);
 
-  @InheritConfiguration(name = "toPostDTO")
-  public abstract NewsPostDTO toNewsPostDTO(NewsPost post);
-
-  @InheritConfiguration(name = "toPostDTO")
-  public abstract RecruitmentPostDTO toRecruitmentPostDTO(RecruitmentPost post);
-
-  @InheritConfiguration(name = "toPostDTO")
-  public abstract EventPostDTO toEventPostDTO(EventPost post);
-
   // ===== DTO → DOMAIN =====
 
   @SubclassMapping(source = NewsPostDTO.class, target = NewsPost.class)
@@ -62,15 +52,6 @@ public abstract class PostMapper {
       qualifiedByName = "mapIdsToAttachments")
   @Mapping(target = "image", source = "imageAssetId", qualifiedByName = "mapImageAssetIdToAsset")
   public abstract Post toPost(PostDTO dto);
-
-  @InheritConfiguration(name = "toPost")
-  public abstract NewsPost toNewsPost(NewsPostDTO dto);
-
-  @InheritConfiguration(name = "toPost")
-  public abstract RecruitmentPost toRecruitmentPost(RecruitmentPostDTO dto);
-
-  @InheritConfiguration(name = "toPost")
-  public abstract EventPost toEventPost(EventPostDTO dto);
 
   @Mapping(target = "image", source = "image", qualifiedByName = "toAssetImagePatch")
   @Mapping(

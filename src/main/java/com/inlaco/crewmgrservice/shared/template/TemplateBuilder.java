@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 import org.jspecify.annotations.NonNull;
 import org.springframework.core.io.ClassPathResource;
 
-public class TextTemplateBuilder {
+public class TemplateBuilder {
 
   public enum TemplateSyntax {
     DOLLAR_CURLY("(\\\\*)\\$\\{([a-zA-Z0-9_]+)(?::([^}]+))?}"), // ${varName}
@@ -21,13 +21,13 @@ public class TextTemplateBuilder {
     DOLLAR_SIMPLE("(\\\\*)\\$([a-zA-Z0-9_]+)"), // $varName
     DOUBLE_ANGLE("(\\\\*)<<([a-zA-Z0-9_]+)(?::([^>]+))?>>"); // <<varName>>
 
-    private final String pattern;
+    private final Pattern pattern;
 
     TemplateSyntax(String pattern) {
-      this.pattern = pattern;
+      this.pattern = Pattern.compile(pattern);
     }
 
-    public String getPattern() {
+    public Pattern getPattern() {
       return pattern;
     }
   }
@@ -36,7 +36,7 @@ public class TextTemplateBuilder {
   private final Map<String, String> variables = new HashMap<>();
   private TemplateSyntax syntax = TemplateSyntax.DOLLAR_CURLY;
 
-  private TextTemplateBuilder(@NonNull String content) {
+  private TemplateBuilder(@NonNull String content) {
     this.template = content;
   }
 
@@ -45,8 +45,8 @@ public class TextTemplateBuilder {
    * path is used to read the content of the file and create the template.
    *
    */
-  public static TextTemplateBuilder relativePath(@NonNull String path) throws IOException {
-    return new TextTemplateBuilder(Files.readString(Paths.get(path)));
+  public static TemplateBuilder relativePath(@NonNull String path) throws IOException {
+    return new TemplateBuilder(Files.readString(Paths.get(path)));
   }
 
   /*
@@ -54,9 +54,9 @@ public class TextTemplateBuilder {
    *  resource path is used to read the content of the resource and create the template.
    *
    */
-  public static TextTemplateBuilder resourcePath(@NonNull String resourcePath) throws IOException {
+  public static TemplateBuilder resourcePath(@NonNull String resourcePath) throws IOException {
     ClassPathResource resource = new ClassPathResource(resourcePath);
-    return new TextTemplateBuilder(
+    return new TemplateBuilder(
         new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8));
   }
 
@@ -65,8 +65,8 @@ public class TextTemplateBuilder {
    * path is used to read the content of the file and create the template.
    *
    */
-  public static TextTemplateBuilder src(@NonNull URI uri) throws IOException {
-    return new TextTemplateBuilder(Files.readString(Paths.get(uri)));
+  public static TemplateBuilder src(@NonNull URI uri) throws IOException {
+    return new TemplateBuilder(Files.readString(Paths.get(uri)));
   }
 
   /*
@@ -74,8 +74,8 @@ public class TextTemplateBuilder {
    * create the template.
    *
    */
-  public static TextTemplateBuilder content(@NonNull String content) {
-    return new TextTemplateBuilder(content);
+  public static TemplateBuilder content(@NonNull String content) {
+    return new TemplateBuilder(content);
   }
 
   /*
@@ -83,7 +83,7 @@ public class TextTemplateBuilder {
    * the template. The default syntax is DOLLAR_CURLY.
    *
    */
-  public TextTemplateBuilder syntax(@NonNull TemplateSyntax syntax) {
+  public TemplateBuilder syntax(@NonNull TemplateSyntax syntax) {
     this.syntax = syntax;
     return this;
   }
@@ -93,7 +93,7 @@ public class TextTemplateBuilder {
    * template and the value is the value that will replace the variable in the template.
    *
    */
-  public TextTemplateBuilder var(@NonNull String key, @NonNull String value) {
+  public TemplateBuilder var(@NonNull String key, @NonNull String value) {
     variables.put(key, value);
     return this;
   }
@@ -168,10 +168,7 @@ public class TextTemplateBuilder {
    */
   public String buildContent() {
     StringBuilder result = new StringBuilder();
-
-    Pattern placeholderPattern = Pattern.compile(syntax.getPattern());
-
-    Matcher matcher = placeholderPattern.matcher(template);
+    Matcher matcher = syntax.getPattern().matcher(template);
 
     while (matcher.find()) {
       String backslashes = matcher.group(1);
@@ -181,8 +178,10 @@ public class TextTemplateBuilder {
 
       int backslashesLength = backslashes.length();
       if (backslashesLength % 2 == 1) {
+        // ESCAPED → remove 1 slash and keep literal
         matcher.appendReplacement(result, backslashes.substring(1) + matcher.group(0));
       } else {
+        // NOT ESCAPED → replace normally
         matcher.appendReplacement(
             result, Matcher.quoteReplacement("\\".repeat(backslashesLength / 2)) + value);
       }

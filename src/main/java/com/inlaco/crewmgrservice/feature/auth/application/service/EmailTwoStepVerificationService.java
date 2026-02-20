@@ -13,16 +13,14 @@ import com.inlaco.crewmgrservice.feature.notify.mail.EmailRequest;
 import com.inlaco.crewmgrservice.feature.user.application.port.in.UserUseCase;
 import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import com.inlaco.crewmgrservice.shared.crypto.DigestUtils;
-import com.inlaco.crewmgrservice.shared.template.TextTemplateBuilder;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 import org.yaml.snakeyaml.util.UriEncoder;
 
 @RequiredArgsConstructor
@@ -35,6 +33,7 @@ public class EmailTwoStepVerificationService implements TwoStepVerificationServi
   private final UserUseCase userUseCase;
   private final NotificationDispatcher notificationFactory;
   private final ApplicationEventPublisher eventPublisher;
+  private final SpringTemplateEngine templateEngine;
 
   @Value("${inlaco.server.base-url}")
   private String SERVER_BASE_URL;
@@ -43,9 +42,7 @@ public class EmailTwoStepVerificationService implements TwoStepVerificationServi
   private String SUBJECT;
 
   @Value("${inlaco.template.email.two-step-verification.path}")
-  private String EMAIL_TEMPLATE_PATH;
-
-  private volatile String cachedTemplate;
+  private String TEMPLATE_PATH;
 
   @Override
   public VerificationPolicy getPolicy() {
@@ -114,41 +111,20 @@ public class EmailTwoStepVerificationService implements TwoStepVerificationServi
 
   private EmailRequest generateEmailRequest(User user, String token) {
     String link = generateVerificationLink(token);
-    return EmailRequest.html(
-            user.getUsername(),
-            TextTemplateBuilder.content(getEmailTemplate())
-                .var("name", user.getName())
-                .var("verificationLink", link)
-                .buildContent(),
-            SUBJECT)
-        .build();
+    String htmlContent = buildTwoStepVerification(user.getName(), link);
+    return EmailRequest.html(user.getUsername(), htmlContent, SUBJECT).build();
   }
 
   private String generateVerificationLink(String token) {
-    return SERVER_BASE_URL + "/api/v1/auth/two-step-verification?token=" + UriEncoder.encode(token);
+    return UriEncoder.encode(SERVER_BASE_URL + "/api/v1/auth/two-step-verification?token=" + token);
   }
 
-  /** Lazy-load the HTML template */
-  private String getEmailTemplate() {
-    if (cachedTemplate == null) {
-      synchronized (this) {
-        if (cachedTemplate == null) {
-          try {
-            ClassPathResource resource = new ClassPathResource(EMAIL_TEMPLATE_PATH);
-            cachedTemplate =
-                new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
-          } catch (IOException e) {
-            log.error("Failed to load email template with path {}", EMAIL_TEMPLATE_PATH, e);
-            throw new RuntimeException("Failed to generate email request");
-          }
-        }
-      }
-    }
-    return cachedTemplate;
+  public String buildTwoStepVerification(String name, String link) {
+    Context context = new Context();
+    context.setVariable("name", name);
+    context.setVariable("verificationLink", link);
+    return templateEngine.process(TEMPLATE_PATH, context);
   }
 
-  // ======================================================
-  // TOKEN PAIR
-  // ======================================================
-  private record TokenPair(String raw, String hash) {}
+  static record TokenPair(String raw, String hash) {}
 }

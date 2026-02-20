@@ -39,9 +39,9 @@ public interface ContractMapper {
   @SubclassMapping(source = CrewSupplyContract.class, target = CrewSupplyContractResponse.class)
   ContractResponse toContractResponse(Contract contract);
 
-  LaborContractResponse toLaborContractResponse(LaborContract contract);
+  // LaborContractResponse toLaborContractResponse(LaborContract contract);
 
-  CrewSupplyContractResponse toCrewSupplyContractResponse(CrewSupplyContract contract);
+  // CrewSupplyContractResponse toCrewSupplyContractResponse(CrewSupplyContract contract);
 
   // request to contract
   @SubclassMapping(source = NewLaborContract.class, target = LaborContract.class)
@@ -62,19 +62,19 @@ public interface ContractMapper {
       target = UpdateLaborContractCommand.class)
   UpdateContractCommand toUpdateContractCommand(ContractPatchRequest request);
 
-  UpdateLaborContractCommand toLaborContractCommand(LaborContractPatchRequest request);
+  // UpdateLaborContractCommand toLaborContractCommand(LaborContractPatchRequest request);
 
   @SubclassMapping(source = LaborPartyDTO.class, target = LaborParty.class)
   Party toParty(PartyDTO partyRequest);
 
-  @InheritConfiguration(name = "toParty")
-  LaborParty toLaborParty(LaborPartyDTO partyRequest);
+  // @InheritConfiguration(name = "toParty")
+  // LaborParty toLaborParty(LaborPartyDTO partyRequest);
 
   @SubclassMapping(source = LaborParty.class, target = LaborPartyDTO.class)
   PartyDTO toPartyDTO(Party party);
 
-  @InheritConfiguration(name = "toPartyDTO")
-  LaborPartyDTO toLaborPartyDTO(LaborParty partyRequest);
+  // @InheritConfiguration(name = "toPartyDTO")
+  // LaborPartyDTO toLaborPartyDTO(LaborParty partyRequest);
 
   default int map(Version version) {
     return version.num();

@@ -5,13 +5,13 @@ import com.inlaco.crewmgrservice.feature.notify.NotificationPolicy;
 import com.inlaco.crewmgrservice.feature.notify.mail.EmailRequest;
 import com.inlaco.crewmgrservice.feature.recruitment.application.event.ApplicationSubmittedEvent;
 import com.inlaco.crewmgrservice.feature.recruitment.domain.model.JobApplication;
-import com.inlaco.crewmgrservice.shared.template.TextTemplateBuilder;
-import java.io.IOException;
 import java.time.Year;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 @Slf4j
 @Component
@@ -19,34 +19,32 @@ import org.springframework.stereotype.Component;
 public class ApplicationSubmittedEventListener {
 
   private final NotificationDispatcher notificationDispatcher;
+  private final SpringTemplateEngine templateEngine;
 
-  @EventListener(ApplicationSubmittedEvent.class)
+  @EventListener
   public void handleApplicationReviewed(ApplicationSubmittedEvent event) {
     JobApplication application = event.application();
     sendEmail(application);
   }
 
-  private String sendEmail(JobApplication application) {
+  private void sendEmail(JobApplication application) {
     final String COMPANY_NAME = "INLACO";
-    try {
-      notificationDispatcher.sendNotificationAsync(
-          NotificationPolicy.EMAIL,
-          EmailRequest.html(
-                  application.getEmail(),
-                  TextTemplateBuilder.relativePath(
-                          "src/main/resources/templates/email/html/recruitment/applied.html")
-                      .var("candidate_name", application.getFullName())
-                      .var("position_name", application.getPosition())
-                      .var("company_name", COMPANY_NAME)
-                      .var("current_year", String.format("%d", Year.now().getValue()))
-                      .var("contact_email", "inlaco@gmail.com")
-                      .buildContent(),
-                  "Application Successful - " + COMPANY_NAME)
-              .build());
+    notificationDispatcher.sendNotificationAsync(
+        NotificationPolicy.EMAIL,
+        EmailRequest.html(
+                application.getEmail(),
+                buildEmailBody(application),
+                "Application Successful - " + COMPANY_NAME)
+            .build());
+  }
 
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    return null;
+  private String buildEmailBody(JobApplication application) {
+    var context = new Context();
+    context.setVariable("candidate_name", application.getFullName());
+    context.setVariable("position_name", application.getPosition());
+    context.setVariable("company_name", "INLACO");
+    context.setVariable("current_year", String.format("%d", Year.now().getValue()));
+    context.setVariable("contact_email", "inlaco@gmail.com");
+    return templateEngine.process("mail/recruitment/applied.html", context);
   }
 }

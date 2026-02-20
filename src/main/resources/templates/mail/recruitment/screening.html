@@ -1,9 +1,12 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Application Received</title>
+    <title th:text="'Application Received - ' + ${companyName}">
+      Application Received
+    </title>
+
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -46,22 +49,30 @@
       }
     </style>
   </head>
+
   <body>
     <div class="email-container">
       <!-- Header -->
       <div class="header">
-        <h1>Inlaco Recruitment Team</h1>
+        <h1>
+          <span th:text="${companyName}">Company</span>
+          Recruitment Team
+        </h1>
       </div>
 
       <!-- Content -->
       <div class="content">
-        <p>Dear ${candidate_name},</p>
+        <p>
+          Dear
+          <span th:text="${candidateName}">Candidate</span>,
+        </p>
 
         <p>
           Thank you for submitting your application for the
-          <strong>${position_name}</strong> role at <strong>Inlaco</strong>. We
-          have reviewed your CV and are impressed by your qualifications and
-          experience.
+          <strong th:text="${positionName}">Position</strong>
+          role at
+          <strong th:text="${companyName}">Company</strong>. We have reviewed
+          your CV and are impressed by your qualifications and experience.
         </p>
 
         <p>
@@ -74,8 +85,8 @@
         <p>
           If you have any questions or need feedback about your application,
           feel free to reach out to us at
-          <a href="mailto:inlacocrewstudent@gmail.com">
-            inlacocrewstudent@gmail.com </a
+          <a th:href="'mailto:' + ${supportEmail}" th:text="${supportEmail}">
+            support@example.com </a
           >.
         </p>
 
@@ -85,12 +96,20 @@
         </p>
 
         <p>Sincerely,</p>
-        <p><strong>Inlaco Recruitment Team</strong></p>
+        <p>
+          <strong>
+            <span th:text="${companyName}">Company</span>
+            Recruitment Team
+          </strong>
+        </p>
       </div>
 
       <!-- Footer -->
       <div class="footer">
-        <p>© 2025 Inlaco. All rights reserved.</p>
+        <p>
+          © <span th:text="${currentYear}">2025</span>
+          <span th:text="${companyName}">Company</span>. All rights reserved.
+        </p>
       </div>
     </div>
   </body>

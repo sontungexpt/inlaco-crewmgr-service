@@ -6,7 +6,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface RedisEmailVerificationTokenRepository
+public interface EmailVerificationTokenRedisRepository
     extends CrudRepository<EmailVerificationTokenEntity, String> {
 
   Optional<EmailVerificationTokenEntity> findByHashToken(String hashToken);
