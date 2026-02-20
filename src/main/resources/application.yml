@@ -42,8 +42,6 @@ spring:
     name: "crewmgrservice"
   # profiles:
   #   active: dev
-  # main:
-  #   allow-bean-definition-overriding: true
   mail:
     host: smtp.gmail.com
     port: 587
@@ -69,8 +67,8 @@ spring:
     # cache-names:
     #   - rate-limit-buckets
     #   - rate-limit-filter
-    jcache:
-      provider: com.github.benmanes.caffeine.jcache.spi.CaffeineCachingProvider
+    # jcache:
+    #   provider: com.github.benmanes.caffeine.jcache.spi.CaffeineCachingProvider
 
   mongodb:
     database: ${MONGO_DATABASE}

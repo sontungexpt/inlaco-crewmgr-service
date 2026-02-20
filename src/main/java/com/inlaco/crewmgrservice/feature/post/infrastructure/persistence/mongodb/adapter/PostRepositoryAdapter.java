@@ -15,6 +15,8 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.jspecify.annotations.Nullable;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -73,11 +75,13 @@ public class PostRepositoryAdapter implements PostRepository {
   }
 
   @Override
+  @Cacheable(value = "posts", key = "#id", unless = "#result == null")
   public Optional<Post> findById(String id) {
     return repository.findByIdAndDeletedAtIsNull(id).map(mapper::toPost);
   }
 
   @Override
+  @CacheEvict(value = "posts", key = "#result.id")
   public Post save(Post post) {
     String id = post.getId();
     if (id == null) {
@@ -96,6 +100,7 @@ public class PostRepositoryAdapter implements PostRepository {
   }
 
   @Override
+  @CacheEvict(value = "posts", key = "#id")
   public void deleteById(String id) {
     mongoTemplate.updateFirst(
         Query.query(Criteria.where("_id").is(id).and("deletedAt").exists(false)),
@@ -105,5 +110,5 @@ public class PostRepositoryAdapter implements PostRepository {
         PostEntity.class);
   }
 
-  class PostEntityFacetResult extends FacetResult<PostEntity> {}
+  static class PostEntityFacetResult extends FacetResult<PostEntity> {}
 }

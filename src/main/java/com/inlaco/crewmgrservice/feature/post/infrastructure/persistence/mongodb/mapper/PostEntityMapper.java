@@ -30,14 +30,14 @@ public interface PostEntityMapper {
   @SubclassMapping(source = EventPostEntity.class, target = EventPost.class)
   Post toPost(PostEntity entity);
 
-  @InheritConfiguration(name = "toPost")
-  NewsPost toNewsPost(NewsPostEntity entity);
+  // @InheritConfiguration(name = "toPost")
+  // NewsPost toNewsPost(NewsPostEntity entity);
 
-  @InheritConfiguration(name = "toPost")
-  RecruitmentPost toRecruitmentPost(RecruitmentPostEntity entity);
+  // @InheritConfiguration(name = "toPost")
+  // RecruitmentPost toRecruitmentPost(RecruitmentPostEntity entity);
 
-  @InheritConfiguration(name = "toPost")
-  EventPost toEventPost(EventPostEntity entity);
+  // @InheritConfiguration(name = "toPost")
+  // EventPost toEventPost(EventPostEntity entity);
 
   // =================== Mapping Post to PostEntity ==================
   @SubclassMapping(source = NewsPost.class, target = NewsPostEntity.class)

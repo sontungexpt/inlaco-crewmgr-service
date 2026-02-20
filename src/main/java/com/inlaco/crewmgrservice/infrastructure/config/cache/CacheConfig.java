@@ -15,6 +15,25 @@ import org.springframework.context.annotation.Primary;
 @RequiredArgsConstructor
 public class CacheConfig {
 
+  @Primary
+  @Bean("caffeineCacheManager")
+  public CacheManager caffeineCacheManager() {
+    CaffeineCacheManager manager = new CaffeineCacheManager();
+
+    manager.registerCustomCache(
+        "roles", Caffeine.newBuilder().maximumSize(20).expireAfterWrite(1, TimeUnit.HOURS).build());
+
+    manager.registerCustomCache(
+        "courses",
+        Caffeine.newBuilder().maximumSize(1000).expireAfterWrite(10, TimeUnit.MINUTES).build());
+
+    manager.registerCustomCache(
+        "posts",
+        Caffeine.newBuilder().maximumSize(1000).expireAfterWrite(10, TimeUnit.MINUTES).build());
+
+    return manager;
+  }
+
   // private final ObjectMapper objectMapper;
 
   // // https://stackoverflow.com/questions/77973235/why-is-bucket4j-not-working-with-caffeine
@@ -38,21 +57,6 @@ public class CacheConfig {
   //   impl.createCache("rate-limit-buckets", configuration); // the cache for bucket4j
   //   return impl;
   // }
-
-  @Primary
-  @Bean("caffeineCacheManager")
-  public CacheManager caffeineCacheManager() {
-    CaffeineCacheManager manager = new CaffeineCacheManager();
-
-    manager.registerCustomCache(
-        "roles", Caffeine.newBuilder().maximumSize(20).expireAfterWrite(1, TimeUnit.HOURS).build());
-
-    manager.registerCustomCache(
-        "courses",
-        Caffeine.newBuilder().maximumSize(1000).expireAfterWrite(10, TimeUnit.MINUTES).build());
-
-    return manager;
-  }
 
   // @Bean
   // public RedisCacheConfiguration redisCacheConfiguration() {
