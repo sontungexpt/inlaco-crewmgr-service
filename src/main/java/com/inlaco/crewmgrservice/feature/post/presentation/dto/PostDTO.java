@@ -1,13 +1,11 @@
 package com.inlaco.crewmgrservice.feature.post.presentation.dto;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.inlaco.crewmgrservice.feature.post.domain.enums.PostType;
-import com.inlaco.crewmgrservice.infrastructure.web.annotation.patch.JsonPatchIgnoreProperties;
 import com.inlaco.crewmgrservice.shared.objectvalue.AssetResponse;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -26,14 +24,11 @@ import lombok.Setter;
   @Type(value = RecruitmentPostDTO.class, name = PostType.Fields.RECRUITMENT),
   @Type(value = EventPostDTO.class, name = PostType.Fields.EVENT)
 })
-@JsonIgnoreProperties(
-    value = {"id", "authorId", "createdAt", "updatedAt"},
-    allowGetters = true)
-@JsonPatchIgnoreProperties({"id", "authorId", "createdAt", "updatedAt"})
 @Getter
 @Setter
 public abstract class PostDTO {
 
+  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private String id;
 
   @NotBlank private String title;
@@ -58,8 +53,10 @@ public abstract class PostDTO {
 
   private String company;
 
+  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private String authorId;
 
+  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private Instant updatedAt;
 
   @NotNull private final PostType type;

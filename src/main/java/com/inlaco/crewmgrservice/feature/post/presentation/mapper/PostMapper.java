@@ -5,11 +5,13 @@ import com.inlaco.crewmgrservice.feature.post.domain.model.NewsPost;
 import com.inlaco.crewmgrservice.feature.post.domain.model.Post;
 import com.inlaco.crewmgrservice.feature.post.domain.model.PostUpdateCommand;
 import com.inlaco.crewmgrservice.feature.post.domain.model.RecruitmentPost;
+import com.inlaco.crewmgrservice.feature.post.domain.model.RecruitmentPostUpdateCommand;
 import com.inlaco.crewmgrservice.feature.post.presentation.dto.EventPostDTO;
 import com.inlaco.crewmgrservice.feature.post.presentation.dto.NewsPostDTO;
 import com.inlaco.crewmgrservice.feature.post.presentation.dto.PostDTO;
 import com.inlaco.crewmgrservice.feature.post.presentation.dto.RecruitmentPostDTO;
 import com.inlaco.crewmgrservice.feature.post.presentation.dto.request.update.PostPatchRequest;
+import com.inlaco.crewmgrservice.feature.post.presentation.dto.request.update.RecruitmentPostPatchRequest;
 import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadDispatcher;
 import com.inlaco.crewmgrservice.feature.upload.domain.enums.AssetType;
 import com.inlaco.crewmgrservice.shared.application.model.Patch;
@@ -58,6 +60,9 @@ public abstract class PostMapper {
       target = "attachments",
       source = "attachments",
       qualifiedByName = "toAssetAttachmentsPatch")
+  @SubclassMapping(
+      source = RecruitmentPostPatchRequest.class,
+      target = RecruitmentPostUpdateCommand.class)
   public abstract PostUpdateCommand toPostUpdateCommand(PostPatchRequest patchRequest);
 
   @Named("toAssetImagePatch")

@@ -11,8 +11,10 @@ import lombok.Setter;
 public class RecruitmentPost extends Post {
 
   private String position;
-
   private String expectedSalary;
+  private String workLocation;
+  private Instant recruitmentStartDate;
+  private Instant recruitmentEndDate;
 
   private boolean canceled = false;
 
@@ -35,9 +37,17 @@ public class RecruitmentPost extends Post {
         && (recruitmentEndDate == null || recruitmentEndDate.isAfter(Instant.now()));
   }
 
-  private String workLocation;
+  public <T extends PostUpdateCommand> boolean update(T command) {
+    boolean changed = super.update(command);
+    if (!(command instanceof RecruitmentPostUpdateCommand recruitmentCommand)) {
+      return changed;
+    }
 
-  private Instant recruitmentStartDate;
-
-  private Instant recruitmentEndDate;
+    return changed
+        | recruitmentCommand.getPosition().ifUpdated(this::setPosition)
+        | recruitmentCommand.getExpectedSalary().ifUpdated(this::setExpectedSalary)
+        | recruitmentCommand.getWorkLocation().ifUpdated(this::setWorkLocation)
+        | recruitmentCommand.getRecruitmentStartDate().ifUpdated(this::setRecruitmentStartDate)
+        | recruitmentCommand.getRecruitmentEndDate().ifUpdated(this::setRecruitmentEndDate);
+  }
 }

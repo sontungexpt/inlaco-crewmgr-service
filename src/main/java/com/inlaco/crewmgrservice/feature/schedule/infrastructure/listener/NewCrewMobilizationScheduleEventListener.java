@@ -62,16 +62,15 @@ public class NewCrewMobilizationScheduleEventListener {
       return;
     }
 
-    EmailRequest emailRequest =
-        EmailRequest.html(profile.getEmail(), buildBodyContent(profile, schedule), EMAIL_SUBJECT)
-            .build();
-
     log.debug(
         "Sending schedule notification email to sailor [id={}, email={}]",
         profile.getId(),
         profile.getEmail());
 
-    notificationFactory.sendNotificationAsync(NotificationPolicy.EMAIL, emailRequest);
+    notificationFactory.sendNotificationAsync(
+        NotificationPolicy.EMAIL,
+        EmailRequest.html(profile.getEmail(), buildBodyContent(profile, schedule), EMAIL_SUBJECT)
+            .build());
   }
 
   private String buildBodyContent(CrewProfile profile, CrewMobilizationSchedule schedule) {

@@ -54,9 +54,6 @@ public class ApplicationStatusChangedEventListener {
     var context = new Context();
     context.setVariable("candidate_name", application.getFullName());
     context.setVariable("position_name", application.getPosition());
-    // context.setVariable("company_name", "INLACO");
-    // context.setVariable("current_year", String.format("%d", Year.now().getValue()));
-    // context.setVariable("contact_email", "inlaco@gmail.com");
     return templateEngine.process(path, context);
   }
 }

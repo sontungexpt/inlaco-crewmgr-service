@@ -6,7 +6,6 @@ import com.inlaco.crewmgrservice.feature.contract.presentation.dto.response.Cont
 import com.inlaco.crewmgrservice.feature.contract.presentation.mapper.ContractMapper;
 import com.inlaco.crewmgrservice.infrastructure.config.openapi.OpenApiConfig;
 import com.inlaco.crewmgrservice.infrastructure.web.validation.annotation.ObjectId;
-import com.inlaco.crewmgrservice.shared.support.ConsoleUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.annotation.security.RolesAllowed;
@@ -32,7 +31,6 @@ public class ContractCommandController {
   @PatchMapping(value = "/{id}", consumes = "application/merge-patch+json")
   public ContractResponse updateContract(
       @ObjectId @PathVariable("id") String id, @RequestBody ContractPatchRequest patch) {
-    ConsoleUtils.print(patch);
     return contractMapper.toContractResponse(
         updateContractUseCase.update(id, contractMapper.toUpdateContractCommand(patch)));
   }

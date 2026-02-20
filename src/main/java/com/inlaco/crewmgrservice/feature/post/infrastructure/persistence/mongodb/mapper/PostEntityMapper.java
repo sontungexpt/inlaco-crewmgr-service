@@ -9,7 +9,6 @@ import com.inlaco.crewmgrservice.feature.post.infrastructure.persistence.mongodb
 import com.inlaco.crewmgrservice.feature.post.infrastructure.persistence.mongodb.entity.PostEntity;
 import com.inlaco.crewmgrservice.feature.post.infrastructure.persistence.mongodb.entity.RecruitmentPostEntity;
 import com.inlaco.crewmgrservice.shared.mapstruct.config.CentralMapperConfig;
-import org.mapstruct.InheritConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.ReportingPolicy;
@@ -30,29 +29,11 @@ public interface PostEntityMapper {
   @SubclassMapping(source = EventPostEntity.class, target = EventPost.class)
   Post toPost(PostEntity entity);
 
-  // @InheritConfiguration(name = "toPost")
-  // NewsPost toNewsPost(NewsPostEntity entity);
-
-  // @InheritConfiguration(name = "toPost")
-  // RecruitmentPost toRecruitmentPost(RecruitmentPostEntity entity);
-
-  // @InheritConfiguration(name = "toPost")
-  // EventPost toEventPost(EventPostEntity entity);
-
   // =================== Mapping Post to PostEntity ==================
   @SubclassMapping(source = NewsPost.class, target = NewsPostEntity.class)
   @SubclassMapping(source = RecruitmentPost.class, target = RecruitmentPostEntity.class)
   @SubclassMapping(source = EventPost.class, target = EventPostEntity.class)
   PostEntity toPostEntity(Post post);
-
-  @InheritConfiguration(name = "toPostEntity")
-  NewsPostEntity toNewsPostEntity(NewsPost post);
-
-  @InheritConfiguration(name = "toPostEntity")
-  RecruitmentPostEntity toRecruitmentPostEntity(RecruitmentPost post);
-
-  @InheritConfiguration(name = "toPostEntity")
-  EventPostEntity toEventPostEntity(EventPost post);
 
   // =================== Update PostEntity from Post ==================
   // NOTE: WAITING FOR PULL REQUEST MERGED

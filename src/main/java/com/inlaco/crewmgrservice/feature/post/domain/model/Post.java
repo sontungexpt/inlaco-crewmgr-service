@@ -2,7 +2,6 @@ package com.inlaco.crewmgrservice.feature.post.domain.model;
 
 import com.inlaco.crewmgrservice.feature.post.domain.enums.PostType;
 import com.inlaco.crewmgrservice.shared.objectvalue.Asset;
-import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
 import lombok.Getter;
@@ -12,7 +11,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public abstract class Post implements Serializable {
+public abstract class Post {
 
   private String id;
 
@@ -34,7 +33,7 @@ public abstract class Post implements Serializable {
     return true;
   }
 
-  public boolean update(PostUpdateCommand command) {
+  public <T extends PostUpdateCommand> boolean update(T command) {
     return command.getTitle().ifUpdated(this::setTitle)
         | command.getContent().ifUpdated(this::setContent)
         | command.getDescription().ifUpdated(this::setDescription)
