@@ -4,10 +4,10 @@ import lombok.Builder;
 
 @Builder
 public record Asset(
-    String type,
     String assetId,
     String publicId,
     String displayName,
+    String type,
     String resourceType,
     Long size,
     String format) {}

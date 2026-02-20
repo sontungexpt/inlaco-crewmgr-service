@@ -1,4 +1,4 @@
-package com.inlaco.crewmgrservice.utils;
+package com.inlaco.crewmgrservice.serialization.deserializer;
 
 import static org.junit.jupiter.api.Assertions.*;
 
