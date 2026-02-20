@@ -75,6 +75,7 @@ public abstract class Contract {
   }
 
   private void restartLifecycle(Instant now) {
+    contractFile = null;
     statusHistories.clear();
     ContractStatus oldStatus = status;
     status = ContractStatus.DRAFT;

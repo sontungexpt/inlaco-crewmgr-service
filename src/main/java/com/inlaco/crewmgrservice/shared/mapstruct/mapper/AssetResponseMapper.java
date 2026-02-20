@@ -14,12 +14,12 @@ public class AssetResponseMapper {
 
   public AssetResponse map(Asset asset) {
     return AssetResponse.builder()
-        .type(asset.getType())
-        .publicId(asset.getPublicId())
-        .displayName(asset.getDisplayName())
-        .resourceType(asset.getResourceType())
-        .size(asset.getSize())
-        .format(asset.getFormat())
+        .type(asset.type())
+        .publicId(asset.publicId())
+        .displayName(asset.displayName())
+        .resourceType(asset.resourceType())
+        .size(asset.size())
+        .format(asset.format())
         .url(urlResolver.resolve(asset))
         .build();
   }

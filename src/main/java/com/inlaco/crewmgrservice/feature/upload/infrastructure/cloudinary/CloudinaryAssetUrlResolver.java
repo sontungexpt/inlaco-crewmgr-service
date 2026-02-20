@@ -15,10 +15,10 @@ public class CloudinaryAssetUrlResolver implements AssetUrlResolver {
   public String resolve(Asset asset) {
     return cloudinary
         .url()
-        .publicId(asset.getPublicId())
+        .publicId(asset.publicId())
         .secure(true)
-        .resourceType(asset.getResourceType())
-        .format(asset.getFormat())
+        .resourceType(asset.resourceType())
+        .format(asset.format())
         .generate();
   }
 }

@@ -7,15 +7,18 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public interface AssetMapper {
 
-  default Asset toAsset(AssetMetadata metadata) {
-    return Asset.builder()
-        .type(metadata.getType())
-        .assetId(metadata.getAssetId())
-        .publicId(metadata.getPublicId())
-        .displayName(metadata.getDisplayName())
-        .resourceType(metadata.getResourceType())
-        .size(metadata.getSize())
-        .format(metadata.getFormat())
-        .build();
-  }
+  Asset toAsset(AssetMetadata metadata);
+
+  // default Asset toAsset(AssetMetadata metadata) {
+  //   return Asset.builder()
+  //       .type(metadata.getType())
+  //       .assetId(metadata.getAssetId())
+  //       .publicId(metadata.getPublicId())
+  //       .displayName(metadata.getDisplayName())
+  //       .resourceType(metadata.getResourceType())
+  //       .size(metadata.getSize())
+  //       .format(metadata.getFormat())
+  //       .build();
+  // }
+
 }
