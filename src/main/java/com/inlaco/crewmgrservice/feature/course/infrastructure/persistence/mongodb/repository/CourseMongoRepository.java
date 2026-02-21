@@ -13,8 +13,4 @@ public interface CourseMongoRepository extends MongoRepository<CourseEntity, Str
   Page<CourseEntity> findByDeletedAtIsNull(Pageable pageable);
 
   Optional<CourseEntity> findByIdAndDeletedAtIsNull(String id);
-
-  // Page<Course> findByDeletedAndNameContainingIgnoreCase(
-  //     boolean isDeleted, String name, Pageable pageable);
-
 }

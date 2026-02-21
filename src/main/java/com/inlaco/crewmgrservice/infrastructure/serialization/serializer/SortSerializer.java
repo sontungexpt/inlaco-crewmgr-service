@@ -1,5 +1,6 @@
 package com.inlaco.crewmgrservice.infrastructure.serialization.serializer;
 
+import io.jsonwebtoken.lang.Collections;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +16,7 @@ public class SortSerializer extends ValueSerializer<Sort> {
       throws JacksonException {
 
     if (value == null || value.isUnsorted()) {
-      ctxt.findValueSerializer(List.class).serialize(null, gen, ctxt);
+      ctxt.findValueSerializer(List.class).serialize(Collections.emptyList(), gen, ctxt);
       return;
     }
 

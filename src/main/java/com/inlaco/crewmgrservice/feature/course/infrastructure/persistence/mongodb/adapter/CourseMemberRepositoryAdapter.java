@@ -40,13 +40,13 @@ public class CourseMemberRepositoryAdapter implements CourseMemberRepository {
   public Optional<CourseMember> findByCourseIdAndUserId(String courseId, String userId) {
     return repository
         .findByCourseIdAndUserId(new ObjectId(courseId), new ObjectId(userId))
-        .map(mapper::toDomain);
+        .map(mapper::toCourseMemeber);
   }
 
   @Override
   public List<CourseMember> findByCourseId(String courseId) {
     return repository.findByCourseId(new ObjectId(courseId)).stream()
-        .map(mapper::toDomain)
+        .map(mapper::toCourseMemeber)
         .toList();
   }
 
@@ -56,7 +56,7 @@ public class CourseMemberRepositoryAdapter implements CourseMemberRepository {
 
     if (id == null) {
       // INSERT
-      return mapper.toDomain(repository.insert(mapper.toEntity(courseMember)));
+      return mapper.toCourseMemeber(repository.insert(mapper.toCourseMemberEntity(courseMember)));
     }
     // UPDATE
     CourseMemberEntity entity =
@@ -64,13 +64,13 @@ public class CourseMemberRepositoryAdapter implements CourseMemberRepository {
             .findById(id)
             .map(
                 existing -> {
-                  mapper.updateFromDomain(courseMember, existing);
+                  mapper.updateFromCourseMember(courseMember, existing);
                   return existing;
                 })
             // allow insert with custom id
-            .orElseGet(() -> mapper.toEntity(courseMember));
+            .orElseGet(() -> mapper.toCourseMemberEntity(courseMember));
 
-    return mapper.toDomain(repository.save(entity));
+    return mapper.toCourseMemeber(repository.save(entity));
   }
 
   @Override
@@ -108,16 +108,17 @@ public class CourseMemberRepositoryAdapter implements CourseMemberRepository {
           // If id exists but not in DB → treat as insert
           newDomains.add(domain);
         } else {
-          mapper.updateFromDomain(domain, existing);
-          result.add(mapper.toDomain(repository.save(existing)));
+          mapper.updateFromCourseMember(domain, existing);
+          result.add(mapper.toCourseMemeber(repository.save(existing)));
         }
       }
     }
 
     // 3️⃣ Bulk insert
     if (!newDomains.isEmpty()) {
-      List<CourseMemberEntity> newEntities = newDomains.stream().map(mapper::toEntity).toList();
-      result.addAll(repository.insert(newEntities).stream().map(mapper::toDomain).toList());
+      List<CourseMemberEntity> newEntities =
+          newDomains.stream().map(mapper::toCourseMemberEntity).toList();
+      result.addAll(repository.insert(newEntities).stream().map(mapper::toCourseMemeber).toList());
     }
 
     return result;

@@ -31,6 +31,10 @@ public class CacheConfig {
         "posts",
         Caffeine.newBuilder().maximumSize(1000).expireAfterWrite(10, TimeUnit.MINUTES).build());
 
+    manager.registerCustomCache(
+        "crew-profiles",
+        Caffeine.newBuilder().maximumSize(1000).expireAfterWrite(10, TimeUnit.MINUTES).build());
+
     return manager;
   }
 

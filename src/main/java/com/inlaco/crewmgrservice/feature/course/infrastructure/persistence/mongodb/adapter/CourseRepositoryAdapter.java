@@ -1,6 +1,7 @@
 package com.inlaco.crewmgrservice.feature.course.infrastructure.persistence.mongodb.adapter;
 
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
+import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 import com.inlaco.crewmgrservice.feature.course.application.model.CourseSearchCriteria;
 import com.inlaco.crewmgrservice.feature.course.application.port.out.CourseRepository;
@@ -11,7 +12,6 @@ import com.inlaco.crewmgrservice.feature.course.infrastructure.persistence.mongo
 import com.inlaco.crewmgrservice.feature.course.infrastructure.persistence.mongodb.mapper.CourseEntityMapper;
 import com.inlaco.crewmgrservice.feature.course.infrastructure.persistence.mongodb.repository.CourseMongoRepository;
 import com.inlaco.crewmgrservice.infrastructure.persistence.mongodb.aggregation.FacetResult;
-import com.inlaco.crewmgrservice.infrastructure.persistence.support.PageableUtils;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -58,16 +58,15 @@ public class CourseRepositoryAdapter implements CourseRepository {
 
   @Override
   public Page<Course> findAll(@Nullable CourseSearchCriteria criteria, Pageable pageable) {
-    pageable = PageableUtils.enforceIdSort(pageable);
-
-    var query = Criteria.where("deletedAt").exists(false);
+    var query = where("deletedAt").exists(false);
 
     if (criteria != null) {
       if (StringUtils.hasText(criteria.getKeyword())) {
         query.orOperator(
-            Criteria.where("name").regex(criteria.getKeyword(), "i"),
-            Criteria.where("achievedPosition").regex(criteria.getKeyword(), "i"));
+            where("name").regex(criteria.getKeyword(), "i"),
+            where("achievedPosition").regex(criteria.getKeyword(), "i"));
       }
+
       Instant now = Instant.now();
 
       if (Boolean.TRUE.equals(criteria.getNonExpired())) {
@@ -98,7 +97,7 @@ public class CourseRepositoryAdapter implements CourseRepository {
   }
 
   @Override
-  @CacheEvict(value = "courses", key = "#result.id")
+  @CacheEvict(value = "courses", key = "#course.id", condition = "#course.id != null")
   public Course save(Course course) {
     String id = course.getId();
     if (id == null) {

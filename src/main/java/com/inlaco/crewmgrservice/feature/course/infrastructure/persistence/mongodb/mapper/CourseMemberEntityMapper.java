@@ -6,14 +6,20 @@ import com.inlaco.crewmgrservice.shared.mapstruct.config.CentralMapperConfig;
 import org.mapstruct.InheritConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.ReportingPolicy;
 
-@Mapper(config = CentralMapperConfig.class, componentModel = "spring")
+@Mapper(
+    config = CentralMapperConfig.class,
+    unmappedSourcePolicy = ReportingPolicy.IGNORE,
+    unmappedTargetPolicy = ReportingPolicy.IGNORE,
+    componentModel = "spring")
 public interface CourseMemberEntityMapper {
 
-  CourseMember toDomain(CourseMemberEntity entity);
+  CourseMember toCourseMemeber(CourseMemberEntity entity);
 
-  CourseMemberEntity toEntity(CourseMember course);
+  CourseMemberEntity toCourseMemberEntity(CourseMember course);
 
-  @InheritConfiguration(name = "toEntity")
-  void updateFromDomain(CourseMember courseMember, @MappingTarget CourseMemberEntity existing);
+  @InheritConfiguration(name = "toCourseMemberEntity")
+  void updateFromCourseMember(
+      CourseMember courseMember, @MappingTarget CourseMemberEntity existing);
 }

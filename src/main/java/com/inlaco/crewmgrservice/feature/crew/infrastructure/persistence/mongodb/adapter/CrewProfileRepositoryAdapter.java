@@ -17,16 +17,22 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.jspecify.annotations.Nullable;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.BulkOperations;
+import org.springframework.data.mongodb.core.BulkOperations.BulkMode;
+import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.util.Streamable;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
@@ -36,7 +42,7 @@ import org.springframework.util.StringUtils;
 public class CrewProfileRepositoryAdapter implements CrewProfileRepository {
   private final CrewProfileMongoRepository repository;
   private final CrewProfileEntityMapper mapper;
-  private final MongoTemplate mongoTemplate;
+  private final MongoOperations mongoOperations;
 
   @Override
   public Optional<CrewProfile> findById(String profileId) {
@@ -44,11 +50,13 @@ public class CrewProfileRepositoryAdapter implements CrewProfileRepository {
   }
 
   @Override
+  @Cacheable(value = "crew-profiles", key = "'account:' + #accountId")
   public Optional<CrewProfile> findByAccountId(String accountId) {
     return repository.findByAccountId(new ObjectId(accountId)).map(mapper::toCrewProfile);
   }
 
   @Override
+  @Cacheable(value = "crew-profiles", key = "'card:' + #cardId")
   public Optional<CrewProfile> findByEmployeeCardId(String cardId) {
     return repository.findByEmployeeCardId(cardId).map(mapper::toCrewProfile);
   }
@@ -59,73 +67,88 @@ public class CrewProfileRepositoryAdapter implements CrewProfileRepository {
   }
 
   @Override
+  @Caching(
+      evict = {
+        @CacheEvict(
+            value = "crew-profiles",
+            key = "'account:' + #profile.accountId",
+            condition = "#profile != null && #profile.accountId != null"),
+        @CacheEvict(
+            value = "crew-profiles",
+            key = "'card:' + #profile.employeeCardId",
+            condition = "#profile != null && #profile.employeeCardId != null"),
+      })
   public CrewProfile save(CrewProfile profile) {
-    CrewProfileEntity entity;
     String id = profile.getId();
     if (id == null) {
       // INSERT
-      entity = mapper.toCrewProfileEntity(profile);
-    } else {
-      entity =
-          repository
-              .findById(id)
-              .map(
-                  existing -> {
-                    mapper.updateFromCrewProfile(profile, existing);
-                    return existing;
-                  })
-              .orElseGet(() -> mapper.toCrewProfileEntity(profile));
+      return mapper.toCrewProfile(repository.insert(mapper.toCrewProfileEntity(profile)));
     }
+    CrewProfileEntity entity =
+        repository
+            .findById(id)
+            .map(
+                existing -> {
+                  mapper.updateFromCrewProfile(profile, existing);
+                  return existing;
+                })
+            .orElseGet(() -> mapper.toCrewProfileEntity(profile));
     return mapper.toCrewProfile(repository.save(entity));
   }
 
-  @Override
+  @CacheEvict(value = "crew-profiles", allEntries = true)
   public List<CrewProfile> saveAll(Iterable<CrewProfile> profiles) {
     if (profiles == null) return Collections.emptyList();
-    List<CrewProfile> domainList = StreamSupport.stream(profiles.spliterator(), false).toList();
-    if (domainList.isEmpty()) return Collections.emptyList();
+    Streamable<CrewProfile> source = Streamable.of(profiles);
+    if (source.isEmpty()) return Collections.emptyList();
 
-    // split new and existing
-    List<CrewProfile> newProfiles = new ArrayList<>();
-    List<CrewProfile> existingProfiles = new ArrayList<>();
+    List<CrewProfileEntity> newEntities = new ArrayList<>();
+    List<CrewProfile> updateProfiles = new ArrayList<>();
+    source.stream()
+        .forEach(
+            profile -> {
+              String id = profile.getId();
+              if (id == null) {
+                newEntities.add(mapper.toCrewProfileEntity(profile));
+              } else {
+                updateProfiles.add(profile);
+              }
+            });
 
-    for (CrewProfile profile : domainList) {
-      if (profile.getId() == null) {
-        newProfiles.add(profile);
+    if (updateProfiles.isEmpty()) {
+      return mongoOperations.insert(newEntities, CrewProfileEntity.class).stream()
+          .map(mapper::toCrewProfile)
+          .toList();
+    }
+
+    List<String> resultIds =
+        updateProfiles.stream().map(CrewProfile::getId).collect(Collectors.toList());
+
+    Map<String, CrewProfileEntity> existingMap =
+        repository.findAllById(resultIds).stream()
+            .collect(Collectors.toMap(CrewProfileEntity::getId, Function.identity()));
+
+    BulkOperations bulkOps = mongoOperations.bulkOps(BulkMode.UNORDERED, CrewProfileEntity.class);
+    if (!newEntities.isEmpty()) {
+      bulkOps.insert(newEntities);
+    }
+
+    for (CrewProfile profile : updateProfiles) {
+      String id = profile.getId();
+      CrewProfileEntity existing = existingMap.get(id);
+      if (existing == null) {
+        bulkOps.insert(mapper.toCrewProfileEntity(profile));
       } else {
-        existingProfiles.add(profile);
+        mapper.updateFromCrewProfile(profile, existing);
+        bulkOps.replaceOne(Query.query(Criteria.where("_id").is(id)), existing);
       }
     }
+    bulkOps
+        .execute()
+        .getInserts()
+        .forEach(r -> resultIds.add(r.getId().asObjectId().getValue().toHexString()));
 
-    List<CrewProfile> result = new ArrayList<>(domainList.size());
-
-    if (!existingProfiles.isEmpty()) {
-      Map<String, CrewProfileEntity> existingMap =
-          repository
-              .findAllById(existingProfiles.stream().map(CrewProfile::getId).toList())
-              .stream()
-              .collect(Collectors.toMap(CrewProfileEntity::getId, Function.identity()));
-
-      for (CrewProfile profile : existingProfiles) {
-        CrewProfileEntity existing = existingMap.get(profile.getId());
-        if (existing == null) {
-          // If not existing, treat as insert
-          newProfiles.add(profile);
-        } else {
-          mapper.updateFromCrewProfile(profile, existing);
-          result.add(mapper.toCrewProfile(repository.save(existing)));
-        }
-      }
-    }
-
-    // bulk insert
-    if (!newProfiles.isEmpty()) {
-      List<CrewProfileEntity> newEntities =
-          newProfiles.stream().map(mapper::toCrewProfileEntity).toList();
-      result.addAll(repository.insert(newEntities).stream().map(mapper::toCrewProfile).toList());
-    }
-
-    return result;
+    return repository.findAllById(resultIds).stream().map(mapper::toCrewProfile).toList();
   }
 
   @Override
@@ -187,5 +210,13 @@ public class CrewProfileRepositoryAdapter implements CrewProfileRepository {
   @Override
   public List<CrewProfile> findAllByAccountId(Iterable<String> accountIds) {
     return repository.findByAccountIdIn(accountIds).stream().map(mapper::toCrewProfile).toList();
+  }
+
+  public void deleteAll() {
+    repository.deleteAll();
+  }
+
+  public long count() {
+    return repository.count();
   }
 }

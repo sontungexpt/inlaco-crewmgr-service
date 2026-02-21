@@ -5,9 +5,15 @@ import com.inlaco.crewmgrservice.feature.user.domain.enums.Gender;
 import com.inlaco.crewmgrservice.shared.objectvalue.Asset;
 import java.time.Instant;
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class CrewProfile {
 
   private String id;
