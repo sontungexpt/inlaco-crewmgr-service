@@ -50,7 +50,7 @@ public class RoleRepositoryAdapter implements RoleRepository {
   }
 
   @Override
-  @CacheEvict(value = "roles", key = "#result.id")
+  @CacheEvict(value = "roles", key = "#role.id", condition = "#role != null && #role.id != null")
   public Role save(Role role) {
     String id = role.getId();
     if (id == null) {

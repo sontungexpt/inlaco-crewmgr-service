@@ -193,7 +193,7 @@ public class CrewProfileRepositoryAdapter implements CrewProfileRepository {
                     limit(pageable.getPageSize()))
                 .as(FacetResult.DATA_FACET_NAME));
 
-    return mongoTemplate
+    return mongoOperations
         .aggregate(aggregation, CrewProfileEntity.class, CrewProfileEntityFacetResult.class)
         .getUniqueMappedResult()
         .toPage(pageable)

@@ -26,7 +26,7 @@ import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -41,7 +41,7 @@ import org.springframework.util.StringUtils;
 public class CourseRepositoryAdapter implements CourseRepository {
 
   private final CourseMongoRepository repository;
-  private final MongoTemplate mongoTemplate;
+  private final MongoOperations mongoOperations;
   private final AuditorAware<ObjectId> auditorAware;
   private final CourseEntityMapper mapper;
 
@@ -89,7 +89,7 @@ public class CourseRepositoryAdapter implements CourseRepository {
                     limit(pageable.getPageSize()))
                 .as(FacetResult.DATA_FACET_NAME));
 
-    return mongoTemplate
+    return mongoOperations
         .aggregate(aggregation, CourseEntity.class, CourseEntityFacetResult.class)
         .getUniqueMappedResult()
         .toPage(pageable)
@@ -118,7 +118,7 @@ public class CourseRepositoryAdapter implements CourseRepository {
   @Override
   @CacheEvict(value = "courses", key = "#id")
   public void deleteById(String id) {
-    mongoTemplate.updateFirst(
+    mongoOperations.updateFirst(
         Query.query(Criteria.where("_id").is(id).and("deletedAt").exists(false)),
         new Update()
             .addToSet("deletedBy", auditorAware.getCurrentAuditor().orElse(null))
@@ -137,7 +137,7 @@ public class CourseRepositoryAdapter implements CourseRepository {
                 .as(FacetResult.COUNT_FACET_NAME)
                 .and(
                     lookup(
-                        mongoTemplate.getCollectionName(CourseEntity.class),
+                        mongoOperations.getCollectionName(CourseEntity.class),
                         "courseId",
                         "_id",
                         "courses"),
@@ -152,13 +152,13 @@ public class CourseRepositoryAdapter implements CourseRepository {
                     limit(pageable.getPageSize()))
                 .as(FacetResult.DATA_FACET_NAME));
     var raw =
-        mongoTemplate
+        mongoOperations
             .aggregate(aggregation, CourseMemberEntity.class, Document.class)
             .getUniqueMappedResult();
 
     if (raw == null) return Page.empty(pageable);
 
-    MongoConverter converter = mongoTemplate.getConverter();
+    MongoConverter converter = mongoOperations.getConverter();
 
     // 2️⃣ Extract count
     long total =
