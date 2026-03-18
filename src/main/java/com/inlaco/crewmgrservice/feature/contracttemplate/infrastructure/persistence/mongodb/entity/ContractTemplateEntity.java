@@ -29,7 +29,7 @@ public class ContractTemplateEntity {
 
   @CreatedDate private Instant createdAt;
 
-  @LastModifiedBy private Instant updatedAt;
+  @LastModifiedDate private Instant updatedAt;
 
-  @LastModifiedDate private ObjectId updatedBy;
+  @LastModifiedBy private ObjectId updatedBy;
 }

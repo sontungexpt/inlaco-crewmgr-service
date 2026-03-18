@@ -21,6 +21,7 @@ import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.jspecify.annotations.Nullable;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
@@ -97,7 +98,7 @@ public class CourseRepositoryAdapter implements CourseRepository {
   }
 
   @Override
-  @CacheEvict(value = "courses", key = "#course.id", condition = "#course.id != null")
+  @CachePut(value = "courses", key = "#result.id")
   public Course save(Course course) {
     String id = course.getId();
     if (id == null) {

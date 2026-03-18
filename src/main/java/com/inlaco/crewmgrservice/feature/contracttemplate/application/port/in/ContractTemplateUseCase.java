@@ -11,7 +11,7 @@ public interface ContractTemplateUseCase {
 
   Page<ContractTemplate> getAllTemplates(@Nullable String type, Pageable pageable);
 
-  ContractTemplate uploadTemplate(String templateFilePubId, ContractTemplate template);
+  ContractTemplate uploadTemplate(String templateFileAssetId, ContractTemplate template);
 
   void removeTemplate(String id);
 }

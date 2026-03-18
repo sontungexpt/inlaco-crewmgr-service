@@ -81,6 +81,7 @@ public class EmailTwoStepVerificationService implements TwoStepVerificationServi
   @Override
   public void verify(String rawToken) {
     String hash = hash(rawToken);
+
     EmailVerificationToken token =
         emailVerificationTokenRepository
             .findByHashToken(hash)
@@ -116,7 +117,7 @@ public class EmailTwoStepVerificationService implements TwoStepVerificationServi
   }
 
   private String generateVerificationLink(String token) {
-    return UriEncoder.encode(SERVER_BASE_URL + "/api/v1/auth/two-step-verification?token=" + token);
+    return SERVER_BASE_URL + "/api/v1/auth/two-step-verification?token=" + UriEncoder.encode(token);
   }
 
   public String buildTwoStepVerification(String name, String link) {

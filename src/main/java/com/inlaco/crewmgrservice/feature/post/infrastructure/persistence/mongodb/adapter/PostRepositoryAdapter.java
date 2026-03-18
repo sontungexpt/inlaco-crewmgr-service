@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.jspecify.annotations.Nullable;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.domain.Page;
@@ -81,7 +82,7 @@ public class PostRepositoryAdapter implements PostRepository {
   }
 
   @Override
-  @CacheEvict(value = "posts", key = "#post.id", condition = "#post.id != null")
+  @CachePut(value = "posts", key = "#result.id")
   public Post save(Post post) {
     String id = post.getId();
     if (id == null) {

@@ -36,8 +36,8 @@ public class ContractTemplateService implements ContractTemplateUseCase {
   }
 
   @Override
-  public ContractTemplate uploadTemplate(String templateFilePubId, ContractTemplate template) {
-    Asset metadata = uploadDispatcher.fetch(AssetType.CONTRACT_TEMPLATE, templateFilePubId);
+  public ContractTemplate uploadTemplate(String templateFileAssetId, ContractTemplate template) {
+    Asset metadata = uploadDispatcher.fetch(AssetType.CONTRACT_TEMPLATE, templateFileAssetId);
     template.setMetadata(metadata);
     return contractTemplateRepository.save(template);
   }

@@ -46,7 +46,7 @@
     <dotenv.version>5.1.0</dotenv.version>
     <slugify.version>3.0.7</slugify.version>
     <icu4j.version>76.1</icu4j.version>
-    <springdoc.version>2.8.1</springdoc.version>
+    <springdoc.version>3.0.2</springdoc.version>
     <json-patch.version>1.13</json-patch.version>
     <resend.version>LATEST</resend.version>
     <springfilter.version>3.2.5</springfilter.version>
