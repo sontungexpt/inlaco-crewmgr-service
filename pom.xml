@@ -52,7 +52,7 @@
     <springfilter.version>3.2.5</springfilter.version>
     <vonage.version>8.14.0</vonage.version>
     <javaxjson.version>1.1.4</javaxjson.version>
-    <org.mapstruct.version>1.6.3</org.mapstruct.version>
+    <org.mapstruct.version>1.7.0.Beta1</org.mapstruct.version>
     <spring-retry.version>2.0.12</spring-retry.version>
     <spring-aop.version>4.0.0-M2</spring-aop.version>
   </properties>
