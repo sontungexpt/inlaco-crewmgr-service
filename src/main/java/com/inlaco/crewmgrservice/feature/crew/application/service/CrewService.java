@@ -53,6 +53,7 @@ public class CrewService implements CrewUseCase {
     String accountId = command.accountId();
     CrewProfile crewPrrofile =
         crewProfileRepository.findByAccountId(accountId).orElseGet(() -> new CrewProfile());
+
     crewPrrofile.setFullName(command.fullName());
     crewPrrofile.setAddress(command.address());
     crewPrrofile.setPhoneNumber(command.phone());

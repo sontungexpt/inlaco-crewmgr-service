@@ -18,9 +18,14 @@ public class RecruitmentPost extends Post {
 
   private boolean canceled = false;
 
-  public void reopenUntil(Instant until) {
-    if (until.isBefore(recruitmentStartDate)) {
+  public void forceOpenUntil(Instant until) {
+    Instant now = Instant.now();
+    if (until.isBefore(now) || until.isBefore(recruitmentStartDate)) {
       return;
+    }
+
+    if (recruitmentStartDate.isAfter(now)) {
+      recruitmentEndDate = now;
     }
     canceled = false;
     recruitmentEndDate = until;

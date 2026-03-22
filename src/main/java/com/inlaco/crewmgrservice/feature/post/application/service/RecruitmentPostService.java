@@ -26,23 +26,20 @@ public class RecruitmentPostService implements RecruitmentPostUseCase {
         postRepository
             .findById(postId)
             .orElseThrow(() -> new ResourceNotFoundException(Post.class, "id", postId));
-
-    if (post instanceof RecruitmentPost) {
-      if (active) {
-        if (reopenUntil == null) {
-          // plus 10 days from now
-          reopenUntil = Instant.now().plus(10, ChronoUnit.DAYS);
-        }
-
-        ((RecruitmentPost) post).reopenUntil(reopenUntil);
-      } else {
-        ((RecruitmentPost) post).cancel();
-      }
-
-      postRepository.save(post);
-      return;
+    if (!(post instanceof RecruitmentPost recruitmentPost)) {
+      throw new ResourceNotFoundException(Post.class, "id", postId);
     }
 
-    throw new ResourceNotFoundException(Post.class, "id", postId);
+    if (active) {
+      if (reopenUntil == null) {
+        // plus 10 days from now
+        reopenUntil = Instant.now().plus(10, ChronoUnit.DAYS);
+      }
+      recruitmentPost.forceOpenUntil(reopenUntil);
+    } else {
+      recruitmentPost.cancel();
+    }
+
+    postRepository.save(post);
   }
 }
