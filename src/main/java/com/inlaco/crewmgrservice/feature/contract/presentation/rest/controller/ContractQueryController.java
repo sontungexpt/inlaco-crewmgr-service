@@ -4,6 +4,7 @@ import com.inlaco.crewmgrservice.feature.contract.application.model.ContractSear
 import com.inlaco.crewmgrservice.feature.contract.application.port.in.ContractQueryUseCase;
 import com.inlaco.crewmgrservice.feature.contract.application.port.in.LaborContractQueryUseCase;
 import com.inlaco.crewmgrservice.feature.contract.domain.enums.ContractType;
+import com.inlaco.crewmgrservice.feature.contract.domain.model.Contract;
 import com.inlaco.crewmgrservice.feature.contract.presentation.dto.response.ContractResponse;
 import com.inlaco.crewmgrservice.feature.contract.presentation.mapper.ContractMapper;
 import com.inlaco.crewmgrservice.infrastructure.config.openapi.OpenApiConfig;
@@ -12,6 +13,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.security.RolesAllowed;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -39,6 +41,11 @@ public class ContractQueryController {
   @RolesAllowed("ADMIN")
   public ContractResponse getContract(@PathVariable String id) {
     return contractMapper.toContractResponse(contractQueryUseCase.getContract(id));
+  }
+
+  @GetMapping("/{id}/old-versions")
+  public List<Contract> getOldContractVersions(@PathVariable String id) {
+    return contractQueryUseCase.getOldContractVersions(id);
   }
 
   @Operation(
