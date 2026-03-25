@@ -7,12 +7,14 @@ import com.inlaco.crewmgrservice.feature.contract.domain.model.Contract;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.CrewSupplyContract;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.LaborContract;
 import com.inlaco.crewmgrservice.feature.contract.infrastructure.persistence.entity.ContractSnapshotEntity;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Component;
+import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.ObjectMapper;
@@ -22,6 +24,8 @@ import tools.jackson.databind.json.JsonMapper;
 @RequiredArgsConstructor
 public class ContractSnapshotEntityMapper {
   private static final int CURRENT_SCHEMA_VERSION = 1;
+
+  private static final TypeReference<Map<String, Object>> MAP_TYPE = new TypeReference<>() {};
 
   private static final ObjectMapper OBJECT_MAPPER =
       JsonMapper.builder()
@@ -78,13 +82,25 @@ public class ContractSnapshotEntityMapper {
   }
 
   private Map<String, Object> serialize(Contract contract) {
-    return OBJECT_MAPPER.convertValue(contract, Map.class);
+    try {
+      return Collections.unmodifiableMap(OBJECT_MAPPER.convertValue(contract, MAP_TYPE));
+    } catch (Exception e) {
+      throw new IllegalStateException("Failed to serialize contract", e);
+    }
   }
 
   private Contract deserialize(Map<String, Object> payload, ContractType type) {
     Class<? extends Contract> clazz = TYPE_REGISTRY.get(type);
-    if (clazz == null) throw new IllegalStateException("Unsupported ContractType: " + type);
-    return OBJECT_MAPPER.convertValue(payload, clazz);
+
+    if (clazz == null) {
+      throw new IllegalStateException("Unsupported ContractType: " + type);
+    }
+
+    try {
+      return OBJECT_MAPPER.convertValue(payload, clazz);
+    } catch (Exception e) {
+      throw new IllegalStateException("Failed to deserialize contract", e);
+    }
   }
 
   private ObjectId toObjectId(String id) {

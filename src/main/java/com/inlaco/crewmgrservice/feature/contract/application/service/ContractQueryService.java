@@ -10,6 +10,7 @@ import java.util.Comparator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -23,9 +24,14 @@ public class ContractQueryService implements ContractQueryUseCase {
   private final ContractRepository contractRepository;
 
   @Override
-  public Contract getContract(String id) {
-    return contractRepository
-        .findById(id)
+  public Contract getContract(String id, @Nullable Integer version) {
+    if (version == null || version <= 1) {
+      return contractRepository
+          .findById(id)
+          .orElseThrow(() -> new ResourceNotFoundException(Contract.class, "id", id));
+    }
+    return contractSnapshotRepository
+        .findByContractIdAndVersion(id, version)
         .orElseThrow(() -> new ResourceNotFoundException(Contract.class, "id", id));
   }
 
@@ -36,12 +42,8 @@ public class ContractQueryService implements ContractQueryUseCase {
 
   @Override
   public List<Contract> getOldContractVersions(String contractId) {
-    List<Contract> snapshots = contractSnapshotRepository.findByContractId(contractId);
-
-    if (snapshots.isEmpty()) {
-      throw new ResourceNotFoundException(Contract.class, "contractId", contractId);
-    }
-
-    return snapshots.stream().sorted(Comparator.comparing(Contract::getVersion)).toList();
+    return contractSnapshotRepository.findByContractId(contractId).stream()
+        .sorted(Comparator.comparing(Contract::getVersion))
+        .toList();
   }
 }

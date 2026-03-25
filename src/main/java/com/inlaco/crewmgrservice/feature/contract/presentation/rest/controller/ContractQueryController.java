@@ -3,7 +3,6 @@ package com.inlaco.crewmgrservice.feature.contract.presentation.rest.controller;
 import com.inlaco.crewmgrservice.feature.contract.application.model.ContractSearchCriteria;
 import com.inlaco.crewmgrservice.feature.contract.application.port.in.ContractQueryUseCase;
 import com.inlaco.crewmgrservice.feature.contract.application.port.in.LaborContractQueryUseCase;
-import com.inlaco.crewmgrservice.feature.contract.domain.enums.ContractType;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.Contract;
 import com.inlaco.crewmgrservice.feature.contract.presentation.dto.response.ContractResponse;
 import com.inlaco.crewmgrservice.feature.contract.presentation.mapper.ContractMapper;
@@ -39,8 +38,9 @@ public class ContractQueryController {
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   @GetMapping("/{id}")
   @RolesAllowed("ADMIN")
-  public ContractResponse getContract(@PathVariable String id) {
-    return contractMapper.toContractResponse(contractQueryUseCase.getContract(id));
+  public ContractResponse getContract(
+      @PathVariable String id, @RequestParam(required = false) Integer version) {
+    return contractMapper.toContractResponse(contractQueryUseCase.getContract(id, version));
   }
 
   @GetMapping("/{id}/old-versions")
@@ -65,15 +65,7 @@ public class ContractQueryController {
   @RolesAllowed("ADMIN")
   public Page<ContractResponse> getContracts(
       @Filter ContractSearchCriteria criteria,
-      @RequestParam(required = false) ContractType type,
-      @RequestParam(required = false) Boolean signed,
       @PageableDefault(page = 0, size = 20) Pageable pageable) {
-
-    if (type != null || signed != null) {
-      criteria = new ContractSearchCriteria();
-      criteria.setType(type);
-      criteria.setSigned(signed);
-    }
 
     return contractQueryUseCase
         .getContracts(criteria, pageable)
