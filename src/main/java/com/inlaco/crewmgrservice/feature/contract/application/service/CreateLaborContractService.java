@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -31,6 +32,7 @@ public class CreateLaborContractService implements CreateLaborContractUseCase {
   private final ApplicationEventPublisher eventPublisher;
 
   @Override
+  @Transactional
   public Contract create(
       String applicationId, LaborContract contract, ContractAssets assets, User creator) {
     if (laborContractRepository.existsByApplicationId(applicationId)) {

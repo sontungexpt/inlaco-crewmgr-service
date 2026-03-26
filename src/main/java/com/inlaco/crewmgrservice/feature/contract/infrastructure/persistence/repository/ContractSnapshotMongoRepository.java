@@ -13,5 +13,5 @@ public interface ContractSnapshotMongoRepository
 
   List<ContractSnapshotEntity> findByContractId(ObjectId contractId);
 
-  Optional<ContractSnapshotEntity> findByContractIdAndVersion(ObjectId contractId, int version);
+  Optional<ContractSnapshotEntity> findByContractIdAndVersionNum(ObjectId contractId, int version);
 }

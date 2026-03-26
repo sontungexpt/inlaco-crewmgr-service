@@ -33,7 +33,7 @@ public class ContractSnapshotRepositoryAdapter implements ContractSnapshotReposi
   @Override
   public Optional<Contract> findByContractIdAndVersion(String contractId, int version) {
     return repository
-        .findByContractIdAndVersion(new ObjectId(contractId), version)
+        .findByContractIdAndVersionNum(new ObjectId(contractId), version)
         .map(mapper::toContract);
   }
 }

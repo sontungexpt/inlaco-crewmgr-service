@@ -18,8 +18,9 @@ public class RecruitmentContractEventListener {
 
   private final RecruitmentReviewUseCase recruitmentReviewUseCase;
 
-  @TransactionalEventListener
+  @TransactionalEventListener(ContractActivedEvent.class)
   public void handleActived(ContractActivedEvent event) {
+    log.debug("Received contract actived event");
     for (var c : event.contracts()) {
       if (!(c instanceof LaborContract contract)) continue;
       recruitmentReviewUseCase.reviewApplication(
@@ -27,15 +28,17 @@ public class RecruitmentContractEventListener {
     }
   }
 
-  @TransactionalEventListener
+  @TransactionalEventListener(ContractCreatedEvent.class)
   public void handleCreated(ContractCreatedEvent event) {
+    log.debug("Received contract created event");
     if (!(event.contract() instanceof LaborContract contract)) return;
     recruitmentReviewUseCase.reviewApplication(
         contract.getApplicationId(), ApplicationStatus.CONTRACT_PENDING_SIGNATURE);
   }
 
-  @TransactionalEventListener
+  @TransactionalEventListener(ContractSignedEvent.class)
   public void handleSigned(ContractSignedEvent event) {
+    log.debug("Received contract signed event");
     if (!(event.contract() instanceof LaborContract contract)) return;
     recruitmentReviewUseCase.reviewApplication(
         contract.getApplicationId(), ApplicationStatus.CONTRACT_SIGNED);

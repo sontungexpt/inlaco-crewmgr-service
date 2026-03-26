@@ -160,10 +160,10 @@ public abstract class Contract {
   public boolean isFreezed(Instant now) {
     return status == ContractStatus.SIGNED
         && activationDate != null
-        && !now.isBefore(getFreezeDate());
+        && !now.isBefore(getFreezedDate());
   }
 
-  public Instant getFreezeDate() {
+  public Instant getFreezedDate() {
     return statusHistories.stream()
         .filter(history -> history.toStatus() == ContractStatus.SIGNED)
         .findFirst()

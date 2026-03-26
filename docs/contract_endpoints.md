@@ -5,6 +5,7 @@ This document provides an overview of all the available API endpoints for managi
 ---
 
 ## **1. Update Contract**
+
 - **URL**: `/api/v1/contracts/{id}`
 - **Method**: `PATCH`
 - **Description**: Updates a contract with the provided patch data.
@@ -31,6 +32,7 @@ This document provides an overview of all the available API endpoints for managi
 ---
 
 ## **2. Activate Contract**
+
 - **URL**: `/api/v1/contracts/active/{id}`
 - **Method**: `POST`
 - **Description**: Activates a contract by its ID.
@@ -43,6 +45,7 @@ This document provides an overview of all the available API endpoints for managi
 ---
 
 ## **3. Get Contract Details**
+
 - **URL**: `/api/v1/contracts/{id}`
 - **Method**: `GET`
 - **Description**: Retrieves the details of a specific contract by its ID.
@@ -64,6 +67,7 @@ This document provides an overview of all the available API endpoints for managi
 ---
 
 ## **4. Get Old Contract Versions**
+
 - **URL**: `/api/v1/contracts/{id}/old-versions`
 - **Method**: `GET`
 - **Description**: Retrieves all old versions of a specific contract.
@@ -86,6 +90,7 @@ This document provides an overview of all the available API endpoints for managi
 ---
 
 ## **5. Get Contract for Application**
+
 - **URL**: `/api/v1/contracts/applications/{applicationId}`
 - **Method**: `GET`
 - **Description**: Retrieves the contract details associated with a specific application ID.
@@ -106,6 +111,7 @@ This document provides an overview of all the available API endpoints for managi
 ---
 
 ## **6. Get All Contracts**
+
 - **URL**: `/api/v1/contracts`
 - **Method**: `GET`
 - **Description**: Retrieves a paginated list of all contracts based on search criteria.
@@ -136,3 +142,4 @@ This document provides an overview of all the available API endpoints for managi
 ---
 
 This document will be updated as new endpoints are added to the Contract module.
+

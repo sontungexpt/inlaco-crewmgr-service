@@ -21,11 +21,13 @@ public class RecruitmentQueryService implements RecruitmentQueryUseCase {
   @Override
   public Page<JobApplication> getAllApplications(
       JobApplicationSearchCriteria criteria, Pageable pageable) {
+    log.debug("Getting all applications");
     return jobApplicationRepository.findAll(criteria, pageable);
   }
 
   @Override
   public JobApplication getApplicationDetail(String applicationId) {
+    log.debug("Getting application {}", applicationId);
     return jobApplicationRepository
         .findById(applicationId)
         .orElseThrow(

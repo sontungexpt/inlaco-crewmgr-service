@@ -6,7 +6,7 @@
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
     <!-- <version>3.5.10</version> -->
-    <version>4.0.2</version>
+    <version>4.0.4</version>
     <relativePath></relativePath>
     <!-- lookup parent from repository -->
   </parent>
@@ -48,7 +48,7 @@
     <icu4j.version>76.1</icu4j.version>
     <springdoc.version>3.0.2</springdoc.version>
     <json-patch.version>1.13</json-patch.version>
-    <resend.version>LATEST</resend.version>
+    <resend.version>4.13.0</resend.version>
     <springfilter.version>3.2.5</springfilter.version>
     <vonage.version>8.14.0</vonage.version>
     <javaxjson.version>1.1.4</javaxjson.version>

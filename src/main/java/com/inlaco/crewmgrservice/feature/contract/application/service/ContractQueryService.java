@@ -25,14 +25,19 @@ public class ContractQueryService implements ContractQueryUseCase {
 
   @Override
   public Contract getContract(String id, @Nullable Integer version) {
-    if (version == null || version <= 1) {
+    if (version == null || version < 1) {
       return contractRepository
           .findById(id)
           .orElseThrow(() -> new ResourceNotFoundException(Contract.class, "id", id));
     }
+
     return contractSnapshotRepository
         .findByContractIdAndVersion(id, version)
-        .orElseThrow(() -> new ResourceNotFoundException(Contract.class, "id", id));
+        .orElseGet(
+            () ->
+                contractRepository
+                    .findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException(Contract.class, "id", id)));
   }
 
   @Override

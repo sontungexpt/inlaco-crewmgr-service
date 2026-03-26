@@ -9,6 +9,8 @@ import com.inlaco.crewmgrservice.infrastructure.web.payload.request.constraint.T
 import com.inlaco.crewmgrservice.shared.application.model.Patch;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
@@ -29,8 +31,8 @@ public class ContractPatchRequest implements TimeFrame, Serializable {
   Patch<Instant> activationDate = Patch.unchanged();
   Patch<Instant> expiredDate = Patch.unchanged();
   Patch<@Min(0) Integer> contractFreezeDelayMinutes = Patch.unchanged();
-  Patch<PartyDTO> initiator = Patch.unchanged();
-  Patch<List<PartyDTO>> partners = Patch.unchanged();
+  Patch<@NotNull PartyDTO> initiator = Patch.unchanged();
+  Patch<@Size(min = 1) List<PartyDTO>> partners = Patch.unchanged();
 
   @Override
   public List<Range> getTimeFrames() {
