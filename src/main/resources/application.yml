@@ -1,4 +1,4 @@
-debug: false
+# debug: true
 
 logging:
 
@@ -40,6 +40,9 @@ resend:
   domain: ${RESEND_DOMAIN}
 
 spring:
+  threads:
+    virtual:
+      enabled: true
   application:
     name: "crewmgrservice"
   profiles:

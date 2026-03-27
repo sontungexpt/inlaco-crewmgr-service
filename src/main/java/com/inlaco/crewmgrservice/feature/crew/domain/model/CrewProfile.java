@@ -30,7 +30,7 @@ public class CrewProfile {
 
   private Gender gender;
 
-  private CrewStatus status = CrewStatus.DRAFT;
+  @Builder.Default private CrewStatus status = CrewStatus.DRAFT;
 
   public void changeStatus(CrewStatus newStatus) throws IllegalStateException {
     if (status == newStatus) return;

@@ -45,13 +45,24 @@ public class ApiEndpointAuthorizationManager
       RequestAuthorizationContext context) {
     HttpServletRequest request = context.getRequest();
 
+    if (matchFrameworkPath(request)) {
+      log.debug("[AUTH] -> FRAMEWORK PERMIT: {}", request.getRequestURI());
+      return new AuthorizationDecision(true);
+    }
+
+    String uri = request.getRequestURI();
+    String method = request.getMethod();
+    log.debug("[AUTH] Incoming request: {} {}", method, uri);
+
     // Public endpoints
     if (isUnsecureJwtRequest(request)) {
+      log.debug("[AUTH] -> PUBLIC (no JWT required): {} {}", method, uri);
       return new AuthorizationDecision(true);
     }
 
     // Optional JWT
     if (isOptionalJwtSecurityPath(request)) {
+      log.debug("[AUTH] -> PUBLIC (optional JWT): {} {}", method, uri);
       return new AuthorizationDecision(true);
     }
 
@@ -59,6 +70,13 @@ public class ApiEndpointAuthorizationManager
     Authentication auth = authentication.get();
     boolean granted =
         auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken);
+
+    log.debug(
+        "[AUTH] -> AUTH REQUIRED: {} {}, authenticated={}, principal={}",
+        method,
+        uri,
+        granted,
+        auth != null ? auth.getClass().getSimpleName() : "null");
 
     return new AuthorizationDecision(granted);
   }
@@ -76,26 +94,36 @@ public class ApiEndpointAuthorizationManager
   private final Map<HttpMethod, Set<APIPath>> publicEndpoints = new ConcurrentHashMap<>();
   private final Map<HttpMethod, Set<PathPattern>> staticEndpoints = new ConcurrentHashMap<>();
 
+  public record FrameworkPath(HttpMethod method, PathPattern pattern) {}
+
+  private final List<FrameworkPath> FRAMEWORK_PERMIT_ALL_PATHS =
+      List.of(
+          new FrameworkPath(null, PATH_PARSER.parse("/actuator/**")),
+          new FrameworkPath(GET, PATH_PARSER.parse("/webjars/**")),
+          new FrameworkPath(GET, PATH_PARSER.parse("/swagger-ui/**")),
+          new FrameworkPath(GET, PATH_PARSER.parse("/v3/api-docs/**")),
+          new FrameworkPath(GET, PATH_PARSER.parse("/.well-known/**")),
+          new FrameworkPath(GET, PATH_PARSER.parse("/favicon.ico")),
+          new FrameworkPath(GET, PATH_PARSER.parse("/scalar/**")));
+
+  private boolean matchFrameworkPath(HttpServletRequest request) {
+    String uri = request.getRequestURI();
+    HttpMethod method = HttpMethod.valueOf(request.getMethod());
+
+    return FRAMEWORK_PERMIT_ALL_PATHS.stream()
+        .anyMatch(
+            rule -> {
+              if (rule.method() != null && !rule.method().equals(method)) return false;
+              return rule.pattern().matches(PathContainer.parsePath(uri));
+            });
+  }
+
   /* ==========================================================
    * Constructor
    * ========================================================== */
   public ApiEndpointAuthorizationManager(
       RequestMappingHandlerMapping handlerMapping, Environment environment) {
     this.environment = environment;
-
-    // default public endpoints
-    registerPublicEndpoint(null, "/actuator/**", false); // tất cả method
-    registerPublicEndpoint(GET, "/v3/api-docs**/**", false);
-    registerPublicEndpoint(GET, "/swagger-ui**/**", false);
-    registerPublicEndpoint(GET, "/.well-known**/**", false);
-    registerPublicEndpoint(GET, "/favicon.ico", false);
-    registerPublicEndpoint(GET, "/test/**", false);
-    registerPublicEndpoint(GET, "/api/v1/test/**", false);
-
-    // register static endpoints that manually added
-    publicEndpoints.forEach(
-        (method, apiPaths) ->
-            apiPaths.forEach(apiPath -> registerStaticEndpoint(apiPath.pattern(), method)));
 
     Map<RequestMappingInfo, HandlerMethod> mappings = handlerMapping.getHandlerMethods();
     mappings.forEach(this::registerStaticEndpoint);
@@ -115,12 +143,24 @@ public class ApiEndpointAuthorizationManager
    * Public API
    * ========================================================== */
 
-  /** Public endpoint, JWT optional (filter only) */
   public boolean isOptionalJwtSecurityPath(@NonNull HttpServletRequest request) {
     HttpMethod method = HttpMethod.valueOf(request.getMethod());
+    String uri = request.getRequestURI();
+
     return publicEndpoints.getOrDefault(method, Set.of()).stream()
         .filter(APIPath::filterJwt)
-        .anyMatch(p -> matchPath(p, request));
+        .anyMatch(
+            p -> {
+              boolean match = matchPath(p, request);
+              if (match) {
+                log.debug(
+                    "[MATCH] PUBLIC (optional JWT): {} {} -> pattern={}",
+                    method,
+                    uri,
+                    p.pattern().getPatternString());
+              }
+              return match;
+            });
   }
 
   /** Public endpoint (no JWT required) */
@@ -130,13 +170,24 @@ public class ApiEndpointAuthorizationManager
         .anyMatch(p -> matchPath(p, request));
   }
 
-  /** Public endpoint without JWT */
   public boolean isUnsecureJwtRequest(@NonNull HttpServletRequest request) {
     HttpMethod method = HttpMethod.valueOf(request.getMethod());
+    String uri = request.getRequestURI();
 
     return publicEndpoints.getOrDefault(method, Set.of()).stream()
         .filter(p -> !p.filterJwt())
-        .anyMatch(p -> matchPath(p, request));
+        .anyMatch(
+            p -> {
+              boolean match = matchPath(p, request);
+              if (match) {
+                log.debug(
+                    "[MATCH] PUBLIC (no JWT): {} {} -> pattern={}",
+                    method,
+                    uri,
+                    p.pattern().getPatternString());
+              }
+              return match;
+            });
   }
 
   /* ==========================================================
@@ -153,6 +204,13 @@ public class ApiEndpointAuthorizationManager
     }
     PathPattern pattern = PATH_PARSER.parse(path);
     boolean dynamic = pattern.hasPatternSyntax();
+
+    log.debug(
+        "[REGISTER] PUBLIC endpoint: {} {} (dynamic={}, filterJwt={})",
+        method,
+        path,
+        dynamic,
+        filterJwt);
 
     publicEndpoints
         .computeIfAbsent(method, m -> ConcurrentHashMap.newKeySet())
@@ -209,21 +267,55 @@ public class ApiEndpointAuthorizationManager
   }
 
   private boolean matchPath(APIPath apiPath, HttpServletRequest request) {
+    String uri = request.getRequestURI();
     PathPattern pattern = apiPath.pattern();
-    boolean matched = pattern.matches(PathContainer.parsePath(request.getRequestURI()));
+
+    boolean matched = pattern.matches(PathContainer.parsePath(uri));
+
+    log.trace(
+        "[MATCH-TRY] pattern={} uri={} matched={} dynamic={}",
+        pattern.getPatternString(),
+        uri,
+        matched,
+        apiPath.dynamic());
+
     if (!matched) return false;
-    // No {var} → match immediately
-    else if (!apiPath.dynamic()) {
+
+    // Static path → OK luôn
+    if (!apiPath.dynamic()) {
+      log.trace("[MATCH] STATIC pattern accepted: {}", pattern.getPatternString());
       return true;
     }
-    // Has {var} → check static
-    return !staticEndpointExists(request);
+
+    boolean staticExists = staticEndpointExists(request);
+
+    log.trace(
+        "[MATCH] DYNAMIC pattern={}, staticExists={}", pattern.getPatternString(), staticExists);
+
+    return !staticExists;
   }
 
   private boolean staticEndpointExists(HttpServletRequest request) {
     HttpMethod method = HttpMethod.valueOf(request.getMethod());
-    PathContainer path = PathContainer.parsePath(request.getRequestURI());
-    return staticEndpoints.getOrDefault(method, Set.of()).stream().anyMatch(p -> p.matches(path));
+    String uri = request.getRequestURI();
+
+    PathContainer path = PathContainer.parsePath(uri);
+
+    boolean found =
+        staticEndpoints.getOrDefault(method, Set.of()).stream()
+            .anyMatch(
+                p -> {
+                  boolean match = p.matches(path);
+                  if (match) {
+                    log.trace(
+                        "[STATIC-OVERRIDE] uri={} matched static pattern ={}",
+                        uri,
+                        p.getPatternString());
+                  }
+                  return match;
+                });
+
+    return found;
   }
 
   private void logInitializedEndpoints() {

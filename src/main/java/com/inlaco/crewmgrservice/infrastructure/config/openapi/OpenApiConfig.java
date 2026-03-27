@@ -5,24 +5,16 @@ import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
-import io.swagger.v3.oas.models.Components;
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.Operation;
-import io.swagger.v3.oas.models.PathItem;
-import io.swagger.v3.oas.models.responses.ApiResponse;
-import io.swagger.v3.oas.models.responses.ApiResponses;
-import io.swagger.v3.oas.models.security.SecurityRequirement;
-import java.util.List;
-import org.springframework.context.annotation.Bean;
+import io.swagger.v3.oas.annotations.servers.Server;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @OpenAPIDefinition(
-    // servers = {
-    //   @Server(url = "http://localhost:8080"),
-    //   @Server(url = "http://localhost:8090"),
-    //   @Server(url = "https://comic-production.up.railway.app"),
-    // },
+    servers = {
+      @Server(url = "http://localhost:8080"),
+      @Server(url = "http://localhost:8090"),
+      @Server(url = "https://comic-production.up.railway.app"),
+    },
     info =
         @Info(
             title = "Inlaco API",
@@ -39,29 +31,29 @@ import org.springframework.context.annotation.Configuration;
 public class OpenApiConfig {
   public static final String BEARER_AUTH_NAME = "Bearer Authentication";
 
-  @Bean
-  public OpenAPI customOpenAPI() {
-    return new OpenAPI()
-        .components(new Components())
-        .path(
-            "/api/v1/logout",
-            new PathItem()
-                .post(
-                    new Operation()
-                        .operationId("logout")
-                        .responses(
-                            new ApiResponses()
-                                .addApiResponse("200", new ApiResponse().description("OK")))
-                        .security(List.of(new SecurityRequirement().addList(BEARER_AUTH_NAME)))
-                        .tags(List.of("Authentication"))
-                        .summary("Logout the current user")
-                        .description(
-                            """
-                            Logout the current user.
+  // @Bean
+  // public OpenAPI customOpenAPI() {
+  //   return new OpenAPI()
+  //       .components(new Components())
+  //       .path(
+  //           "/api/v1/logout",
+  //           new PathItem()
+  //               .post(
+  //                   new Operation()
+  //                       .operationId("logouapit")
+  //                       .responses(
+  //                           new ApiResponses()
+  //                               .addApiResponse("200", new ApiResponse().description("OK")))
+  //                       .security(List.of(new SecurityRequirement().addList(BEARER_AUTH_NAME)))
+  //                       .tags(List.of("Authentication"))
+  //                       .summary("Logout the current user")
+  //                       .description(
+  //                           """
+  //                           Logout the current user.
 
-                            **Usecase**:
-                            - UC_account-dang-xuat
+  //                           **Usecase**:
+  //                           - UC_account-dang-xuat
 
-                            """)));
-  }
+  //                           """)));
+  // }
 }
