@@ -25,24 +25,26 @@ public class ApiEndpointAuthorizationManager
 
   private boolean matchesFrameworkPath(HttpServletRequest request) {
     String uri = request.getRequestURI();
-    HttpMethod method = HttpMethod.valueOf(request.getMethod());
 
     // GLOBAL (any method)
-    if (uri.startsWith("/actuator/")) {
+    if (uri.startsWith("/actuator")) {
       return true;
     }
+
+    HttpMethod method = HttpMethod.valueOf(request.getMethod());
 
     // GET-only framework endpoints
     if (method != HttpMethod.GET) {
       return false;
     }
 
-    return uri.startsWith("/webjars/")
-        || uri.startsWith("/swagger-ui/")
-        || uri.startsWith("/v3/api-docs/")
-        || uri.startsWith("/.well-known/")
-        || uri.startsWith("/favicon.ico")
-        || uri.startsWith("/scalar/");
+    // Framework endpoints
+    return uri.startsWith("/scalar")
+        || uri.startsWith("/swagger-ui")
+        || uri.startsWith("/v3/api-docs")
+        // || uri.startsWith("/.well-known")
+        // || uri.startsWith("/favicon.ico")
+        || uri.startsWith("/webjars");
   }
 
   @Override
@@ -51,14 +53,14 @@ public class ApiEndpointAuthorizationManager
       RequestAuthorizationContext context) {
     HttpServletRequest request = context.getRequest();
 
+    String uri = request.getRequestURI();
+    String method = request.getMethod();
+    log.debug("[AUTH] Incoming request: {} {}", method, uri);
+
     if (matchesFrameworkPath(request)) {
       log.debug("[AUTH] -> FRAMEWORK PERMIT: {}", request.getRequestURI());
       return new AuthorizationDecision(true);
     }
-
-    String uri = request.getRequestURI();
-    String method = request.getMethod();
-    log.debug("[AUTH] Incoming request: {} {}", method, uri);
 
     // Public endpoints
     if (publicEndpointResolver.isPublic(request)) {

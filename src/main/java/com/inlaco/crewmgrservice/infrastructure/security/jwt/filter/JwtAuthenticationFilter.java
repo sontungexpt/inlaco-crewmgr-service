@@ -49,7 +49,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   @Override
   protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-    return publicEndpointResolver.isFullyPublic(request);
+    boolean fullyPublic = publicEndpointResolver.isFullyPublic(request);
+    log.debug("[JWT] Should not filter: fullyPublic={}", fullyPublic);
+    return fullyPublic;
   }
 
   @Override
@@ -69,7 +71,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       filterChain.doFilter(request, response);
 
     } catch (JwtTokenException ex) {
-      log.warn("Authentication failed: {}", ex.getMessage());
+      log.warn("[JWT] Authentication failed: {}", ex.getMessage());
       exceptionResolver.resolveException(request, response, null, ex);
     }
   }
@@ -85,7 +87,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       var auth = new UsernamePasswordAuthenticationToken(su, null, su.getAuthorities());
       auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
       SecurityContextHolder.getContext().setAuthentication(auth);
-      log.debug("User authenticated: pubId={}", pubId);
+      log.debug("[JWT] User authenticated: pubId={}", pubId);
     } catch (ResourceNotFoundException e) {
       log.debug("[JWT] User not found for pubId={}", pubId);
       throw new JwtTokenException(token, "Malformed jwt token");
