@@ -4,8 +4,9 @@ import com.inlaco.crewmgrservice.feature.auth.infrastructure.security.AuthorityR
 import com.inlaco.crewmgrservice.feature.auth.infrastructure.security.SecurityUser;
 import com.inlaco.crewmgrservice.feature.user.application.port.in.UserUseCase;
 import com.inlaco.crewmgrservice.feature.user.domain.model.User;
+import com.inlaco.crewmgrservice.infrastructure.security.access.PublicEndpointResolver;
+import com.inlaco.crewmgrservice.infrastructure.security.jwt.core.JwtAccessTokenService;
 import com.inlaco.crewmgrservice.infrastructure.security.jwt.exception.JwtTokenException;
-import com.inlaco.crewmgrservice.infrastructure.security.jwt.service.JwtAccessTokenService;
 import com.inlaco.crewmgrservice.infrastructure.web.util.HttpHeaderUtils;
 import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceNotFoundException;
 import jakarta.servlet.FilterChain;
@@ -31,16 +32,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   private final UserUseCase userUseCase;
   private final HandlerExceptionResolver exceptionResolver;
   private final AuthorityResolver authorityResolver;
+  private final PublicEndpointResolver publicEndpointResolver;
 
   public JwtAuthenticationFilter(
       JwtAccessTokenService jwtService,
       UserUseCase userUseCase,
       AuthorityResolver authorityResolver,
+      PublicEndpointResolver publicEndpointResolver,
       @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver) {
     this.jwtTokenService = jwtService;
     this.userUseCase = userUseCase;
     this.exceptionResolver = exceptionResolver;
     this.authorityResolver = authorityResolver;
+    this.publicEndpointResolver = publicEndpointResolver;
+  }
+
+  @Override
+  protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+    return publicEndpointResolver.isFullyPublic(request);
   }
 
   @Override

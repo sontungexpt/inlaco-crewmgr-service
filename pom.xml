@@ -45,7 +45,7 @@
     <jnanoid.version>2.0.0</jnanoid.version>
     <dotenv.version>5.1.0</dotenv.version>
     <slugify.version>3.0.7</slugify.version>
-    <icu4j.version>76.1</icu4j.version>
+    <icu4j.version>78.3</icu4j.version>
     <springdoc.version>3.0.2</springdoc.version>
     <json-patch.version>1.13</json-patch.version>
     <resend.version>4.13.0</resend.version>
@@ -55,6 +55,7 @@
     <org.mapstruct.version>1.7.0.Beta1</org.mapstruct.version>
     <spring-retry.version>2.0.12</spring-retry.version>
     <spring-aop.version>4.0.0-M2</spring-aop.version>
+    <flapdoodle-embed-mongo.version>4.24.0</flapdoodle-embed-mongo.version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -156,7 +157,7 @@
     <dependency>
       <groupId>de.flapdoodle.embed</groupId>
       <artifactId>de.flapdoodle.embed.mongo</artifactId>
-      <version>4.24.0</version>
+      <version>${flapdoodle-embed-mongo.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>

@@ -1,4 +1,4 @@
-package com.inlaco.crewmgrservice.infrastructure.security.jwt.service;
+package com.inlaco.crewmgrservice.infrastructure.security.jwt.core;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

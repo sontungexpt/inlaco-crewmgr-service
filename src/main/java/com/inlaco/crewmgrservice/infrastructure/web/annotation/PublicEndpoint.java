@@ -27,5 +27,10 @@ public @interface PublicEndpoint {
    */
   String[] profiles() default {};
 
-  boolean filterJwt() default false;
+  AuthMode auth() default AuthMode.PUBLIC;
+
+  public enum AuthMode {
+    OPTIONAL,
+    PUBLIC
+  }
 }

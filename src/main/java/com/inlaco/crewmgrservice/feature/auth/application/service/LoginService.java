@@ -26,7 +26,7 @@ public class LoginService implements LoginUseCase {
 
   @Override
   public AuthTokenResult login(LoginCommand command) {
-    log.info("Login attempt for user {}", command.username());
+    log.debug("Login attempt for user {}", command.username());
     Authentication authentication =
         authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(command.username(), command.password()));

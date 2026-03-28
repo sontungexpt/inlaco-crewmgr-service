@@ -1,4 +1,4 @@
-package com.inlaco.crewmgrservice.infrastructure.config.security;
+package com.inlaco.crewmgrservice.infrastructure.security.config;
 
 import com.inlaco.crewmgrservice.infrastructure.security.jwt.filter.JwtAuthenticationFilter;
 import java.util.List;

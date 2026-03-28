@@ -1,4 +1,4 @@
-package com.inlaco.crewmgrservice.infrastructure.security.jwt.service;
+package com.inlaco.crewmgrservice.infrastructure.security.jwt.core;
 
 import com.inlaco.crewmgrservice.feature.auth.application.port.in.AccessTokenGenerator;
 import com.inlaco.crewmgrservice.infrastructure.security.jwt.config.JwtProperties;

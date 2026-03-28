@@ -1,7 +1,8 @@
 package com.inlaco.crewmgrservice.infrastructure.web.advice;
 
-import com.inlaco.crewmgrservice.feature.contract.domain.error.ContractErrorCode;
 import com.inlaco.crewmgrservice.infrastructure.web.payload.response.ApiResponse;
+import com.inlaco.crewmgrservice.shared.kernel.error.ErrorCode;
+import com.inlaco.crewmgrservice.shared.kernel.error.HttpMappableErrorCode;
 import com.inlaco.crewmgrservice.shared.kernel.exception.ApplicationException;
 import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceAlreadyInUseException;
 import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceDeleteFailedException;
@@ -53,12 +54,13 @@ public class BusinessAdvice {
   }
 
   private HttpStatus resolveStatus(ApplicationException ex) {
+    ErrorCode errorCode = ex.getErrorCode();
+
+    if (errorCode instanceof HttpMappableErrorCode e) {
+      return HttpStatus.valueOf(e.httpStatus());
+    }
+
     return switch (ex.getErrorCode()) {
-      case ContractErrorCode error ->
-          switch (error) {
-            case CONTRACT_FROZEN -> HttpStatus.FORBIDDEN;
-            default -> HttpStatus.INTERNAL_SERVER_ERROR;
-          };
       default -> HttpStatus.BAD_REQUEST;
     };
   }

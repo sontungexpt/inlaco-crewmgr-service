@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/auth")
 @PublicEndpoint
 @Tag(name = "Authentication", description = "A collection of authentication endpoints")
+@Slf4j
 public record AuthController(
     RegistrationUseCase registrationUseCase,
     AuthTokenResponseMapper authTokenResultMapper,
@@ -67,6 +69,7 @@ public record AuthController(
       summary = "Refresh the expired jwt authentication",
       security = @SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME))
   public AuthTokenResponse refreshToken(@BearerToken String refreshToken) {
+    log.debug("Refresh token: {}", refreshToken);
     return authTokenResultMapper.toDTO(refreshTokenUseCase.refresh(refreshToken));
   }
 }

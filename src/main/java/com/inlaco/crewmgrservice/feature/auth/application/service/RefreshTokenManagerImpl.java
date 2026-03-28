@@ -4,6 +4,7 @@ import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import com.inlaco.crewmgrservice.feature.auth.application.model.result.RefreshRotationResult;
 import com.inlaco.crewmgrservice.feature.auth.application.port.in.RefreshTokenManager;
 import com.inlaco.crewmgrservice.feature.auth.application.port.out.RefreshTokenRepository;
+import com.inlaco.crewmgrservice.feature.auth.domain.error.AuthErrorCode;
 import com.inlaco.crewmgrservice.feature.auth.domain.exception.RefreshTokenException;
 import com.inlaco.crewmgrservice.feature.auth.domain.model.RefreshToken;
 import com.inlaco.crewmgrservice.shared.crypto.DigestUtils;
@@ -46,10 +47,7 @@ public class RefreshTokenManagerImpl implements RefreshTokenManager {
   @Override
   public RefreshRotationResult rotate(String rawToken) {
     String hash = hash(rawToken);
-    RefreshToken current =
-        repository
-            .findByHashedToken(hash)
-            .orElseThrow(() -> new RefreshTokenException(null, "Token not found"));
+    RefreshToken current = repository.findByHashedToken(hash).orElseThrow(this::notFoundException);
 
     validate(current);
 
@@ -65,24 +63,25 @@ public class RefreshTokenManagerImpl implements RefreshTokenManager {
 
   @Override
   public void revoke(String rawToken) {
-
     String hash = hash(rawToken);
-
-    RefreshToken token =
-        repository
-            .findByHashedToken(hash)
-            .orElseThrow(() -> new RefreshTokenException(null, "Token not found"));
-
+    RefreshToken token = repository.findByHashedToken(hash).orElseThrow(this::notFoundException);
     token.revoke();
     repository.save(token);
   }
 
   public void validate(RefreshToken refreshToken) {
     if (refreshToken.isRevoked()) {
-      throw new RefreshTokenException(refreshToken, "Refresh token revoked");
+      throw new RefreshTokenException(
+          AuthErrorCode.AUTH_REFRESH_TOKEN_REVOKED, "Refresh token revoked");
     } else if (refreshToken.isExpired()) {
-      throw new RefreshTokenException(refreshToken, "Refresh token expired");
+      throw new RefreshTokenException(
+          AuthErrorCode.AUTH_REFRESH_TOKEN_EXPIRED, "Refresh token expired");
     }
+  }
+
+  private RefreshTokenException notFoundException() {
+    return new RefreshTokenException(
+        AuthErrorCode.AUTH_REFRESH_TOKEN_NOT_FOUND, "Refresh token not found");
   }
 
   private String generateRaw() {
