@@ -16,4 +16,19 @@ final class AdviceUtils {
         .build()
         .toResponseEntity();
   }
+
+  public static ResponseEntity<ApiResponse<Object>> buildErrorResponse(
+      HttpStatus status,
+      String errorCode,
+      String message,
+      Object data,
+      HttpServletRequest request) {
+    return ErrorResponse.<Object>of(status)
+        .errorCode(errorCode)
+        .data(data)
+        .message(message)
+        .path(request.getRequestURI())
+        .build()
+        .toResponseEntity();
+  }
 }

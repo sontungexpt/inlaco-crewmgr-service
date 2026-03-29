@@ -8,7 +8,6 @@ import com.inlaco.crewmgrservice.feature.contract.domain.objectvalue.DynamicAttr
 import com.inlaco.crewmgrservice.feature.contract.presentation.dto.party.PartyDTO;
 import com.inlaco.crewmgrservice.infrastructure.web.payload.request.constraint.TimeFrame;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -46,14 +45,14 @@ public abstract class NewContract implements TimeFrame, Serializable {
   @Size(min = 1)
   private List<@Valid PartyDTO> partners;
 
-  @NotBlank private String contractFile;
+  // NOTE: we do not required contract file though we can add it later
+  private String contractFile;
   private List<String> attachments;
   private List<DynamicAttribute> customAttributes;
 
   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
   private Instant activationDate;
 
-  @Future
   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
   private Instant expiredDate;
 

@@ -14,4 +14,6 @@ public class UpdateContractCommand {
   Patch<Integer> contractFreezeDelayMinutes;
   Patch<Party> initiator;
   Patch<List<Party>> partners;
+  String contractFile;
+  List<String> attachments;
 }

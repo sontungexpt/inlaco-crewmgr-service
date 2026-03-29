@@ -22,6 +22,20 @@ public class LaborContract extends Contract {
   private String payday;
   private String salaryReviewPeriod;
 
+  public void validateForSigning() {
+    super.validateForSigning();
+
+    ContractValidator.notBlank(accountId, "Account id is required");
+    ContractValidator.notBlank(applicationId, "Application id is required");
+    ContractValidator.notBlank(position, "Position is required");
+    ContractValidator.notBlank(workingLocation, "Working location is required");
+    ContractValidator.notBlank(basicSalary, "Basic salary is required");
+    ContractValidator.notBlank(allowance, "Allowance is required");
+    ContractValidator.notBlank(receiveMethod, "Receive method is required");
+    ContractValidator.notBlank(payday, "Payday is required");
+    ContractValidator.notBlank(salaryReviewPeriod, "Salary review period is required");
+  }
+
   @Override
   protected <T extends UpdateContractCommand> boolean applyChanges(T command) {
     boolean changed = super.applyChanges(command);

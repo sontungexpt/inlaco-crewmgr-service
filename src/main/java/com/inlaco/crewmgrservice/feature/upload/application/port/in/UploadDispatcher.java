@@ -4,6 +4,8 @@ import com.inlaco.crewmgrservice.feature.upload.domain.enums.AssetType;
 import com.inlaco.crewmgrservice.feature.upload.domain.model.AssetMetadata;
 import com.inlaco.crewmgrservice.feature.upload.domain.model.UploadContext;
 import com.inlaco.crewmgrservice.shared.objectvalue.Asset;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 public interface UploadDispatcher {
@@ -13,4 +15,10 @@ public interface UploadDispatcher {
   Asset fetch(AssetType type, String assetId);
 
   void validate(AssetType type, AssetMetadata metadata);
+
+  default void delete(AssetType type, String assetId) {
+    delete(type, Collections.singletonList(assetId));
+  }
+
+  void delete(AssetType type, List<String> assetIds);
 }

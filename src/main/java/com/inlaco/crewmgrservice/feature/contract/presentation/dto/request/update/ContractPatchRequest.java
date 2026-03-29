@@ -33,6 +33,8 @@ public class ContractPatchRequest implements TimeFrame, Serializable {
   Patch<@Min(0) Integer> contractFreezeDelayMinutes = Patch.unchanged();
   Patch<@NotNull PartyDTO> initiator = Patch.unchanged();
   Patch<@Size(min = 1) List<PartyDTO>> partners = Patch.unchanged();
+  String contractFile;
+  List<String> attachments;
 
   @Override
   public List<Range> getTimeFrames() {

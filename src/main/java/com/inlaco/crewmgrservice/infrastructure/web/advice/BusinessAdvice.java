@@ -46,11 +46,12 @@ public class BusinessAdvice {
 
   // ===================== BUSINESS =====================
   @ExceptionHandler(ApplicationException.class)
-  public ResponseEntity<ApiResponse<Void>> handleBaseException(
+  public ResponseEntity<ApiResponse<Object>> handleBaseException(
       ApplicationException ex, HttpServletRequest request) {
     log.warn("Business exception [{}]: {}", ex.getErrorCode(), ex.getMessage());
     String errorCode = ex.getErrorCode() != null ? ex.getErrorCode().code() : ex.getErrorCodeStr();
-    return AdviceUtils.buildErrorResponse(resolveStatus(ex), errorCode, ex.getMessage(), request);
+    return AdviceUtils.buildErrorResponse(
+        resolveStatus(ex), errorCode, ex.getMessage(), ex.getData(), request);
   }
 
   private HttpStatus resolveStatus(ApplicationException ex) {

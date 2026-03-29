@@ -5,6 +5,7 @@ import com.inlaco.crewmgrservice.shared.kernel.error.HttpMappableErrorCode;
 public enum ContractErrorCode implements HttpMappableErrorCode {
   CONTRACT_UNKNOWN_ERROR("CONTRACT_ERR_000", 500),
   CONTRACT_FROZEN("CONTRACT_ERR_001", 403),
+  CONTRACT_VALIDATION_FAILED("CONTRACT_ERR_002", 400),
   ;
 
   final String code;

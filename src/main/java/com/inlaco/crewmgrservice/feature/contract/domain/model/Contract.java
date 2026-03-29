@@ -2,6 +2,7 @@ package com.inlaco.crewmgrservice.feature.contract.domain.model;
 
 import com.inlaco.crewmgrservice.feature.contract.domain.enums.ContractStatus;
 import com.inlaco.crewmgrservice.feature.contract.domain.enums.ContractType;
+import com.inlaco.crewmgrservice.feature.contract.domain.exception.ContractValidationException;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.party.Party;
 import com.inlaco.crewmgrservice.feature.contract.domain.objectvalue.ContractStatusHistory;
 import com.inlaco.crewmgrservice.feature.contract.domain.objectvalue.DynamicAttribute;
@@ -11,6 +12,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -66,8 +68,42 @@ public abstract class Contract {
         | patch.getPartners().ifUpdated(this::setPartners);
   }
 
-  public <T extends UpdateContractCommand> void amend(T patch, Instant now) {
-    if (!applyChanges(patch)) return;
+  protected <T extends UpdateContractCommand> boolean applyAssetChanges(
+      T patch,
+      Function<String, Asset> contractFileConverter,
+      Function<List<String>, List<Asset>> attachmentsConverter) {
+    boolean updated = false;
+
+    String contractFileId = patch.getContractFile();
+    if (contractFileId == null || contractFileId.isBlank()) {
+      updated = updated | contractFile != null;
+      contractFile = null;
+    } else {
+      Asset newContractFile = contractFileConverter.apply(contractFileId);
+      updated = updated | this.contractFile != newContractFile;
+      this.contractFile = newContractFile;
+    }
+
+    List<String> attachmentIds = patch.getAttachments();
+    if (attachmentIds == null || attachmentIds.isEmpty()) {
+      updated = updated | attachments != null;
+      attachments = null;
+    } else {
+      List<Asset> newAttachments = attachmentsConverter.apply(patch.getAttachments());
+      updated = updated | this.attachments != newAttachments;
+      this.attachments = newAttachments;
+    }
+    return updated;
+  }
+
+  public <T extends UpdateContractCommand> void amend(
+      T patch,
+      Instant now,
+      Function<String, Asset> contractFileConverter,
+      Function<List<String>, List<Asset>> attachmentsConverter) {
+
+    if (!(applyChanges(patch)
+        | applyAssetChanges(patch, contractFileConverter, attachmentsConverter))) return;
     if (isFreezed(now)) {
       restartLifecycle(now);
       incrementVersion();
@@ -195,11 +231,71 @@ public abstract class Contract {
     return Collections.unmodifiableList(statusHistories);
   }
 
+  public void validateForSigning() {
+    // ===== STATUS =====
+    ContractValidator.require(isDraft(), "Only draft contracts can be signed");
+
+    // ===== BASIC =====
+    ContractValidator.notNull(contractFile, "Contract file is required", "contract");
+    ContractValidator.notBlank(title, "Title is required", "title");
+    ContractValidator.notNull(type, "Type is required");
+    ContractValidator.notBlank(id, "Id is required");
+    ContractValidator.notNull(version, "Version is required");
+
+    // ===== PARTY =====
+    ContractValidator.notNull(initiator, "Initiator is required");
+    ContractValidator.notEmpty(partners, "At least one partner is required");
+    for (int i = 0; i < partners.size(); i++) {
+      ContractValidator.notNull(partners.get(i), "Partner[" + i + "] is required");
+    }
+
+    // ===== TIME =====
+    ContractValidator.notNull(activationDate, "Activation date is required");
+    ContractValidator.notNull(expiredDate, "Expired date is required");
+    ContractValidator.require(
+        expiredDate.isAfter(activationDate), "Expired date must be after activation date");
+  }
+
   // ======================
   // UTIL
   // ======================
 
   private String defaultIfNull(String value) {
     return value != null ? value : SYSTEM;
+  }
+
+  public static final class ContractValidator {
+
+    public static void require(boolean condition, String message, String field) {
+      if (!condition) throw new ContractValidationException(message, field);
+    }
+
+    public static void require(boolean condition, String message) {
+      require(condition, message, null);
+    }
+
+    public static void notBlank(String value, String message, String field) {
+      require(value != null && !value.isBlank(), message, field);
+    }
+
+    public static void notBlank(String value, String message) {
+      notBlank(value, message, null);
+    }
+
+    public static void notNull(Object value, String message, String field) {
+      require(value != null, message, field);
+    }
+
+    public static void notNull(Object value, String message) {
+      notNull(value, message, null);
+    }
+
+    public static void notEmpty(List<?> list, String message, String field) {
+      require(list != null && !list.isEmpty(), message, field);
+    }
+
+    public static void notEmpty(List<?> list, String message) {
+      notEmpty(list, message, null);
+    }
   }
 }

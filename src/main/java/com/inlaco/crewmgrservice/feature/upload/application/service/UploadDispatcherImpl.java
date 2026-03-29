@@ -6,6 +6,7 @@ import com.inlaco.crewmgrservice.feature.upload.application.port.in.GenerateSign
 import com.inlaco.crewmgrservice.feature.upload.application.port.in.MetadataFetchUseCase;
 import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadDispatcher;
 import com.inlaco.crewmgrservice.feature.upload.application.service.fallback.DefaultAssetValidationService;
+import com.inlaco.crewmgrservice.feature.upload.application.service.fallback.DefaultDeleteService;
 import com.inlaco.crewmgrservice.feature.upload.application.service.fallback.DefaultGenerateSignatureService;
 import com.inlaco.crewmgrservice.feature.upload.application.service.fallback.DefaultMetadataFetchService;
 import com.inlaco.crewmgrservice.feature.upload.domain.enums.AssetType;
@@ -15,9 +16,11 @@ import com.inlaco.crewmgrservice.shared.objectvalue.Asset;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 @Component
+@Slf4j
 public class UploadDispatcherImpl implements UploadDispatcher {
 
   private final Map<AssetType, GenerateSignatureUseCase> generateStrategies;
@@ -26,6 +29,7 @@ public class UploadDispatcherImpl implements UploadDispatcher {
   private final DefaultGenerateSignatureService defaultGenerateSignatureService;
   private final DefaultMetadataFetchService defaultMetadataFetchService;
   private final DefaultAssetValidationService defaultAssetValidationService;
+  private final DefaultDeleteService defaultDeleteService;
   private final AssetMapper assetMapper;
 
   public UploadDispatcherImpl(
@@ -35,10 +39,12 @@ public class UploadDispatcherImpl implements UploadDispatcher {
       DefaultGenerateSignatureService defaultGenerateSignatureService,
       DefaultMetadataFetchService defaultMetadataFetchService,
       DefaultAssetValidationService defaultAssetValidationService,
+      DefaultDeleteService defaultDeleteService,
       AssetMapper assetMapper) {
     this.defaultMetadataFetchService = defaultMetadataFetchService;
     this.defaultGenerateSignatureService = defaultGenerateSignatureService;
     this.defaultAssetValidationService = defaultAssetValidationService;
+    this.defaultDeleteService = defaultDeleteService;
     this.assetMapper = assetMapper;
 
     this.generateStrategies = new EnumMap<>(AssetType.class);
@@ -72,5 +78,15 @@ public class UploadDispatcherImpl implements UploadDispatcher {
     var service = validationStrategies.get(type);
     if (service != null) service.validate(metadata);
     defaultAssetValidationService.validate(type, metadata);
+  }
+
+  @Override
+  public void delete(AssetType type, String assetId) {
+    defaultDeleteService.delete(type, assetId);
+  }
+
+  @Override
+  public void delete(AssetType type, List<String> assetIds) {
+    defaultDeleteService.delete(type, assetIds);
   }
 }

@@ -32,47 +32,52 @@ import org.mapstruct.SubclassMapping;
     unmappedSourcePolicy = ReportingPolicy.IGNORE,
     unmappedTargetPolicy = ReportingPolicy.IGNORE,
     subclassExhaustiveStrategy = SubclassExhaustiveStrategy.RUNTIME_EXCEPTION)
-public interface ContractMapper {
+public abstract class ContractMapper {
 
   // contract to response
   @SubclassMapping(source = LaborContract.class, target = LaborContractResponse.class)
   @SubclassMapping(source = CrewSupplyContract.class, target = CrewSupplyContractResponse.class)
-  ContractResponse toContractResponse(Contract contract);
+  public abstract ContractResponse toContractResponse(Contract contract);
 
   // request to contract
   @SubclassMapping(source = NewLaborContract.class, target = LaborContract.class)
   @SubclassMapping(source = NewCrewSupplyContract.class, target = CrewSupplyContract.class)
   @Mapping(target = "contractFile", ignore = true)
   @Mapping(target = "attachments", ignore = true)
-  Contract toContract(NewContract request);
+  public abstract Contract toContract(NewContract request);
 
   @InheritConfiguration(name = "toContract")
-  LaborContract toLaborContract(NewLaborContract request);
+  public abstract LaborContract toLaborContract(NewLaborContract request);
 
   @InheritConfiguration(name = "toContract")
-  CrewSupplyContract toCrewSupplyContract(NewCrewSupplyContract request);
+  public abstract CrewSupplyContract toCrewSupplyContract(NewCrewSupplyContract request);
 
   // update request to command
   @SubclassMapping(
       source = LaborContractPatchRequest.class,
       target = UpdateLaborContractCommand.class)
-  UpdateContractCommand toUpdateContractCommand(ContractPatchRequest request);
+  public abstract UpdateContractCommand toUpdateContractCommand(ContractPatchRequest request);
 
   @SubclassMapping(source = LaborPartyDTO.class, target = LaborParty.class)
-  Party toParty(PartyDTO partyRequest);
+  public abstract Party toParty(PartyDTO partyRequest);
 
   @SubclassMapping(source = LaborParty.class, target = LaborPartyDTO.class)
-  PartyDTO toPartyDTO(Party party);
+  public abstract PartyDTO toPartyDTO(Party party);
 
-  default int map(Version version) {
+  int map(Version version) {
     return version.num();
   }
 
-  default Patch<Party> map(Patch<PartyDTO> patch) {
+  Patch<Party> map(Patch<PartyDTO> patch) {
     return patch.map(this::toParty);
   }
 
-  default Patch<List<Party>> mapPartners(Patch<List<PartyDTO>> patch) {
+  Patch<List<Party>> mapPartners(Patch<List<PartyDTO>> patch) {
     return patch.map(parties -> parties.stream().map(this::toParty).toList());
   }
+
+  // @Named("mapContractFile")
+  // Asset mapContractFile(String contractFileId) {
+  //   return uploadDispatcher.fetch(AssetType.CONTRACT_FILE, contractFileId);
+  // }
 }

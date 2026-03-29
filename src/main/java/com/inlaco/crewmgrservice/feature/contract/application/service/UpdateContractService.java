@@ -5,8 +5,12 @@ import com.inlaco.crewmgrservice.feature.contract.application.port.out.ContractR
 import com.inlaco.crewmgrservice.feature.contract.application.port.out.ContractSnapshotRepository;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.Contract;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.UpdateContractCommand;
+import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadDispatcher;
+import com.inlaco.crewmgrservice.feature.upload.domain.enums.AssetType;
 import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceNotFoundException;
+import com.inlaco.crewmgrservice.shared.objectvalue.Asset;
 import java.time.Instant;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,6 +23,7 @@ public class UpdateContractService implements UpdateContractUseCase {
 
   private final ContractRepository contractRepository;
   private final ContractSnapshotRepository contractSnapshotRepository;
+  private final UploadDispatcher uploadDispatcher;
 
   @Override
   @Transactional
@@ -31,9 +36,29 @@ public class UpdateContractService implements UpdateContractUseCase {
     Instant now = Instant.now();
     if (current.isFreezed(now)) {
       contractSnapshotRepository.save(current);
-    }
+    } else {
+      // Not freezed so delete old files before updating
+      Asset currentContractFile = current.getContractFile();
+      if (currentContractFile != null) {
+        log.debug("Deleting contract file");
+        uploadDispatcher.delete(AssetType.CONTRACT_FILE, currentContractFile.assetId());
+      }
 
-    current.amend(patch, now);
+      List<Asset> currentAttachments = current.getAttachments();
+      if (currentAttachments != null && !currentAttachments.isEmpty()) {
+        log.debug("Deleting {} attachments", currentAttachments.size());
+        uploadDispatcher.delete(
+            AssetType.CONTRACT_FILE, currentAttachments.stream().map(Asset::assetId).toList());
+      }
+    }
+    current.amend(
+        patch,
+        now,
+        (contractFileId) -> uploadDispatcher.fetch(AssetType.CONTRACT_FILE, contractFileId),
+        (attachmentIds) ->
+            attachmentIds.stream()
+                .map(attachmentId -> uploadDispatcher.fetch(AssetType.CONTRACT_FILE, attachmentId))
+                .toList());
     return contractRepository.save(current);
   }
 }

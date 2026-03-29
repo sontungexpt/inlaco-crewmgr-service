@@ -16,4 +16,12 @@ public class CrewSupplyContract extends Contract {
   private int numOfCrews;
   private String crewRentalRequestId;
   private ShipInfo shipInfo;
+
+  public void validateForSigning() {
+    super.validateForSigning();
+
+    ContractValidator.notBlank(crewRentalRequestId, "Crew rental request id is required");
+    ContractValidator.notNull(numOfCrews, "Number of crews is required");
+    ContractValidator.notNull(shipInfo, "Ship info is required");
+  }
 }

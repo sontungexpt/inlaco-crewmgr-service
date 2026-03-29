@@ -2,6 +2,7 @@ package com.inlaco.crewmgrservice.infrastructure.web.payload.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.inlaco.crewmgrservice.infrastructure.web.util.HttpServletUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,7 +18,6 @@ public class ApiResponse<T> {
 
   private HttpStatus status;
   private String timestamp;
-  private String cause;
   private String path;
   private T data;
 
@@ -31,10 +31,9 @@ public class ApiResponse<T> {
   }
 
   public static <T> ApiResponseBuilder<T, ?, ?> of(HttpStatus status) {
-    var request = HttpServletUtils.getRequest().orElse(null);
     return new ApiResponseBuilderImpl<T>()
         .status(status)
-        .path(request != null ? request.getRequestURI() : "")
+        .path(HttpServletUtils.getRequest().map(HttpServletRequest::getRequestURI).orElse(""))
         .timestamp(Instant.now().toString());
   }
 }
