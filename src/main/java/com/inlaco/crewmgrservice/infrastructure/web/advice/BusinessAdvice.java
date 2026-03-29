@@ -48,8 +48,8 @@ public class BusinessAdvice {
   @ExceptionHandler(ApplicationException.class)
   public ResponseEntity<ApiResponse<Object>> handleBaseException(
       ApplicationException ex, HttpServletRequest request) {
-    log.warn("Business exception [{}]: {}", ex.getErrorCode(), ex.getMessage());
     String errorCode = ex.getErrorCode() != null ? ex.getErrorCode().code() : ex.getErrorCodeStr();
+    log.warn("Business exception [{}]: {}", errorCode, ex.getMessage());
     return AdviceUtils.buildErrorResponse(
         resolveStatus(ex), errorCode, ex.getMessage(), ex.getData(), request);
   }

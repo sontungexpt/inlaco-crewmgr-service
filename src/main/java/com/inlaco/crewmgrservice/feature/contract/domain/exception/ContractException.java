@@ -8,8 +8,4 @@ public class ContractException extends ApplicationException {
   public ContractException(ErrorCode errorCode, String message) {
     super(errorCode, message);
   }
-
-  public ContractException(ErrorCode errorCode, String message, Object data) {
-    super(errorCode, message, data);
-  }
 }

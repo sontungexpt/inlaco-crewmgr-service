@@ -1,6 +1,7 @@
 package com.inlaco.crewmgrservice.feature.upload.application.service;
 
 import com.inlaco.crewmgrservice.feature.upload.application.mapper.AssetMapper;
+import com.inlaco.crewmgrservice.feature.upload.application.port.in.AssetDeleteUseCase;
 import com.inlaco.crewmgrservice.feature.upload.application.port.in.AssetValidationUseCase;
 import com.inlaco.crewmgrservice.feature.upload.application.port.in.GenerateSignatureUseCase;
 import com.inlaco.crewmgrservice.feature.upload.application.port.in.MetadataFetchUseCase;
@@ -26,6 +27,8 @@ public class UploadDispatcherImpl implements UploadDispatcher {
   private final Map<AssetType, GenerateSignatureUseCase> generateStrategies;
   private final Map<AssetType, MetadataFetchUseCase> metadataStrategies;
   private final Map<AssetType, AssetValidationUseCase> validationStrategies;
+  private final Map<AssetType, AssetDeleteUseCase> deleteStrategies;
+
   private final DefaultGenerateSignatureService defaultGenerateSignatureService;
   private final DefaultMetadataFetchService defaultMetadataFetchService;
   private final DefaultAssetValidationService defaultAssetValidationService;
@@ -36,6 +39,7 @@ public class UploadDispatcherImpl implements UploadDispatcher {
       List<GenerateSignatureUseCase> generateStrategies,
       List<MetadataFetchUseCase> metadataStrategies,
       List<AssetValidationUseCase> validationStrategies,
+      List<AssetDeleteUseCase> deleteStrategies,
       DefaultGenerateSignatureService defaultGenerateSignatureService,
       DefaultMetadataFetchService defaultMetadataFetchService,
       DefaultAssetValidationService defaultAssetValidationService,
@@ -50,6 +54,7 @@ public class UploadDispatcherImpl implements UploadDispatcher {
     this.generateStrategies = new EnumMap<>(AssetType.class);
     this.metadataStrategies = new EnumMap<>(AssetType.class);
     this.validationStrategies = new EnumMap<>(AssetType.class);
+    this.deleteStrategies = new EnumMap<>(AssetType.class);
 
     generateStrategies.forEach(
         strategy -> this.generateStrategies.put(strategy.supports(), strategy));
@@ -57,6 +62,7 @@ public class UploadDispatcherImpl implements UploadDispatcher {
         strategy -> this.metadataStrategies.put(strategy.supports(), strategy));
     validationStrategies.forEach(
         strategy -> this.validationStrategies.put(strategy.supports(), strategy));
+    deleteStrategies.forEach(strategy -> this.deleteStrategies.put(strategy.supports(), strategy));
   }
 
   @Override
@@ -77,16 +83,13 @@ public class UploadDispatcherImpl implements UploadDispatcher {
   public void validate(AssetType type, AssetMetadata metadata) {
     var service = validationStrategies.get(type);
     if (service != null) service.validate(metadata);
-    defaultAssetValidationService.validate(type, metadata);
-  }
-
-  @Override
-  public void delete(AssetType type, String assetId) {
-    defaultDeleteService.delete(type, assetId);
+    else defaultAssetValidationService.validate(type, metadata);
   }
 
   @Override
   public void delete(AssetType type, List<String> assetIds) {
-    defaultDeleteService.delete(type, assetIds);
+    var service = deleteStrategies.get(type);
+    if (service != null) service.delete(assetIds);
+    else defaultDeleteService.delete(type, assetIds);
   }
 }

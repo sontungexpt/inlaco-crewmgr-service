@@ -34,17 +34,16 @@ public class ApiEndpointAuthorizationManager
     HttpMethod method = HttpMethod.valueOf(request.getMethod());
 
     // GET-only framework endpoints
-    if (method != HttpMethod.GET) {
-      return false;
+    if (method == HttpMethod.GET) {
+      // Framework endpoints
+      return uri.startsWith("/scalar")
+          || uri.startsWith("/swagger-ui")
+          || uri.startsWith("/v3/api-docs")
+          // || uri.startsWith("/.well-known")
+          // || uri.startsWith("/favicon.ico")
+          || uri.startsWith("/webjars");
     }
-
-    // Framework endpoints
-    return uri.startsWith("/scalar")
-        || uri.startsWith("/swagger-ui")
-        || uri.startsWith("/v3/api-docs")
-        // || uri.startsWith("/.well-known")
-        // || uri.startsWith("/favicon.ico")
-        || uri.startsWith("/webjars");
+    return false;
   }
 
   @Override

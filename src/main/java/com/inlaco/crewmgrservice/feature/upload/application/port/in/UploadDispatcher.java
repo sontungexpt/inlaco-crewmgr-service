@@ -16,9 +16,9 @@ public interface UploadDispatcher {
 
   void validate(AssetType type, AssetMetadata metadata);
 
+  void delete(AssetType type, List<String> assetIds);
+
   default void delete(AssetType type, String assetId) {
     delete(type, Collections.singletonList(assetId));
   }
-
-  void delete(AssetType type, List<String> assetIds);
 }

@@ -34,21 +34,26 @@ public class UpdateContractService implements UpdateContractUseCase {
             .orElseThrow(() -> new ResourceNotFoundException(Contract.class, "id", id));
 
     Instant now = Instant.now();
+
     if (current.isFreezed(now)) {
+      // Freezed so save snapshot
       contractSnapshotRepository.save(current);
+      log.debug("Saved contract snapshot with id: {}", id);
     } else {
       // Not freezed so delete old files before updating
       Asset currentContractFile = current.getContractFile();
       if (currentContractFile != null) {
-        log.debug("Deleting contract file");
         uploadDispatcher.delete(AssetType.CONTRACT_FILE, currentContractFile.assetId());
+        log.debug("Deleted contract file {}", currentContractFile.assetId());
       }
 
       List<Asset> currentAttachments = current.getAttachments();
       if (currentAttachments != null && !currentAttachments.isEmpty()) {
-        log.debug("Deleting {} attachments", currentAttachments.size());
         uploadDispatcher.delete(
             AssetType.CONTRACT_FILE, currentAttachments.stream().map(Asset::assetId).toList());
+        log.debug(
+            "Deleted contract attachments {}",
+            currentAttachments.stream().map(Asset::assetId).toList());
       }
     }
     current.amend(
@@ -59,6 +64,9 @@ public class UpdateContractService implements UpdateContractUseCase {
             attachmentIds.stream()
                 .map(attachmentId -> uploadDispatcher.fetch(AssetType.CONTRACT_FILE, attachmentId))
                 .toList());
+
+    log.debug("Updated contract with id: {}", id);
+
     return contractRepository.save(current);
   }
 }

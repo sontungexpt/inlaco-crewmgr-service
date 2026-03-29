@@ -1,5 +1,6 @@
 package com.inlaco.crewmgrservice.shared.kernel.exception;
 
+import com.inlaco.crewmgrservice.shared.kernel.error.ResourceErrorCode;
 import java.util.Map;
 import lombok.Getter;
 
@@ -23,7 +24,7 @@ public class ResourceDeleteFailedException extends ApplicationException {
 
   public ResourceDeleteFailedException(
       String message, Class<?> resource, Map<String, Object> reasons) {
-    super("RESOURCE_DELETE_FAILED", message);
+    super(ResourceErrorCode.RESOURCE_DELETE_FAILED, message);
     this.reasons = reasons;
   }
 }

@@ -159,7 +159,7 @@ public class PublicEndpointResolver {
 
     if (!matched) return false;
 
-    // Static path → OK luôn
+    // Static path → OK
     if (!apiPath.dynamic()) {
       log.trace("[MATCH] STATIC pattern accepted: {}", pattern.getPatternString());
       return true;
@@ -197,10 +197,6 @@ public class PublicEndpointResolver {
   }
 
   private void logInitializedEndpoints() {
-    if (!log.isInfoEnabled()) {
-      return;
-    }
-
     StringBuilder sb = new StringBuilder(1024);
 
     sb.append("\n================ SECURITY ENDPOINTS ================\n");

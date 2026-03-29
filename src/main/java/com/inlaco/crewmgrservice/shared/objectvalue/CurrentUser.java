@@ -1,3 +1,6 @@
 package com.inlaco.crewmgrservice.shared.objectvalue;
 
-public record CurrentUser(String id, String username, String email) {}
+import lombok.Builder;
+
+@Builder
+public record CurrentUser(String id, String username) {}

@@ -1,5 +1,6 @@
 package com.inlaco.crewmgrservice.shared.kernel.exception;
 
+import com.inlaco.crewmgrservice.shared.kernel.error.ResourceErrorCode;
 import java.util.Map;
 import lombok.Getter;
 
@@ -23,7 +24,7 @@ public class ResourceAlreadyInUseException extends ApplicationException {
 
   public ResourceAlreadyInUseException(
       String message, Class<?> resource, Map<String, Object> conflictFields) {
-    super("RESOURCE_ALREADY_IN_USE", message);
+    super(ResourceErrorCode.RESOURCE_ALREADY_IN_USE, message);
     this.conflictFields = conflictFields;
   }
 }
