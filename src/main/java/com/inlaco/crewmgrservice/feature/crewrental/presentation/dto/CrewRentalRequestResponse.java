@@ -2,7 +2,7 @@ package com.inlaco.crewmgrservice.feature.crewrental.presentation.dto;
 
 import com.inlaco.crewmgrservice.feature.crewrental.domain.enums.CrewRentalRequestStatus;
 import com.inlaco.crewmgrservice.shared.objectvalue.AssetResponse;
-import com.inlaco.crewmgrservice.shared.objectvalue.ShipInfo;
+import com.inlaco.crewmgrservice.shared.objectvalue.ShipInfoResponse;
 import java.time.Instant;
 import lombok.Data;
 
@@ -29,7 +29,7 @@ public class CrewRentalRequestResponse {
 
   private Instant rentalEndDate;
 
-  private ShipInfo shipInfo;
+  private ShipInfoResponse shipInfo;
 
   private String contractId;
 

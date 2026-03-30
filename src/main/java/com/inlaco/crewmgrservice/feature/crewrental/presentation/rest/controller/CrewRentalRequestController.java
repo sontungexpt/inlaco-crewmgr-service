@@ -42,24 +42,27 @@ public class CrewRentalRequestController {
       @RequestParam String detailFileAssetId,
       @RequestParam String shipImageAssetId,
       @Valid @RequestBody NewCrewRentalRequest newRequest) {
+
     return crewRentalRequestMapper.toCrewRentalRequestResponse(
         crewRentalRequestCommandUseCase.create(
             crewRentalRequestMapper.toCrewRentalRequest(newRequest),
-            detailFileAssetId,
-            shipImageAssetId));
+            newRequest.getDetailFile() == null ? detailFileAssetId : newRequest.getDetailFile(),
+            newRequest.getShipInfo().image() == null
+                ? shipImageAssetId
+                : newRequest.getShipInfo().image()));
   }
 
   @Operation(
       summary = "Admin review a new crew rental request",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   @RolesAllowed("ADMIN")
-  @PostMapping("/{requestId}/review")
+  @PostMapping("/{supplyRequestId}/review")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void reviewRequest(
-      @ObjectId @PathVariable("requestId") String requestId,
+      @ObjectId @PathVariable("supplyRequestId") String supplyRequestId,
       @CurrentUser User reviewer,
       @RequestParam boolean accepted) {
-    crewRentalRequestCommandUseCase.review(requestId, accepted, reviewer);
+    crewRentalRequestCommandUseCase.review(supplyRequestId, accepted, reviewer);
   }
 
   @Operation(

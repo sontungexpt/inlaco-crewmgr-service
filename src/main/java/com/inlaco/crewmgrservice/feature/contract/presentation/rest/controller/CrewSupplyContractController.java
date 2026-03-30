@@ -1,5 +1,6 @@
 package com.inlaco.crewmgrservice.feature.contract.presentation.rest.controller;
 
+import com.inlaco.crewmgrservice.feature.contract.application.model.CrewSupplyContractAssets;
 import com.inlaco.crewmgrservice.feature.contract.application.port.in.CreateSupplyContractUseCase;
 import com.inlaco.crewmgrservice.feature.contract.presentation.dto.request.create.NewCrewSupplyContract;
 import com.inlaco.crewmgrservice.feature.contract.presentation.dto.response.ContractResponse;
@@ -19,7 +20,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -35,21 +35,21 @@ public class CrewSupplyContractController {
   @Operation(
       summary = "Add contract for sailor",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
-  @PostMapping("/{requestId}")
+  @PostMapping("/{supplyRequestId}")
   @RolesAllowed("ADMIN")
   @ResponseStatus(HttpStatus.CREATED)
   public ContractResponse create(
-      @ObjectId @PathVariable("requestId") String requestId,
-      @RequestParam String contractFileAssetId,
-      @RequestParam String shipImageAssetId,
+      @ObjectId @PathVariable("supplyRequestId") String supplyRequestId,
       @CurrentUser User creator,
       @RequestBody @Valid NewCrewSupplyContract contract) {
     return contractMapper.toContractResponse(
         supplyContractUseCase.create(
-            requestId,
+            supplyRequestId,
             contractMapper.toCrewSupplyContract(contract),
-            contractFileAssetId,
-            shipImageAssetId,
+            new CrewSupplyContractAssets(
+                contract.getContractFile(),
+                contract.getAttachments(),
+                contract.getShipInfo().image()),
             creator));
   }
 }

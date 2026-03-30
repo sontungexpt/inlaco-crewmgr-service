@@ -1,5 +1,6 @@
 package com.inlaco.crewmgrservice.feature.contract.application.service;
 
+import com.inlaco.crewmgrservice.feature.contract.application.model.CrewSupplyContractAssets;
 import com.inlaco.crewmgrservice.feature.contract.application.port.in.CreateSupplyContractUseCase;
 import com.inlaco.crewmgrservice.feature.contract.application.port.out.ContractRepository;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.Contract;
@@ -9,6 +10,7 @@ import com.inlaco.crewmgrservice.feature.crewrental.application.port.in.CrewRent
 import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadDispatcher;
 import com.inlaco.crewmgrservice.feature.upload.domain.enums.AssetType;
 import com.inlaco.crewmgrservice.feature.user.domain.model.User;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,14 +31,33 @@ public class CreateSupplyContractService implements CreateSupplyContractUseCase 
   public Contract create(
       String requestId,
       CrewSupplyContract contract,
-      String contractFileAssetId,
-      String shipImageAssetId,
+      CrewSupplyContractAssets assets,
       User creator) {
+
     var crewRentalRequest = crewRentalRequestQueryUseCase.getRequest(requestId);
 
     contract.setCrewRentalRequestId(requestId);
-    contract.setContractFile(uploadDispatcher.fetch(AssetType.CONTRACT_FILE, contractFileAssetId));
-    contract.getShipInfo().setImage(uploadDispatcher.fetch(AssetType.SHIP_IMAGE, shipImageAssetId));
+
+    String contractFileAssetId = assets.getContractFile();
+    if (contractFileAssetId != null) {
+      contract.setContractFile(
+          uploadDispatcher.fetch(AssetType.CONTRACT_FILE, contractFileAssetId));
+    }
+
+    String shipImageAssetId = assets.getShipInfoImage();
+    if (shipImageAssetId != null) {
+      contract
+          .getShipInfo()
+          .setImage(uploadDispatcher.fetch(AssetType.SHIP_IMAGE, shipImageAssetId));
+    }
+
+    List<String> attachments = assets.getAttachments();
+    if (attachments != null && !attachments.isEmpty()) {
+      contract.setAttachments(
+          attachments.stream()
+              .map(attachment -> uploadDispatcher.fetch(AssetType.CONTRACT_FILE, attachment))
+              .toList());
+    }
 
     var newContract = contractRepository.save(contract);
     crewRentalRequestCommandUseCase.markSigning(crewRentalRequest, newContract.getId());

@@ -2,7 +2,6 @@ package com.inlaco.crewmgrservice.feature.crewrental.presentation.dto;
 
 import com.inlaco.crewmgrservice.feature.crewrental.domain.enums.CrewRentalRequestStatus;
 import com.inlaco.crewmgrservice.infrastructure.web.validation.phone.PhoneNumber;
-import com.inlaco.crewmgrservice.shared.objectvalue.ShipInfo;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
@@ -14,7 +13,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 @Data
 public class NewCrewRentalRequest {
 
-  // private File detailFile;
+  private String detailFile;
 
   // Company information
   @NotBlank private String companyName;
@@ -40,7 +39,7 @@ public class NewCrewRentalRequest {
   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
   private Instant rentalEndDate;
 
-  @NotNull private ShipInfo shipInfo;
+  @NotNull private ShipInfoRequest shipInfo;
 
   @NotNull private CrewRentalRequestStatus status = CrewRentalRequestStatus.PENDING;
 }

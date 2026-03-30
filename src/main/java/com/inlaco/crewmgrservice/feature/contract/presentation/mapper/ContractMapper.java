@@ -4,6 +4,7 @@ import com.inlaco.crewmgrservice.feature.contract.domain.model.Contract;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.CrewSupplyContract;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.LaborContract;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.UpdateContractCommand;
+import com.inlaco.crewmgrservice.feature.contract.domain.model.UpdateCrewSupplyContractCommand;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.UpdateLaborContractCommand;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.party.LaborParty;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.party.Party;
@@ -14,11 +15,13 @@ import com.inlaco.crewmgrservice.feature.contract.presentation.dto.request.creat
 import com.inlaco.crewmgrservice.feature.contract.presentation.dto.request.create.NewCrewSupplyContract;
 import com.inlaco.crewmgrservice.feature.contract.presentation.dto.request.create.NewLaborContract;
 import com.inlaco.crewmgrservice.feature.contract.presentation.dto.request.update.ContractPatchRequest;
+import com.inlaco.crewmgrservice.feature.contract.presentation.dto.request.update.CrewSupplyContractPatchRequest;
 import com.inlaco.crewmgrservice.feature.contract.presentation.dto.request.update.LaborContractPatchRequest;
 import com.inlaco.crewmgrservice.feature.contract.presentation.dto.response.ContractResponse;
 import com.inlaco.crewmgrservice.feature.contract.presentation.dto.response.CrewSupplyContractResponse;
 import com.inlaco.crewmgrservice.feature.contract.presentation.dto.response.LaborContractResponse;
 import com.inlaco.crewmgrservice.shared.application.model.Patch;
+import com.inlaco.crewmgrservice.shared.mapstruct.mapper.ShipInfoResponseMapper;
 import java.util.List;
 import org.mapstruct.InheritConfiguration;
 import org.mapstruct.Mapper;
@@ -31,7 +34,8 @@ import org.mapstruct.SubclassMapping;
     componentModel = "spring",
     unmappedSourcePolicy = ReportingPolicy.IGNORE,
     unmappedTargetPolicy = ReportingPolicy.IGNORE,
-    subclassExhaustiveStrategy = SubclassExhaustiveStrategy.RUNTIME_EXCEPTION)
+    subclassExhaustiveStrategy = SubclassExhaustiveStrategy.RUNTIME_EXCEPTION,
+    uses = {ShipInfoResponseMapper.class})
 public abstract class ContractMapper {
 
   // contract to response
@@ -50,12 +54,16 @@ public abstract class ContractMapper {
   public abstract LaborContract toLaborContract(NewLaborContract request);
 
   @InheritConfiguration(name = "toContract")
+  @Mapping(target = "shipInfo.image", ignore = true)
   public abstract CrewSupplyContract toCrewSupplyContract(NewCrewSupplyContract request);
 
   // update request to command
   @SubclassMapping(
       source = LaborContractPatchRequest.class,
       target = UpdateLaborContractCommand.class)
+  @SubclassMapping(
+      source = CrewSupplyContractPatchRequest.class,
+      target = UpdateCrewSupplyContractCommand.class)
   public abstract UpdateContractCommand toUpdateContractCommand(ContractPatchRequest request);
 
   @SubclassMapping(source = LaborPartyDTO.class, target = LaborParty.class)

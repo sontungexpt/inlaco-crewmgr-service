@@ -4,6 +4,7 @@ import com.inlaco.crewmgrservice.feature.contract.application.port.in.UpdateCont
 import com.inlaco.crewmgrservice.feature.contract.application.port.out.ContractRepository;
 import com.inlaco.crewmgrservice.feature.contract.application.port.out.ContractSnapshotRepository;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.Contract;
+import com.inlaco.crewmgrservice.feature.contract.domain.model.CrewSupplyContract;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.UpdateContractCommand;
 import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadDispatcher;
 import com.inlaco.crewmgrservice.feature.upload.domain.enums.AssetType;
@@ -54,6 +55,14 @@ public class UpdateContractService implements UpdateContractUseCase {
         log.debug(
             "Deleted contract attachments {}",
             currentAttachments.stream().map(Asset::assetId).toList());
+      }
+
+      if (current instanceof CrewSupplyContract crewSupplyContract) {
+        Asset shipImage = crewSupplyContract.getShipInfo().getImage();
+        if (shipImage != null) {
+          uploadDispatcher.delete(AssetType.SHIP_IMAGE, shipImage.assetId());
+          log.debug("Deleted ship image {}", shipImage.assetId());
+        }
       }
     }
     current.amend(
