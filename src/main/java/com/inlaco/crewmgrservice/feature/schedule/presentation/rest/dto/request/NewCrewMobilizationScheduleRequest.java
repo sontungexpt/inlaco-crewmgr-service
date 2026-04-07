@@ -2,7 +2,6 @@ package com.inlaco.crewmgrservice.feature.schedule.presentation.rest.dto.request
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.inlaco.crewmgrservice.feature.schedule.domain.enums.CrewMobilizationScheduleStatus;
 import com.inlaco.crewmgrservice.infrastructure.web.payload.request.constraint.TimeFrame;
 import com.inlaco.crewmgrservice.infrastructure.web.validation.phone.PhoneNumber;
 import com.inlaco.crewmgrservice.shared.objectvalue.ShipInfo;
@@ -26,7 +25,7 @@ public record NewCrewMobilizationScheduleRequest(
     @NotNull ShipInfo shipInfo,
     @NotNull @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @FutureOrPresent Instant startDate,
     @NotNull @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @Future Instant endDate,
-    CrewMobilizationScheduleStatus status,
+    // CrewMobilizationScheduleStatus status,
     @Size(min = 1) @JsonAlias({"crewMembers", "crews"}) Set<@Valid AssignedCrewRequest> crews)
     implements TimeFrame {
 

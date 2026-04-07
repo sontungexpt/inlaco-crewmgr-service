@@ -10,6 +10,7 @@ import java.util.List;
 public record AssignedCrewRequest(
     String id,
     @JsonAlias({"employeeCardId", "cardId"}) @NotBlank String employeeCardId,
+    String fullName,
     @NotBlank String rankOnBoard,
     @NotNull Instant startDate,
     @NotNull Instant endDate)

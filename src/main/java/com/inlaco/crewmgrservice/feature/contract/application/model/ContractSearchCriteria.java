@@ -8,6 +8,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ContractSearchCriteria {
+  private String keyword;
+
   private Boolean signed;
   private ContractType type;
 

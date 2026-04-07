@@ -11,8 +11,6 @@ public class ShipInfo {
 
   private String imoNumber;
 
-  private String registrationNumber;
-
   private String countryISO;
 
   private String name;

@@ -23,6 +23,7 @@ import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.StringUtils;
 
 @Repository
 @RequiredArgsConstructor
@@ -41,6 +42,10 @@ public class ContractRepositoryAdapter implements ContractRepository {
   public Page<Contract> findAll(ContractSearchCriteria criteria, Pageable pageable) {
     Criteria query = new Criteria();
     if (criteria != null) {
+      if (StringUtils.hasText(criteria.getKeyword())) {
+        query.and("title").regex(criteria.getKeyword(), "i");
+      }
+
       if (criteria.getType() != null) {
         query.and("type").is(criteria.getType());
       }

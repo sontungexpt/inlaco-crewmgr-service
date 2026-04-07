@@ -21,6 +21,7 @@ public record UserDetailsServiceImpl(UserUseCase userUseCase, AuthorityResolver 
       User user = userUseCase.findByUsername(username);
       return new SecurityUser(user, authorityResolver.resolve(user));
     } catch (ResourceNotFoundException e) {
+      log.debug("User with username {} not found", username);
       throw new UsernameNotFoundException("User with  username " + username + " not found");
     }
   }
