@@ -3,7 +3,6 @@ package com.inlaco.crewmgrservice.feature.contract.presentation.dto.request.crea
 import com.inlaco.crewmgrservice.feature.contract.domain.enums.ContractType;
 import com.inlaco.crewmgrservice.feature.contract.presentation.dto.request.ShipInfoRequest;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,8 +17,6 @@ public class NewCrewSupplyContract extends NewContract {
 
   @Min(1)
   private int numOfCrews;
-
-  @NotBlank private String crewRentalRequestId;
 
   @NotNull private ShipInfoRequest shipInfo;
 }

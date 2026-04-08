@@ -39,17 +39,13 @@ public class CrewRentalRequestController {
   @PostMapping("")
   @RolesAllowed("USER")
   public CrewRentalRequestResponse createRequest(
-      @RequestParam String detailFileAssetId,
-      @RequestParam String shipImageAssetId,
       @Valid @RequestBody NewCrewRentalRequest newRequest) {
 
     return crewRentalRequestMapper.toCrewRentalRequestResponse(
         crewRentalRequestCommandUseCase.create(
             crewRentalRequestMapper.toCrewRentalRequest(newRequest),
-            newRequest.getDetailFile() == null ? detailFileAssetId : newRequest.getDetailFile(),
-            newRequest.getShipInfo().image() == null
-                ? shipImageAssetId
-                : newRequest.getShipInfo().image()));
+            newRequest.getDetailFile(),
+            newRequest.getShipInfo().image()));
   }
 
   @Operation(
@@ -83,7 +79,7 @@ public class CrewRentalRequestController {
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   @RolesAllowed("ADMIN")
   @GetMapping("/{id}")
-  public CrewRentalRequestResponse getRequest(@PathVariable("id") @ObjectId String id) {
+  public CrewRentalRequestResponse getCrewRentalRequest(@PathVariable("id") @ObjectId String id) {
     return crewRentalRequestMapper.toCrewRentalRequestResponse(
         crewRentalRequestUseCase.getRequest(id));
   }
