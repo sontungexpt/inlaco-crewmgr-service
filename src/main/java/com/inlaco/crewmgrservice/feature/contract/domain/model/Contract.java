@@ -212,7 +212,7 @@ public abstract class Contract {
   }
 
   public boolean isSigned() {
-    return status == ContractStatus.SIGNED;
+    return !isDraft();
   }
 
   public boolean isActive() {
@@ -233,7 +233,7 @@ public abstract class Contract {
 
   public void validateForSigning() {
     // ===== STATUS =====
-    ContractValidator.require(isDraft(), "Only draft contracts can be signed");
+    ContractValidator.require(isDraft(), "Only draft contracts can be signed", "status");
 
     // ===== BASIC =====
     ContractValidator.notNull(contractFile, "Contract file is required", "contract");
@@ -265,7 +265,6 @@ public abstract class Contract {
   }
 
   public static final class ContractValidator {
-
     public static void require(boolean condition, String message, String field) {
       if (!condition) throw new ContractValidationException(message, field);
     }

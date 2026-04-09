@@ -65,6 +65,7 @@ public class UpdateContractService implements UpdateContractUseCase {
         }
       }
     }
+
     current.amend(
         patch,
         now,
