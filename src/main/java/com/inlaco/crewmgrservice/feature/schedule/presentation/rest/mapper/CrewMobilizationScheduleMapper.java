@@ -9,6 +9,7 @@ import com.inlaco.crewmgrservice.feature.schedule.presentation.rest.dto.request.
 import com.inlaco.crewmgrservice.feature.schedule.presentation.rest.dto.response.AssignedCrewResponse;
 import com.inlaco.crewmgrservice.feature.schedule.presentation.rest.dto.response.CrewMobilizationScheduleResponse;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 
 @Mapper(
@@ -17,6 +18,7 @@ import org.mapstruct.ReportingPolicy;
     unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface CrewMobilizationScheduleMapper {
 
+  @Mapping(target = "shipInfo.image", ignore = true)
   CrewMobilizationSchedule toCrewMobilizationSchedule(NewCrewMobilizationScheduleRequest request);
 
   CrewMobilizationScheduleResponse toCrewMobilizationScheduleResponse(

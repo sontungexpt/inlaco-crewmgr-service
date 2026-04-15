@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.feature.schedule.presentation.rest.dto.response;
 
-import com.inlaco.crewmgrservice.feature.user.domain.enums.Gender;
+import com.inlaco.crewmgrservice.shared.objectvalue.Gender;
 import java.time.Instant;
 import lombok.Data;
 

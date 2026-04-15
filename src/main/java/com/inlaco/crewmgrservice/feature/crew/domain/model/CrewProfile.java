@@ -1,8 +1,8 @@
 package com.inlaco.crewmgrservice.feature.crew.domain.model;
 
 import com.inlaco.crewmgrservice.feature.crew.domain.enums.CrewStatus;
-import com.inlaco.crewmgrservice.feature.user.domain.enums.Gender;
 import com.inlaco.crewmgrservice.shared.objectvalue.Asset;
+import com.inlaco.crewmgrservice.shared.objectvalue.Gender;
 import java.time.Instant;
 import java.util.List;
 import lombok.AllArgsConstructor;

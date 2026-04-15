@@ -2,8 +2,8 @@ package com.inlaco.crewmgrservice.feature.recruitment.domain.model;
 
 import com.inlaco.crewmgrservice.feature.recruitment.domain.enums.ApplicationStatus;
 import com.inlaco.crewmgrservice.feature.recruitment.domain.event.ApplicationStatusChangedEvent;
-import com.inlaco.crewmgrservice.feature.user.domain.enums.Gender;
 import com.inlaco.crewmgrservice.shared.objectvalue.Asset;
+import com.inlaco.crewmgrservice.shared.objectvalue.Gender;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;

@@ -22,6 +22,7 @@ public class CrewContractActivedEventListener {
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void handle(ContractActivedEvent event) {
     log.info("Received ContractActivedEvent with {} contracts", event.contracts().size());
+
     List<String> accountIds =
         event.contracts().stream()
             .filter(c -> c instanceof LaborContract)

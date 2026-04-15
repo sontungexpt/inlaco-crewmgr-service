@@ -30,18 +30,8 @@ public class CrewMobilizationScheduleResponse {
 
   private List<AssignedCrewResponse> crews;
 
-  @Deprecated
-  public List<AssignedCrewResponse> getCrewMembers() {
-    return crews;
-  }
-
   public int getCrewNumbers() {
     return crews == null ? 0 : crews.size();
-  }
-
-  @Deprecated
-  public int getTotalCrews() {
-    return getCrewNumbers();
   }
 
   private Instant createdAt;

@@ -159,32 +159,62 @@ public class CrewProfileRepositoryAdapter implements CrewProfileRepository {
   @Override
   public Page<CrewProfile> findAll(
       @Nullable CrewProfileSearchCriteria criteria, Pageable pageable) {
+
     pageable = PageableUtils.enforceIdSort(pageable);
-    var query = new Criteria();
+
+    List<Criteria> andConditions = new ArrayList<>();
 
     if (criteria != null) {
       if (StringUtils.hasText(criteria.keyword())) {
-        query.orOperator(
-            Criteria.where("cardId").regex(criteria.keyword(), "i"),
-            Criteria.where("phone").regex(criteria.keyword(), "i"),
-            Criteria.where("fullName").regex(criteria.keyword(), "i"),
-            Criteria.where("email").regex(criteria.keyword(), "i"));
+        log.debug("Filter by keyword: {}", criteria.keyword());
+
+        String keyword = criteria.keyword().trim();
+
+        Criteria keywordCriteria =
+            new Criteria()
+                .orOperator(
+                    Criteria.where("employeeCardId").regex(keyword, "i"),
+                    Criteria.where("phoneNumber").regex(keyword, "i"),
+                    Criteria.where("fullName").regex(keyword, "i"),
+                    Criteria.where("email").regex(keyword, "i"));
+
+        andConditions.add(keywordCriteria);
       }
 
       if (criteria.official() != null) {
-        query.and("employeeCardId").exists(criteria.official());
+        log.debug("Filter by official: {}", criteria.official());
+        if (criteria.official()) {
+          andConditions.add(Criteria.where("employeeCardId").ne(null).ne(""));
+        } else {
+          andConditions.add(
+              new Criteria()
+                  .orOperator(
+                      Criteria.where("employeeCardId").is(null),
+                      Criteria.where("employeeCardId").exists(false)));
+        }
       }
+
       if (criteria.workStatus() != null) {
-        query.and("workStatus").is(criteria.workStatus());
+        log.debug("Filter by workStatus: {}", criteria.workStatus());
+        andConditions.add(Criteria.where("status").is(criteria.workStatus()));
       }
+
       if (criteria.professionalPosition() != null) {
-        query.and("professionalPosition").is(criteria.professionalPosition());
+        log.debug("Filter by professionalPosition: {}", criteria.professionalPosition());
+
+        andConditions.add(
+            Criteria.where("professionalPosition").is(criteria.professionalPosition()));
       }
+    }
+
+    Criteria finalCriteria = new Criteria();
+    if (!andConditions.isEmpty()) {
+      finalCriteria.andOperator(andConditions.toArray(new Criteria[0]));
     }
 
     Aggregation aggregation =
         newAggregation(
-            match(query),
+            match(finalCriteria),
             facet(Aggregation.count().as(FacetResult.COUNT_KEY))
                 .as(FacetResult.COUNT_FACET_NAME)
                 .and(
