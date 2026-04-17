@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <!-- ===================================================== -->
+  <!-- ================= GLOBAL PROPERTIES ================== -->
+  <!-- ===================================================== -->
+  <property name="LOG_LEVEL" value="${LOG_LEVEL:-INFO}"></property>
+  <property name="LOG_DIR" value="${LOG_DIR:-logs}"></property>
+  <!-- Spring Boot defaults (safe include) -->
+  <include resource="org/springframework/boot/logging/logback/defaults.xml"></include>
+  <!-- ===================================================== -->
+  <!-- ================= CONSOLE APPENDER =================== -->
+  <!-- ===================================================== -->
+  <!-- CLEAN console log (recommended for backend) -->
+  <appender class="ch.qos.logback.core.ConsoleAppender" name="CONSOLE">
+    <encoder>
+      <pattern>%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}){} %clr([%thread]){blue} %clr(%logger{32}){cyan} %clr([trace=%X{traceId} clientIp=%X{clientIp}]){magenta} %msg%n%wEx</pattern>
+    </encoder>
+  </appender>
+  <!-- ===================================================== -->
+  <!-- ================= GENERAL FILE LOG =================== -->
+  <!-- ===================================================== -->
+  <appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="FILE">
+    <file>${LOG_DIR}/app.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+      <fileNamePattern>${LOG_DIR}/app.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+      <maxHistory>7</maxHistory>
+      <maxFileSize>10MB</maxFileSize>
+      <totalSizeCap>200MB</totalSizeCap>
+    </rollingPolicy>
+    <encoder>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{36} [trace=%X{traceId}] - %msg%n</pattern>
+    </encoder>
+  </appender>
+  <!-- ===================================================== -->
+  <!-- ================= ERROR FILE LOG ===================== -->
+  <!-- ===================================================== -->
+  <appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="ERROR_FILE">
+    <file>${LOG_DIR}/error.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+      <fileNamePattern>${LOG_DIR}/error.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+      <maxHistory>14</maxHistory>
+      <maxFileSize>10MB</maxFileSize>
+    </rollingPolicy>
+    <encoder>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{36} [trace=%X{traceId} clientIp=%X{clientIp}] - %msg%n%wEx</pattern>
+    </encoder>
+    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+      <level>ERROR</level>
+    </filter>
+  </appender>
+  <!-- ===================================================== -->
+  <!-- ================= HTTP REQUEST LOG =================== -->
+  <!-- ===================================================== -->
+  <appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="HTTP_FILE">
+    <file>${LOG_DIR}/http.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+      <fileNamePattern>${LOG_DIR}/http.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+      <maxHistory>3</maxHistory>
+      <maxFileSize>5MB</maxFileSize>
+    </rollingPolicy>
+    <encoder>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [trace=%X{traceId}] [clientIp=%X{clientIp}] - %msg%n</pattern>
+    </encoder>
+  </appender>
+  <!-- ===================================================== -->
+  <!-- ================= ASYNC APPENDERS ==================== -->
+  <!-- ===================================================== -->
+  <appender class="ch.qos.logback.classic.AsyncAppender" name="ASYNC_FILE">
+    <appender-ref ref="FILE"></appender-ref>
+  </appender>
+  <appender class="ch.qos.logback.classic.AsyncAppender" name="ASYNC_ERROR">
+    <appender-ref ref="ERROR_FILE"></appender-ref>
+  </appender>
+  <!-- ===================================================== -->
+  <!-- ================= ROOT LOGGER ======================== -->
+  <!-- ===================================================== -->
+  <root level="${LOG_LEVEL}">
+    <appender-ref ref="CONSOLE"></appender-ref>
+    <appender-ref ref="ASYNC_FILE"></appender-ref>
+    <appender-ref ref="ASYNC_ERROR"></appender-ref>
+  </root>
+  <!-- ===================================================== -->
+  <!-- ================= HTTP LOGGER ======================== -->
+  <!-- ===================================================== -->
+  <springProfile name="dev|develop">
+    <logger additivity="false" level="DEBUG" name="com.inlaco.crewmgrservice.infrastructure.web.filter.HttpLoggingFilter">
+      <appender-ref ref="HTTP_FILE"></appender-ref>
+      <appender-ref ref="CONSOLE"></appender-ref>
+    </logger>
+  </springProfile>
+  <springProfile name="prod|production">
+    <logger additivity="false" level="INFO" name="com.inlaco.crewmgrservice.infrastructure.web.filter.HttpLoggingFilter">
+      <appender-ref ref="HTTP_FILE"></appender-ref>
+    </logger>
+  </springProfile>
+</configuration>

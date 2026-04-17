@@ -15,6 +15,21 @@ public final class HttpHeaderUtils {
   public static final String AUTHORIZATION_HEADER = "Authorization";
   public static final String BEARER_PREFIX = "Bearer ";
 
+  public static String getClientIp(HttpServletRequest request) {
+    String ip = request.getHeader("X-Forwarded-For");
+
+    if (ip != null && !ip.isBlank() && !"unknown".equalsIgnoreCase(ip)) {
+      return ip.split(",")[0]; // Get the first IP address
+    }
+
+    ip = request.getHeader("X-Real-IP");
+    if (ip != null && !ip.isBlank() && !"unknown".equalsIgnoreCase(ip)) {
+      return ip;
+    }
+
+    return request.getRemoteAddr(); // fallback
+  }
+
   /* ===================== BEARER TOKEN ===================== */
 
   public static Optional<String> extractBearerToken(HttpServletRequest request) {
