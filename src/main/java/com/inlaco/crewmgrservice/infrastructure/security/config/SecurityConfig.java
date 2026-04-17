@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.authorization.AuthorizationManager;
@@ -75,20 +76,22 @@ public class SecurityConfig {
       UserDetailsService userDetailsService,
       PasswordEncoder passwordEncoder)
       throws Exception {
-
     http.cors(cors -> cors.configurationSource(corsApiConfigurationSource()))
         .csrf(
             customizer -> {
               customizer.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
               customizer.ignoringRequestMatchers("/**", "/actuator/**");
             })
-
         // exception handling
         .exceptionHandling(
             exception -> exception.authenticationEntryPoint(authenticationEntryPoint))
-
         // authorize
-        .authorizeHttpRequests(auth -> auth.anyRequest().access(authzManager))
+        .authorizeHttpRequests(
+            auth ->
+                auth.requestMatchers(HttpMethod.OPTIONS, "/**")
+                    .permitAll()
+                    .anyRequest()
+                    .access(authzManager))
         .authenticationProvider(authenticationProvider(passwordEncoder, userDetailsService))
         .addFilterBefore(lazyJwtAuthTokenFilter, UsernamePasswordAuthenticationFilter.class)
         // disable login and logout because we use JWT
@@ -118,11 +121,23 @@ public class SecurityConfig {
     CorsConfiguration configuration = new CorsConfiguration();
     // configuration.addAllowedOriginPattern("http://localhost:*");
     // configuration.addAllowedOriginPattern("*.ngrok-free.app");
-    configuration.addAllowedOriginPattern("*");
+    // configuration.addAllowedOriginPattern("*");
+    // Cho phép tất cả các port trên localhost
+    List<String> allowedOrigins =
+        List.of(
+            "http://localhost:*", // Enable localhost
+            "http://192.168.*:*", // Enable local IP
+            "https://inlaco-crewmgr-service-b7btdkgsdwafb2ht.eastasia-01.azurewebsites.net");
+
+    configuration.setAllowedOriginPatterns(allowedOrigins);
+
+    log.info("Allowed origins: {}", allowedOrigins);
+
     // configuration.addAllowedHeader("*");
     // configuration.addAllowedMethod("*");
     configuration.setAllowCredentials(true);
     configuration.setMaxAge(3600L);
+
     configuration.setAllowedMethods(
         List.of(
             "HEAD", "GET", "POST", "PUT", "DELETE", "PATCH",
