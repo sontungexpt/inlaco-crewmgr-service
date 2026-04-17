@@ -29,4 +29,6 @@ public interface CrewProfileRepository {
   List<CrewProfile> findAllByAccountId(Iterable<String> accountIds);
 
   List<CrewProfile> findAllByEmployeeCardId(Iterable<String> cardIds);
+
+  boolean existsAllByEmployeeCardIds(Iterable<String> employeeIds);
 }

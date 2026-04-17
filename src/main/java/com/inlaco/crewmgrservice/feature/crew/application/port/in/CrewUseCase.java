@@ -18,4 +18,6 @@ public interface CrewUseCase {
   List<CrewProfile> getProfilesByCardIds(Iterable<String> cardIds);
 
   void applyLaborContract(ApplyLaborContractCommand command);
+
+  boolean existsAllByEmployeeCardIds(Iterable<String> employeeIds);
 }

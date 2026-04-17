@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
@@ -248,5 +249,12 @@ public class CrewProfileRepositoryAdapter implements CrewProfileRepository {
 
   public long count() {
     return repository.count();
+  }
+
+  @Override
+  public boolean existsAllByEmployeeCardIds(Iterable<String> employeeCardIds) {
+    List<String> ids =
+        StreamSupport.stream(employeeCardIds.spliterator(), false).distinct().toList();
+    return repository.countByEmployeeCardIdIn(ids) == ids.size();
   }
 }

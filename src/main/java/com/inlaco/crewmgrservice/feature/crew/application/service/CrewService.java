@@ -72,4 +72,9 @@ public class CrewService implements CrewUseCase {
 
     crewProfileRepository.save(crewPrrofile);
   }
+
+  @Override
+  public boolean existsAllByEmployeeCardIds(Iterable<String> employeeIds) {
+    return crewProfileRepository.existsAllByEmployeeCardIds(employeeIds);
+  }
 }

@@ -1,8 +1,10 @@
 package com.inlaco.crewmgrservice.feature.schedule.application.service;
 
+import com.inlaco.crewmgrservice.feature.crew.application.port.in.CrewUseCase;
 import com.inlaco.crewmgrservice.feature.schedule.application.port.in.CrewMobilizationScheduleCommandUseCase;
 import com.inlaco.crewmgrservice.feature.schedule.application.port.out.CrewMobilizationScheduleRepository;
 import com.inlaco.crewmgrservice.feature.schedule.domain.event.NewCrewMobilizationScheduleEvent;
+import com.inlaco.crewmgrservice.feature.schedule.domain.model.AssignedCrew;
 import com.inlaco.crewmgrservice.feature.schedule.domain.model.CrewMobilizationSchedule;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,17 +18,27 @@ public class CrewMobilizationScheduleCommandService
     implements CrewMobilizationScheduleCommandUseCase {
 
   private final CrewMobilizationScheduleRepository crewMobilizationScheduleRepository;
+  private final CrewUseCase crewUseCase;
   private final ApplicationEventPublisher eventPublisher;
 
   @Override
   public CrewMobilizationSchedule createSchedule(CrewMobilizationSchedule schedule) {
+
+    if (!crewUseCase.existsAllByEmployeeCardIds(
+        schedule.getCrews().stream().map(AssignedCrew::getEmployeeCardId).toList())) {
+      throw new IllegalArgumentException("Some crew members do not exist");
+    }
+
     var newSchedule = crewMobilizationScheduleRepository.save(schedule);
+
     log.info(
         "Schedule created successfully [id={}, startDate={}, endDate={}]",
         newSchedule.getId(),
         newSchedule.getStartDate(),
         newSchedule.getEndDate());
+
     eventPublisher.publishEvent(new NewCrewMobilizationScheduleEvent(newSchedule));
+
     return newSchedule;
   }
 }
