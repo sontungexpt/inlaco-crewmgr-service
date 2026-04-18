@@ -127,6 +127,7 @@ public class SecurityConfig {
         List.of(
             "http://localhost:*", // Enable localhost
             "http://192.168.*:*", // Enable local IP
+            "https://sontungexpt.github.io/inlaco-web-client/*",
             "https://inlaco-crewmgr-service-b7btdkgsdwafb2ht.eastasia-01.azurewebsites.net");
 
     configuration.setAllowedOriginPatterns(allowedOrigins);
