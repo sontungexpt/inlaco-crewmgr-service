@@ -33,7 +33,12 @@ public class CrewContractActivedEventListener {
                   }
                   return true;
                 })
-            .map(c -> ((LaborContract) c).getAccountId())
+            .map(
+                c -> {
+                  String accountId = ((LaborContract) c).getAccountId();
+                  log.debug("Extracted accountId: {}", accountId);
+                  return accountId;
+                })
             .toList();
 
     log.info("Extracted {} labor contract accountId", accountIds.size());
