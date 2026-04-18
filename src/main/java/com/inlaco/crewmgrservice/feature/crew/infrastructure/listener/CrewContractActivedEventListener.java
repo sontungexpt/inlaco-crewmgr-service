@@ -53,7 +53,18 @@ public class CrewContractActivedEventListener {
     log.info("Found {} crew profiles to update", profiles.size());
 
     for (CrewProfile profile : profiles) {
-      profile.changeStatus(CrewStatus.READY_FOR_ASSIGNMENT);
+      try {
+        profile.changeStatus(CrewStatus.READY_FOR_ASSIGNMENT);
+      } catch (IllegalStateException e) {
+        log.warn(
+            "Failed to change status for crew profile {} to {}: {}",
+            profile.getId(),
+            CrewStatus.READY_FOR_ASSIGNMENT,
+            e.getMessage());
+        // Optionally, you might want to handle this profile differently,
+        // or re-throw if it's considered a critical error.
+        // For now, we'll just log and continue with other profiles.
+      }
     }
 
     repository.saveAll(profiles);
