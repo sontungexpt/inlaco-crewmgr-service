@@ -14,7 +14,7 @@ public enum CrewStatus {
   private EnumSet<CrewStatus> allowedTransitions;
 
   static {
-    DRAFT.allowedTransitions = EnumSet.noneOf(CrewStatus.class);
+    DRAFT.allowedTransitions = EnumSet.of(READY_FOR_ASSIGNMENT);
     READY_FOR_ASSIGNMENT.allowedTransitions = EnumSet.of(ENGAGED, ON_LEAVE, INACTIVE);
     ENGAGED.allowedTransitions = EnumSet.of(READY_FOR_ASSIGNMENT, ON_LEAVE, INACTIVE);
     ON_LEAVE.allowedTransitions = EnumSet.of(READY_FOR_ASSIGNMENT, INACTIVE);
