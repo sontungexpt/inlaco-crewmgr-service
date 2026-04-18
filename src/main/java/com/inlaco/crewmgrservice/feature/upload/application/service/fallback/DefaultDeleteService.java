@@ -15,12 +15,12 @@ public class DefaultDeleteService {
   private final AssetRepository repository;
 
   public void delete(AssetType type, String assetId) {
-    log.debug("Deleting metadata for assetId {}", assetId);
+    log.info("Initiating deletion of metadata for assetId {}", assetId);
     repository.deleteByAssetId(assetId);
   }
 
   public void delete(AssetType type, List<String> assetIds) {
-    log.debug("Deleting metadata for assetIds {}", assetIds);
+    log.info("Initiating deletion of metadata for assetIds {}", assetIds);
     repository.deleteByAssetIds(assetIds);
   }
 }

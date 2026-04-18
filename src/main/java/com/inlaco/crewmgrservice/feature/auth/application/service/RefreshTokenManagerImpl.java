@@ -35,9 +35,10 @@ public class RefreshTokenManagerImpl implements RefreshTokenManager {
       try {
         repository.save(
             new RefreshToken(hash, userPubId, Instant.now().plusMillis(REFRESH_TOKEN_EXPIRATION)));
+        log.info("Refresh token issued successfully for user {}", userPubId);
         return rawToken;
       } catch (DuplicateKeyException e) {
-        log.warn("Refresh token collision detected. Retrying... attempt={}", attempt + 1);
+        log.debug("Refresh token collision detected. Retrying... attempt={}", attempt + 1);
       }
     }
     log.error("Unable to generate unique refresh token after 5 attempts");
@@ -54,6 +55,7 @@ public class RefreshTokenManagerImpl implements RefreshTokenManager {
     String userPubId = current.getUserPubId();
 
     current.revoke();
+    log.info("Refresh token revoked for user {}", userPubId);
     repository.save(current);
 
     String newRaw = issue(userPubId);

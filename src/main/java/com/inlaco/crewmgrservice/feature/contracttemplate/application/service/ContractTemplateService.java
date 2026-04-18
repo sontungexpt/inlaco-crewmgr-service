@@ -26,24 +26,34 @@ public class ContractTemplateService implements ContractTemplateUseCase {
   public ContractTemplate getTemplateById(String id) {
     return contractTemplateRepository
         .findById(id)
-        .orElseThrow(() -> new ResourceNotFoundException(ContractTemplate.class, "id", id));
+        .orElseThrow(
+            () -> {
+              log.warn("Contract template with ID: {} not found", id);
+              return new ResourceNotFoundException(ContractTemplate.class, "id", id);
+            });
   }
 
   @Override
   public Page<ContractTemplate> getAllTemplates(@Nullable String type, Pageable pageable) {
-    if (type != null) return contractTemplateRepository.findByType(type, pageable);
+    if (type != null) {
+      log.debug("Fetching contract templates of type: {}", type);
+      return contractTemplateRepository.findByType(type, pageable);
+    }
+    log.debug("Fetching all contract templates");
     return contractTemplateRepository.findAll(pageable);
   }
 
   @Override
   public ContractTemplate uploadTemplate(String templateFileAssetId, ContractTemplate template) {
     Asset metadata = uploadDispatcher.fetch(AssetType.CONTRACT_TEMPLATE, templateFileAssetId);
+    log.info("Uploading contract template with metadata: {}", metadata);
     template.setMetadata(metadata);
     return contractTemplateRepository.save(template);
   }
 
   @Override
   public void removeTemplate(String id) {
+    log.info("Removing contract template with ID: {}", id);
     contractTemplateRepository.deleteById(id);
   }
 }

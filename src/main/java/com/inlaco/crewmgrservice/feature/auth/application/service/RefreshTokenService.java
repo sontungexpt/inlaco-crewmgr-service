@@ -20,14 +20,14 @@ public class RefreshTokenService implements RefreshTokenUseCase {
   @Override
   @Transactional
   public AuthTokenResult refresh(String refreshToken) {
-    log.debug("Refreshing token for user {}", refreshToken);
+    log.info("Refreshing token for user {}", refreshToken);
     var result = refreshTokenManager.rotate(refreshToken);
 
     // Create new token
     final String newAccessToken = accessTokenGenerator.generate(result.userPubId());
     final String newRefreshToken = result.newRefreshToken();
 
-    log.debug("Refresh token rotated for user {}", result.userPubId());
+    log.info("Refresh token rotated successfully for user {}", result.userPubId());
     return new AuthTokenResult(newAccessToken, newRefreshToken);
   }
 }

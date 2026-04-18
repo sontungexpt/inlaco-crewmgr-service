@@ -16,9 +16,16 @@ public class DefaultMetadataFetchService {
   private final AssetRepository repository;
 
   public AssetMetadata fetch(AssetType type, String assetId) {
-    log.debug("Fetching metadata for assetId {}", assetId);
-    return repository
-        .findByAssetId(assetId)
-        .orElseThrow(() -> new ResourceNotFoundException(AssetMetadata.class, "assetId", assetId));
+    log.info("Starting metadata fetch for assetId: {}", assetId);
+    AssetMetadata metadata =
+        repository
+            .findByAssetId(assetId)
+            .orElseThrow(
+                () -> {
+                  log.warn("Metadata not found for assetId: {}", assetId);
+                  return new ResourceNotFoundException(AssetMetadata.class, "assetId", assetId);
+                });
+    log.info("Successfully fetched metadata for assetId: {}", assetId);
+    return metadata;
   }
 }

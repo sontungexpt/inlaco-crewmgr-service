@@ -26,36 +26,54 @@ public class PostService implements PostUseCase {
 
   @Override
   public Post createPost(Post post, User user) {
-    return postRepository.save(post);
+    log.info("Creating a new post by user: {}", user.getId());
+    Post savedPost = postRepository.save(post);
+    log.info("Post created with ID: {}", savedPost.getId());
+    return savedPost;
   }
 
   @Override
   public void deletePost(String postId, User user) {
+    log.info("Deleting post with ID: {} by user: {}", postId, user.getId());
     postRepository.deleteById(postId);
+    log.info("Post with ID: {} deleted successfully", postId);
   }
 
   @Override
   public Post getPost(String postId) {
+    log.debug("Fetching post with ID: {}", postId);
     return postRepository
         .findById(postId)
-        .orElseThrow(() -> new ResourceNotFoundException(Post.class, "id", postId));
+        .orElseThrow(
+            () -> {
+              log.warn("Post not found with ID: {}", postId);
+              return new ResourceNotFoundException(Post.class, "id", postId);
+            });
   }
 
   @Override
   public Page<Post> getPagePosts(Pageable pageable, @Nullable PostType type) {
-    if (type != null) return postRepository.findByType(type, pageable);
+    if (type != null) {
+      log.debug("Fetching posts of type: {}", type);
+      return postRepository.findByType(type, pageable);
+    }
+    log.debug("Fetching all posts");
     return postRepository.findAll(pageable);
   }
 
   @Override
   public Post updatePost(String postId, PostUpdateCommand patch, User user) {
+    log.info("Updating post with ID: {} by user: {}", postId, user.getId());
     Post current = getPost(postId);
     current.update(patch);
-    return postRepository.save(current);
+    Post updatedPost = postRepository.save(current);
+    log.info("Post with ID: {} updated successfully", postId);
+    return updatedPost;
   }
 
   @Override
   public Page<Post> getPosts(@Nullable PostSearchCriteria criteria, Pageable pageable) {
+    log.debug("Fetching posts with criteria: {}", criteria);
     return postRepository.findAll(criteria, pageable);
   }
 }

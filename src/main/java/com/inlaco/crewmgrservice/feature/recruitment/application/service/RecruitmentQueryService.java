@@ -21,16 +21,19 @@ public class RecruitmentQueryService implements RecruitmentQueryUseCase {
   @Override
   public Page<JobApplication> getAllApplications(
       JobApplicationSearchCriteria criteria, Pageable pageable) {
-    log.debug("Getting all applications");
+    log.info("Fetching all job applications with criteria: {}", criteria);
     return jobApplicationRepository.findAll(criteria, pageable);
   }
 
   @Override
   public JobApplication getApplicationDetail(String applicationId) {
-    log.debug("Getting application {}", applicationId);
+    log.info("Fetching details for job application with ID: {}", applicationId);
     return jobApplicationRepository
         .findById(applicationId)
         .orElseThrow(
-            () -> new ResourceNotFoundException(JobApplication.class, "id", applicationId));
+            () -> {
+              log.warn("Job application not found with ID: {}", applicationId);
+              return new ResourceNotFoundException(JobApplication.class, "id", applicationId);
+            });
   }
 }

@@ -33,14 +33,19 @@ public class CrewMobilizationScheduleQueryService implements CrewMobilizationSch
 
   @Override
   public CrewMobilizationSchedule findSchedule(String id) {
+    log.debug("Fetching crew mobilization schedule with ID: {}", id);
     return crewMobilizationScheduleRepository
         .findById(id)
-        .orElseThrow(() -> new ResourceNotFoundException(CrewMobilizationSchedule.class, "id", id));
+        .orElseThrow(
+            () -> {
+              log.warn("Crew mobilization schedule not found with ID: {}", id);
+              return new ResourceNotFoundException(CrewMobilizationSchedule.class, "id", id);
+            });
   }
 
   @Override
   public CrewMobilizationScheduleDetail findDetailSchedule(String id) {
-
+    log.info("Fetching detailed crew mobilization schedule with ID: {}", id);
     var schedule = findSchedule(id);
     var crews = schedule.getCrews();
 
@@ -67,7 +72,6 @@ public class CrewMobilizationScheduleQueryService implements CrewMobilizationSch
     List<AssignedCrewDetail> crewDetails = new ArrayList<>(crews.size());
 
     for (AssignedCrew ac : crews) {
-
       CrewProfile profile = profileMap.get(ac.getEmployeeCardId());
 
       AssignedCrewDetail detail = new AssignedCrewDetail();
@@ -103,6 +107,7 @@ public class CrewMobilizationScheduleQueryService implements CrewMobilizationSch
   @Override
   public Page<CrewMobilizationSchedule> findSchedules(
       CrewMobilizationScheduleSearchCriteria criteria, Pageable pageable) {
+    log.debug("Fetching crew mobilization schedules with criteria: {}", criteria);
     return crewMobilizationScheduleRepository.findAll(criteria, pageable);
   }
 }

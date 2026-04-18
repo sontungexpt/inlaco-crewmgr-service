@@ -31,19 +31,26 @@ public class CourseService implements CourseUseCase {
 
   @Override
   public void deleteCourse(String id) {
+    log.info("Deleting course with ID: {}", id);
     courseRepository.deleteById(id);
   }
 
   @Override
   public Page<Course> getCourses(CourseSearchCriteria criteria, Pageable pageable) {
+    log.debug("Fetching courses with criteria: {}", criteria);
     return courseRepository.findAll(criteria, pageable);
   }
 
   @Override
   public Course getCourse(String id) {
+    log.debug("Fetching course with ID: {}", id);
     return courseRepository
         .findById(id)
-        .orElseThrow(() -> new ResourceNotFoundException(Course.class, "id", id));
+        .orElseThrow(
+            () -> {
+              log.warn("Course not found with ID: {}", id);
+              return new ResourceNotFoundException(Course.class, "id", id);
+            });
   }
 
   @Override
@@ -74,19 +81,26 @@ public class CourseService implements CourseUseCase {
 
   @Override
   public Course createCourse(Course newCourse) {
+    log.info("Creating new course: {}", newCourse);
     return courseRepository.save(newCourse);
   }
 
   @Override
   public Course updateCourse(String id, CourseUpdateCommand updatedPatch) {
+    log.debug("Updating course with ID: {}", id);
     return courseRepository
         .findById(id)
         .map(
             course -> {
+              log.info("Applying updates to course with ID: {}", id);
               course.update(updatedPatch);
               return courseRepository.save(course);
             })
-        .orElseThrow(() -> new ResourceNotFoundException(Course.class, "id", id));
+        .orElseThrow(
+            () -> {
+              log.warn("Course not found for update with ID: {}", id);
+              return new ResourceNotFoundException(Course.class, "id", id);
+            });
   }
 
   @Override
@@ -103,17 +117,21 @@ public class CourseService implements CourseUseCase {
   @Override
   @Transactional
   public void cancelCourse(String id) {
+    log.info("Forcing cancelling course with ID: {}", id);
     Course course = getCourse(id);
     course.forceCancel();
     courseRepository.save(course);
+    log.info("Forced cancelling course with ID: {}", id);
     List<CourseMember> courseMembers = courseMemberRepository.findByCourseId(course.getId());
     courseMembers.forEach(CourseMember::forceFinished);
     courseMemberRepository.saveAll(courseMembers);
+    log.info("Forced finishing {} course members for course ID: {}", courseMembers.size(), id);
   }
 
   @Override
   public void cancelCourseRegistration(String id) {
     Course course = getCourse(id);
+    log.info("Disabling registration for course with ID: {}", id);
     course.manuallyDisableRegistration();
     courseRepository.save(course);
   }
@@ -129,6 +147,7 @@ public class CourseService implements CourseUseCase {
       throw new ResourceAlreadyInUseException(
           CourseMember.class, Map.of("courseId", courseId, "userId", user.getId()));
     }
+    log.info("Enrolling user with ID: {} to course with ID: {}", user.getId(), courseId);
     courseMemberRepository.save(new CourseMember(courseId, user.getId()));
 
     course.increaseEnrolledStudentCount();
@@ -143,11 +162,9 @@ public class CourseService implements CourseUseCase {
             .orElseThrow(
                 () ->
                     new ResourceNotFoundException(
-                        CourseMember.class,
-                        Map.of(
-                            "courseId", courseId,
-                            "userId", userId)));
+                        CourseMember.class, Map.of("courseId", courseId, "userId", userId)));
 
+    log.info("Marking course as completed for user ID: {} in course ID: {}", userId, courseId);
     courseMember.complete();
     courseMemberRepository.save(courseMember);
   }

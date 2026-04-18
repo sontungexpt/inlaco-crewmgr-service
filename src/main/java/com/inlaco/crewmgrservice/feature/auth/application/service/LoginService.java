@@ -26,7 +26,7 @@ public class LoginService implements LoginUseCase {
 
   @Override
   public AuthTokenResult login(LoginCommand command) {
-    log.debug("Login attempt for user {}", command.username());
+    log.info("Login attempt for user {}", command.username());
     Authentication authentication =
         authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(command.username(), command.password()));
@@ -41,7 +41,7 @@ public class LoginService implements LoginUseCase {
     final String newAccessToken = accessTokenGenerator.generate(userPubId);
     final String newRefreshToken = refreshTokenManager.issue(userPubId);
 
-    log.debug("Account with public id {} logged in successfully", userPubId);
+    log.info("Account with public id {} logged in successfully", userPubId);
 
     return new AuthTokenResult(newAccessToken, newRefreshToken);
   }

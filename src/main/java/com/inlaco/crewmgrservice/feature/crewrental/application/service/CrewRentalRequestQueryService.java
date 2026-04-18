@@ -19,14 +19,20 @@ public class CrewRentalRequestQueryService implements CrewRentalRequestQueryUseC
 
   @Override
   public CrewRentalRequest getRequest(String requestId) {
+    log.debug("Fetching crew rental request with ID: {}", requestId);
     return crewRentalRequestRepository
         .findById(requestId)
-        .orElseThrow(() -> new ResourceNotFoundException(CrewRentalRequest.class, "id", requestId));
+        .orElseThrow(
+            () -> {
+              log.warn("Crew rental request not found with ID: {}", requestId);
+              return new ResourceNotFoundException(CrewRentalRequest.class, "id", requestId);
+            });
   }
 
   @Override
   public Page<CrewRentalRequest> getRequests(
       CrewRentalRequestSearchCriteria criteria, Pageable pageable) {
+    log.debug("Fetching crew rental requests with criteria: {}", criteria);
     return crewRentalRequestRepository.findAll(criteria, pageable);
   }
 }

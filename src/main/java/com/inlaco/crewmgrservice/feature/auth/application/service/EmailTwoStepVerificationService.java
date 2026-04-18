@@ -56,7 +56,7 @@ public class EmailTwoStepVerificationService implements TwoStepVerificationServi
     EmailVerificationToken token = new EmailVerificationToken(user.getId(), pair.hash());
     emailVerificationTokenRepository.save(token);
     sendEmail(user, pair.raw());
-    log.debug("Email verification token sent to user {}", user.getUsername());
+    log.info("Email verification token sent to user {}", user.getUsername());
   }
 
   @Override
@@ -75,7 +75,7 @@ public class EmailTwoStepVerificationService implements TwoStepVerificationServi
     token.refresh(pair.hash()); // reset hash + TTL + resend time
     emailVerificationTokenRepository.save(token);
     sendEmail(user, pair.raw());
-    log.debug("Email verification token resent to user {}", user.getUsername());
+    log.info("Email verification token resent to user {}", user.getUsername());
   }
 
   @Override
@@ -92,7 +92,7 @@ public class EmailTwoStepVerificationService implements TwoStepVerificationServi
 
     eventPublisher.publishEvent(new TwoStepVerificationSucceedEvent(token));
 
-    log.debug("Email verified for user {}", token.getUserId());
+    log.info("Email verified for user {}", token.getUserId());
   }
 
   private TokenPair generateTokenPair() {
@@ -106,6 +106,7 @@ public class EmailTwoStepVerificationService implements TwoStepVerificationServi
   }
 
   private void sendEmail(User user, String rawToken) {
+    log.debug("Sending email notification to user {}", user.getUsername());
     notificationFactory.sendNotificationAsync(
         NotificationPolicy.EMAIL, generateEmailRequest(user, rawToken));
   }
@@ -117,7 +118,9 @@ public class EmailTwoStepVerificationService implements TwoStepVerificationServi
   }
 
   private String generateVerificationLink(String token) {
-    return SERVER_BASE_URL + "/api/v1/auth/two-step-verification?token=" + UriEncoder.encode(token);
+    return (SERVER_BASE_URL
+        + "/api/v1/auth/two-step-verification?token="
+        + UriEncoder.encode(token));
   }
 
   public String buildTwoStepVerification(String name, String link) {

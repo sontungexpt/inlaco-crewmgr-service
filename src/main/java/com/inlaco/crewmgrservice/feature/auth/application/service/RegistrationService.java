@@ -35,6 +35,8 @@ public class RegistrationService implements RegistrationUseCase {
         userUseCase.create(
             new CreateUserCommand(command.username(), command.password(), command.name()));
 
+    log.info("Account with public id {} registered successfully", newUser.getPubId());
+
     sendVerificationIfNeeded(newUser);
 
     return generateTokens(newUser.getPubId());

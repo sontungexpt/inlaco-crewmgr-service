@@ -67,29 +67,41 @@ public class UploadDispatcherImpl implements UploadDispatcher {
 
   @Override
   public Map<String, Object> signParams(AssetType type, UploadContext context) {
+    log.debug("Fetching signature generation strategy for asset type: {}", type);
     var service = generateStrategies.get(type);
     if (service != null) return service.signParams(context);
+    log.info("Using default signature generation strategy for asset type: {}", type);
     return defaultGenerateSignatureService.signParams(type, context);
   }
 
   @Override
   public Asset fetch(AssetType type, String assetId) {
+    log.debug("Fetching metadata fetch strategy for asset type: {}", type);
     var service = metadataStrategies.get(type);
     if (service != null) return assetMapper.toAsset(service.fetch(assetId));
+    log.info("Using default metadata fetch strategy for asset type: {}", type);
     return assetMapper.toAsset(defaultMetadataFetchService.fetch(type, assetId));
   }
 
   @Override
   public void validate(AssetType type, AssetMetadata metadata) {
+    log.debug("Fetching validation strategy for asset type: {}", type);
     var service = validationStrategies.get(type);
     if (service != null) service.validate(metadata);
-    else defaultAssetValidationService.validate(type, metadata);
+    else {
+      log.info("Using default validation strategy for asset type: {}", type);
+      defaultAssetValidationService.validate(type, metadata);
+    }
   }
 
   @Override
   public void delete(AssetType type, List<String> assetIds) {
+    log.debug("Fetching delete strategy for asset type: {}", type);
     var service = deleteStrategies.get(type);
     if (service != null) service.delete(assetIds);
-    else defaultDeleteService.delete(type, assetIds);
+    else {
+      log.info("Using default delete strategy for asset type: {}", type);
+      defaultDeleteService.delete(type, assetIds);
+    }
   }
 }

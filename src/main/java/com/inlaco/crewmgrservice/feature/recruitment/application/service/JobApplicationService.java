@@ -36,25 +36,34 @@ public class JobApplicationService implements JobApplicationUseCase {
   @Override
   public JobApplication apply(
       String recruitmentPostId, JobApplication application, String resumePublicId, User user) {
+    log.debug("Fetching recruitment post with ID: {}", recruitmentPostId);
     Post post = postUseCase.getPost(recruitmentPostId);
 
     if (!(post instanceof RecruitmentPost recruitmentPost)) {
+      log.warn("Recruitment post not found with ID: {}", recruitmentPostId);
       throw new ResourceNotFoundException(
           Post.class, Map.of("id", recruitmentPostId, "type", PostType.RECRUITMENT));
     }
 
     if (!recruitmentPost.isActive()) {
+      log.info("Recruitment post with ID: {} is inactive", recruitmentPostId);
       throw new PostInactiveException("The registration post is closed");
     }
 
+    log.debug("Fetching resume asset with ID: {}", resumePublicId);
     Asset resume = uploadDispatcher.fetch(AssetType.RESUME, resumePublicId);
     application.setPosition(recruitmentPost.getPosition());
     application.setResume(resume);
     application.setRecruitmentPostId(recruitmentPostId);
     application.setAccountId(user.getId());
 
+    log.info(
+        "Saving job application for user ID: {} and recruitment post ID: {}",
+        user.getId(),
+        recruitmentPostId);
     var newApplication = jobApplicationRepository.save(application);
 
+    log.info("Publishing ApplicationSubmittedEvent for application ID: {}", newApplication.getId());
     eventPublisher.publishEvent(new ApplicationSubmittedEvent(newApplication, recruitmentPost));
 
     return newApplication;

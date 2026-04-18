@@ -43,11 +43,13 @@ public class CreateLaborContractService implements CreateLaborContractUseCase {
 
     String accountId = jobApplication.getAccountId();
 
+    log.debug("Fetching contract file for labor contract creation.");
     contract.setContractFile(
         uploadDispatcher.fetch(AssetType.CONTRACT_FILE, assets.getContractFile()));
 
     List<String> attachments = assets.getAttachments();
     if (attachments != null && !attachments.isEmpty()) {
+      log.debug("Fetching attachments for labor contract creation.");
       contract.setAttachments(
           attachments.stream()
               .map(attachment -> uploadDispatcher.fetch(AssetType.CONTRACT_FILE, attachment))
@@ -58,9 +60,10 @@ public class CreateLaborContractService implements CreateLaborContractUseCase {
     contract.setAccountId(accountId);
 
     var newContract = contractRepository.save(contract);
+    log.info("Publishing ContractCreatedEvent for labor contract with ID: {}", newContract.getId());
     eventPublisher.publishEvent(new ContractCreatedEvent(newContract));
 
-    log.info("Created labor contract for sailor with account id: {}", accountId);
+    log.debug("Created labor contract for sailor with account id: {}", accountId);
 
     return newContract;
   }

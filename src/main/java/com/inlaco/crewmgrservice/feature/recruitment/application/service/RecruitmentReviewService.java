@@ -22,17 +22,20 @@ public class RecruitmentReviewService implements RecruitmentReviewUseCase {
   @Override
   @Transactional
   public void reviewApplication(String applicationId, ApplicationStatus newStatus) {
-    log.debug("Reviewing application {}", applicationId);
+    log.info("Starting review for application ID: {}", applicationId);
     JobApplication application =
         jobApplicationRepository
             .findById(applicationId)
             .orElseThrow(
-                () -> new ResourceNotFoundException(JobApplication.class, "id", applicationId));
+                () -> {
+                  log.warn("Job application not found with ID: {}", applicationId);
+                  return new ResourceNotFoundException(JobApplication.class, "id", applicationId);
+                });
 
     // Change state (Domain validation)
     application.changeStatus(newStatus);
     jobApplicationRepository.save(application);
-    log.debug("Application {} status changed to {}", applicationId, newStatus);
+    log.info("Application ID: {} status successfully changed to {}", applicationId, newStatus);
     application.broadcast(eventPublisher::publishEvent);
   }
 }

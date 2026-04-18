@@ -11,9 +11,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class CrewMobilizationScheduleCommandService
     implements CrewMobilizationScheduleCommandUseCase {
 
@@ -23,12 +23,15 @@ public class CrewMobilizationScheduleCommandService
 
   @Override
   public CrewMobilizationSchedule createSchedule(CrewMobilizationSchedule schedule) {
+    log.debug("Starting schedule creation with details: {}", schedule);
 
     if (!crewUseCase.existsAllByEmployeeCardIds(
         schedule.getCrews().stream().map(AssignedCrew::getEmployeeCardId).toList())) {
+      log.warn("Schedule creation failed: Some crew members do not exist");
       throw new IllegalArgumentException("Some crew members do not exist");
     }
 
+    log.debug("Saving schedule to repository");
     var newSchedule = crewMobilizationScheduleRepository.save(schedule);
 
     log.info(
@@ -37,6 +40,8 @@ public class CrewMobilizationScheduleCommandService
         newSchedule.getStartDate(),
         newSchedule.getEndDate());
 
+    log.debug(
+        "Publishing NewCrewMobilizationScheduleEvent for schedule ID: {}", newSchedule.getId());
     eventPublisher.publishEvent(new NewCrewMobilizationScheduleEvent(newSchedule));
 
     return newSchedule;

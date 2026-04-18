@@ -31,7 +31,6 @@ public class SMSNotificationServiceImpl implements NotificationService<SMSReques
   }
 
   private String getRequestBody(SMSRequest request) {
-
     return String.format(
         """
         {
@@ -45,6 +44,7 @@ public class SMSNotificationServiceImpl implements NotificationService<SMSReques
 
   @Override
   public void sendNotification(SMSRequest request) {
+    log.debug("Preparing to send SMS notification to recipient: {}", request.getFirstRecipient());
     HttpClient client = HttpClient.newHttpClient();
     HttpRequest httpRequest =
         HttpRequest.newBuilder()
@@ -56,10 +56,14 @@ public class SMSNotificationServiceImpl implements NotificationService<SMSReques
             .build();
 
     try {
-      log.info(client.send(httpRequest, HttpResponse.BodyHandlers.ofString()).body());
+      log.info("Sending SMS notification to recipient: {}", request.getFirstRecipient());
+      String response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString()).body();
+      log.info("SMS notification sent successfully. Response: {}", response);
     } catch (IOException | InterruptedException e) {
-      e.printStackTrace();
-      log.warn("Error when sending sms message");
+      log.error(
+          "Failed to send SMS notification to recipient: {}. Error: {}",
+          request.getFirstRecipient(),
+          e.getMessage());
       throw new SMSNotificationException(request.getFirstRecipient(), request.getMessage());
     }
   }

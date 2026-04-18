@@ -20,6 +20,9 @@ public class LaborContractQueryService implements LaborContractQueryUseCase {
     return contractRepository
         .findByApplicationId(applicationId)
         .orElseThrow(
-            () -> new ResourceNotFoundException(Contract.class, "applicationId", applicationId));
+            () -> {
+              log.warn("Labor contract not found for applicationId: {}", applicationId);
+              return new ResourceNotFoundException(Contract.class, "applicationId", applicationId);
+            });
   }
 }

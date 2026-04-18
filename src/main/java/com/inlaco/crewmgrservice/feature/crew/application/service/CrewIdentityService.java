@@ -17,8 +17,11 @@ public class CrewIdentityService implements CrewIdentityUseCase {
 
   @Override
   public String generateEmployeeCardId() {
+    log.debug("Generating employee card ID");
     String year = String.valueOf(Year.now().getValue());
     long seq = sequenceGenerator.next(PREFIX + year);
-    return year + String.format("%05d", seq);
+    String employeeCardId = year + String.format("%05d", seq);
+    log.info("Generated employee card ID: {}", employeeCardId);
+    return employeeCardId;
   }
 }
