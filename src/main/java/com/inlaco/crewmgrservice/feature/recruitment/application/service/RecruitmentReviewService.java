@@ -33,9 +33,14 @@ public class RecruitmentReviewService implements RecruitmentReviewUseCase {
                 });
 
     // Change state (Domain validation)
-    application.changeStatus(newStatus);
-    jobApplicationRepository.save(application);
-    log.info("Application ID: {} status successfully changed to {}", applicationId, newStatus);
-    application.broadcast(eventPublisher::publishEvent);
+    try {
+      application.changeStatus(newStatus);
+      jobApplicationRepository.save(application);
+      log.info("Application ID: {} status successfully changed to {}", applicationId, newStatus);
+      application.broadcast(eventPublisher::publishEvent);
+    } catch (IllegalStateException e) {
+      log.warn("Failed to change application ID: {} status to {}", applicationId, newStatus);
+      throw e;
+    }
   }
 }

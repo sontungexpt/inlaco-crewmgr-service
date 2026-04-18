@@ -76,8 +76,10 @@
   <!-- ===================================================== -->
   <root level="${LOG_LEVEL}">
     <appender-ref ref="CONSOLE"></appender-ref>
-    <appender-ref ref="ASYNC_FILE"></appender-ref>
-    <appender-ref ref="ASYNC_ERROR"></appender-ref>
+    <!--<appender-ref ref="ASYNC_FILE"></appender-ref> -->
+    <!--<appender-ref ref="ASYNC_ERROR"></appender-ref> -->
+    <appender-ref ref="FILE"></appender-ref>
+    <appender-ref ref="ERROR_FILE"></appender-ref>
   </root>
   <!-- ===================================================== -->
   <!-- ================= HTTP LOGGER ======================== -->
