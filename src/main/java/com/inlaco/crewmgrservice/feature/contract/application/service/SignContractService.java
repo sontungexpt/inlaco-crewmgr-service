@@ -22,7 +22,7 @@ public class SignContractService implements SignContractUseCase {
   private final ApplicationEventPublisher eventPublisher;
 
   @Override
-  @Transactional
+  @Transactional(rollbackFor = Exception.class)
   public Contract sign(String contractId, User signer) {
     var contract =
         contractRepository

@@ -26,7 +26,8 @@ public enum ApplicationStatus {
     INTERVIEWED.allowedTransitions = EnumSet.of(OFFERED, REJECTED, WITHDRAWN);
     OFFERED.allowedTransitions = EnumSet.of(CONFIRMED, REJECTED, WITHDRAWN);
     CONFIRMED.allowedTransitions = EnumSet.of(CONTRACT_PENDING_SIGNATURE, REJECTED, WITHDRAWN);
-    CONTRACT_PENDING_SIGNATURE.allowedTransitions = EnumSet.of(HIRED, REJECTED, WITHDRAWN);
+    CONTRACT_PENDING_SIGNATURE.allowedTransitions =
+        EnumSet.of(CONTRACT_SIGNED, REJECTED, WITHDRAWN);
     CONTRACT_SIGNED.allowedTransitions = EnumSet.of(HIRED, REJECTED, WITHDRAWN);
     HIRED.allowedTransitions = EnumSet.noneOf(ApplicationStatus.class);
     REJECTED.allowedTransitions = EnumSet.noneOf(ApplicationStatus.class);
