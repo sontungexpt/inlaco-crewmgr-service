@@ -240,7 +240,12 @@ public class CrewProfileRepositoryAdapter implements CrewProfileRepository {
 
   @Override
   public List<CrewProfile> findAllByAccountId(Iterable<String> accountIds) {
-    return repository.findByAccountIdIn(accountIds).stream().map(mapper::toCrewProfile).toList();
+    return repository
+        .findByAccountIdIn(
+            StreamSupport.stream(accountIds.spliterator(), false).map(ObjectId::new).toList())
+        .stream()
+        .map(mapper::toCrewProfile)
+        .toList();
   }
 
   public void deleteAll() {

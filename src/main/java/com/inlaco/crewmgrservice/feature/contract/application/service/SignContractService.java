@@ -31,8 +31,9 @@ public class SignContractService implements SignContractUseCase {
 
     contract.validateForSigning();
     contract.sign(signer.getId(), Instant.now());
-    log.debug("Actived contract with id: {}", contractId);
     var signedContract = contractRepository.save(contract);
+    log.debug(
+        "Actived contract with id: {}, concret type {}", contractId, signedContract.getClass());
     eventPublisher.publishEvent(new ContractSignedEvent(signedContract));
     return signedContract;
   }

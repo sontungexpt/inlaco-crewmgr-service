@@ -16,7 +16,7 @@ public interface CrewProfileMongoRepository extends MongoRepository<CrewProfileE
 
   List<CrewProfileEntity> findByEmployeeCardIdIn(Iterable<String> cardIds);
 
-  List<CrewProfileEntity> findByAccountIdIn(Iterable<String> accountIds);
+  List<CrewProfileEntity> findByAccountIdIn(Iterable<ObjectId> accountIds);
 
   long countByEmployeeCardIdIn(Iterable<String> employeeCardIds);
 }

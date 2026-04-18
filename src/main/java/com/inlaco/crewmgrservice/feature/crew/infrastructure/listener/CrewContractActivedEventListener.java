@@ -25,11 +25,18 @@ public class CrewContractActivedEventListener {
 
     List<String> accountIds =
         event.contracts().stream()
-            .filter(c -> c instanceof LaborContract)
+            .filter(
+                c -> {
+                  if (!(c instanceof LaborContract)) {
+                    log.info("Contract is not a LaborContract: {}, Skipping", c.getId());
+                    return false;
+                  }
+                  return true;
+                })
             .map(c -> ((LaborContract) c).getAccountId())
             .toList();
 
-    log.info("Extracted {} labor contract accountIds", accountIds.size());
+    log.info("Extracted {} labor contract accountId", accountIds.size());
 
     if (accountIds.isEmpty()) {
       log.info("No labor contracts found. Skipping crew status update.");
