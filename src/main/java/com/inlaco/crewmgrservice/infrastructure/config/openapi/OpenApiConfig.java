@@ -5,21 +5,14 @@ import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
-import io.swagger.v3.oas.annotations.servers.Server;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @OpenAPIDefinition(
-    servers = {
-      @Server(url = "http://localhost:8080"),
-      @Server(url = "http://localhost:8090"),
-      @Server(url = "https://comic-production.up.railway.app"),
-    },
     info =
         @Info(
             title = "Inlaco API",
             version = "1.0",
-            termsOfService = "https://inlaco.com/terms",
             summary = "Inlaco Service API",
             contact = @Contact(name = "Inlaco", email = "sontungexpt@gmail.com"),
             description = "Documentation Inlaco Service API v1.0"))
@@ -30,30 +23,4 @@ import org.springframework.context.annotation.Configuration;
     scheme = "bearer")
 public class OpenApiConfig {
   public static final String BEARER_AUTH_NAME = "Bearer Authentication";
-
-  // @Bean
-  // public OpenAPI customOpenAPI() {
-  //   return new OpenAPI()
-  //       .components(new Components())
-  //       .path(
-  //           "/api/v1/logout",
-  //           new PathItem()
-  //               .post(
-  //                   new Operation()
-  //                       .operationId("logouapit")
-  //                       .responses(
-  //                           new ApiResponses()
-  //                               .addApiResponse("200", new ApiResponse().description("OK")))
-  //                       .security(List.of(new SecurityRequirement().addList(BEARER_AUTH_NAME)))
-  //                       .tags(List.of("Authentication"))
-  //                       .summary("Logout the current user")
-  //                       .description(
-  //                           """
-  //                           Logout the current user.
-
-  //                           **Usecase**:
-  //                           - UC_account-dang-xuat
-
-  //                           """)));
-  // }
 }
