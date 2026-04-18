@@ -1,6 +1,7 @@
 package com.inlaco.crewmgrservice.infrastructure.web.filter;
 
 import com.inlaco.crewmgrservice.infrastructure.web.util.HttpHeaderUtils;
+import com.inlaco.crewmgrservice.shared.constant.MDCContextKey;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,6 +28,7 @@ public class MDCContextFilter extends OncePerRequestFilter {
       throws ServletException, IOException {
 
     try {
+
       // 1. Lấy traceId từ header nếu có (gọi từ service khác)
       String traceId = request.getHeader("X-Trace-Id");
 
@@ -35,21 +37,21 @@ public class MDCContextFilter extends OncePerRequestFilter {
         traceId = UUID.randomUUID().toString().replace("-", "");
       }
 
-      // 3. Gắn vào MDC (logback sẽ đọc %X{traceId})
-      MDC.put("traceId", traceId);
+      // Gắn vào MDC (logback sẽ đọc %X{traceId})
+      MDC.put(MDCContextKey.TRACE_ID, traceId);
 
       // ===== CLIENT IP =====
       String ip = HttpHeaderUtils.getClientIp(request);
-      MDC.put("clientIp", ip);
+      // Gắn vào MDC (logback sẽ đọc %X{clientIp})
+      MDC.put(MDCContextKey.CLIENT_IP, ip);
 
-      // 4. trả lại cho client / service khác
+      // trả lại cho client / service khác
       response.setHeader("X-Trace-Id", traceId);
 
       filterChain.doFilter(request, response);
-
     } finally {
-      // cleanup (QUAN TRỌNG)
-      MDC.clear();
+      MDC.remove(MDCContextKey.TRACE_ID);
+      MDC.remove(MDCContextKey.CLIENT_IP);
     }
   }
 }

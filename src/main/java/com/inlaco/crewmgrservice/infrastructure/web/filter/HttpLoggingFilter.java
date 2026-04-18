@@ -1,5 +1,6 @@
 package com.inlaco.crewmgrservice.infrastructure.web.filter;
 
+import com.inlaco.crewmgrservice.shared.constant.MDCContextKey;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,7 +23,7 @@ import tools.jackson.databind.ObjectMapper;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-@Order(Ordered.LOWEST_PRECEDENCE)
+@Order(Ordered.LOWEST_PRECEDENCE - 1)
 public class HttpLoggingFilter extends OncePerRequestFilter {
 
   private final ObjectMapper mapper;
@@ -50,14 +51,15 @@ public class HttpLoggingFilter extends OncePerRequestFilter {
       long duration = System.currentTimeMillis() - start;
 
       log.info(
-          "HTTP {} {}?{} status={} duration={}ms trace={} clientIp={}",
+          "HTTP {} {}?{} status={} duration={}ms trace={} clientIp={} userPubId={}",
           request.getMethod(),
           request.getRequestURI(),
           request.getQueryString(),
           response.getStatus(),
           duration,
-          MDC.get("traceId"),
-          MDC.get("clientIp"));
+          MDC.get(MDCContextKey.TRACE_ID),
+          MDC.get(MDCContextKey.CLIENT_IP),
+          MDC.get(MDCContextKey.USER_PUB_ID));
 
       // ===== DEBUG → log full =====
       if (isDebug
@@ -77,29 +79,32 @@ public class HttpLoggingFilter extends OncePerRequestFilter {
 
     logMessage
         .append("\n========== HTTP DEBUG ==========\n")
-        .append("TIME      : ")
+        .append("TIME        : ")
         .append(Instant.now())
         .append("\n")
-        .append("METHOD    : ")
+        .append("METHOD      : ")
         .append(request.getMethod())
         .append("\n")
-        .append("URI       : ")
+        .append("URI         : ")
         .append(request.getRequestURI())
         .append("\n")
-        .append("QUERY     : ")
+        .append("QUERY       : ")
         .append(request.getQueryString())
         .append("\n")
-        .append("STATUS    : ")
+        .append("STATUS      : ")
         .append(response.getStatus())
         .append("\n")
-        .append("DURATION  : ")
+        .append("DURATION    : ")
         .append(duration)
         .append(" ms\n")
-        .append("CLIENT IP : ")
-        .append(MDC.get("clientIp"))
+        .append("TRACE       : ")
+        .append(MDC.get(MDCContextKey.TRACE_ID))
         .append("\n")
-        .append("TRACE     : ")
-        .append(MDC.get("traceId"))
+        .append("CLIENT IP   : ")
+        .append(MDC.get(MDCContextKey.CLIENT_IP))
+        .append("\n")
+        .append("USER PUB ID : ")
+        .append(MDC.get(MDCContextKey.USER_PUB_ID))
         .append("\n");
 
     // headers

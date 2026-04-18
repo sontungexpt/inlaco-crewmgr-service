@@ -13,7 +13,7 @@
   <!-- CLEAN console log (recommended for backend) -->
   <appender class="ch.qos.logback.core.ConsoleAppender" name="CONSOLE">
     <encoder>
-      <pattern>%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}){} %clr([%thread]){blue} %clr(%logger{32}){cyan} %clr([trace=%X{traceId} clientIp=%X{clientIp}]){magenta} %msg%n%wEx</pattern>
+      <pattern>%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}){} %clr([%thread]){blue} %clr(%logger{32}){cyan} %clr([trace=%X{traceId} userPubId=%X{userPubId} clientIp=%X{clientIp}]){magenta} %msg%n%wEx</pattern>
     </encoder>
   </appender>
   <!-- ===================================================== -->
@@ -28,7 +28,7 @@
       <totalSizeCap>200MB</totalSizeCap>
     </rollingPolicy>
     <encoder>
-      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{36} [trace=%X{traceId}] - %msg%n</pattern>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{36} [trace=%X{traceId} userPubId=%X{userPubId} clientIp=%X{clientIp}] - %msg%n</pattern>
     </encoder>
   </appender>
   <!-- ===================================================== -->
@@ -42,7 +42,7 @@
       <maxFileSize>10MB</maxFileSize>
     </rollingPolicy>
     <encoder>
-      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{36} [trace=%X{traceId} clientIp=%X{clientIp}] - %msg%n%wEx</pattern>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{36} [trace=%X{traceId} userPubId=%X{userPubId} clientIp=%X{clientIp}] - %msg%n%wEx</pattern>
     </encoder>
     <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
       <level>ERROR</level>
@@ -59,7 +59,7 @@
       <maxFileSize>5MB</maxFileSize>
     </rollingPolicy>
     <encoder>
-      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [trace=%X{traceId}] [clientIp=%X{clientIp}] - %msg%n</pattern>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [trace=%X{traceId}] [userPubId=%X{userPubId}] [clientIp=%X{clientIp}] - %msg%n</pattern>
     </encoder>
   </appender>
   <!-- ===================================================== -->
