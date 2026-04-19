@@ -8,15 +8,16 @@ import lombok.Getter;
 public class WebSocketNotificationRequest extends NotificationRequest<String, String> {
 
   private WebSocketNotificationPayload payload;
-  private String channel;
+  private String destination;
 
   public WebSocketNotificationRequest(
       String sender,
       List<String> recipients,
-      String channel,
+      String destination,
       WebSocketNotificationPayload payload) {
+
     super(sender, recipients, payload.getMessage());
     this.payload = payload;
-    this.channel = channel;
+    this.destination = destination;
   }
 }

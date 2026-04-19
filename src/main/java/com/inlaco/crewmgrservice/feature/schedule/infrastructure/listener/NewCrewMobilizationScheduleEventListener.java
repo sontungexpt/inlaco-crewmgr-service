@@ -81,7 +81,15 @@ public class NewCrewMobilizationScheduleEventListener {
 
   private void sendWebSocketNotification(List<CrewProfile> profiles, String scheduleId) {
     log.info("Sending schedule notification to {} sailor(s)", profiles.size());
-    List<String> recipientIds = profiles.stream().map(CrewProfile::getAccountId).toList();
+    List<String> recipientIds =
+        profiles.stream()
+            .map(
+                (it) -> {
+                  String id = it.getAccountId();
+                  log.debug("Sending schedule notification to sailor [id={}]", id);
+                  return id;
+                })
+            .toList();
     var payload = new CrewMobilizationNotificationPayload("Bạn có lịch điều động mới", scheduleId);
     notificationDispatcher.sendNotificationAsync(
         NotificationPolicy.WEB_SOCKET,

@@ -22,12 +22,13 @@ public class WebSocketNotificationService
 
   @Override
   public void sendNotification(WebSocketNotificationRequest request) {
-    String channel = request.getChannel();
+    String channel = request.getDestination();
     WebSocketNotificationPayload payload = request.getPayload();
 
     for (String recipient : request.getRecipients()) {
+      log.info(
+          "[WS-SEND] Sending to user={} destination={} payload={}", recipient, channel, payload);
       messagingTemplate.convertAndSendToUser(recipient, channel, payload);
-      log.info("[WS-NOTIFY] Sent to pubId={}", recipient);
     }
   }
 }

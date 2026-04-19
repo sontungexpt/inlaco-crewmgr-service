@@ -2,6 +2,7 @@ package com.inlaco.crewmgrservice.feature.contract.presentation.dto.party;
 
 import com.inlaco.crewmgrservice.feature.contract.domain.enums.PartyType;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Past;
 import java.time.Instant;
@@ -15,6 +16,8 @@ public class LaborPartyDTO extends PartyDTO {
   public LaborPartyDTO() {
     super(PartyType.LABOR);
   }
+
+  @NotBlank @Email private String email;
 
   @Schema(description = "The tax code of the contract", example = "123456")
   private String taxCode;
