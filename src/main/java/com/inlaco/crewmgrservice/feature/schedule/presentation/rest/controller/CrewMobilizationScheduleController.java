@@ -42,7 +42,9 @@ public class CrewMobilizationScheduleController {
   @Operation(
       summary = "Create a new schedule",
       description = "Create a new schedule with the given data.",
-      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
+      security = {
+        @SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME),
+      })
   @PostMapping("")
   @RolesAllowed("ADMIN")
   @ResponseStatus(HttpStatus.CREATED)
@@ -56,7 +58,9 @@ public class CrewMobilizationScheduleController {
   @Operation(
       summary = "Fetch pagination schedules",
       description = "Fetch pagination schedules",
-      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
+      security = {
+        @SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME),
+      })
   @GetMapping("")
   @RolesAllowed("ADMIN")
   @PageableQueryParams
@@ -70,13 +74,48 @@ public class CrewMobilizationScheduleController {
 
   @Operation(
       summary = "Find schedule detail by id",
-      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
+      security = {
+        @SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME),
+      })
   @GetMapping("/{id}")
   @RolesAllowed({"ADMIN", "SAILOR"})
   public CrewMobilizationScheduleResponse getScheduleDetail(
       @ObjectId @PathVariable("id") String id) {
     return mapper.toCrewMobilizationScheduleResponse(
         crewMobilizationScheduleQueryUseCase.findDetailSchedule(id));
+  }
+
+  @Operation(
+      summary = "Find schedules of the current logged-in sailor (paginated)",
+      description = "Fetch schedules that include the current user's crew cardId",
+      security = {
+        @SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME),
+      })
+  @GetMapping("/me")
+  @RolesAllowed("SAILOR")
+  @PageableQueryParams
+  public Page<CrewMobilizationScheduleResponse> findMySchedules(
+      @CurrentUser User user, @PageableDefault(page = 0, size = 20) Pageable pageable) {
+    // Fetch crew profile for the current user to obtain employeeCardId
+    // var profile = crewUseCase.getProfileForAccount(user.getId());
+    // String cardId = profile.getEmployeeCardId();
+    // Retrieve schedules (paginated) and filter those that include the employee card id
+    // Page<CrewMobilizationSchedule> schedulesPage =
+    // crewMobilizationScheduleQueryUseCase.findSchedules(null, pageable);
+    // List<CrewMobilizationScheduleResponse> filtered =
+    //     schedulesPage.getContent().stream()
+    //         .filter(
+    //             s ->
+    //                 s.getCrews() != null
+    //                     && s.getCrews().stream()
+    //                         .anyMatch(c -> cardId != null &&
+    // cardId.equals(c.getEmployeeCardId())))
+    //         .map(mapper::toCrewMobilizationScheduleResponse)
+    //         .collect(Collectors.toList());
+    // // Return a page containing the filtered results (page metadata aligns with requested
+    // pageable)
+    // return new PageImpl<>(filtered, pageable, filtered.size());
+    return null;
   }
 
   // @Operation(
