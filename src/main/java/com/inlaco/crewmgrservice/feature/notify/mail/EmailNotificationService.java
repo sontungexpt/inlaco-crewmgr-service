@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class EmailNotificationServiceImpl implements NotificationService<EmailRequest> {
+public class EmailNotificationService implements NotificationService<EmailRequest> {
 
   private final MailProperties mailProperties;
   private final JavaMailSender mailSender;

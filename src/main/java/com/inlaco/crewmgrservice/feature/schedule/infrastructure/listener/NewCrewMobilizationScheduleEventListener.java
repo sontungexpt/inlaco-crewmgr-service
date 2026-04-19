@@ -5,14 +5,17 @@ import com.inlaco.crewmgrservice.feature.crew.domain.model.CrewProfile;
 import com.inlaco.crewmgrservice.feature.notify.NotificationDispatcher;
 import com.inlaco.crewmgrservice.feature.notify.NotificationPolicy;
 import com.inlaco.crewmgrservice.feature.notify.mail.EmailRequest;
+import com.inlaco.crewmgrservice.feature.notify.websocket.WebSocketNotificationPayload;
+import com.inlaco.crewmgrservice.feature.notify.websocket.WebSocketNotificationRequest;
 import com.inlaco.crewmgrservice.feature.schedule.domain.event.NewCrewMobilizationScheduleEvent;
 import com.inlaco.crewmgrservice.feature.schedule.domain.model.CrewMobilizationSchedule;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
@@ -22,7 +25,7 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 public class NewCrewMobilizationScheduleEventListener {
 
   private final CrewProfileRepository crewProfileRepository;
-  private final NotificationDispatcher notificationFactory;
+  private final NotificationDispatcher notificationDispatcher;
   private final SpringTemplateEngine templateEngine;
 
   @Value("${inlaco.client.base-url}")
@@ -34,7 +37,7 @@ public class NewCrewMobilizationScheduleEventListener {
   @Value("${inlaco.template.email.sailor-schedule.subject}")
   private String EMAIL_SUBJECT;
 
-  @EventListener
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void handleNewAssignmentScheduleEvent(NewCrewMobilizationScheduleEvent event) {
     var schedule = event.schedule();
     // Use debug here because schedule events can be frequent; higher-level info is logged when
@@ -63,6 +66,26 @@ public class NewCrewMobilizationScheduleEventListener {
         "Found {} sailor profile(s) to notify for schedule {}", profiles.size(), schedule.getId());
 
     profiles.forEach(profile -> sendScheduleEmail(profile, schedule));
+
+    sendWebSocketNotification(profiles, schedule.getId());
+  }
+
+  record CrewMobilizationNotificationPayload(String message, String scheduleId)
+      implements WebSocketNotificationPayload {
+
+    @Override
+    public String getMessage() {
+      return message;
+    }
+  }
+
+  private void sendWebSocketNotification(List<CrewProfile> profiles, String scheduleId) {
+    log.info("Sending schedule notification to {} sailor(s)", profiles.size());
+    List<String> recipientIds = profiles.stream().map(CrewProfile::getAccountId).toList();
+    var payload = new CrewMobilizationNotificationPayload("Bạn có lịch điều động mới", scheduleId);
+    notificationDispatcher.sendNotificationAsync(
+        NotificationPolicy.WEB_SOCKET,
+        new WebSocketNotificationRequest("SYSTEM", recipientIds, "/queue/notifications", payload));
   }
 
   private void sendScheduleEmail(CrewProfile profile, CrewMobilizationSchedule schedule) {
@@ -79,7 +102,7 @@ public class NewCrewMobilizationScheduleEventListener {
         profile.getEmail(),
         schedule.getId());
 
-    notificationFactory.sendNotificationAsync(
+    notificationDispatcher.sendNotificationAsync(
         NotificationPolicy.EMAIL,
         EmailRequest.html(profile.getEmail(), buildBodyContent(profile, schedule), EMAIL_SUBJECT)
             .build());

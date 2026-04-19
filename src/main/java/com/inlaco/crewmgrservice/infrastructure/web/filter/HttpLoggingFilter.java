@@ -51,15 +51,14 @@ public class HttpLoggingFilter extends OncePerRequestFilter {
       long duration = System.currentTimeMillis() - start;
 
       log.info(
-          "HTTP {} {}?{} status={} duration={}ms trace={} clientIp={} userPubId={}",
+          "HTTP {} {}?{} status={} duration={}ms trace={} clientIp={}",
           request.getMethod(),
           request.getRequestURI(),
           request.getQueryString(),
           response.getStatus(),
           duration,
           MDC.get(MDCContextKey.TRACE_ID),
-          MDC.get(MDCContextKey.CLIENT_IP),
-          MDC.get(MDCContextKey.USER_PUB_ID));
+          MDC.get(MDCContextKey.CLIENT_IP));
 
       // ===== DEBUG → log full =====
       if (isDebug
@@ -102,9 +101,6 @@ public class HttpLoggingFilter extends OncePerRequestFilter {
         .append("\n")
         .append("CLIENT IP   : ")
         .append(MDC.get(MDCContextKey.CLIENT_IP))
-        .append("\n")
-        .append("USER PUB ID : ")
-        .append(MDC.get(MDCContextKey.USER_PUB_ID))
         .append("\n");
 
     // headers

@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -22,6 +23,7 @@ public class CrewMobilizationScheduleCommandService
   private final ApplicationEventPublisher eventPublisher;
 
   @Override
+  @Transactional
   public CrewMobilizationSchedule createSchedule(CrewMobilizationSchedule schedule) {
     log.debug("Starting schedule creation with details: {}", schedule);
 

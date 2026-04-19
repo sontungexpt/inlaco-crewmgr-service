@@ -132,7 +132,7 @@ public class SecurityConfig {
 
     configuration.setAllowedOriginPatterns(allowedOrigins);
 
-    log.info("Allowed origins: {}", allowedOrigins);
+    log.info("Allowed CORS origins: {}", allowedOrigins);
 
     // configuration.addAllowedHeader("*");
     // configuration.addAllowedMethod("*");
