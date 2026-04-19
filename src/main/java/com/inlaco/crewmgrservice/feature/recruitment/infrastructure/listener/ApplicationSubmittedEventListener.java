@@ -4,7 +4,9 @@ import com.inlaco.crewmgrservice.feature.notify.NotificationDispatcher;
 import com.inlaco.crewmgrservice.feature.notify.NotificationPolicy;
 import com.inlaco.crewmgrservice.feature.notify.mail.EmailRequest;
 import com.inlaco.crewmgrservice.feature.recruitment.application.event.ApplicationSubmittedEvent;
+import com.inlaco.crewmgrservice.feature.recruitment.domain.enums.ApplicationStatus;
 import com.inlaco.crewmgrservice.feature.recruitment.domain.model.JobApplication;
+import com.inlaco.crewmgrservice.feature.recruitment.infrastructure.config.RecruitmentEmailProperties;
 import java.time.Year;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,12 +22,12 @@ public class ApplicationSubmittedEventListener {
 
   private final NotificationDispatcher notificationDispatcher;
   private final SpringTemplateEngine templateEngine;
+  private final RecruitmentEmailProperties emailProperties;
 
   @EventListener
-  public void handleApplicationReviewed(ApplicationSubmittedEvent event) {
+  public void handleApplicationSubmitted(ApplicationSubmittedEvent event) {
     JobApplication application = event.application();
 
-    // High-level info for observability: who triggered the event
     log.info(
         "Received ApplicationSubmittedEvent for candidate='{}', email='{}', position='{}'",
         application.getFullName(),
@@ -34,25 +36,30 @@ public class ApplicationSubmittedEventListener {
 
     sendEmail(application);
 
-    // Traceable confirmation that processing of the event completed
     log.debug(
         "Completed handling ApplicationSubmittedEvent for candidate='{}'",
         application.getFullName());
   }
 
   private void sendEmail(JobApplication application) {
-    final String COMPANY_NAME = "INLACO";
+    var template = emailProperties.getTemplate(ApplicationStatus.APPLIED);
 
-    // Helpful debug-level detail before building the email body
+    if (template == null) {
+      log.warn(
+          "No email template configured for status={} applicationId={}",
+          ApplicationStatus.APPLIED,
+          application.getId());
+      return;
+    }
+
     log.debug(
-        "Preparing Application Submitted email for candidate='{}' (email='{}')",
-        application.getFullName(),
-        application.getEmail());
+        "Preparing email for applicationId={} using template={}",
+        application.getId(),
+        template.path());
 
-    String subject = "Application Successful - " + COMPANY_NAME;
-    String body = buildEmailBody(application);
+    String subject = template.subject();
+    String body = buildEmailBody(template.path(), application);
 
-    // Info-level log to indicate an outbound notification is being dispatched
     log.info(
         "Dispatching application submitted email to '{}' for candidate='{}'",
         application.getEmail(),
@@ -61,26 +68,25 @@ public class ApplicationSubmittedEventListener {
     notificationDispatcher.sendNotificationAsync(
         NotificationPolicy.EMAIL, EmailRequest.html(application.getEmail(), body, subject).build());
 
-    // Debug-level log to indicate the async dispatch call has been made
     log.debug(
-        "NotificationDispatcher.sendNotificationAsync called for candidate='{}', email='{}'",
-        application.getFullName(),
+        "Notification dispatched for applicationId={} to={}",
+        application.getId(),
         application.getEmail());
   }
 
-  private String buildEmailBody(JobApplication application) {
+  private String buildEmailBody(String path, JobApplication application) {
     var context = new Context();
     context.setVariable("candidate_name", application.getFullName());
     context.setVariable("position_name", application.getPosition());
     context.setVariable("company_name", "INLACO");
-    context.setVariable("current_year", String.format("%d", Year.now().getValue()));
+    context.setVariable("current_year", Year.now().getValue());
     context.setVariable("contact_email", "inlaco@gmail.com");
 
-    // Debug to trace template processing input (template name is constant here)
     log.debug(
-        "Building email body using template 'mail/recruitment/applied.html' for candidate='{}'",
+        "Building email body using template='{}' for candidate='{}'",
+        path,
         application.getFullName());
 
-    return templateEngine.process("mail/recruitment/applied.html", context);
+    return templateEngine.process(path, context);
   }
 }
