@@ -1,6 +1,8 @@
 package com.inlaco.crewmgrservice.infrastructure.security.config;
 
 import com.inlaco.crewmgrservice.infrastructure.security.jwt.filter.JwtAuthenticationFilter;
+import com.inlaco.crewmgrservice.shared.constant.WebSocketContants;
+import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,9 +35,24 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+  private static final String[] ALLOWED_CORS_ORIGINS = {
+    "http://localhost:*", // Enable localhost
+    "http://192.168.*:*", // Enable local IP
+    "https://sontungexpt.github.io",
+    "https://inlaco-crewmgr-service-b7btdkgsdwafb2ht.eastasia-01.azurewebsites.net"
+  };
+
+  private final String[] SECURITY_WHITELIST_PATHS = {
+    WebSocketContants.ENDPOINT + "/**",
+    "/actuator/**",
+    "/swagger-ui/**",
+    "/v3/api-docs/**",
+    "/scalar/**",
+    "/webjars/**",
+  };
+
   @Bean
   public PasswordEncoder passwordEncoder() {
-    // return new BCryptPasswordEncoder();
     return new BCryptPasswordEncoder(12);
   }
 
@@ -64,6 +81,7 @@ public class SecurityConfig {
   //   └─ AUTH → require Authentication
   //  ↓
   // Controller
+  //
 
   @Bean
   public SecurityFilterChain securityFilterChain(
@@ -80,7 +98,7 @@ public class SecurityConfig {
         .csrf(
             customizer -> {
               customizer.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
-              customizer.ignoringRequestMatchers("/**", "/actuator/**");
+              customizer.ignoringRequestMatchers("/**");
             })
         // exception handling
         .exceptionHandling(
@@ -89,6 +107,8 @@ public class SecurityConfig {
         .authorizeHttpRequests(
             auth ->
                 auth.requestMatchers(HttpMethod.OPTIONS, "/**")
+                    .permitAll()
+                    .requestMatchers(SECURITY_WHITELIST_PATHS)
                     .permitAll()
                     .anyRequest()
                     .access(authzManager))
@@ -119,23 +139,12 @@ public class SecurityConfig {
 
   private CorsConfigurationSource corsApiConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
-    // configuration.addAllowedOriginPattern("http://localhost:*");
-    // configuration.addAllowedOriginPattern("*.ngrok-free.app");
-    // configuration.addAllowedOriginPattern("*");
-    // Cho phép tất cả các port trên localhost
-    List<String> allowedOrigins =
-        List.of(
-            "http://localhost:*", // Enable localhost
-            "http://192.168.*:*", // Enable local IP
-            "https://sontungexpt.github.io",
-            "https://inlaco-crewmgr-service-b7btdkgsdwafb2ht.eastasia-01.azurewebsites.net");
 
+    List<String> allowedOrigins = Arrays.asList(ALLOWED_CORS_ORIGINS);
     configuration.setAllowedOriginPatterns(allowedOrigins);
 
     log.info("Allowed CORS origins: {}", allowedOrigins);
 
-    // configuration.addAllowedHeader("*");
-    // configuration.addAllowedMethod("*");
     configuration.setAllowCredentials(true);
     configuration.setMaxAge(3600L);
 
@@ -143,6 +152,7 @@ public class SecurityConfig {
         List.of(
             "HEAD", "GET", "POST", "PUT", "DELETE", "PATCH",
             "OPTIONS")); // <-- methods allowed in CORS policy
+
     configuration.setAllowedHeaders(
         List.of(
             "Authorization",

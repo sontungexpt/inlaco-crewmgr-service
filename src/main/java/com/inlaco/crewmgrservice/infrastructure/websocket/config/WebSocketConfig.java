@@ -1,6 +1,7 @@
 package com.inlaco.crewmgrservice.infrastructure.websocket.config;
 
 import com.inlaco.crewmgrservice.infrastructure.websocket.interceptor.JwtChannelInterceptor;
+import com.inlaco.crewmgrservice.shared.constant.WebSocketContants;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
@@ -17,12 +18,19 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
   private final JwtChannelInterceptor jwtChannelInterceptor;
 
+  private static final String[] ALLOWED_ORIGINS = {
+    "http://localhost:*", // Enable localhost
+    "http://192.168.*:*", // Enable local IP
+    "https://sontungexpt.github.io",
+    "https://inlaco-crewmgr-service-b7btdkgsdwafb2ht.eastasia-01.azurewebsites.net"
+  };
+
   @Override
   public void registerStompEndpoints(StompEndpointRegistry registry) {
     registry
-        .addEndpoint("/api/v1/ws")
-        .setAllowedOriginPatterns("*") // adjust if needed security
-        .withSockJS(); // optional
+        .addEndpoint(WebSocketContants.ENDPOINT)
+        .setAllowedOriginPatterns(ALLOWED_ORIGINS)
+        .withSockJS();
   }
 
   @Override
