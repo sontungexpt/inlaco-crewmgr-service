@@ -28,10 +28,18 @@ public class CrewRentalContractSignedEventListener {
       backoff = @Backoff(delay = 2000, multiplier = 2))
   public void handle(ContractSignedEvent event) {
     if (!(event.contract() instanceof CrewSupplyContract supplyContract)) {
+      log.debug(
+          "Received ContractSignedEvent but contract is not a CrewSupplyContract: {}",
+          event.contract() == null ? "null" : event.contract().getClass().getSimpleName());
       return;
     }
 
     String requestId = supplyContract.getCrewRentalRequestId();
+    log.debug(
+        "Handling CrewSupplyContract signed event [contractId={}, requestId={}]",
+        supplyContract.getId(),
+        requestId);
+
     CrewRentalRequest request =
         crewRentalRequestRepository
             .findById(requestId)
@@ -40,5 +48,11 @@ public class CrewRentalContractSignedEventListener {
 
     request.setStatus(CrewRentalRequestStatus.CONFIRMED);
     crewRentalRequestRepository.save(request);
+
+    log.info(
+        "Crew rental request {} set to {} by contract {}",
+        requestId,
+        CrewRentalRequestStatus.CONFIRMED,
+        supplyContract.getId());
   }
 }

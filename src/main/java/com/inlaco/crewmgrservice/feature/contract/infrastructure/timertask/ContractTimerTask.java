@@ -24,10 +24,19 @@ public class ContractTimerTask {
     Instant now = Instant.now();
     List<Contract> contracts = contractRepository.findDueForActivation(now);
     if (contracts.isEmpty()) {
-      log.debug("No contracts due for activation at {}", now);
+      // This runs frequently; keep noise to a minimum by using TRACE for the common "nothing to do"
+      // case
+      log.trace("No contracts due for activation at {}", now);
       return;
     }
+
+    // Important event - keep as INFO to make it visible in operational logs
     log.info("Found {} contract(s) to activate", contracts.size());
+
+    // Provide a debug-level detail with the contract ids to help troubleshooting without polluting
+    // INFO logs
+    log.debug("Contracts to activate ids: {}", contracts.stream().map(Contract::getId).toList());
+
     contractActivationUseCase.activateDueContracts(contracts, now);
   }
 
@@ -36,10 +45,19 @@ public class ContractTimerTask {
     Instant now = Instant.now();
     List<Contract> contracts = contractRepository.findDueForExpiration(now);
     if (contracts.isEmpty()) {
-      log.debug("No contracts due for expiration at {}", now);
+      // This runs frequently; keep noise to a minimum by using TRACE for the common "nothing to do"
+      // case
+      log.trace("No contracts due for expiration at {}", now);
       return;
     }
+
+    // Important event - keep as INFO to make it visible in operational logs
     log.info("Found {} contract(s) to expire", contracts.size());
+
+    // Provide a debug-level detail with the contract ids to help troubleshooting without polluting
+    // INFO logs
+    log.debug("Contracts to expire ids: {}", contracts.stream().map(Contract::getId).toList());
+
     contractActivationUseCase.expireContracts(contracts, now);
   }
 }

@@ -20,6 +20,7 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 @Slf4j
 @RequiredArgsConstructor
 public class NewCrewMobilizationScheduleEventListener {
+
   private final CrewProfileRepository crewProfileRepository;
   private final NotificationDispatcher notificationFactory;
   private final SpringTemplateEngine templateEngine;
@@ -36,7 +37,9 @@ public class NewCrewMobilizationScheduleEventListener {
   @EventListener
   public void handleNewAssignmentScheduleEvent(NewCrewMobilizationScheduleEvent event) {
     var schedule = event.schedule();
-    log.info("Handling schedule notification [id={}]", schedule.getId());
+    // Use debug here because schedule events can be frequent; higher-level info is logged when
+    // notifications are actually queued.
+    log.debug("Handling schedule notification [id={}]", schedule.getId());
     notifySailorSchedule(schedule);
   }
 
@@ -53,6 +56,12 @@ public class NewCrewMobilizationScheduleEventListener {
       log.warn("No sailor profiles found for schedule {}", schedule.getId());
       return;
     }
+
+    // Higher-level informational log indicating how many profiles will be processed for this
+    // schedule.
+    log.info(
+        "Found {} sailor profile(s) to notify for schedule {}", profiles.size(), schedule.getId());
+
     profiles.forEach(profile -> sendScheduleEmail(profile, schedule));
   }
 
@@ -62,10 +71,13 @@ public class NewCrewMobilizationScheduleEventListener {
       return;
     }
 
+    // Keep per-email send at debug to avoid noisy info logs; overall count is logged above at info
+    // level.
     log.debug(
-        "Sending schedule notification email to sailor [id={}, email={}]",
+        "Sending schedule notification email to sailor [id={}, email={}, scheduleId={}]",
         profile.getId(),
-        profile.getEmail());
+        profile.getEmail(),
+        schedule.getId());
 
     notificationFactory.sendNotificationAsync(
         NotificationPolicy.EMAIL,

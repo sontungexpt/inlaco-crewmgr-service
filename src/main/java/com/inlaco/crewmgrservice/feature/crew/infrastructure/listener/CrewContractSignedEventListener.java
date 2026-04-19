@@ -23,10 +23,13 @@ public class CrewContractSignedEventListener {
     if (!(event.contract() instanceof LaborContract contract)) {
       return;
     }
-    log.info("Received ContractSignedEvent for LaborContract with ID: {}", contract.getId());
+
+    // Reduced verbosity for high-frequency events: keep receipt at DEBUG level.
+    log.debug("Received ContractSignedEvent for LaborContract with ID: {}", contract.getId());
 
     LaborParty party = (LaborParty) contract.getPartners().get(0);
 
+    // Applying the contract is an important state change — keep it at INFO.
     log.info("Applying labor contract for account ID: {}", contract.getAccountId());
     crewUseCase.applyLaborContract(
         new ApplyLaborContractCommand(

@@ -21,14 +21,15 @@ public class CrewContractActivedEventListener {
 
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void handle(ContractActivedEvent event) {
-    log.info("Received ContractActivedEvent with {} contracts", event.contracts().size());
+    log.debug("Handling ContractActivedEvent with {} contract(s)", event.contracts().size());
 
     List<String> accountIds =
         event.contracts().stream()
             .filter(
                 c -> {
                   if (!(c instanceof LaborContract)) {
-                    log.info("Contract is not a LaborContract: {}, Skipping", c.getId());
+                    // Not an error condition — just not relevant for crew activation.
+                    log.debug("Skipping non-labor contract with id={}", c.getId());
                     return false;
                   }
                   return true;
@@ -36,40 +37,48 @@ public class CrewContractActivedEventListener {
             .map(
                 c -> {
                   String accountId = ((LaborContract) c).getAccountId();
-                  log.debug("Extracted accountId: {}", accountId);
+                  // Detailed extraction is trace-level since it can be noisy in production.
+                  log.trace("Extracted accountId={} from contractId={}", accountId, c.getId());
                   return accountId;
                 })
             .toList();
 
-    log.info("Extracted {} labor contract accountId", accountIds.size());
+    log.debug("Extracted {} labor contract accountId(s)", accountIds.size());
 
     if (accountIds.isEmpty()) {
+      // Informational: normal case when no labor contracts present.
       log.info("No labor contracts found. Skipping crew status update.");
       return;
     }
 
     List<CrewProfile> profiles = repository.findAllByAccountId(accountIds);
 
-    log.info("Found {} crew profiles to update", profiles.size());
+    log.info("Found {} crew profile(s) to update", profiles.size());
 
     for (CrewProfile profile : profiles) {
       try {
         profile.changeStatus(CrewStatus.READY_FOR_ASSIGNMENT);
+        // Success for each profile can be verbose; keep it trace-level.
+        log.trace(
+            "Changed status for crew profile id={} to {}",
+            profile.getId(),
+            CrewStatus.READY_FOR_ASSIGNMENT);
       } catch (IllegalStateException e) {
+        // This is a recoverable domain issue for a single profile; warn and continue.
         log.warn(
-            "Failed to change status for crew profile {} to {}: {}",
+            "Failed to change status for crew profile id={} to {}. Reason: {}",
             profile.getId(),
             CrewStatus.READY_FOR_ASSIGNMENT,
-            e.getMessage());
-        // Optionally, you might want to handle this profile differently,
-        // or re-throw if it's considered a critical error.
-        // For now, we'll just log and continue with other profiles.
+            e.getMessage(),
+            e);
       }
     }
 
+    // Persist updates
     repository.saveAll(profiles);
-
     log.info(
-        "Updated {} crew profiles to status {}", profiles.size(), CrewStatus.READY_FOR_ASSIGNMENT);
+        "Updated {} crew profile(s) to status {}",
+        profiles.size(),
+        CrewStatus.READY_FOR_ASSIGNMENT);
   }
 }

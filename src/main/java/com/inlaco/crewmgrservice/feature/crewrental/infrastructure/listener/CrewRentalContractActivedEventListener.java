@@ -21,8 +21,15 @@ public class CrewRentalContractActivedEventListener {
 
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void handle(ContractActivedEvent event) {
+    log.debug("Handling ContractActivedEvent with {} contract(s)", event.contracts().size());
+
     for (var c : event.contracts()) {
       if (!(c instanceof CrewSupplyContract supplyContract)) continue;
+
+      log.debug(
+          "Processing CrewSupplyContract [id={}, crewRentalRequestId={}]",
+          c.getId(),
+          supplyContract.getCrewRentalRequestId());
 
       String requestId = supplyContract.getCrewRentalRequestId();
       CrewRentalRequest request =
@@ -33,6 +40,9 @@ public class CrewRentalContractActivedEventListener {
 
       request.setStatus(CrewRentalRequestStatus.ACTIVE);
       crewRentalRequestRepository.save(request);
+
+      log.debug(
+          "Updated CrewRentalRequest {} status to {}", requestId, CrewRentalRequestStatus.ACTIVE);
     }
   }
 }

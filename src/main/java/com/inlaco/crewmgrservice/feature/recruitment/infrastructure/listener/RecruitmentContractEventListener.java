@@ -20,27 +20,93 @@ public class RecruitmentContractEventListener {
 
   @TransactionalEventListener(ContractActivedEvent.class)
   public void handleActived(ContractActivedEvent event) {
-    log.debug("Received contract actived event");
+    int total = event.contracts().size();
+    log.info("Handling ContractActivedEvent with {} contract(s)", total);
+
     for (var c : event.contracts()) {
-      if (!(c instanceof LaborContract contract)) continue;
+      if (!(c instanceof LaborContract contract)) {
+        // Non-labor contracts are not relevant for recruitment review, keep this at debug.
+        log.debug("Skipping non-LaborContract (id={}) during actived handling", c.getId());
+        continue;
+      }
+
+      // Provide a debug-level log with the application id being reviewed to avoid noisy logs
+      // at info level when multiple contracts are processed frequently.
+      log.debug(
+          "Reviewing application {} due to activated labor contract {}",
+          contract.getApplicationId(),
+          contract.getId());
+
       recruitmentReviewUseCase.reviewApplication(
           contract.getApplicationId(), ApplicationStatus.HIRED);
     }
+
+    log.info("Completed processing ContractActivedEvent; processed {} labor contract(s)", total);
   }
 
   @TransactionalEventListener(ContractCreatedEvent.class)
   public void handleCreated(ContractCreatedEvent event) {
-    log.debug("Received contract created event");
-    if (!(event.contract() instanceof LaborContract contract)) return;
+    var contract = event.contract();
+    if (contract == null) {
+      log.warn("Received ContractCreatedEvent with null contract payload");
+      return;
+    }
+
+    log.info(
+        "Handling ContractCreatedEvent for contract id={} type={}",
+        contract.getId(),
+        contract.getClass().getSimpleName());
+
+    if (!(contract instanceof LaborContract laborContract)) {
+      log.debug(
+          "Contract {} is not a LaborContract; skipping recruitment review", contract.getId());
+      return;
+    }
+
+    log.debug(
+        "Requesting review for application {} -> {}",
+        laborContract.getApplicationId(),
+        ApplicationStatus.CONTRACT_PENDING_SIGNATURE);
+
     recruitmentReviewUseCase.reviewApplication(
-        contract.getApplicationId(), ApplicationStatus.CONTRACT_PENDING_SIGNATURE);
+        laborContract.getApplicationId(), ApplicationStatus.CONTRACT_PENDING_SIGNATURE);
+
+    log.info(
+        "Requested recruitment review for application {} (contract id={})",
+        laborContract.getApplicationId(),
+        laborContract.getId());
   }
 
   @TransactionalEventListener(ContractSignedEvent.class)
   public void handleSigned(ContractSignedEvent event) {
-    log.debug("Received contract signed event");
-    if (!(event.contract() instanceof LaborContract contract)) return;
+    var contract = event.contract();
+    if (contract == null) {
+      log.warn("Received ContractSignedEvent with null contract payload");
+      return;
+    }
+
+    log.info(
+        "Handling ContractSignedEvent for contract id={} type={}",
+        contract.getId(),
+        contract.getClass().getSimpleName());
+
+    if (!(contract instanceof LaborContract laborContract)) {
+      log.debug(
+          "Contract {} is not a LaborContract; skipping recruitment review", contract.getId());
+      return;
+    }
+
+    log.debug(
+        "Requesting review for application {} -> {}",
+        laborContract.getApplicationId(),
+        ApplicationStatus.CONTRACT_SIGNED);
+
     recruitmentReviewUseCase.reviewApplication(
-        contract.getApplicationId(), ApplicationStatus.CONTRACT_SIGNED);
+        laborContract.getApplicationId(), ApplicationStatus.CONTRACT_SIGNED);
+
+    log.info(
+        "Requested recruitment review for application {} (signed contract id={})",
+        laborContract.getApplicationId(),
+        laborContract.getId());
   }
 }
