@@ -2,14 +2,18 @@ package com.inlaco.crewmgrservice.feature.schedule.infrastructure.listener;
 
 import com.inlaco.crewmgrservice.feature.crew.application.port.out.CrewProfileRepository;
 import com.inlaco.crewmgrservice.feature.crew.domain.model.CrewProfile;
-import com.inlaco.crewmgrservice.feature.notify.NotificationDispatcher;
-import com.inlaco.crewmgrservice.feature.notify.NotificationPolicy;
-import com.inlaco.crewmgrservice.feature.notify.mail.EmailRequest;
-import com.inlaco.crewmgrservice.feature.notify.websocket.WebSocketNotificationPayload;
-import com.inlaco.crewmgrservice.feature.notify.websocket.WebSocketNotificationRequest;
+import com.inlaco.crewmgrservice.feature.notify.application.port.out.DeviceTokenRepostiory;
+import com.inlaco.crewmgrservice.feature.notify.application.port.service.NotificationDispatcher;
+import com.inlaco.crewmgrservice.feature.notify.domain.enums.DeviceType;
+import com.inlaco.crewmgrservice.feature.notify.domain.model.DeviceToken;
+import com.inlaco.crewmgrservice.feature.notify.domain.model.EmailRequest;
+import com.inlaco.crewmgrservice.feature.notify.domain.model.ExpoNotificationRequest;
+import com.inlaco.crewmgrservice.feature.notify.domain.model.WebSocketNotificationPayload;
+import com.inlaco.crewmgrservice.feature.notify.domain.model.WebSocketNotificationRequest;
 import com.inlaco.crewmgrservice.feature.schedule.domain.event.NewCrewMobilizationScheduleEvent;
 import com.inlaco.crewmgrservice.feature.schedule.domain.model.CrewMobilizationSchedule;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,6 +29,7 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 public class NewCrewMobilizationScheduleEventListener {
 
   private final CrewProfileRepository crewProfileRepository;
+  private final DeviceTokenRepostiory deviceTokenRepostiory;
   private final NotificationDispatcher notificationDispatcher;
   private final SpringTemplateEngine templateEngine;
 
@@ -72,7 +77,6 @@ public class NewCrewMobilizationScheduleEventListener {
 
   record CrewMobilizationNotificationPayload(String message, String scheduleId)
       implements WebSocketNotificationPayload {
-
     @Override
     public String getMessage() {
       return message;
@@ -84,7 +88,7 @@ public class NewCrewMobilizationScheduleEventListener {
     List<String> recipientIds =
         profiles.stream()
             .map(
-                (it) -> {
+                it -> {
                   String id = it.getAccountId();
                   log.debug("Sending schedule notification to sailor [id={}]", id);
                   return id;
@@ -92,8 +96,44 @@ public class NewCrewMobilizationScheduleEventListener {
             .toList();
     var payload = new CrewMobilizationNotificationPayload("Bạn có lịch điều động mới", scheduleId);
     notificationDispatcher.sendNotificationAsync(
-        NotificationPolicy.WEB_SOCKET,
-        new WebSocketNotificationRequest("SYSTEM", recipientIds, "/queue/notifications", payload));
+        new WebSocketNotificationRequest(recipientIds, "/queue/notifications", payload));
+
+    // Send push notifications via Expo to registered device tokens
+    sendPushNotification(profiles, scheduleId);
+  }
+
+  private void sendPushNotification(List<CrewProfile> profiles, String scheduleId) {
+    // Collect all device tokens for the target users
+    List<DeviceToken> tokens =
+        profiles.stream()
+            .flatMap(p -> deviceTokenRepostiory.findByUserId(p.getAccountId()).stream())
+            .toList();
+
+    if (tokens.isEmpty()) {
+      log.info("No device tokens found for schedule {}", scheduleId);
+      return;
+    }
+
+    List<String> expoTokens =
+        tokens.stream()
+            .filter(
+                t -> t.getDeviceType() == DeviceType.ANDROID || t.getDeviceType() == DeviceType.IOS)
+            .map(t -> t.getToken())
+            .toList();
+
+    if (expoTokens.isEmpty()) {
+      log.info("No Expo tokens found for schedule {}", scheduleId);
+      return;
+    }
+    var request =
+        ExpoNotificationRequest.builder()
+            .recipients(expoTokens)
+            .title("Lịch điều động mới")
+            .message("Bạn có lịch điều động mới")
+            .data(Map.of("scheduleId", scheduleId))
+            .build();
+    notificationDispatcher.sendNotificationAsync(request);
+    log.info("Expo push notification dispatched to {} tokens", tokens.size());
   }
 
   private void sendScheduleEmail(CrewProfile profile, CrewMobilizationSchedule schedule) {
@@ -111,7 +151,6 @@ public class NewCrewMobilizationScheduleEventListener {
         schedule.getId());
 
     notificationDispatcher.sendNotificationAsync(
-        NotificationPolicy.EMAIL,
         EmailRequest.html(profile.getEmail(), buildBodyContent(profile, schedule), EMAIL_SUBJECT)
             .build());
   }

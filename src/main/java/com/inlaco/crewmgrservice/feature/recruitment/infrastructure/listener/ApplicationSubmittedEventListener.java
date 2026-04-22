@@ -1,8 +1,7 @@
 package com.inlaco.crewmgrservice.feature.recruitment.infrastructure.listener;
 
-import com.inlaco.crewmgrservice.feature.notify.NotificationDispatcher;
-import com.inlaco.crewmgrservice.feature.notify.NotificationPolicy;
-import com.inlaco.crewmgrservice.feature.notify.mail.EmailRequest;
+import com.inlaco.crewmgrservice.feature.notify.application.port.service.NotificationDispatcher;
+import com.inlaco.crewmgrservice.feature.notify.domain.model.EmailRequest;
 import com.inlaco.crewmgrservice.feature.recruitment.application.event.ApplicationSubmittedEvent;
 import com.inlaco.crewmgrservice.feature.recruitment.domain.enums.ApplicationStatus;
 import com.inlaco.crewmgrservice.feature.recruitment.domain.model.JobApplication;
@@ -66,7 +65,7 @@ public class ApplicationSubmittedEventListener {
         application.getFullName());
 
     notificationDispatcher.sendNotificationAsync(
-        NotificationPolicy.EMAIL, EmailRequest.html(application.getEmail(), body, subject).build());
+        EmailRequest.html(application.getEmail(), body, subject).build());
 
     log.debug(
         "Notification dispatched for applicationId={} to={}",

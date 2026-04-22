@@ -25,9 +25,9 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
-@Slf4j
 public class ContractRepositoryAdapter implements ContractRepository {
   private final MongoTemplate mongoTemplate;
   private final ContractEntityMapper mapper;
