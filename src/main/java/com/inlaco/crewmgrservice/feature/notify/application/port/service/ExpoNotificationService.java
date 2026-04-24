@@ -35,6 +35,18 @@ public class ExpoNotificationService
     private Map<String, Object> data;
   }
 
+  @Getter
+  static class ExpoPushResponse {
+    private List<ExpoPushTicket> data;
+  }
+
+  @Getter
+  static class ExpoPushTicket {
+    private String status;
+    private String id;
+    private String message;
+  }
+
   @Override
   public Object sendNotification(ExpoNotificationRequest request) {
 
@@ -70,7 +82,7 @@ public class ExpoNotificationService
     try {
       log.info("Sending request to Expo: {}", EXPO_PUSH_URL);
 
-      var response = restTemplate.postForEntity(EXPO_PUSH_URL, entity, String.class);
+      var response = restTemplate.postForEntity(EXPO_PUSH_URL, entity, ExpoPushResponse.class);
 
       log.info("Expo response status: {}", response.getStatusCode());
       log.info("Expo response body: {}", response.getBody());

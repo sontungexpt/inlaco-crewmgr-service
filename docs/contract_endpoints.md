@@ -14,16 +14,16 @@ This document provides an overview of all the available API endpoints for managi
 - **Request Body**:
   ```json
   {
-    "field1": "value1",
-    "field2": "value2"
+  	"field1": "value1",
+  	"field2": "value2"
   }
   ```
 - **Response**:
   ```json
   {
-    "id": "string",
-    "field1": "value1",
-    "field2": "value2"
+  	"id": "string",
+  	"field1": "value1",
+  	"field2": "value2"
   }
   ```
 - **Usage**:
@@ -56,9 +56,9 @@ This document provides an overview of all the available API endpoints for managi
 - **Response**:
   ```json
   {
-    "id": "string",
-    "field1": "value1",
-    "field2": "value2"
+  	"id": "string",
+  	"field1": "value1",
+  	"field2": "value2"
   }
   ```
 - **Usage**:
@@ -76,12 +76,12 @@ This document provides an overview of all the available API endpoints for managi
 - **Response**:
   ```json
   [
-    {
-      "id": "string",
-      "version": "integer",
-      "field1": "value1",
-      "field2": "value2"
-    }
+  	{
+  		"id": "string",
+  		"version": "integer",
+  		"field1": "value1",
+  		"field2": "value2"
+  	}
   ]
   ```
 - **Usage**:
@@ -99,10 +99,10 @@ This document provides an overview of all the available API endpoints for managi
 - **Response**:
   ```json
   {
-    "id": "string",
-    "applicationId": "string",
-    "field1": "value1",
-    "field2": "value2"
+  	"id": "string",
+  	"applicationId": "string",
+  	"field1": "value1",
+  	"field2": "value2"
   }
   ```
 - **Usage**:
@@ -125,15 +125,15 @@ This document provides an overview of all the available API endpoints for managi
 - **Response**:
   ```json
   {
-    "content": [
-      {
-        "id": "string",
-        "field1": "value1",
-        "field2": "value2"
-      }
-    ],
-    "totalPages": "integer",
-    "totalElements": "integer"
+  	"content": [
+  		{
+  			"id": "string",
+  			"field1": "value1",
+  			"field2": "value2"
+  		}
+  	],
+  	"totalPages": "integer",
+  	"totalElements": "integer"
   }
   ```
 - **Usage**:
@@ -141,5 +141,27 @@ This document provides an overview of all the available API endpoints for managi
 
 ---
 
-This document will be updated as new endpoints are added to the Contract module.
+## **7. Get My Contracts**
 
+- **URL**: `/api/v1/contracts/me`
+- **Method**: `GET`
+- **Description**: Retrieves a paginated list of contracts belonging to the currently logged-in sailor.
+- **Headers**:
+  - `Authorization`: Bearer `<accessToken>`
+- **Query Parameters**:
+  - `page` (optional): Page number (default: 0).
+  - `size` (optional): Page size (default: 20).
+- **Response**:
+  ```json
+  {
+    "content": [ ... ],
+    "totalPages": "integer",
+    "totalElements": "integer"
+  }
+  ```
+- **Usage**:
+  Send a `GET` request to retrieve the contracts for the authenticated user.
+
+---
+
+This document will be updated as new endpoints are added to the Contract module.

@@ -7,6 +7,7 @@ import com.inlaco.crewmgrservice.feature.notify.infrastructure.persistence.mongo
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.bson.types.ObjectId;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -34,7 +35,9 @@ public class DeviceTokenRepositoryAdapter implements DeviceTokenRepostiory {
 
   @Override
   public List<DeviceToken> findByUserId(String userId) {
-    return repository.findByUserId(userId).stream().map(mapper::toDeviceToken).toList();
+    return repository.findByUserId(new ObjectId(userId)).stream()
+        .map(mapper::toDeviceToken)
+        .toList();
   }
 
   @Override
