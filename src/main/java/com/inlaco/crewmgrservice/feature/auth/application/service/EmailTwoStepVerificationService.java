@@ -60,21 +60,25 @@ public class EmailTwoStepVerificationService implements TwoStepVerificationServi
 
   @Override
   public void resend(User user) {
-    EmailVerificationToken token =
-        emailVerificationTokenRepository
-            .findByUserId(user.getId())
-            .orElseThrow(() -> new TwoStepVerificationException("No active token"));
+    emailVerificationTokenRepository
+        .findByUserId(user.getId())
+        .ifPresentOrElse(
+            token -> {
+              if (!token.canResend()) {
+                throw new TwoStepVerificationException(
+                    "Please wait before resending verification email");
+              }
 
-    if (!token.canResend()) {
-      throw new TwoStepVerificationException("Please wait before resending verification email");
-    }
+              TokenPair pair = generateTokenPair();
 
-    TokenPair pair = generateTokenPair();
-
-    token.refresh(pair.hash()); // reset hash + TTL + resend time
-    emailVerificationTokenRepository.save(token);
-    sendEmail(user, pair.raw());
-    log.info("Email verification token resent to user {}", user.getUsername());
+              token.refresh(pair.hash()); // reset hash + TTL + resend time
+              emailVerificationTokenRepository.save(token);
+              sendEmail(user, pair.raw());
+              log.info("Email verification token resent to user {}", user.getUsername());
+            },
+            () -> {
+              send(user);
+            });
   }
 
   @Override

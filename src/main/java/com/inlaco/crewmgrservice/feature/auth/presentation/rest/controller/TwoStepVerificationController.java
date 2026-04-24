@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -38,17 +37,9 @@ public class TwoStepVerificationController {
   @GetMapping("")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void verifyTwoStepVerification(
-      HttpServletResponse response,
-      @RequestParam("token") String token,
-      @RequestHeader(value = "User-Agent", required = false) String userAgent)
-      throws IOException {
+      HttpServletResponse response, @RequestParam("token") String token) throws IOException {
     twoStepVerificationUseCase.verify(token);
     response.sendRedirect(LOGIN_CLIENT_URL);
-    if (userAgent != null && userAgent.contains("Mobile")) {
-      response.sendRedirect("myapp://verify-success");
-    } else {
-      response.sendRedirect(LOGIN_CLIENT_URL);
-    }
   }
 
   @Operation(summary = "Resend the two step verification")
