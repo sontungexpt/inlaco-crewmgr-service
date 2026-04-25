@@ -6,7 +6,9 @@ import com.inlaco.crewmgrservice.feature.contract.application.port.in.LaborContr
 import com.inlaco.crewmgrservice.feature.contract.domain.model.Contract;
 import com.inlaco.crewmgrservice.feature.contract.presentation.dto.response.ContractResponse;
 import com.inlaco.crewmgrservice.feature.contract.presentation.mapper.ContractMapper;
+import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import com.inlaco.crewmgrservice.infrastructure.config.openapi.OpenApiConfig;
+import com.inlaco.crewmgrservice.infrastructure.web.annotation.CurrentUser;
 import com.inlaco.crewmgrservice.infrastructure.web.annotation.Filter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -37,12 +39,16 @@ public class ContractQueryController {
       summary = "Get contract detail",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   @GetMapping("/{id}")
-  @RolesAllowed("ADMIN")
   public ContractResponse getContract(
-      @PathVariable String id, @RequestParam(required = false) Integer version) {
-    return contractMapper.toContractResponse(contractQueryUseCase.getContract(id, version));
+      @PathVariable String id,
+      @RequestParam(required = false) Integer version,
+      @CurrentUser User user) {
+    return contractMapper.toContractResponse(contractQueryUseCase.getContract(id, version, user));
   }
 
+  @Operation(
+      summary = "Get old contract versions",
+      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   @GetMapping("/{id}/old-versions")
   public List<Contract> getOldContractVersions(@PathVariable String id) {
     return contractQueryUseCase.getOldContractVersions(id);
@@ -69,6 +75,19 @@ public class ContractQueryController {
 
     return contractQueryUseCase
         .getContracts(criteria, pageable)
+        .map(contractMapper::toContractResponse);
+  }
+
+  @Operation(
+      summary = "Get all my contracts",
+      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
+  @GetMapping("/me")
+  public Page<ContractResponse> getMyContracts(
+      @Filter ContractSearchCriteria criteria,
+      @CurrentUser User user,
+      @PageableDefault(page = 0, size = 20) Pageable pageable) {
+    return contractQueryUseCase
+        .getContractsByUser(criteria, user, pageable)
         .map(contractMapper::toContractResponse);
   }
 }

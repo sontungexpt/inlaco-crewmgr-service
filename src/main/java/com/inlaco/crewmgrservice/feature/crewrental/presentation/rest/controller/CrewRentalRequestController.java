@@ -39,13 +39,14 @@ public class CrewRentalRequestController {
   @PostMapping("")
   @RolesAllowed("USER")
   public CrewRentalRequestResponse createRequest(
-      @Valid @RequestBody NewCrewRentalRequest newRequest) {
+      @Valid @RequestBody NewCrewRentalRequest newRequest, @CurrentUser User user) {
 
     return crewRentalRequestMapper.toCrewRentalRequestResponse(
         crewRentalRequestCommandUseCase.create(
             crewRentalRequestMapper.toCrewRentalRequest(newRequest),
             newRequest.getDetailFile(),
-            newRequest.getShipInfo().image()));
+            newRequest.getShipInfo().image(),
+            user));
   }
 
   @Operation(
