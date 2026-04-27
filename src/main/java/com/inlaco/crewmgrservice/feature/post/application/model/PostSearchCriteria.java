@@ -7,6 +7,7 @@ import lombok.Getter;
 @Data
 @Getter
 public class PostSearchCriteria {
+  private String keyword;
 
   private PostType type;
 }
