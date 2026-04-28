@@ -1,7 +1,6 @@
-package com.inlaco.crewmgrservice.feature.notify.application.port.service;
+package com.inlaco.crewmgrservice.feature.notify.sender.email;
 
-import com.inlaco.crewmgrservice.feature.notify.domain.enums.EmailType;
-import com.inlaco.crewmgrservice.feature.notify.domain.model.EmailRequest;
+import com.inlaco.crewmgrservice.feature.notify.sender.NotificationSender;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +14,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class EmailNotificationService implements NotificationService<EmailRequest, Void> {
+public class EmailNotificationSender implements NotificationSender<EmailRequest, Void> {
 
   private final MailProperties mailProperties;
   private final JavaMailSender mailSender;

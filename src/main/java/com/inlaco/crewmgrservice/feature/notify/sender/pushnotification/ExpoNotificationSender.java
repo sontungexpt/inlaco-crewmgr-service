@@ -1,6 +1,6 @@
-package com.inlaco.crewmgrservice.feature.notify.application.port.service;
+package com.inlaco.crewmgrservice.feature.notify.sender.pushnotification;
 
-import com.inlaco.crewmgrservice.feature.notify.domain.model.ExpoNotificationRequest;
+import com.inlaco.crewmgrservice.feature.notify.sender.NotificationSender;
 import java.util.List;
 import java.util.Map;
 import lombok.Builder;
@@ -14,8 +14,7 @@ import org.springframework.web.client.RestTemplate;
 
 @Slf4j
 @Service
-public class ExpoNotificationService
-    implements NotificationService<ExpoNotificationRequest, Object> {
+public class ExpoNotificationSender implements NotificationSender<ExpoNotificationRequest, Object> {
 
   private static final String EXPO_PUSH_URL = "https://exp.host/--/api/v2/push/send";
 

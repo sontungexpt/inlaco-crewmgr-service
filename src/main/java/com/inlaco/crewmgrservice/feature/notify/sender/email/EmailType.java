@@ -1,4 +1,4 @@
-package com.inlaco.crewmgrservice.feature.notify.domain.enums;
+package com.inlaco.crewmgrservice.feature.notify.sender.email;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

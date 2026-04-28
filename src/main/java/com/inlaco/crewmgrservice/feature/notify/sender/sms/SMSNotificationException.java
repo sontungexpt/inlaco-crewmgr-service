@@ -1,4 +1,4 @@
-package com.inlaco.crewmgrservice.feature.notify.domain.error;
+package com.inlaco.crewmgrservice.feature.notify.sender.sms;
 
 import lombok.Getter;
 

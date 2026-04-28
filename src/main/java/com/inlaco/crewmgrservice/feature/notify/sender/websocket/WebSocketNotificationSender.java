@@ -1,7 +1,6 @@
-package com.inlaco.crewmgrservice.feature.notify.application.port.service;
+package com.inlaco.crewmgrservice.feature.notify.sender.websocket;
 
-import com.inlaco.crewmgrservice.feature.notify.domain.model.WebSocketNotificationPayload;
-import com.inlaco.crewmgrservice.feature.notify.domain.model.WebSocketNotificationRequest;
+import com.inlaco.crewmgrservice.feature.notify.sender.NotificationSender;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -10,8 +9,8 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class WebSocketNotificationService
-    implements NotificationService<WebSocketNotificationRequest, Object> {
+public class WebSocketNotificationSender
+    implements NotificationSender<WebSocketNotificationRequest, Object> {
 
   private final SimpMessagingTemplate messagingTemplate;
 

@@ -1,5 +1,6 @@
-package com.inlaco.crewmgrservice.feature.notify.domain.model;
+package com.inlaco.crewmgrservice.feature.notify.sender.pushnotification;
 
+import com.inlaco.crewmgrservice.feature.notify.sender.NotificationRequest;
 import java.util.List;
 import java.util.Map;
 import lombok.Getter;

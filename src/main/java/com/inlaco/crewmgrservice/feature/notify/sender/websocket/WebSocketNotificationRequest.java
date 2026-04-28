@@ -1,5 +1,6 @@
-package com.inlaco.crewmgrservice.feature.notify.domain.model;
+package com.inlaco.crewmgrservice.feature.notify.sender.websocket;
 
+import com.inlaco.crewmgrservice.feature.notify.sender.NotificationRequest;
 import java.util.List;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;

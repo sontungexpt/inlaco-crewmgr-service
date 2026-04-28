@@ -1,4 +1,4 @@
-package com.inlaco.crewmgrservice.feature.notify.domain.model;
+package com.inlaco.crewmgrservice.feature.notify.sender.websocket;
 
 public interface WebSocketNotificationPayload {
   String getMessage();

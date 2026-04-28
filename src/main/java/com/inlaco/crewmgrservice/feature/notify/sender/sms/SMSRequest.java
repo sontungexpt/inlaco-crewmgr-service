@@ -1,5 +1,6 @@
-package com.inlaco.crewmgrservice.feature.notify.domain.model;
+package com.inlaco.crewmgrservice.feature.notify.sender.sms;
 
+import com.inlaco.crewmgrservice.feature.notify.sender.NotificationRequest;
 import lombok.Getter;
 
 @Getter

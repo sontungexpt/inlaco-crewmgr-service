@@ -1,6 +1,5 @@
-package com.inlaco.crewmgrservice.feature.notify.application.port.service;
+package com.inlaco.crewmgrservice.feature.notify.sender;
 
-import com.inlaco.crewmgrservice.feature.notify.domain.model.NotificationRequest;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import lombok.extern.slf4j.Slf4j;
@@ -10,14 +9,14 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class NotificationDispatcher {
 
-  private final List<NotificationService<?, ?>> services;
+  private final List<NotificationSender<?, ?>> services;
 
-  public NotificationDispatcher(List<NotificationService<?, ?>> services) {
+  public NotificationDispatcher(List<NotificationSender<?, ?>> services) {
     this.services = services;
   }
 
-  private <RQ extends NotificationRequest, RS> NotificationService<RQ, RS> getService(RQ request) {
-    NotificationService<?, ?> service =
+  private <RQ extends NotificationRequest, RS> NotificationSender<RQ, RS> getService(RQ request) {
+    NotificationSender<?, ?> service =
         services.stream()
             .filter(s -> s.supports(request))
             .findFirst()
@@ -28,12 +27,12 @@ public class NotificationDispatcher {
 
     log.debug("Resolved service: {}", service.getClass().getSimpleName());
 
-    return (NotificationService<RQ, RS>) service;
+    return (NotificationSender<RQ, RS>) service;
   }
 
   public <RQ extends NotificationRequest, RS> RS sendNotification(RQ request) {
 
-    NotificationService<RQ, RS> service = getService(request);
+    NotificationSender<RQ, RS> service = getService(request);
     RS result = service.sendNotification(request);
     log.info("Notification sent: {}", request.getClass().getSimpleName());
     return result;
@@ -41,7 +40,7 @@ public class NotificationDispatcher {
 
   public <RQ extends NotificationRequest, RS> CompletableFuture<RS> sendNotificationAsync(
       RQ request) {
-    NotificationService<RQ, RS> service = getService(request);
+    NotificationSender<RQ, RS> service = getService(request);
     log.info("Async notification triggered: {}", request.getClass().getSimpleName());
     return service.sendNotificationAsync(request);
   }

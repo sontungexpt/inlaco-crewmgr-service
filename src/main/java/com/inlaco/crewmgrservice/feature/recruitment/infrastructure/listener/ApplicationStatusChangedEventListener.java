@@ -1,7 +1,7 @@
 package com.inlaco.crewmgrservice.feature.recruitment.infrastructure.listener;
 
-import com.inlaco.crewmgrservice.feature.notify.application.port.service.NotificationDispatcher;
-import com.inlaco.crewmgrservice.feature.notify.domain.model.EmailRequest;
+import com.inlaco.crewmgrservice.feature.notify.sender.NotificationDispatcher;
+import com.inlaco.crewmgrservice.feature.notify.sender.email.EmailRequest;
 import com.inlaco.crewmgrservice.feature.recruitment.domain.enums.ApplicationStatus;
 import com.inlaco.crewmgrservice.feature.recruitment.domain.event.ApplicationStatusChangedEvent;
 import com.inlaco.crewmgrservice.feature.recruitment.domain.model.JobApplication;
