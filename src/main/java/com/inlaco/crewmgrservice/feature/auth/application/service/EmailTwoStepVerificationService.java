@@ -7,8 +7,8 @@ import com.inlaco.crewmgrservice.feature.auth.application.port.in.TwoStepVerific
 import com.inlaco.crewmgrservice.feature.auth.application.port.out.EmailVerificationTokenRepository;
 import com.inlaco.crewmgrservice.feature.auth.domain.exception.TwoStepVerificationException;
 import com.inlaco.crewmgrservice.feature.auth.domain.model.EmailVerificationToken;
-import com.inlaco.crewmgrservice.feature.notify.application.port.service.NotificationDispatcher;
-import com.inlaco.crewmgrservice.feature.notify.domain.model.EmailRequest;
+import com.inlaco.crewmgrservice.feature.notify.sender.NotificationDispatcher;
+import com.inlaco.crewmgrservice.feature.notify.sender.email.EmailRequest;
 import com.inlaco.crewmgrservice.feature.user.application.port.in.UserUseCase;
 import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import com.inlaco.crewmgrservice.shared.crypto.DigestUtils;

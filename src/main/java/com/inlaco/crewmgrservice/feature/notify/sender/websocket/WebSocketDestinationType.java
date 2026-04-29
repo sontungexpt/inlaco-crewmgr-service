@@ -1,4 +1,4 @@
-package com.inlaco.crewmgrservice.feature.notify.domain.enums;
+package com.inlaco.crewmgrservice.feature.notify.sender.websocket;
 
 public enum WebSocketDestinationType {
   QUEUE, // queue

@@ -1,6 +1,6 @@
-package com.inlaco.crewmgrservice.feature.notify.domain.model;
+package com.inlaco.crewmgrservice.feature.notify.sender.email;
 
-import com.inlaco.crewmgrservice.feature.notify.domain.enums.EmailType;
+import com.inlaco.crewmgrservice.feature.notify.sender.NotificationRequest;
 import java.util.Collections;
 import java.util.List;
 import lombok.Builder.Default;

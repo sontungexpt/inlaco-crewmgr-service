@@ -1,26 +1,46 @@
 package com.inlaco.crewmgrservice.feature.notify.application.port.service;
 
-import com.inlaco.crewmgrservice.feature.notify.domain.model.NotificationRequest;
-import java.util.concurrent.CompletableFuture;
+import com.inlaco.crewmgrservice.feature.notify.application.port.in.NotificationUseCase;
+import com.inlaco.crewmgrservice.feature.notify.application.port.out.NotificationRepository;
+import com.inlaco.crewmgrservice.feature.notify.domain.model.Notification;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
-public interface NotificationService<RQ extends NotificationRequest, RS> {
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class NotificationService implements NotificationUseCase {
 
-  Class<RQ> getRequestType();
+  private final NotificationRepository repository;
 
-  default boolean supports(NotificationRequest request) {
-    return getRequestType().isAssignableFrom(request.getClass());
+  @Override
+  public void createBulk(
+      List<String> recipientIds, String title, String message, String type, String referenceId) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'createBulk'");
   }
 
-  RS sendNotification(RQ request);
+  @Override
+  public Page<Notification> getUserNotifications(String userId, Pageable pageable) {
+    return repository.findByRecipientId(userId, pageable);
+  }
 
-  default CompletableFuture<RS> sendNotificationAsync(RQ request) {
-    return CompletableFuture.supplyAsync(
-        () -> {
-          try {
-            return sendNotification(request);
-          } catch (Exception e) {
-            throw new RuntimeException(e);
-          }
-        });
+  @Override
+  public long countUnread(String userId) {
+    return repository.countUnread(userId);
+  }
+
+  @Override
+  public void markAsRead(String userId, String notificationId) {
+    repository.markAsRead(notificationId, userId);
+  }
+
+  @Override
+  public void markAllAsRead(String userId) {
+    repository.markAllAsRead(userId);
   }
 }
