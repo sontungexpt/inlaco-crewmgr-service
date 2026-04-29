@@ -5,6 +5,7 @@ import com.inlaco.crewmgrservice.feature.notify.application.port.in.Notification
 import com.inlaco.crewmgrservice.feature.notify.domain.model.Notification;
 import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import com.inlaco.crewmgrservice.infrastructure.web.annotation.CurrentUser;
+import com.inlaco.crewmgrservice.infrastructure.web.validation.annotation.ObjectId;
 import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -59,7 +59,8 @@ public class NotificationController {
   @GetMapping("/{id}")
   @RolesAllowed("USER")
   @ResponseStatus(HttpStatus.OK)
-  public Notification getNotification(@RequestParam String id, @CurrentUser User user) {
+  public Notification getNotification(
+      @PathVariable("id") @ObjectId String id, @CurrentUser User user) {
     return notificationUseCase.getNotification(id, user.getId());
   }
 }
