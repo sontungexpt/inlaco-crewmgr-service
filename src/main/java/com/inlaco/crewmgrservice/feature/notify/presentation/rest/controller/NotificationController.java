@@ -13,7 +13,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -42,7 +41,7 @@ public class NotificationController {
     notificationCommandUseCase.markAllAsRead(user.getId());
   }
 
-  @PostMapping("/unread-count")
+  @GetMapping("/unread-count")
   @RolesAllowed("USER")
   @ResponseStatus(HttpStatus.OK)
   public long countUnread(@CurrentUser User user) {
