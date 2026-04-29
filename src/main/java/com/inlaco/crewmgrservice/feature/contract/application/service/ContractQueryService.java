@@ -35,18 +35,17 @@ public class ContractQueryService implements ContractQueryUseCase {
           contractRepository
               .findById(id)
               .orElseThrow(() -> new ResourceNotFoundException(Contract.class, "id", id));
+    } else {
+      contract =
+          contractSnapshotRepository
+              .findByContractIdAndVersion(id, version)
+              .orElseGet(
+                  () ->
+                      contractRepository
+                          .findById(id)
+                          .orElseThrow(
+                              () -> new ResourceNotFoundException(Contract.class, "id", id)));
     }
-
-    contract =
-        contractSnapshotRepository
-            .findByContractIdAndVersion(id, version)
-            .orElseGet(
-                () ->
-                    contractRepository
-                        .findById(id)
-                        .orElseThrow(
-                            () -> new ResourceNotFoundException(Contract.class, "id", id)));
-
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     if (auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
       return contract;
