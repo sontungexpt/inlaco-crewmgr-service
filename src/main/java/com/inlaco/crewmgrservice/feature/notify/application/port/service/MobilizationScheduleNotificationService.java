@@ -1,37 +1,41 @@
-package com.inlaco.crewmgrservice.feature.schedule.infrastructure.listener;
+package com.inlaco.crewmgrservice.feature.notify.application.port.service;
 
 import com.inlaco.crewmgrservice.feature.crew.application.port.out.CrewProfileRepository;
 import com.inlaco.crewmgrservice.feature.crew.domain.model.CrewProfile;
+import com.inlaco.crewmgrservice.feature.notify.application.port.in.MobilizationScheduleNotificationUseCase;
 import com.inlaco.crewmgrservice.feature.notify.application.port.out.DeviceTokenRepostiory;
+import com.inlaco.crewmgrservice.feature.notify.application.port.out.NotificationRepository;
 import com.inlaco.crewmgrservice.feature.notify.domain.enums.DeviceType;
+import com.inlaco.crewmgrservice.feature.notify.domain.enums.NotificationType;
 import com.inlaco.crewmgrservice.feature.notify.domain.model.DeviceToken;
+import com.inlaco.crewmgrservice.feature.notify.domain.model.Notification;
+import com.inlaco.crewmgrservice.feature.notify.domain.objectvalue.NewMobilizationScheduleNotificationPayload;
 import com.inlaco.crewmgrservice.feature.notify.sender.NotificationDispatcher;
 import com.inlaco.crewmgrservice.feature.notify.sender.email.EmailRequest;
 import com.inlaco.crewmgrservice.feature.notify.sender.pushnotification.ExpoNotificationRequest;
 import com.inlaco.crewmgrservice.feature.notify.sender.websocket.WebSocketNotificationPayload;
 import com.inlaco.crewmgrservice.feature.notify.sender.websocket.WebSocketNotificationRequest;
-import com.inlaco.crewmgrservice.feature.schedule.domain.event.NewCrewMobilizationScheduleEvent;
 import com.inlaco.crewmgrservice.feature.schedule.domain.model.CrewMobilizationSchedule;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
+import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
-@Component
-@Slf4j
+@Service
 @RequiredArgsConstructor
-public class NewCrewMobilizationScheduleEventListener {
+@Slf4j
+public class MobilizationScheduleNotificationService
+    implements MobilizationScheduleNotificationUseCase {
 
   private final CrewProfileRepository crewProfileRepository;
   private final DeviceTokenRepostiory deviceTokenRepostiory;
   private final NotificationDispatcher notificationDispatcher;
   private final SpringTemplateEngine templateEngine;
+  private final NotificationRepository notificationRepository;
 
   @Value("${inlaco.client.base-url}")
   private String CLIENT_HOME_PAGE_LINK;
@@ -42,16 +46,14 @@ public class NewCrewMobilizationScheduleEventListener {
   @Value("${inlaco.template.email.sailor-schedule.subject}")
   private String EMAIL_SUBJECT;
 
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-  public void handleNewAssignmentScheduleEvent(NewCrewMobilizationScheduleEvent event) {
-    var schedule = event.schedule();
-    // Use debug here because schedule events can be frequent; higher-level info is logged when
-    // notifications are actually queued.
-    log.debug("Handling schedule notification [id={}]", schedule.getId());
-    notifySailorSchedule(schedule);
-  }
+  private static String TITLE = "Lịch điều động";
 
-  private void notifySailorSchedule(CrewMobilizationSchedule schedule) {
+  private static String MESSAGE = "Bạn có lịch điều động mới. Vui lồng kiểm tra lịch điều động";
+
+  @Override
+  public void notifyUsers(CrewMobilizationSchedule schedule) {
+    log.debug("Handling schedule notification [id={}]", schedule.getId());
+
     if (schedule.getCrews() == null || schedule.getCrews().isEmpty()) {
       log.warn("Schedule {} has no crew members to notify", schedule.getId());
       return;
@@ -65,17 +67,32 @@ public class NewCrewMobilizationScheduleEventListener {
       return;
     }
 
-    // Higher-level informational log indicating how many profiles will be processed for this
-    // schedule.
     log.info(
         "Found {} sailor profile(s) to notify for schedule {}", profiles.size(), schedule.getId());
 
-    profiles.forEach(profile -> sendScheduleEmail(profile, schedule));
+    List<Notification> notifications =
+        profiles.stream()
+            .map(
+                profile ->
+                    Notification.builder()
+                        .title(TITLE)
+                        .recipientId(profile.getAccountId())
+                        .message(MESSAGE)
+                        .type(NotificationType.NEW_MOBILIZATION_SCHEDULE)
+                        .payload(new NewMobilizationScheduleNotificationPayload(schedule.getId()))
+                        .build())
+            .toList();
+
+    notificationRepository.saveAll(notifications);
+
+    sendEmail(profiles, schedule);
 
     sendWebSocketNotification(profiles, schedule.getId());
+
+    sendPushNotification(profiles, schedule.getId());
   }
 
-  record CrewMobilizationNotificationPayload(String message, String scheduleId)
+  record CrewMobilizationNotificationPayload(String title, String message, String scheduleId)
       implements WebSocketNotificationPayload {
     @Override
     public String getMessage() {
@@ -94,12 +111,9 @@ public class NewCrewMobilizationScheduleEventListener {
                   return id;
                 })
             .toList();
-    var payload = new CrewMobilizationNotificationPayload("Bạn có lịch điều động mới", scheduleId);
+    var payload = new CrewMobilizationNotificationPayload(TITLE, MESSAGE, scheduleId);
     notificationDispatcher.sendNotificationAsync(
         new WebSocketNotificationRequest(recipientIds, "/queue/notifications", payload));
-
-    // Send push notifications via Expo to registered device tokens
-    sendPushNotification(profiles, scheduleId);
   }
 
   private void sendPushNotification(List<CrewProfile> profiles, String scheduleId) {
@@ -128,34 +142,37 @@ public class NewCrewMobilizationScheduleEventListener {
     var request =
         ExpoNotificationRequest.builder()
             .recipients(expoTokens)
-            .title("Lịch điều động mới")
-            .message("Bạn có lịch điều động mới")
+            .title(TITLE)
+            .message(MESSAGE)
             .data(Map.of("scheduleId", scheduleId))
             .build();
+
     notificationDispatcher.sendNotificationAsync(request);
     log.info("Expo push notification dispatched to {} tokens", tokens.size());
   }
 
-  private void sendScheduleEmail(CrewProfile profile, CrewMobilizationSchedule schedule) {
-    if (profile.getEmail() == null || profile.getEmail().isBlank()) {
-      log.warn("Skip notifying sailor {} due to missing email", profile.getId());
-      return;
-    }
+  private void sendEmail(List<CrewProfile> profiles, CrewMobilizationSchedule schedule) {
+    profiles.forEach(
+        profile -> {
+          if (profile.getEmail() == null || profile.getEmail().isBlank()) {
+            log.warn("Skip notifying sailor {} due to missing email", profile.getId());
+            return;
+          }
 
-    // Keep per-email send at debug to avoid noisy info logs; overall count is logged above at info
-    // level.
-    log.debug(
-        "Sending schedule notification email to sailor [id={}, email={}, scheduleId={}]",
-        profile.getId(),
-        profile.getEmail(),
-        schedule.getId());
+          log.debug(
+              "Sending schedule notification email to sailor [id={}, email={}, scheduleId={}]",
+              profile.getId(),
+              profile.getEmail(),
+              schedule.getId());
 
-    notificationDispatcher.sendNotificationAsync(
-        EmailRequest.html(profile.getEmail(), buildBodyContent(profile, schedule), EMAIL_SUBJECT)
-            .build());
+          notificationDispatcher.sendNotificationAsync(
+              EmailRequest.html(
+                      profile.getEmail(), buildEmailContent(profile, schedule), EMAIL_SUBJECT)
+                  .build());
+        });
   }
 
-  private String buildBodyContent(CrewProfile profile, CrewMobilizationSchedule schedule) {
+  private String buildEmailContent(CrewProfile profile, CrewMobilizationSchedule schedule) {
     var context = new Context();
     context.setVariable("recipient_name", profile.getFullName());
     context.setVariable("company_name", "INLACO");
