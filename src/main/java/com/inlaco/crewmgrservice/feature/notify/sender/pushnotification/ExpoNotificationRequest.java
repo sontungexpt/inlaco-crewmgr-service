@@ -12,7 +12,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class ExpoNotificationRequest implements NotificationRequest {
 
-  private List<String> recipients;
+  private List<String> recipientTokens;
 
   private String title;
   private String message;
@@ -22,7 +22,7 @@ public class ExpoNotificationRequest implements NotificationRequest {
   public ExpoNotificationRequest(
       List<String> recipients, String title, String message, Map<String, Object> data) {
 
-    this.recipients = recipients;
+    this.recipientTokens = recipients;
     this.title = title;
     this.message = message;
     this.data = data;

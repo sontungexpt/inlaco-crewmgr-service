@@ -1,11 +1,11 @@
 package com.inlaco.crewmgrservice.infrastructure.security.config;
 
 import com.inlaco.crewmgrservice.infrastructure.security.jwt.filter.JwtAuthenticationFilter;
-import com.inlaco.crewmgrservice.shared.constant.WebSocketContants;
-import java.util.Arrays;
+import com.inlaco.crewmgrservice.infrastructure.websocket.config.WebSocketProperties;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -33,22 +33,14 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableWebSecurity
 @EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
 @RequiredArgsConstructor
+@EnableConfigurationProperties(SecurityProperties.class)
 public class SecurityConfig {
 
-  private static final String[] ALLOWED_CORS_ORIGINS = {
-    "http://localhost:*", // Enable localhost
-    "http://192.168.*:*", // Enable local IP
-    "https://sontungexpt.github.io",
-    "https://inlaco-crewmgr-service-b7btdkgsdwafb2ht.eastasia-01.azurewebsites.net"
-  };
+  private final SecurityProperties securityProperties;
+  private final WebSocketProperties webSocketProperties;
 
   private final String[] SECURITY_WHITELIST_PATHS = {
-    WebSocketContants.ENDPOINT + "/**",
-    "/actuator/**",
-    "/swagger-ui/**",
-    "/v3/api-docs/**",
-    "/scalar/**",
-    "/webjars/**",
+    "/actuator/**", "/swagger-ui/**", "/v3/api-docs/**", "/scalar/**", "/webjars/**",
   };
 
   @Bean
@@ -108,6 +100,8 @@ public class SecurityConfig {
             auth ->
                 auth.requestMatchers(HttpMethod.OPTIONS, "/**")
                     .permitAll()
+                    .requestMatchers(webSocketProperties.getEndpoint() + "/**")
+                    .permitAll()
                     .requestMatchers(SECURITY_WHITELIST_PATHS)
                     .permitAll()
                     .anyRequest()
@@ -140,11 +134,7 @@ public class SecurityConfig {
   private CorsConfigurationSource corsApiConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
 
-    List<String> allowedOrigins = Arrays.asList(ALLOWED_CORS_ORIGINS);
-    configuration.setAllowedOriginPatterns(allowedOrigins);
-
-    log.info("Allowed CORS origins: {}", allowedOrigins);
-
+    configuration.setAllowedOriginPatterns(securityProperties.getAllowedCorsOrigins());
     configuration.setAllowCredentials(true);
     configuration.setMaxAge(3600L);
 

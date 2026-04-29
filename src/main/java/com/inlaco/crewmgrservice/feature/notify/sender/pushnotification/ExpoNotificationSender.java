@@ -51,13 +51,13 @@ public class ExpoNotificationSender implements NotificationSender<ExpoNotificati
 
     log.info("Sending Expo notification request: {}", request);
 
-    if (request.getRecipients() == null || request.getRecipients().isEmpty()) {
+    if (request.getRecipientTokens() == null || request.getRecipientTokens().isEmpty()) {
       log.warn("No recipients found");
       return null;
     }
 
     List<ExpoPushMessage> messages =
-        request.getRecipients().stream()
+        request.getRecipientTokens().stream()
             .map(
                 token -> {
                   log.debug("Preparing message for token: {}", token);

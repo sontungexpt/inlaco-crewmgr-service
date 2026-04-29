@@ -23,6 +23,13 @@ httpsms:
   sender: ${HTTPSMS_SENDER}
   api-secret: ${HTTPSMS_SECRET_KEY}
 
+security:
+  allowed-cors-origins: ${ALLOWED_CORS_ORIGINS}
+
+websocket:
+  endpoint: ${WEB_SOCKET_ENDPOINT:/ws}
+  allowed-origins: ${WEB_SOCKET_ALLOWED_ORIGINS:${security.allowed-cors-origins}}
+
 auth:
   access-token:
     secret-key: ${JWT_SECRET_KEY} # bắt buộc phải có

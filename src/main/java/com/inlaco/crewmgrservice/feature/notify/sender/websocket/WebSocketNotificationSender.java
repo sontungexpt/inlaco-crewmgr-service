@@ -22,7 +22,7 @@ public class WebSocketNotificationSender
   @Override
   public Object sendNotification(WebSocketNotificationRequest request) {
     String channel = request.getDestination();
-    WebSocketNotificationPayload payload = request.getPayload();
+    Object payload = request.getPayload();
 
     for (String recipient : request.getRecipients()) {
       log.info(

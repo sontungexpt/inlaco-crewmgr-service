@@ -1,10 +1,14 @@
 package com.inlaco.crewmgrservice.feature.notify.infrastructure.persistence.mongodb.mapper;
 
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
+
 import com.inlaco.crewmgrservice.feature.notify.application.port.out.NotificationRepository;
 import com.inlaco.crewmgrservice.feature.notify.domain.model.Notification;
 import com.inlaco.crewmgrservice.feature.notify.infrastructure.persistence.mongodb.adapter.NotificationEntityMapper;
 import com.inlaco.crewmgrservice.feature.notify.infrastructure.persistence.mongodb.entity.NotificationEntity;
 import com.inlaco.crewmgrservice.feature.notify.infrastructure.persistence.mongodb.repository.NotificationMongoRepository;
+import com.inlaco.crewmgrservice.infrastructure.persistence.mongodb.aggregation.FacetResult;
+import com.inlaco.crewmgrservice.infrastructure.persistence.support.PageableUtils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -17,9 +21,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.mongodb.core.BulkOperations;
 import org.springframework.data.mongodb.core.BulkOperations.BulkMode;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
@@ -34,6 +40,8 @@ public class NotificationRepositoryAdapter implements NotificationRepository {
   private final NotificationMongoRepository repository;
   private final NotificationEntityMapper mapper;
   private final MongoTemplate mongoTempalte;
+
+  static class NotificationFacetResult extends FacetResult<NotificationEntity> {}
 
   @Override
   public Notification save(Notification notification) {
@@ -91,8 +99,25 @@ public class NotificationRepositoryAdapter implements NotificationRepository {
 
   @Override
   public Page<Notification> findByRecipientId(String recipientId, Pageable pageable) {
-    return repository
-        .findByRecipientId(new ObjectId(recipientId), pageable)
+    pageable = PageableUtils.extendSort(pageable, Order.asc("read"), Order.desc("id"));
+
+    Criteria criteria = Criteria.where("recipientId").is(new ObjectId(recipientId));
+
+    Aggregation aggregation =
+        newAggregation(
+            match(criteria),
+            facet(Aggregation.count().as(FacetResult.COUNT_KEY))
+                .as(FacetResult.COUNT_FACET_NAME)
+                .and(
+                    sort(pageable.getSort()),
+                    skip(pageable.getOffset()),
+                    limit(pageable.getPageSize()))
+                .as(FacetResult.DATA_FACET_NAME));
+
+    return mongoTempalte
+        .aggregate(aggregation, NotificationEntity.class, NotificationFacetResult.class)
+        .getUniqueMappedResult()
+        .toPage(pageable)
         .map(mapper::toNotification);
   }
 

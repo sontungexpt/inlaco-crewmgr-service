@@ -87,7 +87,7 @@ public class MobilizationScheduleNotificationService
 
     sendEmail(profiles, schedule);
 
-    sendWebSocketNotification(profiles, schedule.getId());
+    sendWebSocketNotification(notifications, schedule.getId());
 
     sendPushNotification(profiles, schedule.getId());
   }
@@ -100,20 +100,15 @@ public class MobilizationScheduleNotificationService
     }
   }
 
-  private void sendWebSocketNotification(List<CrewProfile> profiles, String scheduleId) {
-    log.info("Sending schedule notification to {} sailor(s)", profiles.size());
-    List<String> recipientIds =
-        profiles.stream()
-            .map(
-                it -> {
-                  String id = it.getAccountId();
-                  log.debug("Sending schedule notification to sailor [id={}]", id);
-                  return id;
-                })
-            .toList();
-    var payload = new CrewMobilizationNotificationPayload(TITLE, MESSAGE, scheduleId);
-    notificationDispatcher.sendNotificationAsync(
-        new WebSocketNotificationRequest(recipientIds, "/queue/notifications", payload));
+  private void sendWebSocketNotification(List<Notification> notifications, String scheduleId) {
+    log.info("Sending websocket notification for schedule {}", scheduleId);
+
+    notifications.forEach(
+        notification -> {
+          notificationDispatcher.sendNotificationAsync(
+              new WebSocketNotificationRequest(
+                  notification.getRecipientId(), "/queue/notifications", notification));
+        });
   }
 
   private void sendPushNotification(List<CrewProfile> profiles, String scheduleId) {
@@ -141,7 +136,7 @@ public class MobilizationScheduleNotificationService
     }
     var request =
         ExpoNotificationRequest.builder()
-            .recipients(expoTokens)
+            .recipientTokens(expoTokens)
             .title(TITLE)
             .message(MESSAGE)
             .data(Map.of("scheduleId", scheduleId))
