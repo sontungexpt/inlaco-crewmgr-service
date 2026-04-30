@@ -47,6 +47,11 @@ public class CrewMobilizationScheduleRepositoryAdpater
     var query = new Criteria();
 
     if (criteria != null) {
+      if (criteria.getKeyword() != null && !criteria.getKeyword().isEmpty()) {
+        query.orOperator(
+            Criteria.where("partnerName").regex(criteria.getKeyword(), "i"),
+            Criteria.where("shipInfo.name").regex(criteria.getKeyword(), "i"));
+      }
       if (criteria.getStatus() != null) {
         query.and("status").is(criteria.getStatus());
       }
