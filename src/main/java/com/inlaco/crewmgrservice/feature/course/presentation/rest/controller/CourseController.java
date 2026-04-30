@@ -57,11 +57,25 @@ public class CourseController {
   }
 
   @Operation(
+      summary = "Get all courses in the system",
+      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
+  @GetMapping("/mine")
+  @PageableQueryParams
+  public Page<CourseResponse> getMyCourses(
+      @Filter CourseSearchCriteria criteria,
+      @CurrentUser User user,
+      @PageableDefault(page = 0, size = 20) Pageable pageable) {
+    if (criteria == null) criteria = new CourseSearchCriteria();
+    criteria.setAccountId(user.getId());
+    return courseUseCase.getCourses(criteria, pageable).map(courseMapper::toCourseResponse);
+  }
+
+  @Operation(
       summary = "Get a course detail",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   @GetMapping("/{id}")
   @RolesAllowed("SAILOR")
-  public UserCourseResponse getUserCourse(
+  public UserCourseResponse getCourseDetail(
       @CurrentUser User user, @ObjectId @PathVariable("id") String id) {
     return courseMapper.toUserCourseResponse(courseUseCase.getUserCourse(id, user));
   }

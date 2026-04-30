@@ -13,6 +13,7 @@ import com.inlaco.crewmgrservice.feature.course.infrastructure.persistence.mongo
 import com.inlaco.crewmgrservice.feature.course.infrastructure.persistence.mongodb.repository.CourseMongoRepository;
 import com.inlaco.crewmgrservice.infrastructure.persistence.mongodb.aggregation.FacetResult;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -59,24 +60,48 @@ public class CourseRepositoryAdapter implements CourseRepository {
 
   @Override
   public Page<Course> findAll(@Nullable CourseSearchCriteria criteria, Pageable pageable) {
-    var query = where("deletedAt").exists(false);
+    if (criteria != null && StringUtils.hasText(criteria.getAccountId())) {
+      return findAllEnrolledCourses(criteria, pageable);
+    }
+    return findAllCourses(criteria, pageable);
+  }
 
-    if (criteria != null) {
-      if (StringUtils.hasText(criteria.getKeyword())) {
-        query.orOperator(
-            where("name").regex(criteria.getKeyword(), "i"),
-            where("achievedPosition").regex(criteria.getKeyword(), "i"));
-      }
+  private Criteria buildCourseCriteria(CourseSearchCriteria criteria, String prefix) {
+    List<Criteria> ands = new ArrayList<>();
 
-      Instant now = Instant.now();
+    if (criteria == null) return new Criteria();
 
-      if (Boolean.TRUE.equals(criteria.getNonExpired())) {
-        query.and("endDate").gte(now);
-      }
+    String p = prefix == null ? "" : prefix;
 
-      if (Boolean.TRUE.equals(criteria.getRegistrationEnabled())) {
-        query.and("startRegistrationAt").lte(now).and("endRegistrationAt").gte(now);
-      }
+    if (StringUtils.hasText(criteria.getKeyword())) {
+      ands.add(
+          new Criteria()
+              .orOperator(
+                  Criteria.where(p + "name").regex(criteria.getKeyword(), "i"),
+                  Criteria.where(p + "achievedPosition").regex(criteria.getKeyword(), "i")));
+    }
+
+    Instant now = Instant.now();
+
+    if (Boolean.TRUE.equals(criteria.getNonExpired())) {
+      ands.add(Criteria.where(p + "endDate").gte(now));
+    }
+
+    if (Boolean.TRUE.equals(criteria.getRegistrationEnabled())) {
+      ands.add(
+          Criteria.where(p + "startRegistrationAt").lte(now).and(p + "endRegistrationAt").gte(now));
+    }
+
+    return ands.isEmpty() ? new Criteria() : new Criteria().andOperator(ands);
+  }
+
+  private Page<Course> findAllCourses(CourseSearchCriteria criteria, Pageable pageable) {
+    Criteria query = where("deletedAt").exists(false);
+
+    Criteria courseCriteria = buildCourseCriteria(criteria, "");
+
+    if (courseCriteria != null) {
+      query = new Criteria().andOperator(query, courseCriteria);
     }
 
     Aggregation aggregation =
@@ -95,6 +120,39 @@ public class CourseRepositoryAdapter implements CourseRepository {
         .getUniqueMappedResult()
         .toPage(pageable)
         .map(mapper::toCourse);
+  }
+
+  private Page<Course> findAllEnrolledCourses(CourseSearchCriteria criteria, Pageable pageable) {
+    ObjectId userId = new ObjectId(criteria.getAccountId());
+
+    Criteria userCriteria = Criteria.where("userId").is(userId);
+    Criteria courseCriteria = buildCourseCriteria(criteria, "course.");
+
+    Aggregation aggregation =
+        newAggregation(
+            match(userCriteria),
+            lookup(
+                mongoOperations.getCollectionName(CourseEntity.class), "courseId", "_id", "course"),
+            unwind("course"),
+            match(courseCriteria),
+            match(Criteria.where("course.deletedAt").exists(false)),
+            facet(Aggregation.count().as(FacetResult.COUNT_KEY))
+                .as(FacetResult.COUNT_FACET_NAME)
+                .and(
+                    replaceRoot("course"),
+                    sort(pageable.getSort()),
+                    skip(pageable.getOffset()),
+                    limit(pageable.getPageSize()))
+                .as(FacetResult.DATA_FACET_NAME));
+
+    var result =
+        mongoOperations
+            .aggregate(aggregation, CourseMemberEntity.class, CourseEntityFacetResult.class)
+            .getUniqueMappedResult();
+
+    if (result == null) return Page.empty(pageable);
+
+    return result.toPage(pageable).map(mapper::toCourse);
   }
 
   @Override
