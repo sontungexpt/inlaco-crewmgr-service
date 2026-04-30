@@ -99,7 +99,8 @@ public class NotificationRepositoryAdapter implements NotificationRepository {
 
   @Override
   public Page<Notification> findByRecipientId(String recipientId, Pageable pageable) {
-    pageable = PageableUtils.extendSort(pageable, Order.asc("read"), Order.desc("id"));
+    pageable = PageableUtils.prependSort(pageable, Order.asc("read"));
+    pageable = PageableUtils.enforceIdSort(pageable, NotificationEntity.class);
 
     Criteria criteria = Criteria.where("recipientId").is(new ObjectId(recipientId));
 
