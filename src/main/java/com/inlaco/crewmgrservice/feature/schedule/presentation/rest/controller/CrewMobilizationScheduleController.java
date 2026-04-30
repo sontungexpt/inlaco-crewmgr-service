@@ -9,6 +9,7 @@ import com.inlaco.crewmgrservice.feature.schedule.presentation.rest.mapper.CrewM
 import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import com.inlaco.crewmgrservice.infrastructure.config.openapi.OpenApiConfig;
 import com.inlaco.crewmgrservice.infrastructure.web.annotation.CurrentUser;
+import com.inlaco.crewmgrservice.infrastructure.web.annotation.Filter;
 import com.inlaco.crewmgrservice.infrastructure.web.annotation.PageableQueryParams;
 import com.inlaco.crewmgrservice.infrastructure.web.validation.annotation.ObjectId;
 import io.swagger.v3.oas.annotations.Operation;
@@ -63,7 +64,7 @@ public class CrewMobilizationScheduleController {
   @RolesAllowed("ADMIN")
   @PageableQueryParams
   public Page<CrewMobilizationScheduleResponse> getAllSchedules(
-      CrewMobilizationScheduleSearchCriteria criteria,
+      @Filter CrewMobilizationScheduleSearchCriteria criteria,
       @PageableDefault(page = 0, size = 20) Pageable pageable) {
     return crewMobilizationScheduleQueryUseCase
         .findSchedules(criteria, pageable)
@@ -91,7 +92,7 @@ public class CrewMobilizationScheduleController {
   @PageableQueryParams
   @GetMapping("/mine")
   public Page<CrewMobilizationScheduleResponse> getMySchedules(
-      CrewMobilizationScheduleSearchCriteria criteria,
+      @Filter CrewMobilizationScheduleSearchCriteria criteria,
       @CurrentUser User user,
       @PageableDefault(page = 0, size = 20) Pageable pageable) {
     if (criteria == null) {
