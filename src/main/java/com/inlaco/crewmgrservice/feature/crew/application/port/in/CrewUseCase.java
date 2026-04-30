@@ -15,7 +15,7 @@ public interface CrewUseCase {
 
   Page<CrewProfile> getProfiles(CrewProfileSearchCriteria criteria, Pageable pageable);
 
-  List<CrewProfile> getProfilesByCardIds(Iterable<String> cardIds);
+  List<CrewProfile> getProfilesByEmployeeCardIds(Iterable<String> cardIds);
 
   void applyLaborContract(ApplyLaborContractCommand command);
 

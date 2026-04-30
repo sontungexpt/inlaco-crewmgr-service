@@ -8,6 +8,10 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class AssignedCrew {
 
+  private String profileId;
+
+  private String accountId;
+
   private String employeeCardId;
 
   private String rankOnBoard;

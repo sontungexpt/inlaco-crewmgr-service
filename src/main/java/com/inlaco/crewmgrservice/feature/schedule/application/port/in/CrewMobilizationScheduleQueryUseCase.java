@@ -14,12 +14,4 @@ public interface CrewMobilizationScheduleQueryUseCase {
 
   Page<CrewMobilizationSchedule> findSchedules(
       CrewMobilizationScheduleSearchCriteria criteria, Pageable pageable);
-
-  // List<AssignedMobilization> findSchedules(ScheduleFilterable filterable);
-
-  // Page<SailorScheduleResponse> findPaginationSchedulesByCardId(
-  //     String cardId, ScheduleFilterable filterable, Pageable pageable);
-
-  // List<SailorScheduleResponse> findSchedulesByCardId(String cardId, ScheduleFilterable
-  // filterable);
 }

@@ -12,6 +12,7 @@ import com.inlaco.crewmgrservice.infrastructure.persistence.mongodb.aggregation.
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -56,6 +57,10 @@ public class CrewMobilizationScheduleRepositoryAdpater
 
       if (criteria.getEndDate() != null) {
         query.and("endDate").lte(criteria.getEndDate());
+      }
+
+      if (criteria.getAccountId() != null && !criteria.getAccountId().isEmpty()) {
+        query.and("crews.accountId").is(new ObjectId(criteria.getAccountId()));
       }
     }
 

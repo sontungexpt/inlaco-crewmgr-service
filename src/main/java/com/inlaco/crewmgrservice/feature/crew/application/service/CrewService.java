@@ -54,7 +54,7 @@ public class CrewService implements CrewUseCase {
   }
 
   @Override
-  public List<CrewProfile> getProfilesByCardIds(Iterable<String> cardIds) {
+  public List<CrewProfile> getProfilesByEmployeeCardIds(Iterable<String> cardIds) {
     log.debug("Fetching crew profiles by employee card IDs");
     return crewProfileRepository.findAllByEmployeeCardId(cardIds);
   }
