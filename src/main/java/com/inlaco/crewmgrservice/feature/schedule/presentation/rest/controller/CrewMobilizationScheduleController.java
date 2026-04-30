@@ -41,9 +41,7 @@ public class CrewMobilizationScheduleController {
   @Operation(
       summary = "Create a new schedule",
       description = "Create a new schedule with the given data.",
-      security = {
-        @SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME),
-      })
+      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   @PostMapping("")
   @RolesAllowed("ADMIN")
   @ResponseStatus(HttpStatus.CREATED)
@@ -57,9 +55,7 @@ public class CrewMobilizationScheduleController {
   @Operation(
       summary = "Fetch pagination schedules",
       description = "Fetch pagination schedules",
-      security = {
-        @SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME),
-      })
+      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   @GetMapping("")
   @RolesAllowed("ADMIN")
   @PageableQueryParams
