@@ -1,9 +1,9 @@
 package com.inlaco.crewmgrservice.feature.crew.presentation.rest.controller;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.inlaco.crewmgrservice.feature.crew.application.model.CrewProfileSearchCriteria;
 import com.inlaco.crewmgrservice.feature.crew.application.port.in.CrewUseCase;
 import com.inlaco.crewmgrservice.feature.crew.domain.model.CrewProfile;
+import com.inlaco.crewmgrservice.feature.crew.presentation.dto.request.update.CrewProfilePatchRequest;
 import com.inlaco.crewmgrservice.feature.crew.presentation.dto.response.CrewProfileResponse;
 import com.inlaco.crewmgrservice.feature.crew.presentation.mapper.CrewProfileMapper;
 import com.inlaco.crewmgrservice.feature.user.domain.model.User;
@@ -16,10 +16,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.security.RolesAllowed;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -46,14 +48,21 @@ public class CrewProfileController {
   }
 
   @Operation(
-      summary = "Find crew profile by id",
+      summary = "Update crew profile",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   @PatchMapping(value = "/{id}", consumes = "application/merge-patch+json")
-  @RolesAllowed("ADMIN")
+  @RolesAllowed({"ADMIN", "SAILOR"})
   public CrewProfile updateCrewProfile(
-      @PathVariable("id") @ObjectId String sailorId, @RequestBody JsonNode patch) {
-    throw new UnsupportedOperationException(
-        "This endpoint is deprecated, use /api/v1/sailors/{id} instead");
+      @CurrentUser User user,
+      @PathVariable("id") @ObjectId String sailorId,
+      @Valid @RequestBody CrewProfilePatchRequest patch) {
+    var authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
+    if (authorities.stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+      return crewUseCase.adminUpdateProfile(
+          sailorId, crewProfileMapper.toUpdateCrewProfileAdminCommand(patch), user);
+    }
+    return crewUseCase.crewUpdateProfile(
+        sailorId, crewProfileMapper.toUpdateCrewProfileCrewCommand(patch), user);
   }
 
   @Operation(
