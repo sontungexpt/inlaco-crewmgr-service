@@ -171,7 +171,7 @@ public class CrewService implements CrewUseCase {
             v -> {
               log.debug("citizenIdentityCardImageFront updated");
               Asset img = uploadDispatcher.fetch(AssetType.CITIZEN_IDENTITY_CARD, v);
-              profile.setAccidentInsuranceImageFront(img);
+              profile.setCitizenIdentityCardImageFront(img);
             });
 
     cmd.getCitizenIdentityCardImageBack()
@@ -179,7 +179,7 @@ public class CrewService implements CrewUseCase {
             v -> {
               log.debug("citizenIdentityCardImageBack updated");
               Asset img = uploadDispatcher.fetch(AssetType.CITIZEN_IDENTITY_CARD, v);
-              profile.setAccidentInsuranceImageBack(img);
+              profile.setCitizenIdentityCardImageBack(img);
             });
 
     cmd.getSocialInsuranceCode()
@@ -194,7 +194,7 @@ public class CrewService implements CrewUseCase {
             v -> {
               log.debug("socialInsuranceImageFront updated");
               Asset img = uploadDispatcher.fetch(AssetType.SOCIAL_INSURANCE, v);
-              profile.setAccidentInsuranceImageFront(img);
+              profile.setSocialInsuranceImageFront(img);
             });
 
     cmd.getSocialInsuranceImageBack()
@@ -202,7 +202,7 @@ public class CrewService implements CrewUseCase {
             v -> {
               log.debug("socialInsuranceImageBack updated");
               Asset img = uploadDispatcher.fetch(AssetType.SOCIAL_INSURANCE, v);
-              profile.setAccidentInsuranceImageBack(img);
+              profile.setSocialInsuranceImageBack(img);
             });
 
     cmd.getAccidentInsuranceCode()
@@ -273,7 +273,7 @@ public class CrewService implements CrewUseCase {
             v -> {
               log.debug("citizenIdentityCardImageFront updated");
               Asset img = uploadDispatcher.fetch(AssetType.CITIZEN_IDENTITY_CARD, v);
-              profile.setAccidentInsuranceImageFront(img);
+              profile.setCitizenIdentityCardImageFront(img);
             });
 
     cmd.getCitizenIdentityCardImageBack()
@@ -281,7 +281,7 @@ public class CrewService implements CrewUseCase {
             v -> {
               log.debug("citizenIdentityCardImageBack updated");
               Asset img = uploadDispatcher.fetch(AssetType.CITIZEN_IDENTITY_CARD, v);
-              profile.setAccidentInsuranceImageBack(img);
+              profile.setCitizenIdentityCardImageBack(img);
             });
 
     cmd.getSocialInsuranceCode()
@@ -296,7 +296,7 @@ public class CrewService implements CrewUseCase {
             v -> {
               log.debug("socialInsuranceImageFront updated");
               Asset img = uploadDispatcher.fetch(AssetType.SOCIAL_INSURANCE, v);
-              profile.setAccidentInsuranceImageFront(img);
+              profile.setSocialInsuranceImageFront(img);
             });
 
     cmd.getSocialInsuranceImageBack()
@@ -304,7 +304,7 @@ public class CrewService implements CrewUseCase {
             v -> {
               log.debug("socialInsuranceImageBack updated");
               Asset img = uploadDispatcher.fetch(AssetType.SOCIAL_INSURANCE, v);
-              profile.setAccidentInsuranceImageBack(img);
+              profile.setSocialInsuranceImageBack(img);
             });
 
     cmd.getAccidentInsuranceCode()

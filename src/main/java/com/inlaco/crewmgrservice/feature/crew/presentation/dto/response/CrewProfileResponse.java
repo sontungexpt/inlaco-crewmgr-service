@@ -30,6 +30,7 @@ public class CrewProfileResponse {
   private String employeeCardId;
 
   private String citizenIdentityCardId;
+
   private AssetResponse citizenIdentityCardImageFront;
   private AssetResponse citizenIdentityCardImageBack;
 
