@@ -189,19 +189,19 @@ public class CrewService implements CrewUseCase {
               profile.setSocialInsuranceCode(v);
             });
 
-    cmd.getAccidentInsuranceImageFront()
+    cmd.getSocialInsuranceImageFront()
         .ifUpdated(
             v -> {
-              log.debug("accidentInsuranceImageFront updated");
-              Asset img = uploadDispatcher.fetch(AssetType.ACCIDENT_ASSURANCE, v);
+              log.debug("socialInsuranceImageFront updated");
+              Asset img = uploadDispatcher.fetch(AssetType.SOCIAL_INSURANCE, v);
               profile.setAccidentInsuranceImageFront(img);
             });
 
-    cmd.getAccidentInsuranceImageBack()
+    cmd.getSocialInsuranceImageBack()
         .ifUpdated(
             v -> {
-              log.debug("accidentInsuranceImageBack updated");
-              Asset img = uploadDispatcher.fetch(AssetType.ACCIDENT_ASSURANCE, v);
+              log.debug("socialInsuranceImageBack updated");
+              Asset img = uploadDispatcher.fetch(AssetType.SOCIAL_INSURANCE, v);
               profile.setAccidentInsuranceImageBack(img);
             });
 
@@ -216,7 +216,7 @@ public class CrewService implements CrewUseCase {
         .ifUpdated(
             v -> {
               log.debug("accidentInsuranceImageFront updated");
-              Asset img = uploadDispatcher.fetch(AssetType.ACCIDENT_ASSURANCE, v);
+              Asset img = uploadDispatcher.fetch(AssetType.ACCIDENT_INSURANCE, v);
               profile.setAccidentInsuranceImageFront(img);
             });
 
@@ -224,7 +224,7 @@ public class CrewService implements CrewUseCase {
         .ifUpdated(
             v -> {
               log.debug("accidentInsuranceImageBack updated");
-              Asset img = uploadDispatcher.fetch(AssetType.ACCIDENT_ASSURANCE, v);
+              Asset img = uploadDispatcher.fetch(AssetType.ACCIDENT_INSURANCE, v);
               profile.setAccidentInsuranceImageBack(img);
             });
 
@@ -261,13 +261,6 @@ public class CrewService implements CrewUseCase {
               profile.setAddress(v);
             });
 
-    cmd.getSocialInsuranceCode()
-        .ifUpdated(
-            v -> {
-              log.debug("socialInsuranceCode updated");
-              profile.setSocialInsuranceCode(v);
-            });
-
     cmd.getCitizenIdentityCardId()
         .ifUpdated(
             v -> {
@@ -298,19 +291,19 @@ public class CrewService implements CrewUseCase {
               profile.setSocialInsuranceCode(v);
             });
 
-    cmd.getAccidentInsuranceImageFront()
+    cmd.getSocialInsuranceImageFront()
         .ifUpdated(
             v -> {
-              log.debug("accidentInsuranceImageFront updated");
-              Asset img = uploadDispatcher.fetch(AssetType.ACCIDENT_ASSURANCE, v);
+              log.debug("socialInsuranceImageFront updated");
+              Asset img = uploadDispatcher.fetch(AssetType.SOCIAL_INSURANCE, v);
               profile.setAccidentInsuranceImageFront(img);
             });
 
-    cmd.getAccidentInsuranceImageBack()
+    cmd.getSocialInsuranceImageBack()
         .ifUpdated(
             v -> {
-              log.debug("accidentInsuranceImageBack updated");
-              Asset img = uploadDispatcher.fetch(AssetType.ACCIDENT_ASSURANCE, v);
+              log.debug("socialInsuranceImageBack updated");
+              Asset img = uploadDispatcher.fetch(AssetType.SOCIAL_INSURANCE, v);
               profile.setAccidentInsuranceImageBack(img);
             });
 
@@ -325,7 +318,7 @@ public class CrewService implements CrewUseCase {
         .ifUpdated(
             v -> {
               log.debug("accidentInsuranceImageFront updated");
-              Asset img = uploadDispatcher.fetch(AssetType.ACCIDENT_ASSURANCE, v);
+              Asset img = uploadDispatcher.fetch(AssetType.ACCIDENT_INSURANCE, v);
               profile.setAccidentInsuranceImageFront(img);
             });
 
@@ -333,7 +326,7 @@ public class CrewService implements CrewUseCase {
         .ifUpdated(
             v -> {
               log.debug("accidentInsuranceImageBack updated");
-              Asset img = uploadDispatcher.fetch(AssetType.ACCIDENT_ASSURANCE, v);
+              Asset img = uploadDispatcher.fetch(AssetType.ACCIDENT_INSURANCE, v);
               profile.setAccidentInsuranceImageBack(img);
             });
 
