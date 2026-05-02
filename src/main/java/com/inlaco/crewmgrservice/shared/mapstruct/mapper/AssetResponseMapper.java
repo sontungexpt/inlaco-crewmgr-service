@@ -4,6 +4,7 @@ import com.inlaco.crewmgrservice.shared.application.port.in.AssetUrlResolver;
 import com.inlaco.crewmgrservice.shared.objectvalue.Asset;
 import com.inlaco.crewmgrservice.shared.objectvalue.AssetResponse;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
@@ -12,7 +13,8 @@ public class AssetResponseMapper {
 
   private final AssetUrlResolver urlResolver;
 
-  public AssetResponse map(Asset asset) {
+  public AssetResponse map(@Nullable Asset asset) {
+    if (asset == null) return null;
     return AssetResponse.builder()
         .type(asset.type())
         .publicId(asset.publicId())
