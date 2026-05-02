@@ -23,6 +23,8 @@ public class CrewProfileResponse {
 
   private String phoneNumber;
 
+  private AssetResponse image;
+
   private String address;
 
   private Gender gender;

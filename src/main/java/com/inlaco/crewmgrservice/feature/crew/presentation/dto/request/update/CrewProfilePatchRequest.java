@@ -23,6 +23,8 @@ public class CrewProfilePatchRequest {
 
   Patch<@Past Instant> birthDate = Patch.unchanged();
 
+  Patch<@NotBlank String> image = Patch.unchanged();
+
   // CCCD
   Patch<@NotBlank String> citizenIdentityCardId = Patch.unchanged();
   Patch<@NotBlank String> citizenIdentityCardImageFront = Patch.unchanged();

@@ -4,11 +4,13 @@ import com.inlaco.crewmgrservice.shared.application.model.Patch;
 import lombok.Data;
 
 @Data
-public class UpdateCrewProfileCrewCommand implements UpdateCrewProfileCommand {
+public class UpdateCrewProfileCrewCommand {
 
   Patch<String> email;
   Patch<String> phoneNumber;
   Patch<String> address;
+
+  Patch<String> image;
 
   Patch<String> citizenIdentityCardId;
   Patch<String> citizenIdentityCardImageFront;

@@ -35,6 +35,8 @@ public class CrewProfileEntity {
   @TextIndexed(weight = 1)
   private String phoneNumber;
 
+  private Asset image;
+
   private String address;
 
   private Gender gender;

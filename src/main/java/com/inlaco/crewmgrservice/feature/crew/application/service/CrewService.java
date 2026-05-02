@@ -159,6 +159,14 @@ public class CrewService implements CrewUseCase {
               profile.setBirthDate(v);
             });
 
+    cmd.getImage()
+        .ifUpdated(
+            v -> {
+              log.debug("image updated");
+              Asset img = uploadDispatcher.fetch(AssetType.CREW_PROFILE, v);
+              profile.setImage(img);
+            });
+
     cmd.getCitizenIdentityCardId()
         .ifUpdated(
             v -> {
@@ -259,6 +267,14 @@ public class CrewService implements CrewUseCase {
             v -> {
               log.debug("address updated");
               profile.setAddress(v);
+            });
+
+    cmd.getImage()
+        .ifUpdated(
+            v -> {
+              log.debug("image updated");
+              Asset img = uploadDispatcher.fetch(AssetType.CREW_PROFILE, v);
+              profile.setImage(img);
             });
 
     cmd.getCitizenIdentityCardId()

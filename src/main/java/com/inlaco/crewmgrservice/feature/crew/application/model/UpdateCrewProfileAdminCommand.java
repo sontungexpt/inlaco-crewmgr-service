@@ -6,7 +6,7 @@ import java.time.Instant;
 import lombok.Data;
 
 @Data
-public class UpdateCrewProfileAdminCommand implements UpdateCrewProfileCommand {
+public class UpdateCrewProfileAdminCommand {
 
   Patch<String> fullName;
 
@@ -17,6 +17,8 @@ public class UpdateCrewProfileAdminCommand implements UpdateCrewProfileCommand {
   Patch<String> address;
 
   Patch<Gender> gender;
+
+  Patch<String> image;
 
   Patch<String> professionalPosition;
 
