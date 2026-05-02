@@ -6,13 +6,15 @@ import com.inlaco.crewmgrservice.feature.crew.domain.model.CrewProfile;
 import com.inlaco.crewmgrservice.feature.crew.presentation.dto.request.NewCrewProfile;
 import com.inlaco.crewmgrservice.feature.crew.presentation.dto.request.update.CrewProfilePatchRequest;
 import com.inlaco.crewmgrservice.feature.crew.presentation.dto.response.CrewProfileResponse;
+import com.inlaco.crewmgrservice.shared.mapstruct.config.CentralMapperConfig;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 
 @Mapper(
     componentModel = "spring",
     unmappedSourcePolicy = ReportingPolicy.IGNORE,
-    unmappedTargetPolicy = ReportingPolicy.IGNORE)
+    unmappedTargetPolicy = ReportingPolicy.IGNORE,
+    config = CentralMapperConfig.class)
 public abstract class CrewProfileMapper {
 
   public abstract CrewProfileResponse toCrewProfileResponse(CrewProfile profile);
