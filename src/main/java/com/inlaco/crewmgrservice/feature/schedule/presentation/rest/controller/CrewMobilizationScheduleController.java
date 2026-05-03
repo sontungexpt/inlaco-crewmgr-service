@@ -2,6 +2,7 @@ package com.inlaco.crewmgrservice.feature.schedule.presentation.rest.controller;
 
 import com.inlaco.crewmgrservice.feature.schedule.application.model.CrewMobilizationScheduleSearchCriteria;
 import com.inlaco.crewmgrservice.feature.schedule.application.port.in.CrewMobilizationScheduleCommandUseCase;
+import com.inlaco.crewmgrservice.feature.schedule.application.port.in.CrewMobilizationScheduleExcelExportUseCase;
 import com.inlaco.crewmgrservice.feature.schedule.application.port.in.CrewMobilizationScheduleQueryUseCase;
 import com.inlaco.crewmgrservice.feature.schedule.presentation.rest.dto.request.NewCrewMobilizationScheduleRequest;
 import com.inlaco.crewmgrservice.feature.schedule.presentation.rest.dto.response.CrewMobilizationScheduleResponse;
@@ -21,6 +22,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,6 +38,7 @@ public class CrewMobilizationScheduleController {
 
   private final CrewMobilizationScheduleCommandUseCase crewMobilizationScheduleCommandUseCase;
   private final CrewMobilizationScheduleQueryUseCase crewMobilizationScheduleQueryUseCase;
+  private final CrewMobilizationScheduleExcelExportUseCase exportUseCase;
   private final CrewMobilizationScheduleMapper mapper;
 
   @Operation(
@@ -81,9 +84,7 @@ public class CrewMobilizationScheduleController {
   @Operation(
       summary = "Find schedules of the current logged-in sailor (paginated)",
       description = "Fetch schedules that include the current user's crew cardId",
-      security = {
-        @SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME),
-      })
+      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   @RolesAllowed("SAILOR")
   @PageableQueryParams
   @GetMapping("/mine")
@@ -98,5 +99,20 @@ public class CrewMobilizationScheduleController {
     return crewMobilizationScheduleQueryUseCase
         .findSchedules(criteria, pageable)
         .map(mapper::toCrewMobilizationScheduleResponse);
+  }
+
+  @GetMapping("/{id}/export")
+  @Operation(
+      summary = "Export schedule to excel",
+      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
+  @RolesAllowed({"ADMIN", "SAILOR"})
+  public ResponseEntity<byte[]> export(@PathVariable String id) {
+
+    byte[] data = exportUseCase.exportSchedule(id);
+
+    return ResponseEntity.ok()
+        .header("Content-Disposition", "attachment; filename=schedule.xlsx")
+        .header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        .body(data);
   }
 }
