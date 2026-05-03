@@ -8,7 +8,7 @@ import com.inlaco.crewmgrservice.feature.contract.domain.event.ContractCreatedEv
 import com.inlaco.crewmgrservice.feature.contract.domain.model.Contract;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.LaborContract;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.party.Party;
-import com.inlaco.crewmgrservice.feature.recruitment.application.port.in.RecruitmentQueryUseCase;
+import com.inlaco.crewmgrservice.feature.recruitment.application.port.in.JobApplicationQueryUseCase;
 import com.inlaco.crewmgrservice.feature.recruitment.domain.model.JobApplication;
 import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadDispatcher;
 import com.inlaco.crewmgrservice.feature.upload.domain.enums.AssetType;
@@ -26,7 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CreateLaborContractService implements CreateLaborContractUseCase {
 
-  private final RecruitmentQueryUseCase recruitmentQueryUseCase;
+  private final JobApplicationQueryUseCase recruitmentQueryUseCase;
   private final ContractRepository contractRepository;
   private final LaborContractRepository laborContractRepository;
   private final UploadDispatcher uploadDispatcher;

@@ -1,7 +1,7 @@
 package com.inlaco.crewmgrservice.feature.recruitment.application.service;
 
 import com.inlaco.crewmgrservice.feature.recruitment.application.model.JobApplicationSearchCriteria;
-import com.inlaco.crewmgrservice.feature.recruitment.application.port.in.RecruitmentQueryUseCase;
+import com.inlaco.crewmgrservice.feature.recruitment.application.port.in.JobApplicationQueryUseCase;
 import com.inlaco.crewmgrservice.feature.recruitment.application.port.out.JobApplicationRepository;
 import com.inlaco.crewmgrservice.feature.recruitment.domain.model.JobApplication;
 import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceNotFoundException;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class RecruitmentQueryService implements RecruitmentQueryUseCase {
+public class JobApplicationQueryService implements JobApplicationQueryUseCase {
 
   private final JobApplicationRepository jobApplicationRepository;
 

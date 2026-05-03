@@ -5,7 +5,7 @@ import com.inlaco.crewmgrservice.feature.recruitment.domain.model.JobApplication
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-public interface RecruitmentQueryUseCase {
+public interface JobApplicationQueryUseCase {
 
   Page<JobApplication> getAllApplications(JobApplicationSearchCriteria criteria, Pageable pageable);
 

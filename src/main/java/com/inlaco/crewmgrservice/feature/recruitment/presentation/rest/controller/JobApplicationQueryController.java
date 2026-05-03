@@ -1,10 +1,12 @@
 package com.inlaco.crewmgrservice.feature.recruitment.presentation.rest.controller;
 
 import com.inlaco.crewmgrservice.feature.recruitment.application.model.JobApplicationSearchCriteria;
-import com.inlaco.crewmgrservice.feature.recruitment.application.port.in.RecruitmentQueryUseCase;
+import com.inlaco.crewmgrservice.feature.recruitment.application.port.in.JobApplicationQueryUseCase;
 import com.inlaco.crewmgrservice.feature.recruitment.presentation.dto.response.JobApplicationResponse;
 import com.inlaco.crewmgrservice.feature.recruitment.presentation.mapper.JobApplicationMapper;
+import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import com.inlaco.crewmgrservice.infrastructure.config.openapi.OpenApiConfig;
+import com.inlaco.crewmgrservice.infrastructure.web.annotation.CurrentUser;
 import com.inlaco.crewmgrservice.infrastructure.web.annotation.Filter;
 import com.inlaco.crewmgrservice.infrastructure.web.annotation.PageableQueryParams;
 import com.inlaco.crewmgrservice.infrastructure.web.validation.annotation.ObjectId;
@@ -27,20 +29,37 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/applications")
 @RequiredArgsConstructor
 @Tag(name = "Application - Admin Query")
-public class ApplicationQueryController {
+public class JobApplicationQueryController {
 
-  private final RecruitmentQueryUseCase queryUseCase;
+  private final JobApplicationQueryUseCase queryUseCase;
   private final JobApplicationMapper jobApplicationMapper;
 
   @Operation(
-      summary = "Retrieve all candidates profiles",
+      summary = "Retrieve all applications profiles",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   @GetMapping("")
   @PageableQueryParams
   @RolesAllowed("ADMIN")
-  public Page<JobApplicationResponse> getAllCandidates(
+  public Page<JobApplicationResponse> getAllApplications(
       @Filter JobApplicationSearchCriteria criteria,
       @PageableDefault(size = 10, page = 0) Pageable pageable) {
+    return queryUseCase
+        .getAllApplications(criteria, pageable)
+        .map(jobApplicationMapper::toJobApplicationResponse);
+  }
+
+  @Operation(
+      summary = "Retrieve my applications profiles",
+      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
+  @GetMapping("/mine")
+  @PageableQueryParams
+  @RolesAllowed("USER")
+  public Page<JobApplicationResponse> getMyApplications(
+      @CurrentUser User user, JobApplicationSearchCriteria criteria, Pageable pageable) {
+    if (criteria == null) {
+      criteria = new JobApplicationSearchCriteria();
+    }
+    criteria.setAccountId(user.getId());
     return queryUseCase
         .getAllApplications(criteria, pageable)
         .map(jobApplicationMapper::toJobApplicationResponse);

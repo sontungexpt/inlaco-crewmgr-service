@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.feature.recruitment.presentation.rest.controller;
 
-import com.inlaco.crewmgrservice.feature.recruitment.application.port.in.JobApplicationUseCase;
+import com.inlaco.crewmgrservice.feature.recruitment.application.port.in.JobApplicationCommandUseCase;
 import com.inlaco.crewmgrservice.feature.recruitment.presentation.dto.request.NewJobApplication;
 import com.inlaco.crewmgrservice.feature.recruitment.presentation.dto.response.JobApplicationResponse;
 import com.inlaco.crewmgrservice.feature.recruitment.presentation.mapper.JobApplicationMapper;
@@ -27,9 +27,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/applications")
 @Tag(name = "Application")
-public class ApplicationUserController {
+public class JobApplicationUserController {
 
-  private final JobApplicationUseCase jobApplicationUseCase;
+  private final JobApplicationCommandUseCase jobApplicationUseCase;
   private final JobApplicationMapper jobApplicationMapper;
 
   @Operation(
@@ -50,26 +50,4 @@ public class ApplicationUserController {
             resumeAssetId,
             user));
   }
-
-  // @Operation(
-  //     summary = "Update a candidate profile",
-  //     security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
-  // @PatchMapping(value = "/{id}", consumes = "application/merge-patch+json")
-  // @ResponseStatus(HttpStatus.OK)
-  // @RolesAllowed("USER")
-  // public CandidateProfile updateCandidateProfile(
-  //     @CurrentUser User user,
-  //     @ObjectId @PathVariable("id") String id,
-  //     @RequestBody JsonNode patch) {
-  //   return candidateService.updateCandidateProfile(id, patch, user);
-  // }
-
-  // @Operation(
-  //     summary = "Get candidate profile of current user",
-  //     security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
-  // @GetMapping("/profile/me")
-  // @RolesAllowed("SAILOR")
-  // public List<CandidateProfile> getMyCandidateProfile(@CurrentUser User user) {
-  //   return candidateService.getMyCandidateProfile(user);
-  // }
 }

@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.feature.recruitment.application.service;
 
-import com.inlaco.crewmgrservice.feature.recruitment.application.port.in.RecruitmentReviewUseCase;
+import com.inlaco.crewmgrservice.feature.recruitment.application.port.in.JobApplicationReviewUseCase;
 import com.inlaco.crewmgrservice.feature.recruitment.application.port.out.JobApplicationRepository;
 import com.inlaco.crewmgrservice.feature.recruitment.domain.enums.ApplicationStatus;
 import com.inlaco.crewmgrservice.feature.recruitment.domain.model.JobApplication;
@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class RecruitmentReviewService implements RecruitmentReviewUseCase {
+public class JobApplicationReviewService implements JobApplicationReviewUseCase {
 
   private final JobApplicationRepository jobApplicationRepository;
   private final ApplicationEventPublisher eventPublisher;

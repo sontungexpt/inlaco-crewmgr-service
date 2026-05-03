@@ -2,7 +2,7 @@ package com.inlaco.crewmgrservice.feature.recruitment.infrastructure.listener;
 
 import com.inlaco.crewmgrservice.feature.notify.sender.NotificationDispatcher;
 import com.inlaco.crewmgrservice.feature.notify.sender.email.EmailRequest;
-import com.inlaco.crewmgrservice.feature.recruitment.application.event.ApplicationSubmittedEvent;
+import com.inlaco.crewmgrservice.feature.recruitment.application.event.JobApplicationSubmittedEvent;
 import com.inlaco.crewmgrservice.feature.recruitment.domain.enums.ApplicationStatus;
 import com.inlaco.crewmgrservice.feature.recruitment.domain.model.JobApplication;
 import com.inlaco.crewmgrservice.feature.recruitment.infrastructure.config.RecruitmentEmailProperties;
@@ -24,7 +24,7 @@ public class ApplicationSubmittedEventListener {
   private final RecruitmentEmailProperties emailProperties;
 
   @EventListener
-  public void handleApplicationSubmitted(ApplicationSubmittedEvent event) {
+  public void handleApplicationSubmitted(JobApplicationSubmittedEvent event) {
     JobApplication application = event.application();
 
     log.info(

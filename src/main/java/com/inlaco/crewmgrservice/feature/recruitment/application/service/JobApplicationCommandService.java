@@ -6,8 +6,8 @@ import com.inlaco.crewmgrservice.feature.post.domain.enums.PostType;
 import com.inlaco.crewmgrservice.feature.post.domain.exception.PostInactiveException;
 import com.inlaco.crewmgrservice.feature.post.domain.model.Post;
 import com.inlaco.crewmgrservice.feature.post.domain.model.RecruitmentPost;
-import com.inlaco.crewmgrservice.feature.recruitment.application.event.ApplicationSubmittedEvent;
-import com.inlaco.crewmgrservice.feature.recruitment.application.port.in.JobApplicationUseCase;
+import com.inlaco.crewmgrservice.feature.recruitment.application.event.JobApplicationSubmittedEvent;
+import com.inlaco.crewmgrservice.feature.recruitment.application.port.in.JobApplicationCommandUseCase;
 import com.inlaco.crewmgrservice.feature.recruitment.application.port.out.JobApplicationRepository;
 import com.inlaco.crewmgrservice.feature.recruitment.domain.model.JobApplication;
 import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadDispatcher;
@@ -19,14 +19,12 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class JobApplicationService implements JobApplicationUseCase {
+public class JobApplicationCommandService implements JobApplicationCommandUseCase {
 
   private final JobApplicationRepository jobApplicationRepository;
   private final PostUseCase postUseCase;
@@ -64,7 +62,7 @@ public class JobApplicationService implements JobApplicationUseCase {
     var newApplication = jobApplicationRepository.save(application);
 
     log.info("Publishing ApplicationSubmittedEvent for application ID: {}", newApplication.getId());
-    eventPublisher.publishEvent(new ApplicationSubmittedEvent(newApplication, recruitmentPost));
+    eventPublisher.publishEvent(new JobApplicationSubmittedEvent(newApplication, recruitmentPost));
 
     return newApplication;
   }
@@ -72,11 +70,5 @@ public class JobApplicationService implements JobApplicationUseCase {
   @Override
   public JobApplication updateApplication(String id, JsonNode patch, User user) {
     throw new UnsupportedOperationException("Unimplemented method 'updateApplication'");
-  }
-
-  @Override
-  public Page<JobApplication> getMyApplication(User me, Pageable pageable) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'getMyApplication'");
   }
 }

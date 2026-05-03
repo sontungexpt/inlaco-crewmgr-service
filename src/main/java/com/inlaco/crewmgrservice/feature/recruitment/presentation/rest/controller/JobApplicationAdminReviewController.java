@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.feature.recruitment.presentation.rest.controller;
 
-import com.inlaco.crewmgrservice.feature.recruitment.application.port.in.RecruitmentReviewUseCase;
+import com.inlaco.crewmgrservice.feature.recruitment.application.port.in.JobApplicationReviewUseCase;
 import com.inlaco.crewmgrservice.feature.recruitment.domain.enums.ApplicationStatus;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.security.RolesAllowed;
@@ -18,9 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RolesAllowed("ADMIN")
 @RequestMapping("/api/v1/admin/applications")
 @RestController
-public class ApplicationAdminReviewController {
+public class JobApplicationAdminReviewController {
 
-  private final RecruitmentReviewUseCase reviewUseCase;
+  private final JobApplicationReviewUseCase reviewUseCase;
 
   @PostMapping("/{id}/review")
   @ResponseStatus(HttpStatus.NO_CONTENT)
