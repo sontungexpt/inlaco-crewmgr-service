@@ -13,6 +13,7 @@ import com.inlaco.crewmgrservice.shared.constant.PhoneNumberRegexp;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -45,7 +46,7 @@ public class CrewRentalRequestRepositoryAdapter implements CrewRentalRequestRepo
     var query = new Criteria();
 
     if (criteria != null) {
-      String keyword = criteria.keyword();
+      String keyword = criteria.getKeyword();
       if (StringUtils.hasText(keyword)) {
         if (PhoneNumberRegexp.ITU_T_E_164.isValid(keyword)) {
           query.and("companyPhone").regex(keyword, "i");
@@ -55,8 +56,12 @@ public class CrewRentalRequestRepositoryAdapter implements CrewRentalRequestRepo
         query.and("shipInfo.name").regex(keyword, "i");
       }
 
-      if (criteria.status() != null) {
-        query.and("status").is(criteria.status());
+      if (criteria.getAccountId() != null && !criteria.getAccountId().isEmpty()) {
+        query.and("accountId").is(new ObjectId(criteria.getAccountId()));
+      }
+
+      if (criteria.getStatus() != null) {
+        query.and("status").is(criteria.getStatus());
       }
     }
 
