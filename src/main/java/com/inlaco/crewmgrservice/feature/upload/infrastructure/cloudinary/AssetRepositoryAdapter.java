@@ -9,11 +9,11 @@ import java.util.Optional;
 import java.util.stream.StreamSupport;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
 
-@Service
-@RequiredArgsConstructor
 @Slf4j
+@Repository
+@RequiredArgsConstructor
 public class AssetRepositoryAdapter implements AssetRepository {
 
   private final Cloudinary cloudinary;

@@ -13,6 +13,8 @@ public enum APIEndpointCode {
   POST_02_V1("Update the post"),
   POST_03_V1("Read the post"),
   POST_04_V1("Delete the post"),
+
+  CONTRACT_01_V1("Fetch my contracts"),
   ;
 
   private final String description;

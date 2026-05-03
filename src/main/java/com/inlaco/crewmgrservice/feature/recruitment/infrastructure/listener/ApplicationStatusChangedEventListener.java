@@ -1,8 +1,7 @@
 package com.inlaco.crewmgrservice.feature.recruitment.infrastructure.listener;
 
-import com.inlaco.crewmgrservice.feature.notify.NotificationDispatcher;
-import com.inlaco.crewmgrservice.feature.notify.NotificationPolicy;
-import com.inlaco.crewmgrservice.feature.notify.mail.EmailRequest;
+import com.inlaco.crewmgrservice.feature.notify.sender.NotificationDispatcher;
+import com.inlaco.crewmgrservice.feature.notify.sender.email.EmailRequest;
 import com.inlaco.crewmgrservice.feature.recruitment.domain.enums.ApplicationStatus;
 import com.inlaco.crewmgrservice.feature.recruitment.domain.event.ApplicationStatusChangedEvent;
 import com.inlaco.crewmgrservice.feature.recruitment.domain.model.JobApplication;
@@ -63,7 +62,6 @@ public class ApplicationStatusChangedEventListener {
         emailProperties.getTemplates().get(status).path());
 
     notificationDispatcher.sendNotificationAsync(
-        NotificationPolicy.EMAIL,
         EmailRequest.html(
                 application.getEmail(),
                 buildBodyContent(emailProperties.getTemplates().get(status).path(), application),

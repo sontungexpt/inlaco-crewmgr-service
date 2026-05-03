@@ -6,7 +6,6 @@ import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
@@ -23,29 +22,6 @@ public class ApiEndpointAuthorizationManager
 
   private final PublicEndpointResolver publicEndpointResolver;
 
-  private boolean matchesFrameworkPath(HttpServletRequest request) {
-    String uri = request.getRequestURI();
-
-    // GLOBAL (any method)
-    if (uri.startsWith("/actuator")) {
-      return true;
-    }
-
-    HttpMethod method = HttpMethod.valueOf(request.getMethod());
-
-    // GET-only framework endpoints
-    if (method == HttpMethod.GET) {
-      // Framework endpoints
-      return uri.startsWith("/scalar")
-          || uri.startsWith("/swagger-ui")
-          || uri.startsWith("/v3/api-docs")
-          // || uri.startsWith("/.well-known")
-          // || uri.startsWith("/favicon.ico")
-          || uri.startsWith("/webjars");
-    }
-    return false;
-  }
-
   @Override
   public @Nullable AuthorizationResult authorize(
       Supplier<? extends @Nullable Authentication> authentication,
@@ -54,12 +30,8 @@ public class ApiEndpointAuthorizationManager
 
     String uri = request.getRequestURI();
     String method = request.getMethod();
-    log.debug("[AUTH] Incoming request: {} {}", method, uri);
 
-    if (matchesFrameworkPath(request)) {
-      log.debug("[AUTH] -> FRAMEWORK PERMIT: {}", request.getRequestURI());
-      return new AuthorizationDecision(true);
-    }
+    log.debug("[AUTH] Incoming request: {} {}", method, uri);
 
     // Public endpoints
     if (publicEndpointResolver.isPublic(request)) {

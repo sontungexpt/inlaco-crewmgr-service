@@ -25,10 +25,11 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
-@Slf4j
 public class ContractRepositoryAdapter implements ContractRepository {
+
   private final MongoTemplate mongoTemplate;
   private final ContractEntityMapper mapper;
   private final ContractMongoRepository repository;
@@ -38,41 +39,117 @@ public class ContractRepositoryAdapter implements ContractRepository {
     return repository.findAll(pageable).map(mapper::toContract);
   }
 
+  // @Override
+  // public Page<Contract> findAll(ContractSearchCriteria criteria, Pageable pageable) {
+  //   Criteria query = new Criteria();
+  //   if (criteria != null) {
+  //     if (StringUtils.hasText(criteria.getKeyword())) {
+  //       query.and("title").regex(criteria.getKeyword(), "i");
+  //     }
+
+  //     if (criteria.getType() != null) {
+  //       query.and("type").is(criteria.getType());
+  //     }
+  //     if (criteria.getActivationDateStart() != null) {
+  //       query.and("activationDate").gte(criteria.getActivationDateStart());
+  //     }
+  //     if (criteria.getActivationDateEnd() != null) {
+  //       query.and("activationDate").lte(criteria.getActivationDateEnd());
+  //     }
+  //     if (criteria.getExpiredDateStart() != null) {
+  //       query.and("expiredDate").gte(criteria.getExpiredDateStart());
+  //     }
+  //     if (criteria.getExpiredDateEnd() != null) {
+  //       query.and("expiredDate").lte(criteria.getExpiredDateEnd());
+  //     }
+  //     if (criteria.getSigned() != null) {
+  //       if (criteria.getSigned()) {
+  //         query.and("status").ne(ContractStatus.DRAFT);
+  //       } else {
+  //         query.and("status").is(ContractStatus.DRAFT);
+  //       }
+  //     }
+
+  //     if (criteria.getRelativeAccountId() != null) {
+  //       query.orOperator(
+  //           Criteria.where("initiator.accountId").is(criteria.getRelativeAccountId()),
+  //           Criteria.where("partners.accountId").is(criteria.getRelativeAccountId()));
+  //     }
+  //   }
+
+  //   Aggregation aggregation =
+  //       newAggregation(
+  //           match(query),
+  //           facet(Aggregation.count().as(FacetResult.COUNT_KEY))
+  //               .as(FacetResult.COUNT_FACET_NAME)
+  //               .and(
+  //                   sort(pageable.getSort()),
+  //                   skip(pageable.getOffset()),
+  //                   limit(pageable.getPageSize()))
+  //               .as(FacetResult.DATA_FACET_NAME));
+
+  //   return mongoTemplate
+  //       .aggregate(aggregation, ContractEntity.class, ContractEntityFacetResult.class)
+  //       .getUniqueMappedResult()
+  //       .toPage(pageable)
+  //       .map(mapper::toContract);
+  // }
   @Override
   public Page<Contract> findAll(ContractSearchCriteria criteria, Pageable pageable) {
-    Criteria query = new Criteria();
+
+    List<Criteria> criteriaList = new ArrayList<>();
+
     if (criteria != null) {
+
       if (StringUtils.hasText(criteria.getKeyword())) {
-        query.and("title").regex(criteria.getKeyword(), "i");
+        criteriaList.add(Criteria.where("title").regex(criteria.getKeyword(), "i"));
       }
 
       if (criteria.getType() != null) {
-        query.and("type").is(criteria.getType());
+        criteriaList.add(Criteria.where("type").is(criteria.getType()));
       }
+
       if (criteria.getActivationDateStart() != null) {
-        query.and("activationDate").gte(criteria.getActivationDateStart());
+        criteriaList.add(Criteria.where("activationDate").gte(criteria.getActivationDateStart()));
       }
+
       if (criteria.getActivationDateEnd() != null) {
-        query.and("activationDate").lte(criteria.getActivationDateEnd());
+        criteriaList.add(Criteria.where("activationDate").lte(criteria.getActivationDateEnd()));
       }
+
       if (criteria.getExpiredDateStart() != null) {
-        query.and("expiredDate").gte(criteria.getExpiredDateStart());
+        criteriaList.add(Criteria.where("expiredDate").gte(criteria.getExpiredDateStart()));
       }
+
       if (criteria.getExpiredDateEnd() != null) {
-        query.and("expiredDate").lte(criteria.getExpiredDateEnd());
+        criteriaList.add(Criteria.where("expiredDate").lte(criteria.getExpiredDateEnd()));
       }
+
       if (criteria.getSigned() != null) {
         if (criteria.getSigned()) {
-          query.and("status").ne(ContractStatus.DRAFT);
+          criteriaList.add(Criteria.where("status").ne(ContractStatus.DRAFT));
         } else {
-          query.and("status").is(ContractStatus.DRAFT);
+          criteriaList.add(Criteria.where("status").is(ContractStatus.DRAFT));
         }
+      }
+
+      if (criteria.getRelativeAccountId() != null) {
+        criteriaList.add(
+            new Criteria()
+                .orOperator(
+                    Criteria.where("initiator.accountId").is(criteria.getRelativeAccountId()),
+                    Criteria.where("partners.accountId").is(criteria.getRelativeAccountId())));
       }
     }
 
+    Criteria finalCriteria =
+        criteriaList.isEmpty()
+            ? new Criteria()
+            : new Criteria().andOperator(criteriaList.toArray(new Criteria[0]));
+
     Aggregation aggregation =
         newAggregation(
-            match(query),
+            match(finalCriteria),
             facet(Aggregation.count().as(FacetResult.COUNT_KEY))
                 .as(FacetResult.COUNT_FACET_NAME)
                 .and(

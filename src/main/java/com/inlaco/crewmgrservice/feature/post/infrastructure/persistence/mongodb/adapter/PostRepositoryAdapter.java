@@ -47,6 +47,9 @@ public class PostRepositoryAdapter implements PostRepository {
     var query = Criteria.where("deletedAt").exists(false);
 
     if (criteria != null) {
+      if (criteria.getKeyword() != null && !criteria.getKeyword().isEmpty()) {
+        query.andOperator(Criteria.where("title").regex(criteria.getKeyword(), "i"));
+      }
       if (criteria.getType() != null) {
         query.andOperator(Criteria.where("type").is(criteria.getType()));
       }

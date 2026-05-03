@@ -6,10 +6,12 @@ import lombok.EqualsAndHashCode;
 import org.bson.types.ObjectId;
 
 @Data
-@EqualsAndHashCode(of = {"id", "employeeCardId"})
+@EqualsAndHashCode(of = {"profileId", "accountId", "employeeCardId"})
 public class AssignedCrewEntity {
 
-  private ObjectId id;
+  private ObjectId profileId;
+
+  private ObjectId accountId;
 
   private String employeeCardId;
 

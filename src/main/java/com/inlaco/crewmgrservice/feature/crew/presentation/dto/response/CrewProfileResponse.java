@@ -1,10 +1,9 @@
 package com.inlaco.crewmgrservice.feature.crew.presentation.dto.response;
 
 import com.inlaco.crewmgrservice.feature.crew.domain.enums.CrewStatus;
-import com.inlaco.crewmgrservice.shared.objectvalue.Asset;
+import com.inlaco.crewmgrservice.shared.objectvalue.AssetResponse;
 import com.inlaco.crewmgrservice.shared.objectvalue.Gender;
 import java.time.Instant;
-import java.util.List;
 import lombok.Data;
 
 @Data
@@ -24,17 +23,24 @@ public class CrewProfileResponse {
 
   private String phoneNumber;
 
+  private AssetResponse image;
+
   private String address;
 
   private Gender gender;
 
   private String employeeCardId;
 
-  private String socialInsuranceCode;
+  private String citizenIdentityCardId;
 
-  private List<Asset> socialInsuranceImages;
+  private AssetResponse citizenIdentityCardImageFront;
+  private AssetResponse citizenIdentityCardImageBack;
+
+  private String socialInsuranceCode;
+  private AssetResponse socialInsuranceImageFront;
+  private AssetResponse socialInsuranceImageBack;
 
   private String accidentInsuranceCode;
-
-  private List<Asset> accidentInsuranceImages;
+  private AssetResponse accidentInsuranceImageFront;
+  private AssetResponse accidentInsuranceImageBack;
 }

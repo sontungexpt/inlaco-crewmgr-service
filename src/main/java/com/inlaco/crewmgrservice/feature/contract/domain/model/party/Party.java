@@ -21,6 +21,7 @@ public class Party {
 
   private String representer;
   private String representerPosition;
+  private String accountId;
 
   private String email;
   private String phone;

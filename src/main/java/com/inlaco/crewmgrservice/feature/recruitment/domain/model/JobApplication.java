@@ -65,6 +65,8 @@ public class JobApplication {
 
   private Instant updatedAt;
 
+  private String createdBy;
+
   public void changeStatus(ApplicationStatus newStatus) throws IllegalStateException {
     if (status == newStatus) return;
     status.validateTransition(newStatus);

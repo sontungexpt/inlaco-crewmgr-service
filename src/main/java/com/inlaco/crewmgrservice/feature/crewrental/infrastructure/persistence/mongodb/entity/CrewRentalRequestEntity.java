@@ -19,6 +19,8 @@ public class CrewRentalRequestEntity {
 
   @Id private String id;
 
+  private String accountId;
+
   private Asset detailFile;
 
   private String companyName;

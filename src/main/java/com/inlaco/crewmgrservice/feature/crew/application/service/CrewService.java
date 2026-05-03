@@ -1,13 +1,19 @@
 package com.inlaco.crewmgrservice.feature.crew.application.service;
 
 import com.inlaco.crewmgrservice.feature.crew.application.model.CrewProfileSearchCriteria;
+import com.inlaco.crewmgrservice.feature.crew.application.model.UpdateCrewProfileAdminCommand;
+import com.inlaco.crewmgrservice.feature.crew.application.model.UpdateCrewProfileCrewCommand;
 import com.inlaco.crewmgrservice.feature.crew.application.port.in.CrewIdentityUseCase;
 import com.inlaco.crewmgrservice.feature.crew.application.port.in.CrewUseCase;
 import com.inlaco.crewmgrservice.feature.crew.application.port.out.CrewProfileRepository;
 import com.inlaco.crewmgrservice.feature.crew.domain.enums.CrewStatus;
 import com.inlaco.crewmgrservice.feature.crew.domain.model.ApplyLaborContractCommand;
 import com.inlaco.crewmgrservice.feature.crew.domain.model.CrewProfile;
+import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadDispatcher;
+import com.inlaco.crewmgrservice.feature.upload.domain.enums.AssetType;
+import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceNotFoundException;
+import com.inlaco.crewmgrservice.shared.objectvalue.Asset;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +28,7 @@ public class CrewService implements CrewUseCase {
 
   private final CrewProfileRepository crewProfileRepository;
   private final CrewIdentityUseCase crewIdentityUseCase;
+  private final UploadDispatcher uploadDispatcher;
 
   @Override
   public CrewProfile getProfile(String profileId) {
@@ -54,7 +61,7 @@ public class CrewService implements CrewUseCase {
   }
 
   @Override
-  public List<CrewProfile> getProfilesByCardIds(Iterable<String> cardIds) {
+  public List<CrewProfile> getProfilesByEmployeeCardIds(Iterable<String> cardIds) {
     log.debug("Fetching crew profiles by employee card IDs");
     return crewProfileRepository.findAllByEmployeeCardId(cardIds);
   }
@@ -96,5 +103,253 @@ public class CrewService implements CrewUseCase {
   public boolean existsAllByEmployeeCardIds(Iterable<String> employeeIds) {
     log.debug("Checking existence of all crew profiles by employee card IDs");
     return crewProfileRepository.existsAllByEmployeeCardIds(employeeIds);
+  }
+
+  @Override
+  public CrewProfile adminUpdateProfile(String id, UpdateCrewProfileAdminCommand cmd, User user) {
+    CrewProfile profile = getProfile(id);
+    log.debug("Admin updating full crew profile. profileId={}", profile.getId());
+
+    cmd.getFullName()
+        .ifUpdated(
+            v -> {
+              log.debug("fullName changed: {} -> {}", profile.getFullName(), v);
+              profile.setFullName(v);
+            });
+
+    cmd.getEmail()
+        .ifUpdated(
+            v -> {
+              log.debug("email changed: {} -> {}", profile.getEmail(), v);
+              profile.setEmail(v);
+            });
+
+    cmd.getPhoneNumber()
+        .ifUpdated(
+            v -> {
+              log.debug("phoneNumber changed: {} -> {}", profile.getPhoneNumber(), v);
+              profile.setPhoneNumber(v);
+            });
+
+    cmd.getAddress()
+        .ifUpdated(
+            v -> {
+              log.debug("address changed");
+              profile.setAddress(v);
+            });
+
+    cmd.getGender()
+        .ifUpdated(
+            v -> {
+              log.debug("gender changed: {} -> {}", profile.getGender(), v);
+              profile.setGender(v);
+            });
+
+    cmd.getProfessionalPosition()
+        .ifUpdated(
+            v -> {
+              log.debug("professionalPosition updated");
+              profile.setProfessionalPosition(v);
+            });
+
+    cmd.getBirthDate()
+        .ifUpdated(
+            v -> {
+              log.debug("birthDate updated");
+              profile.setBirthDate(v);
+            });
+
+    cmd.getImage()
+        .ifUpdated(
+            v -> {
+              log.debug("image updated");
+              Asset img = uploadDispatcher.fetch(AssetType.CREW_PROFILE, v);
+              profile.setImage(img);
+            });
+
+    cmd.getCitizenIdentityCardId()
+        .ifUpdated(
+            v -> {
+              log.debug("socialInsuranceCode updated");
+              profile.setCitizenIdentityCardId(v);
+            });
+
+    cmd.getCitizenIdentityCardImageFront()
+        .ifUpdated(
+            v -> {
+              log.debug("citizenIdentityCardImageFront updated");
+              Asset img = uploadDispatcher.fetch(AssetType.CITIZEN_IDENTITY_CARD, v);
+              profile.setCitizenIdentityCardImageFront(img);
+            });
+
+    cmd.getCitizenIdentityCardImageBack()
+        .ifUpdated(
+            v -> {
+              log.debug("citizenIdentityCardImageBack updated");
+              Asset img = uploadDispatcher.fetch(AssetType.CITIZEN_IDENTITY_CARD, v);
+              profile.setCitizenIdentityCardImageBack(img);
+            });
+
+    cmd.getSocialInsuranceCode()
+        .ifUpdated(
+            v -> {
+              log.debug("socialInsuranceCode updated");
+              profile.setSocialInsuranceCode(v);
+            });
+
+    cmd.getSocialInsuranceImageFront()
+        .ifUpdated(
+            v -> {
+              log.debug("socialInsuranceImageFront updated");
+              Asset img = uploadDispatcher.fetch(AssetType.SOCIAL_INSURANCE, v);
+              profile.setSocialInsuranceImageFront(img);
+            });
+
+    cmd.getSocialInsuranceImageBack()
+        .ifUpdated(
+            v -> {
+              log.debug("socialInsuranceImageBack updated");
+              Asset img = uploadDispatcher.fetch(AssetType.SOCIAL_INSURANCE, v);
+              profile.setSocialInsuranceImageBack(img);
+            });
+
+    cmd.getAccidentInsuranceCode()
+        .ifUpdated(
+            v -> {
+              log.debug("accidentInsuranceCode updated");
+              profile.setAccidentInsuranceCode(v);
+            });
+
+    cmd.getAccidentInsuranceImageFront()
+        .ifUpdated(
+            v -> {
+              log.debug("accidentInsuranceImageFront updated");
+              Asset img = uploadDispatcher.fetch(AssetType.ACCIDENT_INSURANCE, v);
+              profile.setAccidentInsuranceImageFront(img);
+            });
+
+    cmd.getAccidentInsuranceImageBack()
+        .ifUpdated(
+            v -> {
+              log.debug("accidentInsuranceImageBack updated");
+              Asset img = uploadDispatcher.fetch(AssetType.ACCIDENT_INSURANCE, v);
+              profile.setAccidentInsuranceImageBack(img);
+            });
+
+    CrewProfile saved = crewProfileRepository.save(profile);
+
+    log.info("Admin profile update completed. profileId={}", saved.getId());
+
+    return saved;
+  }
+
+  @Override
+  public CrewProfile crewUpdateProfile(String id, UpdateCrewProfileCrewCommand cmd, User user) {
+    CrewProfile profile = getProfile(id);
+    log.debug("Crew updating full crew profile. profileId={}", profile.getId());
+
+    cmd.getEmail()
+        .ifUpdated(
+            v -> {
+              log.debug("email updated: {} -> {}", profile.getEmail(), v);
+              profile.setEmail(v);
+            });
+
+    cmd.getPhoneNumber()
+        .ifUpdated(
+            v -> {
+              log.debug("phoneNumber updated");
+              profile.setPhoneNumber(v);
+            });
+
+    cmd.getAddress()
+        .ifUpdated(
+            v -> {
+              log.debug("address updated");
+              profile.setAddress(v);
+            });
+
+    cmd.getImage()
+        .ifUpdated(
+            v -> {
+              log.debug("image updated");
+              Asset img = uploadDispatcher.fetch(AssetType.CREW_PROFILE, v);
+              profile.setImage(img);
+            });
+
+    cmd.getCitizenIdentityCardId()
+        .ifUpdated(
+            v -> {
+              log.debug("socialInsuranceCode updated");
+              profile.setCitizenIdentityCardId(v);
+            });
+
+    cmd.getCitizenIdentityCardImageFront()
+        .ifUpdated(
+            v -> {
+              log.debug("citizenIdentityCardImageFront updated");
+              Asset img = uploadDispatcher.fetch(AssetType.CITIZEN_IDENTITY_CARD, v);
+              profile.setCitizenIdentityCardImageFront(img);
+            });
+
+    cmd.getCitizenIdentityCardImageBack()
+        .ifUpdated(
+            v -> {
+              log.debug("citizenIdentityCardImageBack updated");
+              Asset img = uploadDispatcher.fetch(AssetType.CITIZEN_IDENTITY_CARD, v);
+              profile.setCitizenIdentityCardImageBack(img);
+            });
+
+    cmd.getSocialInsuranceCode()
+        .ifUpdated(
+            v -> {
+              log.debug("socialInsuranceCode updated");
+              profile.setSocialInsuranceCode(v);
+            });
+
+    cmd.getSocialInsuranceImageFront()
+        .ifUpdated(
+            v -> {
+              log.debug("socialInsuranceImageFront updated");
+              Asset img = uploadDispatcher.fetch(AssetType.SOCIAL_INSURANCE, v);
+              profile.setSocialInsuranceImageFront(img);
+            });
+
+    cmd.getSocialInsuranceImageBack()
+        .ifUpdated(
+            v -> {
+              log.debug("socialInsuranceImageBack updated");
+              Asset img = uploadDispatcher.fetch(AssetType.SOCIAL_INSURANCE, v);
+              profile.setSocialInsuranceImageBack(img);
+            });
+
+    cmd.getAccidentInsuranceCode()
+        .ifUpdated(
+            v -> {
+              log.debug("accidentInsuranceCode updated");
+              profile.setAccidentInsuranceCode(v);
+            });
+
+    cmd.getAccidentInsuranceImageFront()
+        .ifUpdated(
+            v -> {
+              log.debug("accidentInsuranceImageFront updated");
+              Asset img = uploadDispatcher.fetch(AssetType.ACCIDENT_INSURANCE, v);
+              profile.setAccidentInsuranceImageFront(img);
+            });
+
+    cmd.getAccidentInsuranceImageBack()
+        .ifUpdated(
+            v -> {
+              log.debug("accidentInsuranceImageBack updated");
+              Asset img = uploadDispatcher.fetch(AssetType.ACCIDENT_INSURANCE, v);
+              profile.setAccidentInsuranceImageBack(img);
+            });
+
+    CrewProfile saved = crewProfileRepository.save(profile);
+
+    log.info("Crew profile self-update completed. profileId={}", saved.getId());
+
+    return saved;
   }
 }

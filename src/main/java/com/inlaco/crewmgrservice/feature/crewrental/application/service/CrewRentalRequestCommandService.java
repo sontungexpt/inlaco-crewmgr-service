@@ -44,11 +44,12 @@ public class CrewRentalRequestCommandService implements CrewRentalRequestCommand
 
   @Override
   public CrewRentalRequest create(
-      CrewRentalRequest request, String detailFileAssetId, String shipImageAssetId) {
+      CrewRentalRequest request, String detailFileAssetId, String shipImageAssetId, User user) {
     log.debug("Fetching detail file for crew rental request with ID: {}", request.getId());
     request.setDetailFile(
         uploadDispatcher.fetch(AssetType.CREW_RENTAL_REQUEST_DETAIL_FILE, detailFileAssetId));
     log.debug("Fetching ship image for crew rental request with ID: {}", request.getId());
+    request.setAccountId(user.getId());
     request.getShipInfo().setImage(uploadDispatcher.fetch(AssetType.SHIP_IMAGE, shipImageAssetId));
     CrewRentalRequest savedRequest = crewRentalRequestRepository.save(request);
     log.info("Crew rental request created with ID: {}", savedRequest.getId());

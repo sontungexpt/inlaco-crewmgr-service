@@ -32,7 +32,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/posts")
-@PublicEndpoint
 @RequiredArgsConstructor
 @Tag(name = "Post", description = "A collection endpoints to work with posts")
 public class PostController {
@@ -64,7 +63,6 @@ public class PostController {
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   @PostMapping("")
   @ResponseStatus(HttpStatus.CREATED)
-  @PublicEndpoint(profiles = "dev")
   public PostDTO createPost(@CurrentUser User user, @RequestBody @Valid PostDTO newPost) {
     return postMapper.toPostDTO(postUseCase.createPost(postMapper.toPost(newPost), user));
   }

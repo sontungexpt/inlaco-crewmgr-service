@@ -7,8 +7,9 @@ import lombok.Data;
 @Data
 public class CrewMobilizationScheduleSearchCriteria {
 
+  private String keyword;
+  private String accountId;
   private CrewMobilizationScheduleStatus status;
-
   private Instant startDate;
   private Instant endDate;
 }

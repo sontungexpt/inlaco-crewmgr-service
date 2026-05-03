@@ -2,6 +2,7 @@ package com.inlaco.crewmgrservice.feature.schedule.presentation.rest.controller;
 
 import com.inlaco.crewmgrservice.feature.schedule.application.model.CrewMobilizationScheduleSearchCriteria;
 import com.inlaco.crewmgrservice.feature.schedule.application.port.in.CrewMobilizationScheduleCommandUseCase;
+import com.inlaco.crewmgrservice.feature.schedule.application.port.in.CrewMobilizationScheduleExcelExportUseCase;
 import com.inlaco.crewmgrservice.feature.schedule.application.port.in.CrewMobilizationScheduleQueryUseCase;
 import com.inlaco.crewmgrservice.feature.schedule.presentation.rest.dto.request.NewCrewMobilizationScheduleRequest;
 import com.inlaco.crewmgrservice.feature.schedule.presentation.rest.dto.response.CrewMobilizationScheduleResponse;
@@ -9,6 +10,7 @@ import com.inlaco.crewmgrservice.feature.schedule.presentation.rest.mapper.CrewM
 import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import com.inlaco.crewmgrservice.infrastructure.config.openapi.OpenApiConfig;
 import com.inlaco.crewmgrservice.infrastructure.web.annotation.CurrentUser;
+import com.inlaco.crewmgrservice.infrastructure.web.annotation.Filter;
 import com.inlaco.crewmgrservice.infrastructure.web.annotation.PageableQueryParams;
 import com.inlaco.crewmgrservice.infrastructure.web.validation.annotation.ObjectId;
 import io.swagger.v3.oas.annotations.Operation;
@@ -20,6 +22,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,9 +38,8 @@ public class CrewMobilizationScheduleController {
 
   private final CrewMobilizationScheduleCommandUseCase crewMobilizationScheduleCommandUseCase;
   private final CrewMobilizationScheduleQueryUseCase crewMobilizationScheduleQueryUseCase;
+  private final CrewMobilizationScheduleExcelExportUseCase exportUseCase;
   private final CrewMobilizationScheduleMapper mapper;
-
-  // private final ScheduleService scheduleService;
 
   @Operation(
       summary = "Create a new schedule",
@@ -61,7 +63,7 @@ public class CrewMobilizationScheduleController {
   @RolesAllowed("ADMIN")
   @PageableQueryParams
   public Page<CrewMobilizationScheduleResponse> getAllSchedules(
-      CrewMobilizationScheduleSearchCriteria criteria,
+      @Filter CrewMobilizationScheduleSearchCriteria criteria,
       @PageableDefault(page = 0, size = 20) Pageable pageable) {
     return crewMobilizationScheduleQueryUseCase
         .findSchedules(criteria, pageable)
@@ -79,55 +81,38 @@ public class CrewMobilizationScheduleController {
         crewMobilizationScheduleQueryUseCase.findDetailSchedule(id));
   }
 
-  // @Operation(
-  //     summary = "Find schedules with the given data",
-  //     security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
-  // @GetMapping("/all")
-  // @RolesAllowed("ADMIN")
-  // @PageableQueryParams
-  // public List<AssignedMobilization> fetchSchedules(
-  //     @RequestParam(required = false) AssignedMobilization.Status status,
-  //     @RequestParam(required = false) Instant startDate,
-  //     @RequestParam(required = false) Instant endDate) {
-  //   return scheduleService.findSchedules(
-  //
-  // ScheduleFilterable.builder().status(status).startDate(startDate).endDate(endDate).build());
-  // }
+  @Operation(
+      summary = "Find schedules of the current logged-in sailor (paginated)",
+      description = "Fetch schedules that include the current user's crew cardId",
+      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
+  @RolesAllowed("SAILOR")
+  @PageableQueryParams
+  @GetMapping("/mine")
+  public Page<CrewMobilizationScheduleResponse> getMySchedules(
+      @Filter CrewMobilizationScheduleSearchCriteria criteria,
+      @CurrentUser User user,
+      @PageableDefault(page = 0, size = 20) Pageable pageable) {
+    if (criteria == null) {
+      criteria = new CrewMobilizationScheduleSearchCriteria();
+    }
+    criteria.setAccountId(user.getId());
+    return crewMobilizationScheduleQueryUseCase
+        .findSchedules(criteria, pageable)
+        .map(mapper::toCrewMobilizationScheduleResponse);
+  }
 
-  // @Operation(
-  //     summary = "Find schedules of a sailor with the given cardId",
-  //     security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
-  // @GetMapping("/sailors/{cardId}/pagination")
-  // @RolesAllowed({"ADMIN", "SAILOR"})
-  // @PageableQueryParams
-  // public Page<SailorScheduleResponse> fetchPaginationSchedulesByCardId(
-  //     @PathVariable("cardId") String cardId,
-  //     ScheduleFilterable filterable,
-  //     @PageableDefault(page = 0, size = 20) Pageable pageable) {
-  //   return scheduleService.findPaginationSchedulesByCardId(cardId, filterable, pageable);
-  // }
+  @GetMapping("/{id}/export")
+  @Operation(
+      summary = "Export schedule to excel",
+      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
+  @RolesAllowed({"ADMIN", "SAILOR"})
+  public ResponseEntity<byte[]> export(@PathVariable String id) {
 
-  // @Operation(
-  //     summary = "Find schedules of a sailor with the given cardId",
-  //     security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
-  // @GetMapping("/sailors/{cardId}")
-  // @RolesAllowed({"ADMIN", "SAILOR"})
-  // public List<SailorScheduleResponse> fetchSchedulesByCardId(
-  //     @PathVariable("cardId") String cardId,
-  //     @RequestParam(required = false) AssignedMobilization.Status status,
-  //     ScheduleFilterable filterable,
-  //     @RequestParam(required = false) Instant startDate,
-  //     @RequestParam(required = false) Instant estimatedEndDate) {
-  //   return scheduleService.findSchedulesByCardId(cardId, filterable);
-  // }
+    byte[] data = exportUseCase.exportSchedule(id);
 
-  // @Operation(
-  //     summary = "Update schedule by id",
-  //     security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
-  // @PatchMapping(value = "/{id}", consumes = "application/merge-patch+json")
-  // @RolesAllowed({"ADMIN"})
-  // public CrewMobilizationScheduleResponse updateSchedule(
-  //     @ObjectId @PathVariable("id") String id, @RequestBody JsonNode patch) {
-  //   return scheduleService.updateSchedule(id, patch);
-  // }
+    return ResponseEntity.ok()
+        .header("Content-Disposition", "attachment; filename=schedule.xlsx")
+        .header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        .body(data);
+  }
 }

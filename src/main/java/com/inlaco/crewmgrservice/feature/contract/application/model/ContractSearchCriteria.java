@@ -10,6 +10,8 @@ import lombok.Setter;
 public class ContractSearchCriteria {
   private String keyword;
 
+  private String relativeAccountId;
+
   private Boolean signed;
   private ContractType type;
 

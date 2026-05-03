@@ -11,6 +11,8 @@ public class CrewRentalRequest {
 
   private String id;
 
+  private String accountId;
+
   private Asset detailFile;
 
   private String companyName;
@@ -42,4 +44,6 @@ public class CrewRentalRequest {
   private String reviewedBy;
 
   private Instant reviewedAt;
+
+  private String createdBy;
 }

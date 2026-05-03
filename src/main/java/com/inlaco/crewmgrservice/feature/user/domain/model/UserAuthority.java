@@ -24,6 +24,10 @@ public class UserAuthority {
     roleIds.add(role);
   }
 
+  public boolean containsRole(String roleId) {
+    return roleIds.contains(roleId);
+  }
+
   public boolean addRole(String roleId) {
     return roleIds.add(roleId);
   }

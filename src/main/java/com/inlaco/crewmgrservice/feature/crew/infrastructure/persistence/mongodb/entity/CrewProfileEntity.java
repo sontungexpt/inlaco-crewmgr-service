@@ -4,7 +4,6 @@ import com.inlaco.crewmgrservice.feature.crew.domain.enums.CrewStatus;
 import com.inlaco.crewmgrservice.shared.objectvalue.Asset;
 import com.inlaco.crewmgrservice.shared.objectvalue.Gender;
 import java.time.Instant;
-import java.util.List;
 import lombok.Data;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.*;
@@ -36,6 +35,8 @@ public class CrewProfileEntity {
   @TextIndexed(weight = 1)
   private String phoneNumber;
 
+  private Asset image;
+
   private String address;
 
   private Gender gender;
@@ -49,13 +50,17 @@ public class CrewProfileEntity {
   @Indexed(unique = true, sparse = true)
   private String employeeCardId;
 
-  private String socialInsuranceCode;
+  private String citizenIdentityCardId;
+  private Asset citizenIdentityCardImageFront;
+  private Asset citizenIdentityCardImageBack;
 
-  private List<Asset> socialInsuranceImages;
+  private String socialInsuranceCode;
+  private Asset socialInsuranceImageFront;
+  private Asset socialInsuranceImageBack;
 
   private String accidentInsuranceCode;
-
-  private List<Asset> accidentInsuranceImages;
+  private Asset accidentInsuranceImageFront;
+  private Asset accidentInsuranceImageBack;
 
   // Sort list
   @CreatedDate private Instant createdAt;

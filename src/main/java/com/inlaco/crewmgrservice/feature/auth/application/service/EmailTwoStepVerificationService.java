@@ -7,9 +7,8 @@ import com.inlaco.crewmgrservice.feature.auth.application.port.in.TwoStepVerific
 import com.inlaco.crewmgrservice.feature.auth.application.port.out.EmailVerificationTokenRepository;
 import com.inlaco.crewmgrservice.feature.auth.domain.exception.TwoStepVerificationException;
 import com.inlaco.crewmgrservice.feature.auth.domain.model.EmailVerificationToken;
-import com.inlaco.crewmgrservice.feature.notify.NotificationDispatcher;
-import com.inlaco.crewmgrservice.feature.notify.NotificationPolicy;
-import com.inlaco.crewmgrservice.feature.notify.mail.EmailRequest;
+import com.inlaco.crewmgrservice.feature.notify.sender.NotificationDispatcher;
+import com.inlaco.crewmgrservice.feature.notify.sender.email.EmailRequest;
 import com.inlaco.crewmgrservice.feature.user.application.port.in.UserUseCase;
 import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import com.inlaco.crewmgrservice.shared.crypto.DigestUtils;
@@ -61,21 +60,25 @@ public class EmailTwoStepVerificationService implements TwoStepVerificationServi
 
   @Override
   public void resend(User user) {
-    EmailVerificationToken token =
-        emailVerificationTokenRepository
-            .findByUserId(user.getId())
-            .orElseThrow(() -> new TwoStepVerificationException("No active token"));
+    emailVerificationTokenRepository
+        .findByUserId(user.getId())
+        .ifPresentOrElse(
+            token -> {
+              if (!token.canResend()) {
+                throw new TwoStepVerificationException(
+                    "Please wait before resending verification email");
+              }
 
-    if (!token.canResend()) {
-      throw new TwoStepVerificationException("Please wait before resending verification email");
-    }
+              TokenPair pair = generateTokenPair();
 
-    TokenPair pair = generateTokenPair();
-
-    token.refresh(pair.hash()); // reset hash + TTL + resend time
-    emailVerificationTokenRepository.save(token);
-    sendEmail(user, pair.raw());
-    log.info("Email verification token resent to user {}", user.getUsername());
+              token.refresh(pair.hash()); // reset hash + TTL + resend time
+              emailVerificationTokenRepository.save(token);
+              sendEmail(user, pair.raw());
+              log.info("Email verification token resent to user {}", user.getUsername());
+            },
+            () -> {
+              send(user);
+            });
   }
 
   @Override
@@ -107,8 +110,7 @@ public class EmailTwoStepVerificationService implements TwoStepVerificationServi
 
   private void sendEmail(User user, String rawToken) {
     log.debug("Sending email notification to user {}", user.getUsername());
-    notificationFactory.sendNotificationAsync(
-        NotificationPolicy.EMAIL, generateEmailRequest(user, rawToken));
+    notificationFactory.sendNotificationAsync(generateEmailRequest(user, rawToken));
   }
 
   private EmailRequest generateEmailRequest(User user, String token) {

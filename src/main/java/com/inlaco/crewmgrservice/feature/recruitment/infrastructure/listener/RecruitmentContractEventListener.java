@@ -4,7 +4,7 @@ import com.inlaco.crewmgrservice.feature.contract.domain.event.ContractActivedEv
 import com.inlaco.crewmgrservice.feature.contract.domain.event.ContractCreatedEvent;
 import com.inlaco.crewmgrservice.feature.contract.domain.event.ContractSignedEvent;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.LaborContract;
-import com.inlaco.crewmgrservice.feature.recruitment.application.port.in.RecruitmentReviewUseCase;
+import com.inlaco.crewmgrservice.feature.recruitment.application.port.in.JobApplicationReviewUseCase;
 import com.inlaco.crewmgrservice.feature.recruitment.domain.enums.ApplicationStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +16,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @RequiredArgsConstructor
 public class RecruitmentContractEventListener {
 
-  private final RecruitmentReviewUseCase recruitmentReviewUseCase;
+  private final JobApplicationReviewUseCase recruitmentReviewUseCase;
 
   @TransactionalEventListener(ContractActivedEvent.class)
   public void handleActived(ContractActivedEvent event) {

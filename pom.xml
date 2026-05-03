@@ -55,6 +55,7 @@
     <spring-retry.version>2.0.12</spring-retry.version>
     <spring-aop.version>4.0.0-M2</spring-aop.version>
     <flapdoodle-embed-mongo.version>4.24.0</flapdoodle-embed-mongo.version>
+    <poi.version>5.5.1</poi.version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -330,6 +331,11 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-thymeleaf</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi-ooxml</artifactId>
+      <version>${poi.version}</version>
     </dependency>
   </dependencies>
   <build>

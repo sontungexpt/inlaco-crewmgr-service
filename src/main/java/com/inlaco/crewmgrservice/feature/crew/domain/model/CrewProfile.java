@@ -4,7 +4,6 @@ import com.inlaco.crewmgrservice.feature.crew.domain.enums.CrewStatus;
 import com.inlaco.crewmgrservice.shared.objectvalue.Asset;
 import com.inlaco.crewmgrservice.shared.objectvalue.Gender;
 import java.time.Instant;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,6 +25,8 @@ public class CrewProfile {
 
   private String phoneNumber;
 
+  private Asset image;
+
   private String address;
 
   private Gender gender;
@@ -44,11 +45,15 @@ public class CrewProfile {
 
   private String employeeCardId;
 
-  private String socialInsuranceCode;
+  private String citizenIdentityCardId;
+  private Asset citizenIdentityCardImageFront;
+  private Asset citizenIdentityCardImageBack;
 
-  private List<Asset> socialInsuranceImages;
+  private String socialInsuranceCode;
+  private Asset socialInsuranceImageFront;
+  private Asset socialInsuranceImageBack;
 
   private String accidentInsuranceCode;
-
-  private List<Asset> accidentInsuranceImages;
+  private Asset accidentInsuranceImageFront;
+  private Asset accidentInsuranceImageBack;
 }

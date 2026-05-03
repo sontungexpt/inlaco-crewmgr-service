@@ -7,7 +7,7 @@ public interface CrewRentalRequestCommandUseCase {
   void review(String requestId, boolean accepted, User reviewer);
 
   CrewRentalRequest create(
-      CrewRentalRequest request, String detailFileAssetId, String shipImageAssetId);
+      CrewRentalRequest request, String detailFileAssetId, String shipImageAssetId, User user);
 
   CrewRentalRequest markSigning(CrewRentalRequest request, String contractId);
 }

@@ -1,8 +1,8 @@
 package com.inlaco.crewmgrservice.feature.auth.presentation.rest.controller;
 
 import com.inlaco.crewmgrservice.feature.auth.application.port.in.TwoStepVerificationUseCase;
+import com.inlaco.crewmgrservice.feature.user.application.port.in.UserUseCase;
 import com.inlaco.crewmgrservice.feature.user.domain.model.User;
-import com.inlaco.crewmgrservice.infrastructure.web.annotation.CurrentUser;
 import com.inlaco.crewmgrservice.infrastructure.web.annotation.PublicEndpoint;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class TwoStepVerificationController {
 
   private final TwoStepVerificationUseCase twoStepVerificationUseCase;
+  private final UserUseCase userUseCase;
 
   @Value("${inlaco.client.endpoint.login}")
   private String LOGIN_CLIENT_URL;
@@ -44,7 +45,8 @@ public class TwoStepVerificationController {
   @Operation(summary = "Resend the two step verification")
   @PostMapping("/resend")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void resendTwoStepVerification(@CurrentUser User user) {
+  public void resendTwoStepVerification(@RequestParam("username") String username) {
+    User user = userUseCase.findByUsername(username);
     twoStepVerificationUseCase.resend(user);
   }
 }

@@ -7,7 +7,8 @@ import com.inlaco.crewmgrservice.feature.contract.application.port.out.LaborCont
 import com.inlaco.crewmgrservice.feature.contract.domain.event.ContractCreatedEvent;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.Contract;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.LaborContract;
-import com.inlaco.crewmgrservice.feature.recruitment.application.port.in.RecruitmentQueryUseCase;
+import com.inlaco.crewmgrservice.feature.contract.domain.model.party.Party;
+import com.inlaco.crewmgrservice.feature.recruitment.application.port.in.JobApplicationQueryUseCase;
 import com.inlaco.crewmgrservice.feature.recruitment.domain.model.JobApplication;
 import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadDispatcher;
 import com.inlaco.crewmgrservice.feature.upload.domain.enums.AssetType;
@@ -25,7 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CreateLaborContractService implements CreateLaborContractUseCase {
 
-  private final RecruitmentQueryUseCase recruitmentQueryUseCase;
+  private final JobApplicationQueryUseCase recruitmentQueryUseCase;
   private final ContractRepository contractRepository;
   private final LaborContractRepository laborContractRepository;
   private final UploadDispatcher uploadDispatcher;
@@ -58,6 +59,9 @@ public class CreateLaborContractService implements CreateLaborContractUseCase {
 
     contract.setApplicationId(applicationId);
     contract.setAccountId(accountId);
+
+    Party applicant = contract.getPartners().get(0);
+    applicant.setAccountId(accountId);
 
     var newContract = contractRepository.save(contract);
     log.info("Publishing ContractCreatedEvent for labor contract with ID: {}", newContract.getId());
