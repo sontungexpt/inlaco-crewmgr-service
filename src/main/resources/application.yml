@@ -30,12 +30,21 @@ websocket:
   endpoint: ${WEB_SOCKET_ENDPOINT:/ws}
   allowed-origins: ${WEB_SOCKET_ALLOWED_ORIGINS:${security.allowed-cors-origins}}
 
-auth:
+token:
   access-token:
-    secret-key: ${JWT_SECRET_KEY} # bắt buộc phải có
+    secret-key: ${JWT_SECRET_KEY}
     expiration: ${JWT_ACCESS_EXPIRATION:1800000} # default 30 mins
   refresh-token:
     expiration: ${JWT_REFRESH_EXPIRATION:2592000000} # default 30 dáy
+  qr-token:
+    attendance:
+      checkin:
+        secretKey: ${QR_ATTENDANCE_CHECKIN_SECRET_KEY:${token.accessToken.secret-key}}
+        expiration: ${QR_ATTENDANCE_CHECKIN_EXPIRATION:${token.accessToken.expiration}}
+
+      checkout:
+        secretKey: ${QR_ATTENDANCE_CHECKOUT_SECRET_KEY:${token.accessToken.secret-key}}
+        expiration: ${QR_ATTENDANCE_CHECKOUT_EXPIRATION:${token.accessToken.expiration}}
 
 resend:
   api-key: ${RESEND_API_KEY}

@@ -1,13 +1,13 @@
 package com.inlaco.crewmgrservice.feature.attendance.application.port.out;
 
-import com.inlaco.crewmgrservice.feature.attendance.domain.model.Attendance;
+import com.inlaco.crewmgrservice.feature.attendance.domain.model.AttendanceLog;
 import java.util.Optional;
 
 public interface AttendanceRepository {
 
-  Attendance save(Attendance attendance);
+  AttendanceLog save(AttendanceLog attendance);
 
-  Optional<Attendance> findByUserIdAndScheduleId(String userId, String scheduleId);
+  Optional<AttendanceLog> findByUserIdAndScheduleId(String userId, String scheduleId);
 
   boolean existsByUserIdAndScheduleId(String userId, String scheduleId);
 }

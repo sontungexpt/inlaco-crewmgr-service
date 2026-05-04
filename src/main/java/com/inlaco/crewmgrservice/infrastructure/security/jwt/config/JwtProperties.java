@@ -6,7 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @Getter
 @Setter
-@ConfigurationProperties(prefix = "auth.access-token")
+@ConfigurationProperties(prefix = "token.access-token")
 public class JwtProperties {
 
   private String secretKey;

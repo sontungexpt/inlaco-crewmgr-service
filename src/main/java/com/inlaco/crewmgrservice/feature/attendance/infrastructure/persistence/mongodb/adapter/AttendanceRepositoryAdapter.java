@@ -1,41 +1,38 @@
 package com.inlaco.crewmgrservice.feature.attendance.infrastructure.persistence.mongodb.adapter;
 
 import com.inlaco.crewmgrservice.feature.attendance.application.port.out.AttendanceRepository;
-import com.inlaco.crewmgrservice.feature.attendance.domain.model.Attendance;
-import com.inlaco.crewmgrservice.feature.attendance.infrastructure.persistence.mongodb.entity.AttendanceEntity;
+import com.inlaco.crewmgrservice.feature.attendance.domain.model.AttendanceLog;
+import com.inlaco.crewmgrservice.feature.attendance.infrastructure.persistence.mongodb.entity.AttendanceLogEntity;
 import com.inlaco.crewmgrservice.feature.attendance.infrastructure.persistence.mongodb.mapper.AttendanceEntityMapper;
-import com.inlaco.crewmgrservice.feature.attendance.infrastructure.persistence.mongodb.repository.AttendanceMongoRepository;
+import com.inlaco.crewmgrservice.feature.attendance.infrastructure.persistence.mongodb.repository.AttendanceLogMongoRepository;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.bson.types.ObjectId;
 import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
 public class AttendanceRepositoryAdapter implements AttendanceRepository {
 
-  private final AttendanceMongoRepository repository;
+  private final AttendanceLogMongoRepository repository;
   private final AttendanceEntityMapper mapper;
 
   @Override
-  public Optional<Attendance> findByUserIdAndScheduleId(String userId, String scheduleId) {
-    return repository
-        .findByUserIdAndScheduleId(new ObjectId(userId), new ObjectId(scheduleId))
-        .map(mapper::toAttendance);
+  public Optional<AttendanceLog> findByUserIdAndScheduleId(String userId, String scheduleId) {
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public boolean existsByUserIdAndScheduleId(String userId, String scheduleId) {
-    return repository.existsByUserIdAndScheduleId(new ObjectId(userId), new ObjectId(scheduleId));
+    throw new UnsupportedOperationException();
   }
 
   @Override
-  public Attendance save(Attendance attendance) {
+  public AttendanceLog save(AttendanceLog attendance) {
     String id = attendance.getId();
     if (id == null) {
       return mapper.toAttendance(repository.insert(mapper.toAttendanceEntity(attendance)));
     } else {
-      AttendanceEntity entity =
+      AttendanceLogEntity entity =
           repository
               .findById(id)
               .map(

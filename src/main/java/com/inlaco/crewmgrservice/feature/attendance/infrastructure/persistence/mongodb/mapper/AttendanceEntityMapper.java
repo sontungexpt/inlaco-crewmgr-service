@@ -1,7 +1,7 @@
 package com.inlaco.crewmgrservice.feature.attendance.infrastructure.persistence.mongodb.mapper;
 
-import com.inlaco.crewmgrservice.feature.attendance.domain.model.Attendance;
-import com.inlaco.crewmgrservice.feature.attendance.infrastructure.persistence.mongodb.entity.AttendanceEntity;
+import com.inlaco.crewmgrservice.feature.attendance.domain.model.AttendanceLog;
+import com.inlaco.crewmgrservice.feature.attendance.infrastructure.persistence.mongodb.entity.AttendanceLogEntity;
 import com.inlaco.crewmgrservice.shared.mapstruct.config.CentralMapperConfig;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
@@ -14,9 +14,9 @@ import org.mapstruct.ReportingPolicy;
     unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface AttendanceEntityMapper {
 
-  AttendanceEntity toAttendanceEntity(Attendance attendance);
+  AttendanceLogEntity toAttendanceEntity(AttendanceLog log);
 
-  Attendance toAttendance(AttendanceEntity attendanceEntity);
+  AttendanceLog toAttendance(AttendanceLogEntity entity);
 
-  void updateFromAttendance(Attendance attendance, @MappingTarget AttendanceEntity existing);
+  void updateFromAttendance(AttendanceLog log, @MappingTarget AttendanceLogEntity existing);
 }
