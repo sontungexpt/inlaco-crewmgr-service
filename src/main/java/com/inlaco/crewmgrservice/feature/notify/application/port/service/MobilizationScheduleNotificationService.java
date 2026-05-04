@@ -2,20 +2,20 @@ package com.inlaco.crewmgrservice.feature.notify.application.port.service;
 
 import com.inlaco.crewmgrservice.feature.crew.application.port.out.CrewProfileRepository;
 import com.inlaco.crewmgrservice.feature.crew.domain.model.CrewProfile;
-import com.inlaco.crewmgrservice.feature.notify.application.port.in.MobilizationScheduleNotificationUseCase;
+import com.inlaco.crewmgrservice.feature.crewmobilization.domain.model.CrewMobilizationSchedule;
+import com.inlaco.crewmgrservice.feature.notify.application.port.in.CrewMobilizationNotificationUseCase;
 import com.inlaco.crewmgrservice.feature.notify.application.port.out.DeviceTokenRepostiory;
 import com.inlaco.crewmgrservice.feature.notify.application.port.out.NotificationRepository;
 import com.inlaco.crewmgrservice.feature.notify.domain.enums.DeviceType;
 import com.inlaco.crewmgrservice.feature.notify.domain.enums.NotificationType;
 import com.inlaco.crewmgrservice.feature.notify.domain.model.DeviceToken;
 import com.inlaco.crewmgrservice.feature.notify.domain.model.Notification;
-import com.inlaco.crewmgrservice.feature.notify.domain.objectvalue.NewMobilizationScheduleNotificationPayload;
+import com.inlaco.crewmgrservice.feature.notify.domain.objectvalue.NewCrewMobilizationNotificationPayload;
 import com.inlaco.crewmgrservice.feature.notify.sender.NotificationDispatcher;
 import com.inlaco.crewmgrservice.feature.notify.sender.email.EmailRequest;
 import com.inlaco.crewmgrservice.feature.notify.sender.pushnotification.ExpoNotificationRequest;
 import com.inlaco.crewmgrservice.feature.notify.sender.websocket.WebSocketNotificationPayload;
 import com.inlaco.crewmgrservice.feature.notify.sender.websocket.WebSocketNotificationRequest;
-import com.inlaco.crewmgrservice.feature.schedule.domain.model.CrewMobilizationSchedule;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +29,7 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 @RequiredArgsConstructor
 @Slf4j
 public class MobilizationScheduleNotificationService
-    implements MobilizationScheduleNotificationUseCase {
+    implements CrewMobilizationNotificationUseCase {
 
   private final CrewProfileRepository crewProfileRepository;
   private final DeviceTokenRepostiory deviceTokenRepostiory;
@@ -79,7 +79,7 @@ public class MobilizationScheduleNotificationService
                         .recipientId(profile.getAccountId())
                         .message(MESSAGE)
                         .type(NotificationType.NEW_MOBILIZATION_SCHEDULE)
-                        .payload(new NewMobilizationScheduleNotificationPayload(schedule.getId()))
+                        .payload(new NewCrewMobilizationNotificationPayload(schedule.getId()))
                         .build())
             .toList();
 
