@@ -46,6 +46,69 @@ token:
         secretKey: ${QR_ATTENDANCE_CHECKOUT_SECRET_KEY:${token.accessToken.secret-key}}
         expiration: ${QR_ATTENDANCE_CHECKOUT_EXPIRATION:${token.accessToken.expiration}}
 
+# Spring Boot Starter TOTP Configuration (Global defaults)
+totp:
+  # Number of characters in TOTP secret (128 = standard length)
+  secret:
+    length: 128
+  # Number of digits in TOTP codes (6 digits = 1,000,000 combinations)
+  code:
+    length: 6
+  # Time period for each TOTP code in seconds (30 seconds = standard)
+  time:
+    period: 30
+    # Time discrepancy tolerance: allows codes from previous/future steps (2 = 90s before/after, 1.5min total window)
+    discrepancy: 2
+
+# Custom TOTP Configuration with Per-Purpose Settings (overrides Spring Boot starter)
+inlaco:
+  totp:
+    # TOTP issuer name displayed in authenticator apps (e.g., "Inlaco")
+    issuer: Inlaco
+    # QR code image dimensions in pixels
+    qr:
+      width: 200
+      height: 200
+      margin: 1
+    cleanup:
+      # Cleanup schedule: "0 0 2 * * *" = daily at 2:00 AM
+      cron: "0 0 2 * * *"
+    
+    # Per-purpose TOTP configurations (overrides global settings)
+    purposes:
+      api-key-creation:
+        # High security: shorter window for critical operations
+        secret-length: 128
+        code-length: 6
+        time-period: 30
+        time-tolerance: 1  # 1 minute total window
+        description: "API Key Creation - High Security"
+      
+      secret-key-viewing:
+        # Medium security: moderate window for viewing secrets
+        secret-length: 128
+        code-length: 6
+        time-period: 30
+        time-tolerance: 2  # 1.5 minutes total window
+        description: "Secret Key Viewing - Medium Security"
+      
+      password-reset:
+        # User-friendly: longer window for password reset
+        secret-length: 128
+        code-length: 6
+        time-period: 30
+        time-tolerance: 3  # 2 minutes total window
+        description: "Password Reset - User Friendly"
+      
+      account-verification:
+        # Balanced: standard window for account verification
+        secret-length: 128
+        code-length: 6
+        time-period: 30
+        time-tolerance: 2  # 1.5 minutes total window
+        description: "Account Verification - Standard"
+
+
 resend:
   api-key: ${RESEND_API_KEY}
   domain: ${RESEND_DOMAIN}
@@ -139,3 +202,4 @@ inlaco:
       sailor-schedule:
         subject: Inlaco Work Schedule Notification
         path: mail/schedule/sailor-work-notification.html
+

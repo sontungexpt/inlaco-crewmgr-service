@@ -40,6 +40,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   @Override
   protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
     boolean fullyPublic = publicEndpointResolver.isFullyPublic(request);
+    
+    // Don't filter if already authenticated by API key
+    Authentication existingAuth = SecurityContextHolder.getContext().getAuthentication();
+    if (existingAuth != null && !isAnonymous(existingAuth)) {
+      log.info("[JWT] Already authenticated by API key, skipping JWT filter for request: {}", request.getRequestURI());
+      return true;
+    }
+    
     log.info("[JWT] Checking if request should be filtered: fullyPublic={}", fullyPublic);
     return fullyPublic;
   }

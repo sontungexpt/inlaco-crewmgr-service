@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTP Verification</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2563eb;
+            margin-bottom: 10px;
+        }
+        .otp-container {
+            background-color: #f8fafc;
+            border: 2px dashed #cbd5e1;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            margin: 30px 0;
+        }
+        .otp-code {
+            font-size: 32px;
+            font-weight: bold;
+            color: #2563eb;
+            letter-spacing: 8px;
+            margin: 10px 0;
+        }
+        .purpose {
+            background-color: #eff6ff;
+            color: #1e40af;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        .warning {
+            background-color: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 15px;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+            font-size: 12px;
+            color: #6b7280;
+        }
+        .security-note {
+            background-color: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 20px 0;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🚢 Inlaco Crew Management</div>
+            <h1>One-Time Password Verification</h1>
+        </div>
+
+        <div class="purpose" th:text="${purpose}">API Key Creation</div>
+
+        <p>Hello,</p>
+        
+        <p>You have requested to perform a secure action that requires verification. Please use the following One-Time Password (OTP) to proceed:</p>
+
+        <div class="otp-container">
+            <p style="margin: 0; font-weight: 500;">Your OTP Code:</p>
+            <div class="otp-code" th:text="${otpCode}">123456</div>
+        </div>
+
+        <div class="security-note">
+            <strong>🔒 Security Notice:</strong>
+            <ul style="margin: 8px 0; padding-left: 20px;">
+                <li>This OTP will expire in <strong th:text="${expiryMinutes}">5</strong> minutes</li>
+                <li>Never share this code with anyone</li>
+                <li>Our team will never ask for your OTP</li>
+                <li>This code can only be used once</li>
+            </ul>
+        </div>
+
+        <div class="warning">
+            <strong>⚠️ Important:</strong> If you didn't request this OTP, please ignore this email. The OTP will automatically expire. For security concerns, please contact our support team immediately.
+        </div>
+
+        <p>If you have any questions or need assistance, please don't hesitate to contact our support team.</p>
+
+        <div class="footer">
+            <p>This is an automated message from Inlaco Crew Management System.</p>
+            <p>© 2025 Inlaco. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>
