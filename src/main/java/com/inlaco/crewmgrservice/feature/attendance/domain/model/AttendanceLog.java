@@ -4,41 +4,44 @@ import com.inlaco.crewmgrservice.feature.attendance.domain.enums.AttendanceMetho
 import com.inlaco.crewmgrservice.feature.attendance.domain.enums.CheckType;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "attendance_logs")
-@AllArgsConstructor
 @Getter
 @Setter
+@AllArgsConstructor
+@Builder
 public class AttendanceLog {
 
   @Id private String id;
 
   private String scheduleId;
-  private String personId;
-  private String companyId;
+
+  private String crewId;
+
   private CheckType checkType;
+
   private AttendanceMethod method;
-  private Instant timestamp;
+
   private String location;
+
   private String deviceId;
+
+  /**
+   * Indicates whether this attendance log is verified as valid after system validation.
+   *
+   * <p>true -> The check-in/check-out is legitimate: - QR token is valid (signature, expiration,
+   * correct schedule) - Crew belongs to the schedule - No duplicate or invalid sequence (e.g.
+   * check-out before check-in) - (Optional) location/device constraints satisfied
+   *
+   * <p>false -> The attempt was recorded but considered invalid: - Invalid or expired QR - Crew not
+   * in schedule - Duplicate scan or suspicious behavior - Any rule violation during verification
+   *
+   * <p>Note: - Logs should still be stored even if not verified for auditing and fraud detection.
+   */
   private boolean verified;
 
-  public static AttendanceLog createCheckIn(
-      String scheduleId, String personId, String companyId, String location, String deviceId) {
-    return new AttendanceLog(
-        null,
-        scheduleId,
-        personId,
-        companyId,
-        CheckType.IN,
-        AttendanceMethod.QR,
-        Instant.now(),
-        location,
-        deviceId,
-        true);
-  }
+  private Instant createdAt;
 }

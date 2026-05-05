@@ -11,8 +11,8 @@ public class AttendanceMapper {
     return AttendanceResponse.builder()
         .id(log.getId())
         .scheduleId(log.getScheduleId())
-        .personId(log.getPersonId())
-        .timestamp(log.getTimestamp())
+        .personId(log.getCrewId())
+        .timestamp(log.getCreatedAt())
         .build();
   }
 }
