@@ -65,6 +65,7 @@ public class ApiKeyAuthenticationFilter extends OncePerRequestFilter {
   protected boolean shouldNotFilter(HttpServletRequest request) {
     // Don't filter if no API key headers are present
     if (getApiKeyId(request) == null || getApiKeySecret(request) == null) {
+      log.debug("No API key headers present in request");
       return true;
     }
 
