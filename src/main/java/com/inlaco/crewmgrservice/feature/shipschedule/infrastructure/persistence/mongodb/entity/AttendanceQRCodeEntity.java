@@ -1,7 +1,7 @@
 package com.inlaco.crewmgrservice.feature.shipschedule.infrastructure.persistence.mongodb.entity;
 
-import com.inlaco.crewmgrservice.feature.shipschedule.domain.model.QRCode;
-import com.inlaco.crewmgrservice.feature.shipschedule.domain.enums.QRType;
+import com.inlaco.crewmgrservice.feature.shipschedule.domain.enums.CheckType;
+import com.inlaco.crewmgrservice.feature.shipschedule.domain.model.AttendanceQRCode;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,24 +14,24 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(collection = "qr_codes")
-public class QRCodeEntity {
+@Document(collection = "attendance_qr_codes")
+public class AttendanceQRCodeEntity {
   
   @Id
   private String id;
   private String token;
   private String shipScheduleId;
   private String employeeCardId;
-  private QRType type;
+  private CheckType type;
   private Instant expiresAt;
   private boolean used;
   private Instant usedAt;
   private String deviceId;
   private String location;
   private Instant createdAt;
-  
-  public static QRCodeEntity fromDomain(QRCode qrCode) {
-    return QRCodeEntity.builder()
+
+  public static AttendanceQRCodeEntity fromDomain(AttendanceQRCode qrCode) {
+    return AttendanceQRCodeEntity.builder()
         .id(qrCode.getId())
         .token(qrCode.getToken())
         .shipScheduleId(qrCode.getShipScheduleId())
@@ -45,9 +45,9 @@ public class QRCodeEntity {
         .createdAt(qrCode.getCreatedAt())
         .build();
   }
-  
-  public QRCode toDomain() {
-    return QRCode.builder()
+
+  public AttendanceQRCode toDomain() {
+    return AttendanceQRCode.builder()
         .id(id)
         .token(token)
         .shipScheduleId(shipScheduleId)

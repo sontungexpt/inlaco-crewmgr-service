@@ -7,7 +7,7 @@ import lombok.Data;
 
 @Data
 public class UpdateCrewListRequest {
-  
+
   @Valid
   @NotEmpty(message = "Employee card IDs list cannot be empty")
   private List<String> employeeCardIds;

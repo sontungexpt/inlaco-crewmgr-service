@@ -14,68 +14,54 @@ import org.springframework.stereotype.Repository;
 @Repository
 @RequiredArgsConstructor
 public class ShipScheduleRepositoryAdapter implements ShipScheduleRepository {
-  
+
   private final ShipScheduleMongoRepository mongoRepository;
   private final ShipScheduleEntityMapper entityMapper;
-  
+
   @Override
   public ShipSchedule save(ShipSchedule shipSchedule) {
     ShipScheduleEntity entity = entityMapper.toEntity(shipSchedule);
     ShipScheduleEntity saved = mongoRepository.save(entity);
     return entityMapper.toDomain(saved);
   }
-  
+
   @Override
   public Optional<ShipSchedule> findById(String id) {
-    return mongoRepository.findById(id)
-        .map(entityMapper::toDomain);
+    return mongoRepository.findById(id).map(entityMapper::toDomain);
   }
-  
+
   @Override
   public List<ShipSchedule> findByClientId(String clientId) {
-    return mongoRepository.findByClientId(clientId)
-        .stream()
-        .map(entityMapper::toDomain)
-        .toList();
+    return mongoRepository.findByClientId(clientId).stream().map(entityMapper::toDomain).toList();
   }
-  
+
   @Override
   public List<ShipSchedule> findByShipImo(String shipImo) {
-    return mongoRepository.findByShipImo(shipImo)
-        .stream()
-        .map(entityMapper::toDomain)
-        .toList();
+    return mongoRepository.findByShipImo(shipImo).stream().map(entityMapper::toDomain).toList();
   }
-  
+
   @Override
   public List<ShipSchedule> findByDepartureTimeBetween(Instant startTime, Instant endTime) {
-    return mongoRepository.findByDepartureTimeBetween(startTime, endTime)
-        .stream()
+    return mongoRepository.findByDepartureTimeBetween(startTime, endTime).stream()
         .map(entityMapper::toDomain)
         .toList();
   }
-  
+
   @Override
   public List<ShipSchedule> findByStatus(String status) {
-    return mongoRepository.findByStatus(status)
-        .stream()
-        .map(entityMapper::toDomain)
-        .toList();
+    return mongoRepository.findByStatus(status).stream().map(entityMapper::toDomain).toList();
   }
-  
+
   @Override
   public List<ShipSchedule> findAll() {
-    return mongoRepository.findAll()
-        .stream()
-        .map(entityMapper::toDomain)
-        .toList();
+    return mongoRepository.findAll().stream().map(entityMapper::toDomain).toList();
   }
-  
+
   @Override
   public void deleteById(String id) {
     mongoRepository.deleteById(id);
   }
-  
+
   @Override
   public boolean existsById(String id) {
     return mongoRepository.existsById(id);

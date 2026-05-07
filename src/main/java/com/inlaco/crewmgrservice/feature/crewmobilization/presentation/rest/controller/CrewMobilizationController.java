@@ -67,7 +67,7 @@ public class CrewMobilizationController {
       @Filter CrewMobilizationSearchCriteria criteria,
       @PageableDefault(page = 0, size = 20) Pageable pageable) {
     return crewMobilizationScheduleQueryUseCase
-        .findSchedules(criteria, pageable)
+        .findMobilizations(criteria, pageable)
         .map(mapper::toCrewMobilizationScheduleResponse);
   }
 
@@ -78,7 +78,7 @@ public class CrewMobilizationController {
   @RolesAllowed({"ADMIN", "SAILOR"})
   public CrewMobilizationResponse getScheduleDetail(@ObjectId @PathVariable("id") String id) {
     return mapper.toCrewMobilizationScheduleResponse(
-        crewMobilizationScheduleQueryUseCase.findDetailSchedule(id));
+        crewMobilizationScheduleQueryUseCase.findDetailMobilization(id));
   }
 
   @Operation(
@@ -97,7 +97,7 @@ public class CrewMobilizationController {
     }
     criteria.setAccountId(user.getId());
     return crewMobilizationScheduleQueryUseCase
-        .findSchedules(criteria, pageable)
+        .findMobilizations(criteria, pageable)
         .map(mapper::toCrewMobilizationScheduleResponse);
   }
 

@@ -66,6 +66,10 @@ public class CrewMobilizationRepositoryAdpater implements CrewMobilizationReposi
       if (criteria.getAccountId() != null && !criteria.getAccountId().isEmpty()) {
         query.and("crews.accountId").is(new ObjectId(criteria.getAccountId()));
       }
+
+      if (criteria.getShipIMO() != null && !criteria.getShipIMO().isEmpty()) {
+        query.and("shipInfo.imoNumber").is(criteria.getShipIMO());
+      }
     }
 
     Aggregation aggregation =

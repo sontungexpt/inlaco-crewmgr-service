@@ -9,16 +9,16 @@ import org.mapstruct.Named;
 
 @Mapper(componentModel = "spring")
 public interface ShipScheduleEntityMapper {
-  
+
   @Mapping(target = "id", ignore = true) // Let MongoDB generate ID
   ShipScheduleEntity toEntity(ShipSchedule domain);
-  
+
   @Mapping(target = "id", source = "id") // Keep ID when mapping back
   ShipSchedule toDomain(ShipScheduleEntity entity);
-  
+
   @Mapping(target = "id", ignore = true) // Don't update ID
   void updateEntity(@MappingTarget ShipScheduleEntity entity, ShipSchedule domain);
-  
+
   @Named("entityToDomainWithoutId")
   @Mapping(target = "id", ignore = true) // For cases where we want to ignore ID
   ShipSchedule toDomainWithoutId(ShipScheduleEntity entity);

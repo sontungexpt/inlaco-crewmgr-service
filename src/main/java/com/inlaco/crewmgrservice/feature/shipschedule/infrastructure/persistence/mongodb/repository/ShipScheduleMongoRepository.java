@@ -10,10 +10,13 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ShipScheduleMongoRepository extends MongoRepository<ShipScheduleEntity, String> {
   List<ShipScheduleEntity> findByClientId(String clientId);
+
   List<ShipScheduleEntity> findByShipImo(String shipImo);
+
   List<ShipScheduleEntity> findByDepartureTimeBetween(Instant startTime, Instant endTime);
+
   List<ShipScheduleEntity> findByStatus(String status);
-  
+
   @Query("{ 'employeeCardIds': { $in: ?0 } }")
   List<ShipScheduleEntity> findByEmployeeCardIds(List<String> employeeCardIds);
 }

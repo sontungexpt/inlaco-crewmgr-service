@@ -8,9 +8,10 @@ import org.springframework.data.domain.Pageable;
 
 public interface CrewMobilizationQueryUseCase {
 
-  CrewMobilization findSchedule(String id);
+  CrewMobilization findMobilization(String id);
 
-  CrewMobilizationDetail findDetailSchedule(String id);
+  CrewMobilizationDetail findDetailMobilization(String id);
 
-  Page<CrewMobilization> findSchedules(CrewMobilizationSearchCriteria criteria, Pageable pageable);
+  Page<CrewMobilization> findMobilizations(
+      CrewMobilizationSearchCriteria criteria, Pageable pageable);
 }

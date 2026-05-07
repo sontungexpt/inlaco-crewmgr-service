@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.feature.shipschedule.domain.enums;
 
-public enum QRType {
+public enum CheckType {
   CHECK_IN,
   CHECK_OUT
 }

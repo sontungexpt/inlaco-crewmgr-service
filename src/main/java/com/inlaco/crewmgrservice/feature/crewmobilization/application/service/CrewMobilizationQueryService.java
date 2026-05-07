@@ -32,7 +32,7 @@ public class CrewMobilizationQueryService implements CrewMobilizationQueryUseCas
   private final CrewMobilizationDetailMapper mapper;
 
   @Override
-  public CrewMobilization findSchedule(String id) {
+  public CrewMobilization findMobilization(String id) {
     log.debug("Fetching crew mobilization schedule with ID: {}", id);
     return crewMobilizationScheduleRepository
         .findById(id)
@@ -44,9 +44,9 @@ public class CrewMobilizationQueryService implements CrewMobilizationQueryUseCas
   }
 
   @Override
-  public CrewMobilizationDetail findDetailSchedule(String id) {
+  public CrewMobilizationDetail findDetailMobilization(String id) {
     log.info("Fetching detailed crew mobilization schedule with ID: {}", id);
-    var schedule = findSchedule(id);
+    var schedule = findMobilization(id);
     var crews = schedule.getCrews();
 
     if (crews == null || crews.isEmpty()) {
@@ -105,7 +105,7 @@ public class CrewMobilizationQueryService implements CrewMobilizationQueryUseCas
   }
 
   @Override
-  public Page<CrewMobilization> findSchedules(
+  public Page<CrewMobilization> findMobilizations(
       CrewMobilizationSearchCriteria criteria, Pageable pageable) {
     log.debug("Fetching crew mobilization schedules with criteria: {}", criteria);
     return crewMobilizationScheduleRepository.findAll(criteria, pageable);

@@ -8,7 +8,7 @@ import lombok.Data;
 
 @Data
 public class UpdateShipScheduleRequest {
-  
+
   private String clientId;
   private String shipImo;
   private String shipName;
@@ -18,9 +18,8 @@ public class UpdateShipScheduleRequest {
   private String departurePort;
   private String arrivalPort;
   private ScheduleStatus status;
-  
-  @Valid
-  private List<String> employeeCardIds;
-  
+
+  @Valid private List<String> employeeCardIds;
+
   private String updatedBy;
 }
