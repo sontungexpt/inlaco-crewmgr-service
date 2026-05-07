@@ -1,55 +1,49 @@
 package com.inlaco.crewmgrservice.feature.apikey.infrastructure.config;
 
+import com.inlaco.crewmgrservice.feature.apikey.domain.model.ApiKeyType;
+import java.time.Duration;
+import java.util.Map;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+@Data
 @Configuration
-@ConfigurationProperties(prefix = "app.apikey")
+@ConfigurationProperties(prefix = "apikey")
 public class ApiKeyConfig {
-  
-  private boolean enabled = true;
-  private long defaultExpirationDays = 365;
-  private String headerKeyId = "X-API-Key-ID";
-  private String headerKeySecret = "X-API-Key-Secret";
-  private boolean requireHttps = false;
-  
-  public boolean isEnabled() {
-    return enabled;
+
+  private boolean enabled;
+  private Headers headers;
+  private Security security;
+  private Expiration expiration;
+
+  // ===== HEADERS =====
+  @Data
+  public static class Headers {
+    private String keyId;
+    private String keySecret;
   }
-  
-  public void setEnabled(boolean enabled) {
-    this.enabled = enabled;
+
+  // ===== SECURITY =====
+  @Data
+  public static class Security {
+    private boolean requireHttps;
   }
-  
-  public long getDefaultExpirationDays() {
-    return defaultExpirationDays;
+
+  // ===== EXPIRATION =====
+  @Data
+  public static class Expiration {
+    private Duration defaultValue;
+    private boolean defaultRenewable;
+    private Map<ApiKeyType, ExpirationConfig> byType;
   }
-  
-  public void setDefaultExpirationDays(long defaultExpirationDays) {
-    this.defaultExpirationDays = defaultExpirationDays;
-  }
-  
-  public String getHeaderKeyId() {
-    return headerKeyId;
-  }
-  
-  public void setHeaderKeyId(String headerKeyId) {
-    this.headerKeyId = headerKeyId;
-  }
-  
-  public String getHeaderKeySecret() {
-    return headerKeySecret;
-  }
-  
-  public void setHeaderKeySecret(String headerKeySecret) {
-    this.headerKeySecret = headerKeySecret;
-  }
-  
-  public boolean isRequireHttps() {
-    return requireHttps;
-  }
-  
-  public void setRequireHttps(boolean requireHttps) {
-    this.requireHttps = requireHttps;
+
+  // ===== EXPIRATION CONFIG =====
+  @Data
+  @AllArgsConstructor
+  public static class ExpirationConfig {
+    private Duration duration;
+    private boolean renewable;
   }
 }

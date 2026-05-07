@@ -7,10 +7,8 @@ import lombok.Data;
 @Data
 @Builder
 public class TotpSetupResponse {
-  
-  private String secret;
+
   private String qrCode;
   private String purposeId;
   private TotpSecret.TotpPurpose purpose;
-  private String instructions;
 }

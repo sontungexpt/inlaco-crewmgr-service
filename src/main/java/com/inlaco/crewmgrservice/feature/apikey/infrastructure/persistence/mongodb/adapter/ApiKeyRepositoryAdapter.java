@@ -19,41 +19,41 @@ public class ApiKeyRepositoryAdapter implements ApiKeyRepository {
 
   @Override
   public ApiKey save(ApiKey apiKey) {
-    ApiKeyEntity entity = entityMapper.toEntity(apiKey);
+    ApiKeyEntity entity = entityMapper.toApiKeyEntity(apiKey);
     ApiKeyEntity saved = mongoRepository.save(entity);
-    return entityMapper.toDomain(saved);
+    return entityMapper.toApiKey(saved);
   }
 
   @Override
   public Optional<ApiKey> findByKeyId(String keyId) {
-    return mongoRepository.findByKeyId(keyId).map(entityMapper::toDomain);
+    return mongoRepository.findByKeyId(keyId).map(entityMapper::toApiKey);
   }
 
   @Override
   public Optional<ApiKey> findByKeyIdAndKeySecret(String keyId, String keySecret) {
-    return mongoRepository.findByKeyIdAndKeySecret(keyId, keySecret).map(entityMapper::toDomain);
+    return mongoRepository.findByKeyIdAndKeySecret(keyId, keySecret).map(entityMapper::toApiKey);
   }
 
   @Override
   public List<ApiKey> findAll() {
-    return mongoRepository.findAll().stream().map(entityMapper::toDomain).toList();
+    return mongoRepository.findAll().stream().map(entityMapper::toApiKey).toList();
   }
 
   @Override
   public List<ApiKey> findByClientName(String clientName) {
     return mongoRepository.findByClientName(clientName).stream()
-        .map(entityMapper::toDomain)
+        .map(entityMapper::toApiKey)
         .toList();
   }
 
   @Override
   public List<ApiKey> findByActive(boolean active) {
-    return mongoRepository.findByActive(active).stream().map(entityMapper::toDomain).toList();
+    return mongoRepository.findByActive(active).stream().map(entityMapper::toApiKey).toList();
   }
 
   @Override
   public List<ApiKey> findByCreatedBy(String createdBy) {
-    return mongoRepository.findByCreatedBy(createdBy).stream().map(entityMapper::toDomain).toList();
+    return mongoRepository.findByCreatedBy(createdBy).stream().map(entityMapper::toApiKey).toList();
   }
 
   @Override

@@ -3,7 +3,6 @@ package com.inlaco.crewmgrservice.feature.crewmobilization.presentation.rest.dto
 import jakarta.validation.constraints.NotBlank;
 
 public record ShipInfoRequest(
-    @NotBlank String imoNumber,
     @NotBlank String countryISO,
     @NotBlank String name,
     String description,

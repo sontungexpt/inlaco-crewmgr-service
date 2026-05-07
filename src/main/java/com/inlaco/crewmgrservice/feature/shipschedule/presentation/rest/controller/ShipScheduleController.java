@@ -73,11 +73,11 @@
 //    return ResponseEntity.ok(mapper.toResponseList(schedules));
 //  }
 //
-//  @GetMapping("/ship/{shipId}")
+//  @GetMapping("/ship/{shipImo}")
 //  @PreAuthorize("hasRole('ADMIN') or hasRole('SCHEDULE_MANAGER') or hasRole('VIEWER')")
-//  @Operation(summary = "Get ship schedules by ship ID")
-//  public ResponseEntity<List<ShipScheduleResponse>> getSchedulesByShip(@PathVariable String shipId) {
-//    List<ShipSchedule> schedules = shipScheduleUseCase.getSchedulesByShipId(shipId);
+//  @Operation(summary = "Get ship schedules by ship IMO")
+//  public ResponseEntity<List<ShipScheduleResponse>> getSchedulesByShip(@PathVariable String shipImo) {
+//    List<ShipSchedule> schedules = shipScheduleUseCase.getSchedulesByShipImo(shipImo);
 //    return ResponseEntity.ok(mapper.toResponseList(schedules));
 //  }
 //

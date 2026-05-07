@@ -10,7 +10,7 @@ import lombok.Data;
 public class UpdateShipScheduleRequest {
   
   private String clientId;
-  private String shipId;
+  private String shipImo;
   private String shipName;
   private String route;
   private Instant departureTime;

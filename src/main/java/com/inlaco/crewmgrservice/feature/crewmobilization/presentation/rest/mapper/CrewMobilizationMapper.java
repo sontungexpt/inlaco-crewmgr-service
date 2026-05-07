@@ -3,9 +3,9 @@ package com.inlaco.crewmgrservice.feature.crewmobilization.presentation.rest.map
 import com.inlaco.crewmgrservice.feature.crewmobilization.application.model.AssignedCrewDetail;
 import com.inlaco.crewmgrservice.feature.crewmobilization.application.model.CrewMobilizationDetail;
 import com.inlaco.crewmgrservice.feature.crewmobilization.domain.model.AssignedCrew;
-import com.inlaco.crewmgrservice.feature.crewmobilization.domain.model.CrewMobilizationSchedule;
+import com.inlaco.crewmgrservice.feature.crewmobilization.domain.model.CrewMobilization;
 import com.inlaco.crewmgrservice.feature.crewmobilization.presentation.rest.dto.request.AssignedCrewRequest;
-import com.inlaco.crewmgrservice.feature.crewmobilization.presentation.rest.dto.request.NewCrewMobilizationRequest;
+import com.inlaco.crewmgrservice.feature.crewmobilization.presentation.rest.dto.request.CreateCrewMobilizationRequest;
 import com.inlaco.crewmgrservice.feature.crewmobilization.presentation.rest.dto.response.AssignedCrewResponse;
 import com.inlaco.crewmgrservice.feature.crewmobilization.presentation.rest.dto.response.CrewMobilizationResponse;
 import org.mapstruct.Mapper;
@@ -19,9 +19,9 @@ import org.mapstruct.ReportingPolicy;
 public interface CrewMobilizationMapper {
 
   @Mapping(target = "shipInfo.image", ignore = true)
-  CrewMobilizationSchedule toCrewMobilizationSchedule(NewCrewMobilizationRequest request);
+  CrewMobilization toCrewMobilizationSchedule(CreateCrewMobilizationRequest request);
 
-  CrewMobilizationResponse toCrewMobilizationScheduleResponse(CrewMobilizationSchedule schedule);
+  CrewMobilizationResponse toCrewMobilizationScheduleResponse(CrewMobilization schedule);
 
   CrewMobilizationResponse toCrewMobilizationScheduleResponse(CrewMobilizationDetail schedule);
 

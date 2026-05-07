@@ -31,7 +31,7 @@ public class ShipScheduleService implements ShipScheduleUseCase {
     
     ShipSchedule existingSchedule = existing.get();
     existingSchedule.setClientId(schedule.getClientId());
-    existingSchedule.setShipId(schedule.getShipId());
+    existingSchedule.setShipImo(schedule.getShipImo());
     existingSchedule.setShipName(schedule.getShipName());
     existingSchedule.setRoute(schedule.getRoute());
     existingSchedule.setDepartureTime(schedule.getDepartureTime());
@@ -71,8 +71,8 @@ public class ShipScheduleService implements ShipScheduleUseCase {
   }
   
   @Override
-  public List<ShipSchedule> getSchedulesByShipId(String shipId) {
-    return shipScheduleRepository.findByShipId(shipId);
+  public List<ShipSchedule> getSchedulesByShipImo(String shipImo) {
+    return shipScheduleRepository.findByShipImo(shipImo);
   }
   
   @Override

@@ -4,7 +4,7 @@ import com.inlaco.crewmgrservice.feature.crewmobilization.application.model.Crew
 import com.inlaco.crewmgrservice.feature.crewmobilization.application.port.in.CrewMobilizationCommandUseCase;
 import com.inlaco.crewmgrservice.feature.crewmobilization.application.port.in.CrewMobilizationExcelExportUseCase;
 import com.inlaco.crewmgrservice.feature.crewmobilization.application.port.in.CrewMobilizationQueryUseCase;
-import com.inlaco.crewmgrservice.feature.crewmobilization.presentation.rest.dto.request.NewCrewMobilizationRequest;
+import com.inlaco.crewmgrservice.feature.crewmobilization.presentation.rest.dto.request.CreateCrewMobilizationRequest;
 import com.inlaco.crewmgrservice.feature.crewmobilization.presentation.rest.dto.response.CrewMobilizationResponse;
 import com.inlaco.crewmgrservice.feature.crewmobilization.presentation.rest.mapper.CrewMobilizationMapper;
 import com.inlaco.crewmgrservice.feature.user.domain.model.User;
@@ -49,10 +49,11 @@ public class CrewMobilizationController {
   @RolesAllowed("ADMIN")
   @ResponseStatus(HttpStatus.CREATED)
   public CrewMobilizationResponse createSchedule(
-      @CurrentUser User user, @RequestBody @Valid NewCrewMobilizationRequest newSchedule) {
+      @CurrentUser User user, @RequestBody @Valid CreateCrewMobilizationRequest newSchedule) {
+
     return mapper.toCrewMobilizationScheduleResponse(
-        crewMobilizationScheduleCommandUseCase.createSchedule(
-            mapper.toCrewMobilizationSchedule(newSchedule)));
+        crewMobilizationScheduleCommandUseCase.createMobilization(
+            mapper.toCrewMobilizationSchedule(newSchedule), newSchedule.shipInfo().image(), user));
   }
 
   @Operation(

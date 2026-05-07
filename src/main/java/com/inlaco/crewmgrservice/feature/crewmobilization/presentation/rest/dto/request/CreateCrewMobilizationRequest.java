@@ -14,7 +14,8 @@ import java.util.List;
 import java.util.Set;
 import org.springframework.format.annotation.DateTimeFormat;
 
-public record NewCrewMobilizationRequest(
+public record CreateCrewMobilizationRequest(
+    @NotBlank String contractId,
     @NotBlank String partnerName,
     @NotBlank @PhoneNumber String partnerPhone,
     @Email @NotBlank String partnerEmail,
@@ -22,7 +23,6 @@ public record NewCrewMobilizationRequest(
     @NotNull ShipInfoRequest shipInfo,
     @NotNull @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant startDate,
     @NotNull @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant endDate,
-    // CrewMobilizationScheduleStatus status,
     @Size(min = 1) @JsonAlias({"crewMembers", "crews"}) Set<@Valid AssignedCrewRequest> crews)
     implements TimeFrame {
 

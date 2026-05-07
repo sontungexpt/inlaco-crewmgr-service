@@ -27,4 +27,19 @@ public interface CrewUseCase {
   CrewProfile adminUpdateProfile(String id, UpdateCrewProfileAdminCommand command, User user);
 
   CrewProfile crewUpdateProfile(String id, UpdateCrewProfileCrewCommand command, User user);
+
+  /** Assign crew to a mobilization (before start date) */
+  void assignCrew(String profileId);
+
+  /** Mark crew as actively working */
+  void engageCrew(String profileId);
+
+  /** Release crew after mobilization ends */
+  void releaseCrew(String profileId);
+
+  /** Put crew on leave */
+  void putOnLeave(String profileId);
+
+  /** Deactivate crew */
+  void deactivateCrew(String profileId);
 }

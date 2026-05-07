@@ -3,31 +3,34 @@ package com.inlaco.crewmgrservice.feature.totp.infrastructure.persistence.mongod
 import com.inlaco.crewmgrservice.feature.totp.application.port.out.TotpRepository;
 import com.inlaco.crewmgrservice.feature.totp.domain.model.TotpSecret;
 import com.inlaco.crewmgrservice.feature.totp.infrastructure.persistence.mongodb.entity.TotpSecretEntity;
+import com.inlaco.crewmgrservice.feature.totp.infrastructure.persistence.mongodb.mapper.TotpEntityMapper;
 import com.inlaco.crewmgrservice.feature.totp.infrastructure.persistence.mongodb.repository.TotpSecretMongoRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
-
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
 public class TotpRepositoryAdapter implements TotpRepository {
 
   private final TotpSecretMongoRepository mongoRepository;
+  private final TotpEntityMapper totpEntityMapper;
 
   @Override
   public TotpSecret save(TotpSecret totpSecret) {
-    TotpSecretEntity entity = TotpSecretEntity.fromDomain(totpSecret);
+    TotpSecretEntity entity = totpEntityMapper.toTotpSecretEntity(totpSecret);
     TotpSecretEntity savedEntity = mongoRepository.save(entity);
-    return savedEntity.toDomain();
+    return totpEntityMapper.toTotpSecret(savedEntity);
   }
 
   @Override
-  public Optional<TotpSecret> findByUserIdAndPurposeAndPurposeId(String userId, TotpSecret.TotpPurpose purpose, String purposeId) {
-    return mongoRepository.findByUserIdAndPurposeAndPurposeId(userId, purpose, purposeId)
-        .map(TotpSecretEntity::toDomain);
+  public Optional<TotpSecret> findByUserIdAndPurposeAndPurposeId(
+      String userId, TotpSecret.TotpPurpose purpose, String purposeId) {
+    return mongoRepository
+        .findByUserIdAndPurposeAndPurposeId(userId, purpose, purposeId)
+        .map(totpEntityMapper::toTotpSecret);
   }
 
   @Override
@@ -36,15 +39,22 @@ public class TotpRepositoryAdapter implements TotpRepository {
   }
 
   @Override
-  public void deleteByUserIdAndPurposeAndPurposeId(String userId, TotpSecret.TotpPurpose purpose, String purposeId) {
-    mongoRepository.findByUserIdAndPurposeAndPurposeId(userId, purpose, purposeId)
+  public void deleteByUserIdAndPurposeAndPurposeId(
+      String userId, TotpSecret.TotpPurpose purpose, String purposeId) {
+    mongoRepository
+        .findByUserIdAndPurposeAndPurposeId(userId, purpose, purposeId)
         .ifPresent(entity -> mongoRepository.deleteById(entity.getId()));
   }
 
   @Override
   public List<TotpSecret> findByCreatedAtBefore(Instant cutoff) {
     return mongoRepository.findByCreatedAtBefore(cutoff).stream()
-        .map(TotpSecretEntity::toDomain)
+        .map(totpEntityMapper::toTotpSecret)
         .toList();
+  }
+
+  @Override
+  public void deleteAllById(Iterable<String> ids) {
+    mongoRepository.deleteAllById(ids);
   }
 }

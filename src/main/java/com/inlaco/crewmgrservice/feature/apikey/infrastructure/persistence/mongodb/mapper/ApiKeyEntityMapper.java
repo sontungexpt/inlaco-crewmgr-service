@@ -5,19 +5,14 @@ import com.inlaco.crewmgrservice.feature.apikey.infrastructure.persistence.mongo
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
-import org.mapstruct.Named;
 
 @Mapper(componentModel = "spring")
 public interface ApiKeyEntityMapper {
 
-  ApiKeyEntity toEntity(ApiKey domain);
+  ApiKeyEntity toApiKeyEntity(ApiKey domain);
 
-  ApiKey toDomain(ApiKeyEntity entity);
+  ApiKey toApiKey(ApiKeyEntity entity);
 
   @Mapping(target = "id", ignore = true) // Don't update ID
-  void updateEntity(@MappingTarget ApiKeyEntity entity, ApiKey domain);
-
-  @Named("entityToDomainWithoutId")
-  @Mapping(target = "id", ignore = true) // For cases where we want to ignore ID
-  ApiKey toDomainWithoutId(ApiKeyEntity entity);
+  void updateFromApiKey(@MappingTarget ApiKeyEntity entity, ApiKey domain);
 }

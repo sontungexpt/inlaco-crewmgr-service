@@ -14,8 +14,8 @@ public class CreateShipScheduleRequest {
   @NotBlank(message = "Client ID is required")
   private String clientId;
   
-  @NotBlank(message = "Ship ID is required")
-  private String shipId;
+  @NotBlank(message = "Ship IMO is required")
+  private String shipImo;
   
   @NotBlank(message = "Ship name is required")
   private String shipName;

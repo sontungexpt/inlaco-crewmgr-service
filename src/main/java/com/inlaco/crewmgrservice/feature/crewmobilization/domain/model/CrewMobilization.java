@@ -7,9 +7,14 @@ import java.util.Set;
 import lombok.Data;
 
 @Data
-public class CrewMobilizationSchedule {
+public class CrewMobilization {
 
   private String id;
+
+  private String contractId;
+  private String crewRentalRequestId;
+
+  private String partnerAccountId;
 
   private String partnerName;
 

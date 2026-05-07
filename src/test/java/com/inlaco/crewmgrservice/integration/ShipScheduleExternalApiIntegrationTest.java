@@ -58,7 +58,7 @@
 //        testSchedule = shipScheduleUseCase.createSchedule(
 //                ShipSchedule.builder()
 //                        .clientId("client-123")
-//                        .shipId("ship-456")
+//                        .shipImo("ship-456")
 //                        .shipName("Integration Test Ship")
 //                        .route("Test Route")
 //                        .departureTime(Instant.now().plusSeconds(3600))

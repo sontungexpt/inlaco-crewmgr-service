@@ -20,7 +20,7 @@ public class ShipScheduleEntity {
   @Id
   private String id; // MongoDB will auto-generate this
   private String clientId;
-  private String shipId;
+  private String shipImo;
   private String shipName;
   private String route;
   private Instant departureTime;

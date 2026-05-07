@@ -8,8 +8,8 @@ import lombok.Data;
 public class ShippingSchedule {
   private String id;
 
-  private String clientId;
-  private String shipId;
+  private String createdBy;
+  private String shipIMO;
 
   private Instant departureTime;
 

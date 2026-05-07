@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 @Builder
 public class TotpResponse {
-  
+
   private String message;
   private boolean verified;
   private boolean exists;

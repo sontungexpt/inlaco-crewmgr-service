@@ -1,23 +1,21 @@
 package com.inlaco.crewmgrservice.feature.totp.domain.model;
 
-import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
-import dev.samstevens.totp.secret.SecretGenerator;
+import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.Instant;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class TotpSecret {
+
   private String id;
   private String userId;
-  private String email;
   private String secret;
+  private String email;
   private TotpPurpose purpose;
   private String purposeId;
   private boolean enabled;
@@ -25,10 +23,9 @@ public class TotpSecret {
   private Instant lastUsedAt;
   private int verificationCount;
 
-  public static TotpSecret generateNew(String userId, String email, TotpPurpose purpose, String purposeId) {
-    SecretGenerator generator = new SecretGenerator();
-    String secret = generator.generate();
-    
+  public static TotpSecret generateNew(
+      String userId, String email, String secret, TotpPurpose purpose, String purposeId) {
+
     return TotpSecret.builder()
         .userId(userId)
         .email(email)

@@ -11,7 +11,7 @@ public interface ShipScheduleUseCase {
   void deleteSchedule(String id);
   Optional<ShipSchedule> getScheduleById(String id);
   List<ShipSchedule> getSchedulesByClientId(String clientId);
-  List<ShipSchedule> getSchedulesByShipId(String shipId);
+  List<ShipSchedule> getSchedulesByShipImo(String shipImo);
   List<ShipSchedule> getSchedulesByDateRange(Instant startTime, Instant endTime);
   List<ShipSchedule> getAllSchedules();
   ShipSchedule addCrewMember(String scheduleId, String employeeCardId);

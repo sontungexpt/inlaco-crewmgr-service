@@ -70,7 +70,7 @@
 //    ShipScheduleCrewResponse response = new ShipScheduleCrewResponse();
 //    response.setId(schedule.getId());
 //    response.setClientId(schedule.getClientId());
-//    response.setShipId(schedule.getShipId());
+//    response.setShipImo(schedule.getShipImo());
 //    response.setShipName(schedule.getShipName());
 //    response.setRoute(schedule.getRoute());
 //    response.setDepartureTime(schedule.getDepartureTime());
@@ -125,7 +125,7 @@
 //          ShipScheduleCrewResponse response = new ShipScheduleCrewResponse();
 //          response.setId(schedule.getId());
 //          response.setClientId(schedule.getClientId());
-//          response.setShipId(schedule.getShipId());
+//          response.setShipImo(schedule.getShipImo());
 //          response.setShipName(schedule.getShipName());
 //          response.setRoute(schedule.getRoute());
 //          response.setDepartureTime(schedule.getDepartureTime());
