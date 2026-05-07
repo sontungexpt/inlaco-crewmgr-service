@@ -8,6 +8,7 @@ This document provides an overview of all the available API endpoints for managi
 - **URL**: `/api/v1/contract-templates`
 - **Method**: `GET`
 - **Description**: Retrieves a paginated list of all contract templates.
+- **Security**: Requires Bearer token authentication
 - **Headers**:
   - `Authorization`: Bearer `<accessToken>`
 - **Query Parameters**:

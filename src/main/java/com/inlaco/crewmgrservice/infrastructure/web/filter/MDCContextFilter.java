@@ -4,10 +4,10 @@ import com.inlaco.crewmgrservice.infrastructure.web.util.HttpHeaderUtils;
 import com.inlaco.crewmgrservice.shared.constant.MDCContextKey;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
@@ -34,7 +34,7 @@ public class MDCContextFilter extends OncePerRequestFilter {
 
       // 2. Nếu không có thì tự sinh
       if (traceId == null || traceId.isBlank()) {
-        traceId = UUID.randomUUID().toString().replace("-", "");
+        traceId = NanoIdUtils.randomNanoId();
       }
 
       // Gắn vào MDC (logback sẽ đọc %X{traceId})

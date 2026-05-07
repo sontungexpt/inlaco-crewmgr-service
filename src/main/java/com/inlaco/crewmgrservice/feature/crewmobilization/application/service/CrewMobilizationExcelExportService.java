@@ -5,7 +5,7 @@ import com.inlaco.crewmgrservice.feature.crew.domain.model.CrewProfile;
 import com.inlaco.crewmgrservice.feature.crewmobilization.application.port.in.CrewMobilizationExcelExportUseCase;
 import com.inlaco.crewmgrservice.feature.crewmobilization.application.port.out.CrewMobilizationRepository;
 import com.inlaco.crewmgrservice.feature.crewmobilization.domain.model.AssignedCrew;
-import com.inlaco.crewmgrservice.feature.crewmobilization.domain.model.CrewMobilizationSchedule;
+import com.inlaco.crewmgrservice.feature.crewmobilization.domain.model.CrewMobilization;
 import java.io.ByteArrayOutputStream;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -29,7 +29,7 @@ public class CrewMobilizationExcelExportService implements CrewMobilizationExcel
   @Override
   public byte[] exportSchedule(String scheduleId) {
 
-    CrewMobilizationSchedule s =
+    CrewMobilization s =
         scheduleRepository
             .findById(scheduleId)
             .orElseThrow(() -> new RuntimeException("Schedule not found"));
@@ -60,7 +60,7 @@ public class CrewMobilizationExcelExportService implements CrewMobilizationExcel
   }
 
   // ========================= INFO SHEET =========================
-  private void buildInfoSheet(Workbook wb, CrewMobilizationSchedule s) {
+  private void buildInfoSheet(Workbook wb, CrewMobilization s) {
     Sheet sh = wb.createSheet("Mobilization Info");
     int r = 0;
 

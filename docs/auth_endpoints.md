@@ -11,6 +11,7 @@ This document provides an overview of all the available API endpoints in the `cr
 - **URL**: `/api/v1/auth/register`
 - **Method**: `POST`
 - **Description**: Registers a new user in the system.
+- **Security**: Public endpoint (no authentication required)
 - **Request Body**:
   ```json
   {
@@ -20,7 +21,7 @@ This document provides an overview of all the available API endpoints in the `cr
   	"name": "string"
   }
   ```
-- **Response**:
+- **Response**: `202 Accepted`
   ```json
   {
   	"accessToken": "string",
@@ -28,7 +29,7 @@ This document provides an overview of all the available API endpoints in the `cr
   }
   ```
 - **Usage**:
-  Send a `POST` request with the required fields in the body to register a new user.
+  Send a `POST` request with the required fields in the body to register a new user. Returns HTTP 202 Accepted.
 
 ---
 
@@ -37,6 +38,7 @@ This document provides an overview of all the available API endpoints in the `cr
 - **URL**: `/api/v1/auth/login`
 - **Method**: `POST`
 - **Description**: Logs the user into the system and returns authentication tokens.
+- **Security**: Public endpoint (no authentication required)
 - **Request Body**:
   ```json
   {
@@ -61,6 +63,7 @@ This document provides an overview of all the available API endpoints in the `cr
 - **URL**: `/api/v1/auth/logout`
 - **Method**: `POST`
 - **Description**: Logs the user out of the system.
+- **Security**: Requires Bearer token with refresh token
 - **Headers**:
   - `Authorization`: Bearer `<refreshToken>`
 - **Response**: `204 No Content`
@@ -74,6 +77,7 @@ This document provides an overview of all the available API endpoints in the `cr
 - **URL**: `/api/v1/auth/refresh-token`
 - **Method**: `POST`
 - **Description**: Refreshes an expired JWT authentication token.
+- **Security**: Requires Bearer token with refresh token
 - **Headers**:
   - `Authorization`: Bearer `<refreshToken>`
 - **Response**:

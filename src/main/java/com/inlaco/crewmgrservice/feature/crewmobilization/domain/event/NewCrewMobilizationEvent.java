@@ -1,5 +1,5 @@
 package com.inlaco.crewmgrservice.feature.crewmobilization.domain.event;
 
-import com.inlaco.crewmgrservice.feature.crewmobilization.domain.model.CrewMobilizationSchedule;
+import com.inlaco.crewmgrservice.feature.crewmobilization.domain.model.CrewMobilization;
 
-public record NewCrewMobilizationEvent(CrewMobilizationSchedule schedule) {}
+public record NewCrewMobilizationEvent(CrewMobilization schedule) {}

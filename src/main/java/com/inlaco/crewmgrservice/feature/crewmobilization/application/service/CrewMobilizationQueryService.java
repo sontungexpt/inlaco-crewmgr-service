@@ -9,7 +9,7 @@ import com.inlaco.crewmgrservice.feature.crewmobilization.application.model.Crew
 import com.inlaco.crewmgrservice.feature.crewmobilization.application.port.in.CrewMobilizationQueryUseCase;
 import com.inlaco.crewmgrservice.feature.crewmobilization.application.port.out.CrewMobilizationRepository;
 import com.inlaco.crewmgrservice.feature.crewmobilization.domain.model.AssignedCrew;
-import com.inlaco.crewmgrservice.feature.crewmobilization.domain.model.CrewMobilizationSchedule;
+import com.inlaco.crewmgrservice.feature.crewmobilization.domain.model.CrewMobilization;
 import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceNotFoundException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,21 +32,21 @@ public class CrewMobilizationQueryService implements CrewMobilizationQueryUseCas
   private final CrewMobilizationDetailMapper mapper;
 
   @Override
-  public CrewMobilizationSchedule findSchedule(String id) {
+  public CrewMobilization findMobilization(String id) {
     log.debug("Fetching crew mobilization schedule with ID: {}", id);
     return crewMobilizationScheduleRepository
         .findById(id)
         .orElseThrow(
             () -> {
               log.warn("Crew mobilization schedule not found with ID: {}", id);
-              return new ResourceNotFoundException(CrewMobilizationSchedule.class, "id", id);
+              return new ResourceNotFoundException(CrewMobilization.class, "id", id);
             });
   }
 
   @Override
-  public CrewMobilizationDetail findDetailSchedule(String id) {
+  public CrewMobilizationDetail findDetailMobilization(String id) {
     log.info("Fetching detailed crew mobilization schedule with ID: {}", id);
-    var schedule = findSchedule(id);
+    var schedule = findMobilization(id);
     var crews = schedule.getCrews();
 
     if (crews == null || crews.isEmpty()) {
@@ -105,7 +105,7 @@ public class CrewMobilizationQueryService implements CrewMobilizationQueryUseCas
   }
 
   @Override
-  public Page<CrewMobilizationSchedule> findSchedules(
+  public Page<CrewMobilization> findMobilizations(
       CrewMobilizationSearchCriteria criteria, Pageable pageable) {
     log.debug("Fetching crew mobilization schedules with criteria: {}", criteria);
     return crewMobilizationScheduleRepository.findAll(criteria, pageable);

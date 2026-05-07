@@ -1,8 +1,8 @@
 package com.inlaco.crewmgrservice.feature.notify.application.port.in;
 
-import com.inlaco.crewmgrservice.feature.crewmobilization.domain.model.CrewMobilizationSchedule;
+import com.inlaco.crewmgrservice.feature.crewmobilization.domain.model.CrewMobilization;
 
 public interface CrewMobilizationNotificationUseCase {
 
-  void notifyUsers(CrewMobilizationSchedule schedule);
+  void notifyUsers(CrewMobilization schedule);
 }

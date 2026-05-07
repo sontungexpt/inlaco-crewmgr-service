@@ -352,4 +352,41 @@ public class CrewService implements CrewUseCase {
 
     return saved;
   }
+
+  @Override
+  public void assignCrew(String profileId) {
+    CrewProfile profile = getProfile(profileId);
+
+    log.debug("Assigning crew. profileId={}", profileId);
+
+    profile.changeStatus(CrewStatus.ASSIGNED);
+
+    crewProfileRepository.save(profile);
+
+    log.info("Crew assigned. profileId={}", profileId);
+  }
+
+  @Override
+  public void engageCrew(String profileId) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'engageCrew'");
+  }
+
+  @Override
+  public void releaseCrew(String profileId) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'releaseCrew'");
+  }
+
+  @Override
+  public void putOnLeave(String profileId) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'putOnLeave'");
+  }
+
+  @Override
+  public void deactivateCrew(String profileId) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'deactivateCrew'");
+  }
 }

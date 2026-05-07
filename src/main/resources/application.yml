@@ -46,6 +46,66 @@ token:
         secretKey: ${QR_ATTENDANCE_CHECKOUT_SECRET_KEY:${token.accessToken.secret-key}}
         expiration: ${QR_ATTENDANCE_CHECKOUT_EXPIRATION:${token.accessToken.expiration}}
 
+apikey:
+  enabled: true
+  headers:
+    key-id: "X-API-Key-ID"
+    key-secret: "X-API-Key-Secret"
+
+  security:
+    require-https: false
+
+  expiration:
+    default-value: 365d
+    default-renewable: false
+
+    by-type:
+      EXTERNAL:
+        duration: 90d
+        renewable: true
+      INTERNAL:
+        duration: 30d
+        renewable: false
+
+totp:
+  # Spring Boot Starter TOTP Configuration (Global defaults)
+  # Number of characters in TOTP secret (128 = standard length)
+  secret:
+    length: 128
+  # Number of digits in TOTP codes (6 digits = 1,000,000 combinations)
+  code:
+    length: 6
+  # Time period for each TOTP code in seconds (30 seconds = standard)
+  time:
+    period: 30
+    # Time discrepancy tolerance: allows codes from previous/future steps (2 = 90s before/after, 1.5min total window)
+    discrepancy: 2
+
+  # Customization fields
+
+  # QR code image dimensions in pixels
+  qr:
+    width: 200
+    height: 200
+    margin: 1
+
+  cleanup:
+    # Cleanup schedule: "0 0 2 * * *" = daily at 2:00 AM
+    cron: "0 0 2 * * *"
+    lifetime: 30d
+
+  # Per-purpose TOTP configurations (overrides global settings)
+  purposes:
+    api-key-creation:
+      secret:
+        length: 128
+      code:
+        length: 6
+      time:
+        period: 30
+        discrepancy: 1 # 1 minute total window
+      description: "API Key Creation - User Friendly"
+
 resend:
   api-key: ${RESEND_API_KEY}
   domain: ${RESEND_DOMAIN}

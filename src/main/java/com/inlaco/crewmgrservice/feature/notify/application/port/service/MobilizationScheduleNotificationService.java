@@ -2,7 +2,7 @@ package com.inlaco.crewmgrservice.feature.notify.application.port.service;
 
 import com.inlaco.crewmgrservice.feature.crew.application.port.out.CrewProfileRepository;
 import com.inlaco.crewmgrservice.feature.crew.domain.model.CrewProfile;
-import com.inlaco.crewmgrservice.feature.crewmobilization.domain.model.CrewMobilizationSchedule;
+import com.inlaco.crewmgrservice.feature.crewmobilization.domain.model.CrewMobilization;
 import com.inlaco.crewmgrservice.feature.notify.application.port.in.CrewMobilizationNotificationUseCase;
 import com.inlaco.crewmgrservice.feature.notify.application.port.out.DeviceTokenRepostiory;
 import com.inlaco.crewmgrservice.feature.notify.application.port.out.NotificationRepository;
@@ -51,7 +51,7 @@ public class MobilizationScheduleNotificationService
   private static String MESSAGE = "Bạn có lịch điều động mới. Vui lồng kiểm tra lịch điều động";
 
   @Override
-  public void notifyUsers(CrewMobilizationSchedule schedule) {
+  public void notifyUsers(CrewMobilization schedule) {
     log.debug("Handling schedule notification [id={}]", schedule.getId());
 
     if (schedule.getCrews() == null || schedule.getCrews().isEmpty()) {
@@ -146,7 +146,7 @@ public class MobilizationScheduleNotificationService
     log.info("Expo push notification dispatched to {} tokens", tokens.size());
   }
 
-  private void sendEmail(List<CrewProfile> profiles, CrewMobilizationSchedule schedule) {
+  private void sendEmail(List<CrewProfile> profiles, CrewMobilization schedule) {
     profiles.forEach(
         profile -> {
           if (profile.getEmail() == null || profile.getEmail().isBlank()) {
@@ -167,7 +167,7 @@ public class MobilizationScheduleNotificationService
         });
   }
 
-  private String buildEmailContent(CrewProfile profile, CrewMobilizationSchedule schedule) {
+  private String buildEmailContent(CrewProfile profile, CrewMobilization schedule) {
     var context = new Context();
     context.setVariable("recipient_name", profile.getFullName());
     context.setVariable("company_name", "INLACO");

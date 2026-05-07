@@ -1,5 +1,6 @@
 package com.inlaco.crewmgrservice.infrastructure.security.config;
 
+import com.inlaco.crewmgrservice.feature.apikey.infrastructure.security.ApiKeyAuthenticationFilter;
 import com.inlaco.crewmgrservice.infrastructure.security.jwt.filter.JwtAuthenticationFilter;
 import com.inlaco.crewmgrservice.infrastructure.websocket.config.WebSocketProperties;
 import java.util.List;
@@ -79,6 +80,7 @@ public class SecurityConfig {
   public SecurityFilterChain securityFilterChain(
       HttpSecurity http,
       JwtAuthenticationFilter lazyJwtAuthTokenFilter,
+      ApiKeyAuthenticationFilter apiKeyAuthenticationFilter,
       // LogoutHandler logoutHandler,
       // LogoutSuccessHandler logoutSuccessHandler,
       AuthorizationManager authzManager,
@@ -107,7 +109,10 @@ public class SecurityConfig {
                     .anyRequest()
                     .access(authzManager))
         .authenticationProvider(authenticationProvider(passwordEncoder, userDetailsService))
+        // API Key filter must run BEFORE JWT filter
+        // This allows requests with API keys to be authenticated without JWT
         .addFilterBefore(lazyJwtAuthTokenFilter, UsernamePasswordAuthenticationFilter.class)
+        .addFilterBefore(apiKeyAuthenticationFilter, JwtAuthenticationFilter.class)
         // disable login and logout because we use JWT
         // session management
         .sessionManagement(
@@ -150,6 +155,8 @@ public class SecurityConfig {
             "Content-Type",
             "Accept",
             "X-Api-Key",
+            "X-API-Key-ID",
+            "X-API-Key-Secret",
             "X-Forwarded-For",
             "X-Requested-With",
             "Access-Control-Allow-Origin",

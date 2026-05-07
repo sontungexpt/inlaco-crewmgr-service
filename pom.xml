@@ -56,6 +56,7 @@
     <spring-aop.version>4.0.0-M2</spring-aop.version>
     <flapdoodle-embed-mongo.version>4.24.0</flapdoodle-embed-mongo.version>
     <poi.version>5.5.1</poi.version>
+    <totp.version>1.7.1</totp.version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -336,6 +337,12 @@
       <groupId>org.apache.poi</groupId>
       <artifactId>poi-ooxml</artifactId>
       <version>${poi.version}</version>
+    </dependency>
+    <!-- TOTP Spring Boot Starter -->
+    <dependency>
+      <groupId>dev.samstevens.totp</groupId>
+      <artifactId>totp-spring-boot-starter</artifactId>
+      <version>${totp.version}</version>
     </dependency>
   </dependencies>
   <build>

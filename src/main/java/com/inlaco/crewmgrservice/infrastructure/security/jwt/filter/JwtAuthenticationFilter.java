@@ -40,6 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   @Override
   protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
     boolean fullyPublic = publicEndpointResolver.isFullyPublic(request);
+
     log.info("[JWT] Checking if request should be filtered: fullyPublic={}", fullyPublic);
     return fullyPublic;
   }

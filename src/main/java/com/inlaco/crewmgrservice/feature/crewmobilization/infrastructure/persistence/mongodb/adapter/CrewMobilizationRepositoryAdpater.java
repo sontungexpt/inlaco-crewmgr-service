@@ -4,7 +4,7 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
 import com.inlaco.crewmgrservice.feature.crewmobilization.application.model.CrewMobilizationSearchCriteria;
 import com.inlaco.crewmgrservice.feature.crewmobilization.application.port.out.CrewMobilizationRepository;
-import com.inlaco.crewmgrservice.feature.crewmobilization.domain.model.CrewMobilizationSchedule;
+import com.inlaco.crewmgrservice.feature.crewmobilization.domain.model.CrewMobilization;
 import com.inlaco.crewmgrservice.feature.crewmobilization.infrastructure.persistence.mongodb.entity.CrewMobilizationEntity;
 import com.inlaco.crewmgrservice.feature.crewmobilization.infrastructure.persistence.mongodb.mapper.CrewMobilizationEntityMapper;
 import com.inlaco.crewmgrservice.feature.crewmobilization.infrastructure.persistence.mongodb.repository.CrewMobilizationMongoRepository;
@@ -30,18 +30,18 @@ public class CrewMobilizationRepositoryAdpater implements CrewMobilizationReposi
   private final MongoTemplate mongoTemplate;
 
   @Override
-  public CrewMobilizationSchedule save(CrewMobilizationSchedule schedule) {
+  public CrewMobilization save(CrewMobilization schedule) {
     return mapper.toCrewMobilizationSchedule(
         repository.save(mapper.toCrewMobilizationScheduleEntity(schedule)));
   }
 
   @Override
-  public Optional<CrewMobilizationSchedule> findById(String id) {
+  public Optional<CrewMobilization> findById(String id) {
     return repository.findById(id).map(mapper::toCrewMobilizationSchedule);
   }
 
   @Override
-  public Page<CrewMobilizationSchedule> findAll(
+  public Page<CrewMobilization> findAll(
       CrewMobilizationSearchCriteria criteria, Pageable pageable) {
     var query = new Criteria();
 
@@ -66,6 +66,10 @@ public class CrewMobilizationRepositoryAdpater implements CrewMobilizationReposi
       if (criteria.getAccountId() != null && !criteria.getAccountId().isEmpty()) {
         query.and("crews.accountId").is(new ObjectId(criteria.getAccountId()));
       }
+
+      if (criteria.getShipIMO() != null && !criteria.getShipIMO().isEmpty()) {
+        query.and("shipInfo.imoNumber").is(criteria.getShipIMO());
+      }
     }
 
     Aggregation aggregation =
@@ -88,7 +92,7 @@ public class CrewMobilizationRepositoryAdpater implements CrewMobilizationReposi
   }
 
   @Override
-  public Page<CrewMobilizationSchedule> findAll(Pageable pageable) {
+  public Page<CrewMobilization> findAll(Pageable pageable) {
     return repository.findAll(pageable).map(mapper::toCrewMobilizationSchedule);
   }
 

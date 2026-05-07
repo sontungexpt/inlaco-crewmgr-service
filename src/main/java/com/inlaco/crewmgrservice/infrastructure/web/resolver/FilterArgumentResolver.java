@@ -288,7 +288,7 @@ public class FilterArgumentResolver implements HandlerMethodArgumentResolver {
         || java.time.temporal.TemporalAmount.class.isAssignableFrom(type)
         || java.util.Date.class.isAssignableFrom(type)
         || java.util.Calendar.class.isAssignableFrom(type)
-        || type == java.util.UUID.class
+        || type == com.aventrix.jnanoid.jnanoid.NanoIdUtils.class
         || type == java.net.URI.class
         || type == java.net.URL.class;
   }

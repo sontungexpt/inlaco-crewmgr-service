@@ -1,7 +1,7 @@
 package com.inlaco.crewmgrservice.feature.crewmobilization.infrastructure.persistence.mongodb.mapper;
 
 import com.inlaco.crewmgrservice.feature.crewmobilization.domain.model.AssignedCrew;
-import com.inlaco.crewmgrservice.feature.crewmobilization.domain.model.CrewMobilizationSchedule;
+import com.inlaco.crewmgrservice.feature.crewmobilization.domain.model.CrewMobilization;
 import com.inlaco.crewmgrservice.feature.crewmobilization.infrastructure.persistence.mongodb.entity.AssignedCrewEntity;
 import com.inlaco.crewmgrservice.feature.crewmobilization.infrastructure.persistence.mongodb.entity.CrewMobilizationEntity;
 import com.inlaco.crewmgrservice.shared.mapstruct.config.CentralMapperConfig;
@@ -15,9 +15,9 @@ import org.mapstruct.ReportingPolicy;
     componentModel = "spring")
 public interface CrewMobilizationEntityMapper {
 
-  CrewMobilizationSchedule toCrewMobilizationSchedule(CrewMobilizationEntity entity);
+  CrewMobilization toCrewMobilizationSchedule(CrewMobilizationEntity entity);
 
-  CrewMobilizationEntity toCrewMobilizationScheduleEntity(CrewMobilizationSchedule schedule);
+  CrewMobilizationEntity toCrewMobilizationScheduleEntity(CrewMobilization schedule);
 
   AssignedCrewEntity toAssignedCrewEntity(AssignedCrew assignedCrew);
 
