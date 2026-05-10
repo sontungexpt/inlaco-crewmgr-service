@@ -100,7 +100,7 @@ public class ShipScheduleRepositoryAdapter implements ShipScheduleRepository {
       }
 
       if (criteria.getShipIMO() != null && !criteria.getShipIMO().isEmpty()) {
-        query.and("shipImo").is(criteria.getShipIMO());
+        query.and("shipIMO").is(criteria.getShipIMO());
       }
 
       if (criteria.getStatus() != null) {
@@ -119,7 +119,7 @@ public class ShipScheduleRepositoryAdapter implements ShipScheduleRepository {
         String keyword = criteria.getKeyword().trim();
         query.orOperator(
             Criteria.where("shipName").regex(keyword, "i"),
-            Criteria.where("shipImo").regex(keyword, "i"),
+            Criteria.where("shipIMO").regex(keyword, "i"),
             Criteria.where("clientId").regex(keyword, "i"));
       }
     }

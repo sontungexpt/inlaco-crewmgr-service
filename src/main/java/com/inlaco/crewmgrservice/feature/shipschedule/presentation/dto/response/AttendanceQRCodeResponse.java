@@ -7,7 +7,6 @@ import lombok.Data;
 @Data
 public class AttendanceQRCodeResponse {
 
-  private String id;
   private String token;
   private String shipScheduleId;
   private String employeeCardId;

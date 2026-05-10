@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.bson.types.ObjectId;
 
 @Data
 @AllArgsConstructor
@@ -13,16 +12,14 @@ import org.bson.types.ObjectId;
 public class ShipScheduleCrewAssignment {
   private String id;
 
-  private ObjectId scheduleId;
+  private String scheduleId;
 
-  private ObjectId profileId;
-  private ObjectId accountId;
+  private String profileId;
+  private String accountId;
   private String employeeCardId;
 
   private String rankOnBoard;
 
   // This is snapshot information for legitimate crew member
   private String fullName;
-  private String phoneNumber;
-  private String email;
 }
