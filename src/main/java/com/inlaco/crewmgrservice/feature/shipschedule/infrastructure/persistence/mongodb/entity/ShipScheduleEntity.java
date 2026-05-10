@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
@@ -36,11 +37,11 @@ public class ShipScheduleEntity {
 
   private ScheduleStatus status;
 
-  @CreatedBy private String createdBy;
+  @CreatedBy private ObjectId createdBy;
 
   @CreatedDate private Instant createdAt;
 
-  @LastModifiedBy private String updatedBy;
+  @LastModifiedBy private ObjectId updatedBy;
 
   @LastModifiedDate private Instant updatedAt;
 }

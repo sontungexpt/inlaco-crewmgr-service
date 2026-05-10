@@ -56,7 +56,7 @@ public class CrewMobilizationCommandService implements CrewMobilizationCommandUs
     validateAssignments(assignments);
 
     List<String> employeeCardIds =
-        assignments.stream().map(CrewMobilizationAssignment::getEmployeeCardId).distinct().toList();
+        assignments.stream().map(CrewMobilizationAssignment::getEmployeeCardId).toList();
 
     validateAssignmentOverlap(assignments, employeeCardIds);
 

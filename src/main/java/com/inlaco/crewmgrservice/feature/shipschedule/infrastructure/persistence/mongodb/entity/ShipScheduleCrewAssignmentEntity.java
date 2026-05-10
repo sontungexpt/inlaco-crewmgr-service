@@ -15,7 +15,9 @@ public class ShipScheduleCrewAssignmentEntity {
 
   @Id private String id;
 
+  private String shipIMO;
   private ObjectId scheduleId;
+
   private ObjectId profileId;
   private ObjectId accountId;
   private String employeeCardId;
@@ -24,6 +26,4 @@ public class ShipScheduleCrewAssignmentEntity {
 
   // This is snapshot information for legitimate crew member
   private String fullName;
-  private String phoneNumber;
-  private String email;
 }

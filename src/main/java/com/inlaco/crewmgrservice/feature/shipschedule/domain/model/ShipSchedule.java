@@ -1,6 +1,7 @@
 package com.inlaco.crewmgrservice.feature.shipschedule.domain.model;
 
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.enums.ScheduleStatus;
+import com.inlaco.crewmgrservice.shared.objectvalue.ShipInfo;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,8 +17,7 @@ public class ShipSchedule {
 
   private String clientId;
 
-  private String shipIMO;
-  private String shipName;
+  private ShipInfo shipInfo;
 
   private String route;
 

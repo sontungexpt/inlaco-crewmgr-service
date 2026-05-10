@@ -1,17 +1,25 @@
 package com.inlaco.crewmgrservice.feature.shipschedule.presentation.rest.controller;
 
-import com.inlaco.crewmgrservice.feature.crew.presentation.mapper.CrewProfileMapper;
+import com.inlaco.crewmgrservice.feature.shipschedule.application.model.ShipScheduleDetail;
+import com.inlaco.crewmgrservice.feature.shipschedule.application.model.ShipScheduleSearchCriteria;
 import com.inlaco.crewmgrservice.feature.shipschedule.application.port.in.ShipScheduleUseCase;
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.model.ShipSchedule;
+import com.inlaco.crewmgrservice.feature.shipschedule.domain.model.ShipScheduleCrewAssignment;
 import com.inlaco.crewmgrservice.feature.shipschedule.presentation.dto.request.CreateShipScheduleRequest;
 import com.inlaco.crewmgrservice.feature.shipschedule.presentation.dto.response.ShipScheduleResponse;
 import com.inlaco.crewmgrservice.feature.shipschedule.presentation.mapper.ShipScheduleMapper;
+import com.inlaco.crewmgrservice.infrastructure.config.openapi.OpenApiConfig;
+import com.inlaco.crewmgrservice.infrastructure.web.annotation.Filter;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -24,15 +32,37 @@ public class ShipScheduleController {
 
   private final ShipScheduleUseCase shipScheduleUseCase;
   private final ShipScheduleMapper mapper;
-  private final CrewProfileMapper crewProfileMapper;
 
-  @PostMapping
-  @PreAuthorize("hasRole('ADMIN') or hasRole('SCHEDULE_MANAGER')")
-  @Operation(summary = "Create a new ship schedule")
+  @Operation(
+      summary = "Create a new ship schedule",
+      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
+  @PostMapping("")
   public ResponseEntity<ShipScheduleResponse> createSchedule(
       @Valid @RequestBody CreateShipScheduleRequest request) {
+
     ShipSchedule schedule = mapper.toShipSchedule(request);
-    ShipSchedule created = shipScheduleUseCase.createSchedule(schedule);
+    List<ShipScheduleCrewAssignment> assignments =
+        request.getCrews().stream().map(mapper::toShipScheduleCrewAssignment).toList();
+    ShipSchedule created = shipScheduleUseCase.createSchedule(schedule, assignments);
+
     return ResponseEntity.ok(mapper.toShipScheduleResponse(created));
+  }
+
+  @Operation(
+      summary = "Create a new ship schedule",
+      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
+  @PostMapping("/{id}")
+  public ShipScheduleDetail getScheduleDetail(@PathVariable String id) {
+    return shipScheduleUseCase.getScheduleDetail(id);
+  }
+
+  @Operation(
+      summary = "Get all ship schedules",
+      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
+  @GetMapping("")
+  public Page<ShipScheduleResponse> getAllSchedules(
+      @Filter ShipScheduleSearchCriteria criteria,
+      @PageableDefault(page = 0, size = 10) Pageable pageable) {
+    return shipScheduleUseCase.getSchedules(criteria, pageable).map(mapper::toShipScheduleResponse);
   }
 }

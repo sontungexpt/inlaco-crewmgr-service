@@ -1,6 +1,10 @@
 package com.inlaco.crewmgrservice.feature.shipschedule.domain.model;
 
+import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.enums.CheckType;
+import com.inlaco.crewmgrservice.feature.shipschedule.domain.errors.AttendanceErrorCode;
+import com.inlaco.crewmgrservice.feature.shipschedule.domain.exception.AttendanceQRCodeException;
+import java.time.Duration;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,61 +13,48 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class AttendanceQRCode {
-  private String id;
+
   private String token;
+
   private String shipScheduleId;
+
   private String employeeCardId;
+
   private CheckType type;
+
   private Instant expiresAt;
-  private boolean used;
-  private Instant usedAt;
-  private String deviceId;
-  private String location;
+
   private Instant createdAt;
 
-  public static AttendanceQRCode generateForCheckIn(String shipScheduleId, String employeeCardId) {
-    String token = "ci_" + System.currentTimeMillis() + "_" + employeeCardId;
+  public static AttendanceQRCode generate(
+      String shipScheduleId, String employeeCardId, CheckType type, Duration duration) {
+
+    String prefix = type.name().toLowerCase();
+
+    Instant now = Instant.now();
 
     return AttendanceQRCode.builder()
-        .token(token)
+        .token(prefix + "_" + NanoIdUtils.randomNanoId())
         .shipScheduleId(shipScheduleId)
         .employeeCardId(employeeCardId)
-        .type(CheckType.CHECK_IN)
-        .expiresAt(Instant.now().plusSeconds(24 * 60 * 60)) // 24 hours
-        .used(false)
-        .createdAt(Instant.now())
+        .type(type)
+        .createdAt(now)
+        .expiresAt(now.plus(duration))
         .build();
-  }
-
-  public static AttendanceQRCode generateForCheckOut(String shipScheduleId, String employeeCardId) {
-    String token = "co_" + System.currentTimeMillis() + "_" + employeeCardId;
-
-    return AttendanceQRCode.builder()
-        .token(token)
-        .shipScheduleId(shipScheduleId)
-        .employeeCardId(employeeCardId)
-        .type(CheckType.CHECK_OUT)
-        .expiresAt(Instant.now().plusSeconds(24 * 60 * 60)) // 24 hours
-        .used(false)
-        .createdAt(Instant.now())
-        .build();
-  }
-
-  public boolean isValid() {
-    return !used && !isExpired();
   }
 
   public boolean isExpired() {
-    return expiresAt != null && expiresAt.isBefore(Instant.now());
+    return expiresAt != null && Instant.now().isAfter(expiresAt);
   }
 
-  public void markAsUsed(String deviceId, String location) {
-    this.used = true;
-    this.usedAt = Instant.now();
-    this.deviceId = deviceId;
-    this.location = location;
+  public void verify() {
+
+    if (isExpired()) {
+      throw new AttendanceQRCodeException(
+          AttendanceErrorCode.ATTENDANCE_QR_EXPIRED, "QR code expired");
+    }
   }
 }

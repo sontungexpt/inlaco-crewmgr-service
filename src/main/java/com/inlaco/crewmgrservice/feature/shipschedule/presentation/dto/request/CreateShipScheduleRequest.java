@@ -1,5 +1,6 @@
 package com.inlaco.crewmgrservice.feature.shipschedule.presentation.dto.request;
 
+import com.inlaco.crewmgrservice.feature.crewrental.presentation.dto.ShipInfoRequest;
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.enums.ScheduleStatus;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -12,14 +13,7 @@ import lombok.Data;
 @Data
 public class CreateShipScheduleRequest {
 
-  @NotBlank(message = "Ship IMO is required")
-  private String shipImo;
-
-  @NotBlank(message = "Ship name is required")
-  private String shipName;
-
-  @NotBlank(message = "Route is required")
-  private String route;
+  @Valid @NotNull private ShipInfoRequest shipInfo;
 
   @NotNull(message = "Departure time is required")
   private Instant departureTime;

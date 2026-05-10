@@ -2,11 +2,17 @@ package com.inlaco.crewmgrservice.feature.shipschedule.infrastructure.persistenc
 
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.model.ShipSchedule;
 import com.inlaco.crewmgrservice.feature.shipschedule.infrastructure.persistence.mongodb.entity.ShipScheduleEntity;
+import com.inlaco.crewmgrservice.shared.mapstruct.config.CentralMapperConfig;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring")
+@Mapper(
+    componentModel = "spring",
+    config = CentralMapperConfig.class,
+    unmappedSourcePolicy = ReportingPolicy.IGNORE,
+    unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface ShipScheduleEntityMapper {
 
   ShipScheduleEntity toEntity(ShipSchedule domain);

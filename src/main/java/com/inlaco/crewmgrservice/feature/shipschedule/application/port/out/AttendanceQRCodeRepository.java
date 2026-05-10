@@ -4,11 +4,10 @@ import com.inlaco.crewmgrservice.feature.shipschedule.domain.model.AttendanceQRC
 import java.util.Optional;
 
 public interface AttendanceQRCodeRepository {
+
   AttendanceQRCode save(AttendanceQRCode qrCode);
 
   Optional<AttendanceQRCode> findByToken(String token);
 
-  Optional<AttendanceQRCode> findByTokenAndNotUsed(String token);
-
-  void deleteById(String id);
+  void deleteByToken(String token);
 }
