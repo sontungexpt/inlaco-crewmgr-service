@@ -1,5 +1,6 @@
 package com.inlaco.crewmgrservice.feature.apikey.application.service;
 
+import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import com.inlaco.crewmgrservice.feature.apikey.application.port.in.ApiKeyUseCase;
 import com.inlaco.crewmgrservice.feature.apikey.application.port.out.ApiKeyRepository;
 import com.inlaco.crewmgrservice.feature.apikey.domain.model.ApiKey;
@@ -34,7 +35,25 @@ public class ApiKeyService implements ApiKeyUseCase {
       String clientName, String description, String createdBy, ApiKeyType type) {
     log.info("Generating new API key for client: {} with type: {}", clientName, type);
     Instant expiresAt = calculateExpiration(type);
-    return ApiKey.generateNew(clientName, description, createdBy, type, expiresAt);
+
+    String keyId = "sk_" + NanoIdUtils.randomNanoId();
+    String keySecret =
+        NanoIdUtils.randomNanoId(
+            NanoIdUtils.DEFAULT_NUMBER_GENERATOR,
+            NanoIdUtils.DEFAULT_ALPHABET,
+            NanoIdUtils.DEFAULT_SIZE * 2);
+
+    return ApiKey.builder()
+        .keyId(keyId)
+        .keySecret(keySecret)
+        .clientName(clientName)
+        .description(description)
+        .active(true)
+        .createdAt(Instant.now())
+        .expiresAt(expiresAt)
+        .createdBy(createdBy)
+        .type(type)
+        .build();
   }
 
   public ApiKey generateNew(String clientName, String description, String createdBy) {

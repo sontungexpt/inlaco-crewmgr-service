@@ -61,7 +61,7 @@ public class ShipScheduleService implements ShipScheduleUseCase {
         crewProfiles.stream()
             .collect(Collectors.toMap(CrewProfile::getEmployeeCardId, Function.identity()));
 
-    enrichSchedule(schedule, assignments);
+    enrichSchedule(schedule, assignments, authenticatedUser);
     enrichAssignments(assignments, crewProfileMap);
 
     ShipSchedule created = shipScheduleRepository.save(schedule);
@@ -100,8 +100,11 @@ public class ShipScheduleService implements ShipScheduleUseCase {
     log.debug("Found {} active contracts for ship IMO: {}", activeContracts.size(), shipImoNumber);
   }
 
-  private void enrichSchedule(ShipSchedule schedule, List<ShipScheduleCrewAssignment> assignments) {
+  private void enrichSchedule(
+      ShipSchedule schedule, List<ShipScheduleCrewAssignment> assignments, User authenticatedUser) {
     log.debug("Enriching schedule");
+    schedule.setVesselOwnerId(authenticatedUser.getId());
+
     schedule
         .getShipInfo()
         .setImage(uploadDispatcher.enrich(AssetType.SHIP_IMAGE, schedule.getShipInfo().getImage()));
@@ -127,12 +130,6 @@ public class ShipScheduleService implements ShipScheduleUseCase {
 
       assignment.setFullName(profile.getFullName());
     }
-  }
-
-  @Override
-  public Page<ShipSchedule> getSchedules(ShipScheduleSearchCriteria criteria, Pageable pageable) {
-    log.debug("Getting schedules");
-    return shipScheduleRepository.findAll(criteria, pageable);
   }
 
   @Override
@@ -190,5 +187,11 @@ public class ShipScheduleService implements ShipScheduleUseCase {
     return shipScheduleRepository
         .findById(scheduleId)
         .orElseThrow(() -> new ResourceNotFoundException(ShipSchedule.class, "id", scheduleId));
+  }
+
+  @Override
+  public Page<ShipSchedule> getSchedules(ShipScheduleSearchCriteria criteria, Pageable pageable) {
+    log.debug("Fetching ship schedules with criteria: {}", criteria);
+    return shipScheduleRepository.findAll(criteria, pageable);
   }
 }
