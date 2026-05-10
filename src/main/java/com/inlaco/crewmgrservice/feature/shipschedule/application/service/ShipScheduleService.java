@@ -11,6 +11,8 @@ import com.inlaco.crewmgrservice.feature.shipschedule.application.port.out.ShipS
 import com.inlaco.crewmgrservice.feature.shipschedule.application.port.out.ShipScheduleRepository;
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.model.ShipSchedule;
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.model.ShipScheduleCrewAssignment;
+import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadDispatcher;
+import com.inlaco.crewmgrservice.feature.upload.domain.enums.AssetType;
 import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,6 +35,7 @@ public class ShipScheduleService implements ShipScheduleUseCase {
   private final ShipScheduleCrewAssignmentRepository assignmentRepository;
   private final CrewUseCase crewUseCase;
   private final ShipScheduleDetailMapper detailMapper;
+  private final UploadDispatcher uploadDispatcher;
 
   @Override
   public ShipSchedule createSchedule(
@@ -50,6 +53,7 @@ public class ShipScheduleService implements ShipScheduleUseCase {
         crewProfiles.stream()
             .collect(Collectors.toMap(CrewProfile::getEmployeeCardId, Function.identity()));
 
+    enrichSchedule(schedule, assignments);
     enrichAssignments(assignments, crewProfileMap);
 
     ShipSchedule created = shipScheduleRepository.save(schedule);
@@ -58,10 +62,12 @@ public class ShipScheduleService implements ShipScheduleUseCase {
     return created;
   }
 
-  private void enrichSchedule(
-      ShipSchedule schedule,
-      List<ShipScheduleCrewAssignment> assignments,
-      String shipImageAssetId) {}
+  private void enrichSchedule(ShipSchedule schedule, List<ShipScheduleCrewAssignment> assignments) {
+    log.debug("Enriching schedule");
+    schedule
+        .getShipInfo()
+        .setImage(uploadDispatcher.enrich(AssetType.SHIP_IMAGE, schedule.getShipInfo().getImage()));
+  }
 
   private void enrichAssignments(
       List<ShipScheduleCrewAssignment> assignments, Map<String, CrewProfile> profileMap) {

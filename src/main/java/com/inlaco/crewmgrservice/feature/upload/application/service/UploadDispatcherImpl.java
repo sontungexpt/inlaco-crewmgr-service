@@ -104,4 +104,11 @@ public class UploadDispatcherImpl implements UploadDispatcher {
       defaultDeleteService.delete(type, assetIds);
     }
   }
+
+  @Override
+  public Asset enrich(AssetType type, Asset asset) {
+    if (asset == null || asset.assetId() == null) return null;
+    log.debug("Fetching enrich strategy for asset type: {}", type);
+    return fetch(type, asset.assetId());
+  }
 }

@@ -14,6 +14,8 @@ public interface UploadDispatcher {
 
   Asset fetch(AssetType type, String assetId);
 
+  Asset enrich(AssetType type, Asset asset);
+
   void validate(AssetType type, AssetMetadata metadata);
 
   void delete(AssetType type, List<String> assetIds);

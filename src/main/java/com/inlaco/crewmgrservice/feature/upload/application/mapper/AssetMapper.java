@@ -9,16 +9,7 @@ public interface AssetMapper {
 
   Asset toAsset(AssetMetadata metadata);
 
-  // default Asset toAsset(AssetMetadata metadata) {
-  //   return Asset.builder()
-  //       .type(metadata.getType())
-  //       .assetId(metadata.getAssetId())
-  //       .publicId(metadata.getPublicId())
-  //       .displayName(metadata.getDisplayName())
-  //       .resourceType(metadata.getResourceType())
-  //       .size(metadata.getSize())
-  //       .format(metadata.getFormat())
-  //       .build();
-  // }
-
+  default Asset toAsset(String assetId) {
+    return Asset.builder().assetId(assetId).build();
+  }
 }
