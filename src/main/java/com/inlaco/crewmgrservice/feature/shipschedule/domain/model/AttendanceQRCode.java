@@ -53,7 +53,11 @@ public class AttendanceQRCode {
   }
 
   public boolean isValid() {
-    return !used && (expiresAt == null || expiresAt.isAfter(Instant.now()));
+    return !used && !isExpired();
+  }
+
+  public boolean isExpired() {
+    return expiresAt != null && expiresAt.isBefore(Instant.now());
   }
 
   public void markAsUsed(String deviceId, String location) {

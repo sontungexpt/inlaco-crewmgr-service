@@ -35,7 +35,7 @@ public class CrewMobilizationEntity {
 
   private CrewMobilizationStatus status;
 
-  private Set<AssignedCrewEntity> crews;
+  private Set<CrewMobilizationAssignmentEntity> crews;
 
   @CreatedBy private ObjectId createdBy;
   @CreatedDate private Instant createdAt;

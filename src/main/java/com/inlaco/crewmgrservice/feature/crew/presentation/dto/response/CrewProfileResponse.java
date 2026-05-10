@@ -1,6 +1,8 @@
 package com.inlaco.crewmgrservice.feature.crew.presentation.dto.response;
 
-import com.inlaco.crewmgrservice.feature.crew.domain.enums.CrewStatus;
+import com.inlaco.crewmgrservice.feature.crew.domain.enums.BoardingStatus;
+import com.inlaco.crewmgrservice.feature.crew.domain.enums.CrewOperationalStatus;
+import com.inlaco.crewmgrservice.feature.crew.domain.enums.MobilizationStatus;
 import com.inlaco.crewmgrservice.shared.objectvalue.AssetResponse;
 import com.inlaco.crewmgrservice.shared.objectvalue.Gender;
 import java.time.Instant;
@@ -11,7 +13,11 @@ public class CrewProfileResponse {
 
   private String id;
 
-  private CrewStatus status;
+  private CrewOperationalStatus status;
+
+  private MobilizationStatus mobilizationStatus;
+
+  private BoardingStatus boardingStatus;
 
   private String professionalPosition;
 

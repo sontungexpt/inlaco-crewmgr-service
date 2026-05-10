@@ -7,9 +7,10 @@ import com.inlaco.crewmgrservice.feature.crewmobilization.application.model.Assi
 import com.inlaco.crewmgrservice.feature.crewmobilization.application.model.CrewMobilizationDetail;
 import com.inlaco.crewmgrservice.feature.crewmobilization.application.model.CrewMobilizationSearchCriteria;
 import com.inlaco.crewmgrservice.feature.crewmobilization.application.port.in.CrewMobilizationQueryUseCase;
+import com.inlaco.crewmgrservice.feature.crewmobilization.application.port.out.CrewMobilizationAssignmentRepository;
 import com.inlaco.crewmgrservice.feature.crewmobilization.application.port.out.CrewMobilizationRepository;
-import com.inlaco.crewmgrservice.feature.crewmobilization.domain.model.AssignedCrew;
 import com.inlaco.crewmgrservice.feature.crewmobilization.domain.model.CrewMobilization;
+import com.inlaco.crewmgrservice.feature.crewmobilization.domain.model.CrewMobilizationAssignment;
 import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceNotFoundException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,6 +30,7 @@ public class CrewMobilizationQueryService implements CrewMobilizationQueryUseCas
 
   private final CrewMobilizationRepository crewMobilizationScheduleRepository;
   private final CrewProfileRepository crewProfileRepository;
+  private final CrewMobilizationAssignmentRepository crewMobilizationAssignmentRepository;
   private final CrewMobilizationDetailMapper mapper;
 
   @Override
@@ -46,20 +48,21 @@ public class CrewMobilizationQueryService implements CrewMobilizationQueryUseCas
   @Override
   public CrewMobilizationDetail findDetailMobilization(String id) {
     log.info("Fetching detailed crew mobilization schedule with ID: {}", id);
-    var schedule = findMobilization(id);
-    var crews = schedule.getCrews();
+    var mobilization = findMobilization(id);
+    var crews = crewMobilizationAssignmentRepository.findByMobilizationId(id);
 
     if (crews == null || crews.isEmpty()) {
-      return mapper.toDetail(schedule, Collections.emptyList());
+      return mapper.toDetail(mobilization, Collections.emptyList());
     }
 
     // Extract employeeCardIds
     List<String> employeeCardIds = new ArrayList<>(crews.size());
-    for (AssignedCrew ac : crews) {
+    for (CrewMobilizationAssignment ac : crews) {
       employeeCardIds.add(ac.getEmployeeCardId());
     }
 
     // Fetch profiles
+    log.debug("Fetching crew profiles with employeeCardIds: {}", employeeCardIds);
     var profiles = crewProfileRepository.findAllByEmployeeCardId(employeeCardIds);
 
     // Build profile map
@@ -69,9 +72,10 @@ public class CrewMobilizationQueryService implements CrewMobilizationQueryUseCas
     }
 
     // Build crew details
+    log.debug("Building crew details");
     List<AssignedCrewDetail> crewDetails = new ArrayList<>(crews.size());
 
-    for (AssignedCrew ac : crews) {
+    for (CrewMobilizationAssignment ac : crews) {
       CrewProfile profile = profileMap.get(ac.getEmployeeCardId());
 
       AssignedCrewDetail detail = new AssignedCrewDetail();
@@ -86,6 +90,7 @@ public class CrewMobilizationQueryService implements CrewMobilizationQueryUseCas
       // profile data
       if (profile != null) {
         detail.setId(profile.getId());
+        detail.setAccountId(profile.getAccountId());
         detail.setFullName(profile.getFullName());
         detail.setEmail(profile.getEmail());
         detail.setPhoneNumber(profile.getPhoneNumber());
@@ -101,7 +106,7 @@ public class CrewMobilizationQueryService implements CrewMobilizationQueryUseCas
       crewDetails.add(detail);
     }
 
-    return mapper.toDetail(schedule, crewDetails);
+    return mapper.toDetail(mobilization, crewDetails);
   }
 
   @Override

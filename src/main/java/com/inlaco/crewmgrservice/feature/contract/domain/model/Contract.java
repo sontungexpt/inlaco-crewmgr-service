@@ -12,7 +12,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Function;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -55,62 +54,11 @@ public abstract class Contract {
   private Instant expiredDate;
   private int contractFreezeDelayMinutes = 5;
 
-  private void incrementVersion() {
-    version = new Version(version.num() + 1, Instant.now());
+  public void incrementVersion(Instant now) {
+    version = new Version(version.num() + 1, now);
   }
 
-  protected <T extends UpdateContractCommand> boolean applyChanges(T patch) {
-    return patch.getTitle().ifUpdated(this::setTitle)
-        | patch.getActivationDate().ifUpdated(this::setActivationDate)
-        | patch.getExpiredDate().ifUpdated(this::setExpiredDate)
-        | patch.getContractFreezeDelayMinutes().ifUpdated(this::setContractFreezeDelayMinutes)
-        | patch.getInitiator().ifUpdated(this::setInitiator)
-        | patch.getPartners().ifUpdated(this::setPartners);
-  }
-
-  protected <T extends UpdateContractCommand> boolean applyAssetChanges(
-      T patch,
-      Function<String, Asset> contractFileConverter,
-      Function<List<String>, List<Asset>> attachmentsConverter) {
-    boolean updated = false;
-
-    String contractFileId = patch.getContractFile();
-    if (contractFileId == null || contractFileId.isBlank()) {
-      updated = updated | contractFile != null;
-      contractFile = null;
-    } else {
-      Asset newContractFile = contractFileConverter.apply(contractFileId);
-      updated = updated | this.contractFile != newContractFile;
-      this.contractFile = newContractFile;
-    }
-
-    List<String> attachmentIds = patch.getAttachments();
-    if (attachmentIds == null || attachmentIds.isEmpty()) {
-      updated = updated | attachments != null;
-      attachments = null;
-    } else {
-      List<Asset> newAttachments = attachmentsConverter.apply(patch.getAttachments());
-      updated = updated | this.attachments != newAttachments;
-      this.attachments = newAttachments;
-    }
-    return updated;
-  }
-
-  public <T extends UpdateContractCommand> void amend(
-      T patch,
-      Instant now,
-      Function<String, Asset> contractFileConverter,
-      Function<List<String>, List<Asset>> attachmentsConverter) {
-
-    if (!(applyChanges(patch)
-        | applyAssetChanges(patch, contractFileConverter, attachmentsConverter))) return;
-    if (isFreezed(now)) {
-      restartLifecycle(now);
-      incrementVersion();
-    }
-  }
-
-  private void restartLifecycle(Instant now) {
+  public void restartLifecycle(Instant now) {
     contractFile = null;
     statusHistories.clear();
     ContractStatus oldStatus = status;
@@ -194,9 +142,7 @@ public abstract class Contract {
   }
 
   public boolean isFreezed(Instant now) {
-    return status == ContractStatus.SIGNED
-        && activationDate != null
-        && !now.isBefore(getFreezedDate());
+    return isSigned() && activationDate != null && !now.isBefore(getFreezedDate());
   }
 
   public Instant getFreezedDate() {
@@ -231,6 +177,17 @@ public abstract class Contract {
     return Collections.unmodifiableList(statusHistories);
   }
 
+  public void validateDate() {
+    if (activationDate == null || expiredDate == null) {
+      return;
+    }
+
+    if (!activationDate.isBefore(expiredDate)) {
+      throw new ContractValidationException(
+          "Contract activation date must be before contract expiration date", "activationDate");
+    }
+  }
+
   public void validateForSigning() {
     // ===== STATUS =====
     ContractValidator.require(isDraft(), "Only draft contracts can be signed", "status");
@@ -252,6 +209,10 @@ public abstract class Contract {
     // ===== TIME =====
     ContractValidator.notNull(activationDate, "Activation date is required");
     ContractValidator.notNull(expiredDate, "Expired date is required");
+    if (activationDate.isAfter(expiredDate)) {
+      throw new ContractValidationException(
+          "Activation date must be before expired date", "activationDate");
+    }
     ContractValidator.require(
         expiredDate.isAfter(activationDate), "Expired date must be after activation date");
   }

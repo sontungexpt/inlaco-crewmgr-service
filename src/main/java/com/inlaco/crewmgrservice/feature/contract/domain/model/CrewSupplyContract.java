@@ -13,7 +13,6 @@ public class CrewSupplyContract extends Contract {
     super(ContractType.SUPPLY_CONTRACT);
   }
 
-  private int numOfCrews;
   private String crewRentalRequestId;
   private ShipInfo shipInfo;
 
@@ -21,7 +20,6 @@ public class CrewSupplyContract extends Contract {
     super.validateForSigning();
 
     ContractValidator.notBlank(crewRentalRequestId, "Crew rental request id is required");
-    ContractValidator.notNull(numOfCrews, "Number of crews is required");
     ContractValidator.notNull(shipInfo, "Ship info is required");
   }
 }

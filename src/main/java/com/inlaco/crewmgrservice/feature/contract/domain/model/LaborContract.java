@@ -35,19 +35,4 @@ public class LaborContract extends Contract {
     ContractValidator.notBlank(payday, "Payday is required");
     ContractValidator.notBlank(salaryReviewPeriod, "Salary review period is required");
   }
-
-  @Override
-  protected <T extends UpdateContractCommand> boolean applyChanges(T command) {
-    boolean changed = super.applyChanges(command);
-    if (!(command instanceof UpdateLaborContractCommand laborCommand)) return changed;
-
-    return changed
-        | laborCommand.getPosition().ifUpdated(this::setPosition)
-        | laborCommand.getWorkingLocation().ifUpdated(this::setWorkingLocation)
-        | laborCommand.getBasicSalary().ifUpdated(this::setBasicSalary)
-        | laborCommand.getAllowance().ifUpdated(this::setAllowance)
-        | laborCommand.getReceiveMethod().ifUpdated(this::setReceiveMethod)
-        | laborCommand.getPayday().ifUpdated(this::setPayday)
-        | laborCommand.getSalaryReviewPeriod().ifUpdated(this::setSalaryReviewPeriod);
-  }
 }

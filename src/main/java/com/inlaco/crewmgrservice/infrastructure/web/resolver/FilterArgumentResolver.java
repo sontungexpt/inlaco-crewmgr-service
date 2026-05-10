@@ -77,7 +77,7 @@ public class FilterArgumentResolver implements HandlerMethodArgumentResolver {
 
         // 1️⃣ Collection
         if (prop.collection) {
-          String[] rawValues = req.getParameterValues(paramName);
+          String[] rawValues = getParameterValues(req, paramName);
           if (rawValues == null || rawValues.length == 0) continue;
 
           Object converted = filterConversionService.convert(List.of(rawValues), prop.type);
@@ -135,10 +135,10 @@ public class FilterArgumentResolver implements HandlerMethodArgumentResolver {
       String paramName = prefix + prop.name;
 
       try {
-
         // 1️⃣ Collection
         if (prop.collection) {
-          String[] rawValues = req.getParameterValues(paramName);
+          String[] rawValues = getParameterValues(req, paramName);
+
           if (rawValues == null || rawValues.length == 0) {
             args[i] = null;
             continue;
@@ -272,6 +272,10 @@ public class FilterArgumentResolver implements HandlerMethodArgumentResolver {
   // =========================================================
   // HELPERS
   // =========================================================
+  private String[] getParameterValues(NativeWebRequest req, String name) {
+    return Optional.ofNullable(req.getParameterValues(name))
+        .orElseGet(() -> req.getParameterValues(name + "[]"));
+  }
 
   private boolean hasAnyParam(NativeWebRequest req, String prefix) {
     return req.getParameterMap().keySet().stream().anyMatch(k -> k.startsWith(prefix));

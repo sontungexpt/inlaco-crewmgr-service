@@ -10,6 +10,8 @@ public class AssignedCrewDetail {
 
   private String id;
   private String employeeCardId;
+  private String accountId;
+
   private String rankOnBoard;
   private Instant startDate;
   private Instant endDate;

@@ -17,6 +17,6 @@ public class NewCrewMobilizationScheduleEventListener {
 
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void handleNewCrewMobilizationScheduleEvent(NewCrewMobilizationEvent event) {
-    mobilizationScheduleNotificationUseCase.notifyUsers(event.schedule());
+    mobilizationScheduleNotificationUseCase.notifyUsers(event.mobilization(), event.crewProfiles());
   }
 }

@@ -30,14 +30,27 @@ public class CrewMobilizationRepositoryAdpater implements CrewMobilizationReposi
   private final MongoTemplate mongoTemplate;
 
   @Override
-  public CrewMobilization save(CrewMobilization schedule) {
-    return mapper.toCrewMobilizationSchedule(
-        repository.save(mapper.toCrewMobilizationScheduleEntity(schedule)));
+  public CrewMobilization save(CrewMobilization mobilization) {
+    String id = mobilization.getId();
+    if (id == null) {
+      return mapper.toCrewMobilization(
+          repository.insert(mapper.toCrewMobilizationEntity(mobilization)));
+    }
+    CrewMobilizationEntity entity =
+        repository
+            .findById(id)
+            .map(
+                existing -> {
+                  mapper.updateFromCrewMobilization(mobilization, existing);
+                  return existing;
+                })
+            .orElseGet(() -> mapper.toCrewMobilizationEntity(mobilization));
+    return mapper.toCrewMobilization(repository.save(entity));
   }
 
   @Override
   public Optional<CrewMobilization> findById(String id) {
-    return repository.findById(id).map(mapper::toCrewMobilizationSchedule);
+    return repository.findById(id).map(mapper::toCrewMobilization);
   }
 
   @Override
@@ -88,12 +101,12 @@ public class CrewMobilizationRepositoryAdpater implements CrewMobilizationReposi
             aggregation, CrewMobilizationEntity.class, CrewMobilizationScheduleFacetResult.class)
         .getUniqueMappedResult()
         .toPage(pageable)
-        .map(mapper::toCrewMobilizationSchedule);
+        .map(mapper::toCrewMobilization);
   }
 
   @Override
   public Page<CrewMobilization> findAll(Pageable pageable) {
-    return repository.findAll(pageable).map(mapper::toCrewMobilizationSchedule);
+    return repository.findAll(pageable).map(mapper::toCrewMobilization);
   }
 
   static class CrewMobilizationScheduleFacetResult extends FacetResult<CrewMobilizationEntity> {}

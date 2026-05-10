@@ -6,7 +6,11 @@ import lombok.experimental.SuperBuilder;
 
 @Data
 @SuperBuilder
-public class AssignedCrew {
+public class CrewMobilizationAssignment {
+
+  private String id;
+
+  private String mobilizationId;
 
   private String profileId;
 

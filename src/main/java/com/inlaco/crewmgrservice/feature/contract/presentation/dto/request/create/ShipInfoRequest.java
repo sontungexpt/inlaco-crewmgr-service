@@ -1,4 +1,4 @@
-package com.inlaco.crewmgrservice.feature.contract.presentation.dto.request;
+package com.inlaco.crewmgrservice.feature.contract.presentation.dto.request.create;
 
 import jakarta.validation.constraints.NotBlank;
 
