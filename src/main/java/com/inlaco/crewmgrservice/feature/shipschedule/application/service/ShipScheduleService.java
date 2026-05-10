@@ -1,5 +1,8 @@
 package com.inlaco.crewmgrservice.feature.shipschedule.application.service;
 
+import com.inlaco.crewmgrservice.feature.contract.application.port.out.ContractRepository;
+import com.inlaco.crewmgrservice.feature.contract.domain.model.Contract;
+import com.inlaco.crewmgrservice.feature.contract.domain.model.party.Party;
 import com.inlaco.crewmgrservice.feature.crew.application.port.in.CrewUseCase;
 import com.inlaco.crewmgrservice.feature.crew.domain.model.CrewProfile;
 import com.inlaco.crewmgrservice.feature.shipschedule.application.mapper.ShipScheduleDetailMapper;
@@ -13,6 +16,7 @@ import com.inlaco.crewmgrservice.feature.shipschedule.domain.model.ShipSchedule;
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.model.ShipScheduleCrewAssignment;
 import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadDispatcher;
 import com.inlaco.crewmgrservice.feature.upload.domain.enums.AssetType;
+import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,10 +40,14 @@ public class ShipScheduleService implements ShipScheduleUseCase {
   private final CrewUseCase crewUseCase;
   private final ShipScheduleDetailMapper detailMapper;
   private final UploadDispatcher uploadDispatcher;
+  private final ContractRepository contractRepository;
 
   @Override
   public ShipSchedule createSchedule(
-      ShipSchedule schedule, List<ShipScheduleCrewAssignment> assignments) {
+      ShipSchedule schedule, List<ShipScheduleCrewAssignment> assignments, User authenticatedUser) {
+    // Validate ship IMO against active contracts
+    validateShipImoAgainstContracts(schedule, authenticatedUser);
+
     List<String> employeeCardIds =
         assignments.stream().map(ShipScheduleCrewAssignment::getEmployeeCardId).toList();
 
@@ -60,6 +68,35 @@ public class ShipScheduleService implements ShipScheduleUseCase {
     assignments.forEach(assignment -> assignment.setScheduleId(created.getId()));
 
     return created;
+  }
+
+  private void validateShipImoAgainstContracts(ShipSchedule schedule, User authenticatedUser) {
+    String shipImoNumber = schedule.getShipInfo().getImoNumber();
+    if (shipImoNumber == null || shipImoNumber.trim().isEmpty()) {
+      throw new IllegalArgumentException("Ship IMO number is required");
+    }
+
+    List<Contract> activeContracts = contractRepository.findActiveContractsByShipIMO(shipImoNumber);
+
+    if (activeContracts.isEmpty()) {
+      throw new IllegalArgumentException(
+          String.format(
+              "Ship with IMO number %s is not found in any active deployment contracts",
+              shipImoNumber));
+    }
+
+    for (var contract : activeContracts) {
+      Party party = contract.getPartners().get(0);
+
+      if (!party.getAccountId().equals(authenticatedUser.getId())) {
+        throw new IllegalArgumentException(
+            String.format(
+                "Ship with IMO number %s is not found in any active deployment contracts",
+                shipImoNumber));
+      }
+    }
+
+    log.debug("Found {} active contracts for ship IMO: {}", activeContracts.size(), shipImoNumber);
   }
 
   private void enrichSchedule(ShipSchedule schedule, List<ShipScheduleCrewAssignment> assignments) {

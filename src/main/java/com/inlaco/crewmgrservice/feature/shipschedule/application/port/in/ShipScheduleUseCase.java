@@ -4,12 +4,14 @@ import com.inlaco.crewmgrservice.feature.shipschedule.application.model.ShipSche
 import com.inlaco.crewmgrservice.feature.shipschedule.application.model.ShipScheduleSearchCriteria;
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.model.ShipSchedule;
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.model.ShipScheduleCrewAssignment;
+import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface ShipScheduleUseCase {
-  ShipSchedule createSchedule(ShipSchedule schedule, List<ShipScheduleCrewAssignment> assignments);
+  ShipSchedule createSchedule(
+      ShipSchedule schedule, List<ShipScheduleCrewAssignment> assignments, User authenticatedUser);
 
   Page<ShipSchedule> getSchedules(ShipScheduleSearchCriteria criteria, Pageable pageable);
 
