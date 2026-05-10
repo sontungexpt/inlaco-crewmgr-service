@@ -48,5 +48,20 @@ public interface ContractEntityMapper {
   CrewSupplyContractEntity toCrewSupplyContractEntity(CrewSupplyContract contract);
 
   @InheritConfiguration(name = "toContractEntity")
-  void updateFromContract(Contract contract, @MappingTarget ContractEntity entity);
+  void updateFromContract(LaborContract contract, @MappingTarget LaborContractEntity entity);
+
+  @InheritConfiguration(name = "toContractEntity")
+  void updateFromContract(
+      CrewSupplyContract contract, @MappingTarget CrewSupplyContractEntity entity);
+
+  @InheritConfiguration(name = "toContractEntity")
+  default void updateFromContract(Contract contract, @MappingTarget ContractEntity entity) {
+    if (contract instanceof LaborContract laborContract
+        && entity instanceof LaborContractEntity laborContractEntity) {
+      updateFromContract(laborContract, laborContractEntity);
+    } else if (contract instanceof CrewSupplyContract supplyContract
+        && entity instanceof CrewSupplyContractEntity supplyContractEntity) {
+      updateFromContract(supplyContract, supplyContractEntity);
+    }
+  }
 }

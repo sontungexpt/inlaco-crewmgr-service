@@ -2,12 +2,15 @@ package com.inlaco.crewmgrservice.feature.shipschedule.infrastructure.persistenc
 
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.enums.ScheduleStatus;
 import java.time.Instant;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
@@ -16,21 +19,28 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 @Document(collection = "ship_schedules")
 public class ShipScheduleEntity {
-  
-  @Id
-  private String id; // MongoDB will auto-generate this
+
+  @Id private String id; // MongoDB will auto-generate this
   private String clientId;
-  private String shipImo;
+
+  private String shipIMO;
   private String shipName;
+
   private String route;
+
   private Instant departureTime;
   private Instant arrivalTime;
+
   private String departurePort;
   private String arrivalPort;
+
   private ScheduleStatus status;
-  private List<String> employeeCardIds;
-  private String createdBy;
-  private Instant createdAt;
-  private String updatedBy;
-  private Instant updatedAt;
+
+  @CreatedBy private String createdBy;
+
+  @CreatedDate private Instant createdAt;
+
+  @LastModifiedBy private String updatedBy;
+
+  @LastModifiedDate private Instant updatedAt;
 }

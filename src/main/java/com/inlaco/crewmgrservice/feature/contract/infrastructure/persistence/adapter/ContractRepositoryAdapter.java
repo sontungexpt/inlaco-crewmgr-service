@@ -39,61 +39,6 @@ public class ContractRepositoryAdapter implements ContractRepository {
     return repository.findAll(pageable).map(mapper::toContract);
   }
 
-  // @Override
-  // public Page<Contract> findAll(ContractSearchCriteria criteria, Pageable pageable) {
-  //   Criteria query = new Criteria();
-  //   if (criteria != null) {
-  //     if (StringUtils.hasText(criteria.getKeyword())) {
-  //       query.and("title").regex(criteria.getKeyword(), "i");
-  //     }
-
-  //     if (criteria.getType() != null) {
-  //       query.and("type").is(criteria.getType());
-  //     }
-  //     if (criteria.getActivationDateStart() != null) {
-  //       query.and("activationDate").gte(criteria.getActivationDateStart());
-  //     }
-  //     if (criteria.getActivationDateEnd() != null) {
-  //       query.and("activationDate").lte(criteria.getActivationDateEnd());
-  //     }
-  //     if (criteria.getExpiredDateStart() != null) {
-  //       query.and("expiredDate").gte(criteria.getExpiredDateStart());
-  //     }
-  //     if (criteria.getExpiredDateEnd() != null) {
-  //       query.and("expiredDate").lte(criteria.getExpiredDateEnd());
-  //     }
-  //     if (criteria.getSigned() != null) {
-  //       if (criteria.getSigned()) {
-  //         query.and("status").ne(ContractStatus.DRAFT);
-  //       } else {
-  //         query.and("status").is(ContractStatus.DRAFT);
-  //       }
-  //     }
-
-  //     if (criteria.getRelativeAccountId() != null) {
-  //       query.orOperator(
-  //           Criteria.where("initiator.accountId").is(criteria.getRelativeAccountId()),
-  //           Criteria.where("partners.accountId").is(criteria.getRelativeAccountId()));
-  //     }
-  //   }
-
-  //   Aggregation aggregation =
-  //       newAggregation(
-  //           match(query),
-  //           facet(Aggregation.count().as(FacetResult.COUNT_KEY))
-  //               .as(FacetResult.COUNT_FACET_NAME)
-  //               .and(
-  //                   sort(pageable.getSort()),
-  //                   skip(pageable.getOffset()),
-  //                   limit(pageable.getPageSize()))
-  //               .as(FacetResult.DATA_FACET_NAME));
-
-  //   return mongoTemplate
-  //       .aggregate(aggregation, ContractEntity.class, ContractEntityFacetResult.class)
-  //       .getUniqueMappedResult()
-  //       .toPage(pageable)
-  //       .map(mapper::toContract);
-  // }
   @Override
   public Page<Contract> findAll(ContractSearchCriteria criteria, Pageable pageable) {
 
@@ -131,6 +76,22 @@ public class ContractRepositoryAdapter implements ContractRepository {
         } else {
           criteriaList.add(Criteria.where("status").is(ContractStatus.DRAFT));
         }
+      }
+
+      if (criteria.getActive() != null) {
+        if (criteria.getActive()) {
+          criteriaList.add(Criteria.where("status").eq(ContractStatus.ACTIVE));
+        } else {
+          criteriaList.add(Criteria.where("status").ne(ContractStatus.ACTIVE));
+        }
+      }
+
+      if (criteria.getIncludedStatuses() != null && !criteria.getIncludedStatuses().isEmpty()) {
+        criteriaList.add(Criteria.where("status").in(criteria.getIncludedStatuses()));
+      }
+
+      if (criteria.getExcludedStatuses() != null && !criteria.getExcludedStatuses().isEmpty()) {
+        criteriaList.add(Criteria.where("status").nin(criteria.getExcludedStatuses()));
       }
 
       if (criteria.getRelativeAccountId() != null) {

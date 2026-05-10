@@ -3,9 +3,10 @@ package com.inlaco.crewmgrservice.feature.crewmobilization.application.service;
 import com.inlaco.crewmgrservice.feature.crew.application.port.in.CrewUseCase;
 import com.inlaco.crewmgrservice.feature.crew.domain.model.CrewProfile;
 import com.inlaco.crewmgrservice.feature.crewmobilization.application.port.in.CrewMobilizationExcelExportUseCase;
+import com.inlaco.crewmgrservice.feature.crewmobilization.application.port.out.CrewMobilizationAssignmentRepository;
 import com.inlaco.crewmgrservice.feature.crewmobilization.application.port.out.CrewMobilizationRepository;
-import com.inlaco.crewmgrservice.feature.crewmobilization.domain.model.AssignedCrew;
 import com.inlaco.crewmgrservice.feature.crewmobilization.domain.model.CrewMobilization;
+import com.inlaco.crewmgrservice.feature.crewmobilization.domain.model.CrewMobilizationAssignment;
 import java.io.ByteArrayOutputStream;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -22,33 +23,34 @@ import org.springframework.stereotype.Service;
 public class CrewMobilizationExcelExportService implements CrewMobilizationExcelExportUseCase {
 
   private final CrewMobilizationRepository scheduleRepository;
+  private final CrewMobilizationAssignmentRepository assignmentRepository;
   private final CrewUseCase crewUseCase;
 
   private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
   @Override
-  public byte[] exportSchedule(String scheduleId) {
+  public byte[] exportMobilization(String mobilization) {
 
     CrewMobilization s =
         scheduleRepository
-            .findById(scheduleId)
+            .findById(mobilization)
             .orElseThrow(() -> new RuntimeException("Schedule not found"));
 
-    List<AssignedCrew> crews =
-        Optional.ofNullable(s.getCrews()).map(ArrayList::new).orElseGet(ArrayList::new);
+    List<CrewMobilizationAssignment> asignments =
+        assignmentRepository.findByMobilizationId(mobilization);
 
     Map<String, CrewProfile> profileMap =
         crewUseCase
             .getProfilesByEmployeeCardIds(
-                crews.stream().map(AssignedCrew::getEmployeeCardId).toList())
+                asignments.stream().map(CrewMobilizationAssignment::getEmployeeCardId).toList())
             .stream()
             .collect(Collectors.toMap(CrewProfile::getEmployeeCardId, p -> p, (a, b) -> a));
 
     try (Workbook wb = new XSSFWorkbook()) {
 
-      buildInfoSheet(wb, s);
-      buildCrewSummary(wb, crews, profileMap);
-      buildCrewDetail(wb, crews, profileMap);
+      buildInfoSheet(wb, s, asignments);
+      buildCrewSummary(wb, asignments, profileMap);
+      buildCrewDetail(wb, asignments, profileMap);
 
       ByteArrayOutputStream out = new ByteArrayOutputStream();
       wb.write(out);
@@ -60,7 +62,8 @@ public class CrewMobilizationExcelExportService implements CrewMobilizationExcel
   }
 
   // ========================= INFO SHEET =========================
-  private void buildInfoSheet(Workbook wb, CrewMobilization s) {
+  private void buildInfoSheet(
+      Workbook wb, CrewMobilization s, List<CrewMobilizationAssignment> asignments) {
     Sheet sh = wb.createSheet("Mobilization Info");
     int r = 0;
 
@@ -81,12 +84,12 @@ public class CrewMobilizationExcelExportService implements CrewMobilizationExcel
     row(sh, r++, "Start", fmt(s.getStartDate()));
     row(sh, r++, "End", fmt(s.getEndDate()));
     row(sh, r++, "Status", String.valueOf(s.getStatus()));
-    row(sh, r, "Crew Count", String.valueOf(s.getCrewNumbers()));
+    row(sh, r, "Crew Count", String.valueOf(asignments.size()));
   }
 
   // ========================= CREW SUMMARY =========================
   private void buildCrewSummary(
-      Workbook wb, List<AssignedCrew> crews, Map<String, CrewProfile> map) {
+      Workbook wb, List<CrewMobilizationAssignment> crews, Map<String, CrewProfile> map) {
 
     Sheet sh = wb.createSheet("Crew Summary");
 
@@ -94,7 +97,7 @@ public class CrewMobilizationExcelExportService implements CrewMobilizationExcel
     header(sh, h);
 
     int i = 1;
-    for (AssignedCrew c : crews) {
+    for (CrewMobilizationAssignment c : crews) {
       CrewProfile p = map.get(c.getEmployeeCardId());
       Row r = sh.createRow(i++);
 
@@ -109,7 +112,7 @@ public class CrewMobilizationExcelExportService implements CrewMobilizationExcel
 
   // ========================= CREW DETAIL =========================
   private void buildCrewDetail(
-      Workbook wb, List<AssignedCrew> crews, Map<String, CrewProfile> map) {
+      Workbook wb, List<CrewMobilizationAssignment> crews, Map<String, CrewProfile> map) {
 
     Sheet sh = wb.createSheet("Crew Detail");
 
@@ -133,7 +136,7 @@ public class CrewMobilizationExcelExportService implements CrewMobilizationExcel
     header(sh, h);
 
     int i = 1;
-    for (AssignedCrew c : crews) {
+    for (CrewMobilizationAssignment c : crews) {
       CrewProfile p = map.get(c.getEmployeeCardId());
       Row r = sh.createRow(i++);
 

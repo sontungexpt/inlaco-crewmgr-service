@@ -49,11 +49,14 @@ public class CrewMobilizationController {
   @RolesAllowed("ADMIN")
   @ResponseStatus(HttpStatus.CREATED)
   public CrewMobilizationResponse createSchedule(
-      @CurrentUser User user, @RequestBody @Valid CreateCrewMobilizationRequest newSchedule) {
+      @CurrentUser User user, @RequestBody @Valid CreateCrewMobilizationRequest newMobilization) {
 
-    return mapper.toCrewMobilizationScheduleResponse(
+    return mapper.toCrewMobilizationResponse(
         crewMobilizationScheduleCommandUseCase.createMobilization(
-            mapper.toCrewMobilizationSchedule(newSchedule), newSchedule.shipInfo().image(), user));
+            mapper.toCrewMobilization(newMobilization),
+            newMobilization.crews().stream().map(mapper::toCrewMobilizationAssignment).toList(),
+            newMobilization.shipInfo().image(),
+            user));
   }
 
   @Operation(
@@ -68,7 +71,7 @@ public class CrewMobilizationController {
       @PageableDefault(page = 0, size = 20) Pageable pageable) {
     return crewMobilizationScheduleQueryUseCase
         .findMobilizations(criteria, pageable)
-        .map(mapper::toCrewMobilizationScheduleResponse);
+        .map(mapper::toCrewMobilizationResponse);
   }
 
   @Operation(
@@ -77,7 +80,7 @@ public class CrewMobilizationController {
   @GetMapping("/{id}")
   @RolesAllowed({"ADMIN", "SAILOR"})
   public CrewMobilizationResponse getScheduleDetail(@ObjectId @PathVariable("id") String id) {
-    return mapper.toCrewMobilizationScheduleResponse(
+    return mapper.toCrewMobilizationResponse(
         crewMobilizationScheduleQueryUseCase.findDetailMobilization(id));
   }
 
@@ -98,7 +101,7 @@ public class CrewMobilizationController {
     criteria.setAccountId(user.getId());
     return crewMobilizationScheduleQueryUseCase
         .findMobilizations(criteria, pageable)
-        .map(mapper::toCrewMobilizationScheduleResponse);
+        .map(mapper::toCrewMobilizationResponse);
   }
 
   @GetMapping("/{id}/export")
@@ -108,7 +111,7 @@ public class CrewMobilizationController {
   @RolesAllowed({"ADMIN", "SAILOR"})
   public ResponseEntity<byte[]> export(@PathVariable String id) {
 
-    byte[] data = exportUseCase.exportSchedule(id);
+    byte[] data = exportUseCase.exportMobilization(id);
 
     return ResponseEntity.ok()
         .header("Content-Disposition", "attachment; filename=schedule.xlsx")

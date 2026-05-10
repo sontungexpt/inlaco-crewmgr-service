@@ -1,6 +1,5 @@
 package com.inlaco.crewmgrservice.feature.notify.application.port.service;
 
-import com.inlaco.crewmgrservice.feature.crew.application.port.out.CrewProfileRepository;
 import com.inlaco.crewmgrservice.feature.crew.domain.model.CrewProfile;
 import com.inlaco.crewmgrservice.feature.crewmobilization.domain.model.CrewMobilization;
 import com.inlaco.crewmgrservice.feature.notify.application.port.in.CrewMobilizationNotificationUseCase;
@@ -31,7 +30,6 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 public class MobilizationScheduleNotificationService
     implements CrewMobilizationNotificationUseCase {
 
-  private final CrewProfileRepository crewProfileRepository;
   private final DeviceTokenRepostiory deviceTokenRepostiory;
   private final NotificationDispatcher notificationDispatcher;
   private final SpringTemplateEngine templateEngine;
@@ -51,24 +49,18 @@ public class MobilizationScheduleNotificationService
   private static String MESSAGE = "Bạn có lịch điều động mới. Vui lồng kiểm tra lịch điều động";
 
   @Override
-  public void notifyUsers(CrewMobilization schedule) {
-    log.debug("Handling schedule notification [id={}]", schedule.getId());
-
-    if (schedule.getCrews() == null || schedule.getCrews().isEmpty()) {
-      log.warn("Schedule {} has no crew members to notify", schedule.getId());
-      return;
-    }
-
-    List<String> cardIds = schedule.getCrews().stream().map(it -> it.getEmployeeCardId()).toList();
-    List<CrewProfile> profiles = crewProfileRepository.findAllByEmployeeCardId(cardIds);
+  public void notifyUsers(CrewMobilization mobilization, List<CrewProfile> profiles) {
+    log.debug("Handling schedule notification [id={}]", mobilization.getId());
 
     if (profiles.isEmpty()) {
-      log.warn("No sailor profiles found for schedule {}", schedule.getId());
+      log.warn("No sailor profiles found for schedule {}", mobilization.getId());
       return;
     }
 
     log.info(
-        "Found {} sailor profile(s) to notify for schedule {}", profiles.size(), schedule.getId());
+        "Found {} sailor profile(s) to notify for schedule {}",
+        profiles.size(),
+        mobilization.getId());
 
     List<Notification> notifications =
         profiles.stream()
@@ -79,17 +71,17 @@ public class MobilizationScheduleNotificationService
                         .recipientId(profile.getAccountId())
                         .message(MESSAGE)
                         .type(NotificationType.NEW_MOBILIZATION_SCHEDULE)
-                        .payload(new NewCrewMobilizationNotificationPayload(schedule.getId()))
+                        .payload(new NewCrewMobilizationNotificationPayload(mobilization.getId()))
                         .build())
             .toList();
 
     notificationRepository.saveAll(notifications);
 
-    sendEmail(profiles, schedule);
+    sendEmail(profiles, mobilization);
 
-    sendWebSocketNotification(notifications, schedule.getId());
+    sendWebSocketNotification(notifications, mobilization.getId());
 
-    sendPushNotification(profiles, schedule.getId());
+    sendPushNotification(profiles, mobilization.getId());
   }
 
   record CrewMobilizationNotificationPayload(String title, String message, String scheduleId)

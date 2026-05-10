@@ -8,18 +8,24 @@ import lombok.Data;
 
 @Data
 public class ShipScheduleCrewResponse {
-  
+
   private String id;
   private String clientId;
+
   private String shipImo;
   private String shipName;
+
   private String route;
-  private Instant departureTime;
-  private Instant arrivalTime;
   private String departurePort;
   private String arrivalPort;
+
+  private Instant departureTime;
+  private Instant arrivalTime;
+
   private ScheduleStatus status;
+
   private List<CrewProfileResponse> crewMembers;
+
   private Instant createdAt;
   private Instant updatedAt;
 }

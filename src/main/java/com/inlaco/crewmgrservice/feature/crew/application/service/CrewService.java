@@ -6,7 +6,7 @@ import com.inlaco.crewmgrservice.feature.crew.application.model.UpdateCrewProfil
 import com.inlaco.crewmgrservice.feature.crew.application.port.in.CrewIdentityUseCase;
 import com.inlaco.crewmgrservice.feature.crew.application.port.in.CrewUseCase;
 import com.inlaco.crewmgrservice.feature.crew.application.port.out.CrewProfileRepository;
-import com.inlaco.crewmgrservice.feature.crew.domain.enums.CrewStatus;
+import com.inlaco.crewmgrservice.feature.crew.domain.enums.CrewOperationalStatus;
 import com.inlaco.crewmgrservice.feature.crew.domain.model.ApplyLaborContractCommand;
 import com.inlaco.crewmgrservice.feature.crew.domain.model.CrewProfile;
 import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadDispatcher;
@@ -92,7 +92,7 @@ public class CrewService implements CrewUseCase {
     }
 
     if (crewPrrofile.getStatus() == null) {
-      crewPrrofile.setStatus(CrewStatus.DRAFT);
+      crewPrrofile.setStatus(CrewOperationalStatus.DRAFT);
     }
 
     log.info("Saving crew profile for account ID: {}", accountId);
@@ -354,39 +354,15 @@ public class CrewService implements CrewUseCase {
   }
 
   @Override
-  public void assignCrew(String profileId) {
+  public void mobilizeCrew(String profileId) {
     CrewProfile profile = getProfile(profileId);
 
     log.debug("Assigning crew. profileId={}", profileId);
 
-    profile.changeStatus(CrewStatus.ASSIGNED);
+    profile.mobilize();
 
     crewProfileRepository.save(profile);
 
     log.info("Crew assigned. profileId={}", profileId);
-  }
-
-  @Override
-  public void engageCrew(String profileId) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'engageCrew'");
-  }
-
-  @Override
-  public void releaseCrew(String profileId) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'releaseCrew'");
-  }
-
-  @Override
-  public void putOnLeave(String profileId) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'putOnLeave'");
-  }
-
-  @Override
-  public void deactivateCrew(String profileId) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'deactivateCrew'");
   }
 }
