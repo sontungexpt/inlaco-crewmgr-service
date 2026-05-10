@@ -53,7 +53,7 @@ public class AttendanceController {
 
   @PostMapping("/verify/{shipScheduleId}")
   @Operation(
-      summary = "Generate a QR code for check-in",
+      summary = "Verify a QR code for check-in or check-out",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   public AttendanceLog verify(
       @Valid @RequestBody VerifyAttendanceRequest request,

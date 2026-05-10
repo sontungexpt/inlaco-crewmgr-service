@@ -22,7 +22,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class ShipScheduleEntity {
 
   @Id private String id; // MongoDB will auto-generate this
-  private String clientId;
+  private String vesselOwnerId;
 
   private String shipIMO;
   private String shipName;

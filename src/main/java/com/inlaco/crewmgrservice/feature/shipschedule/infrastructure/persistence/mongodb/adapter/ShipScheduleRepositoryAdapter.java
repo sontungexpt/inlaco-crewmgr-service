@@ -59,8 +59,10 @@ public class ShipScheduleRepositoryAdapter implements ShipScheduleRepository {
   }
 
   @Override
-  public List<ShipSchedule> findByClientId(String clientId) {
-    return mongoRepository.findByClientId(clientId).stream().map(entityMapper::toDomain).toList();
+  public List<ShipSchedule> findByVesselOwnerId(String vesselOwnerId) {
+    return mongoRepository.findByVesselOwnerId(vesselOwnerId).stream()
+        .map(entityMapper::toDomain)
+        .toList();
   }
 
   @Override
@@ -81,11 +83,6 @@ public class ShipScheduleRepositoryAdapter implements ShipScheduleRepository {
   }
 
   @Override
-  public List<ShipSchedule> findAll() {
-    return mongoRepository.findAll().stream().map(entityMapper::toDomain).toList();
-  }
-
-  @Override
   public Page<ShipSchedule> findAll(Pageable pageable) {
     return mongoRepository.findAll(pageable).map(entityMapper::toDomain);
   }
@@ -95,8 +92,8 @@ public class ShipScheduleRepositoryAdapter implements ShipScheduleRepository {
     var query = new Criteria();
 
     if (criteria != null) {
-      if (criteria.getClientId() != null && !criteria.getClientId().isEmpty()) {
-        query.and("clientId").is(criteria.getClientId());
+      if (criteria.getVesselOwnerId() != null && !criteria.getVesselOwnerId().isEmpty()) {
+        query.and("vesselOwnerId").is(criteria.getVesselOwnerId());
       }
 
       if (criteria.getShipIMO() != null && !criteria.getShipIMO().isEmpty()) {
@@ -120,7 +117,7 @@ public class ShipScheduleRepositoryAdapter implements ShipScheduleRepository {
         query.orOperator(
             Criteria.where("shipName").regex(keyword, "i"),
             Criteria.where("shipIMO").regex(keyword, "i"),
-            Criteria.where("clientId").regex(keyword, "i"));
+            Criteria.where("vesselOwnerId").regex(keyword, "i"));
       }
     }
 
@@ -140,16 +137,6 @@ public class ShipScheduleRepositoryAdapter implements ShipScheduleRepository {
         .getUniqueMappedResult()
         .toPage(pageable)
         .map(entityMapper::toDomain);
-  }
-
-  @Override
-  public void deleteById(String id) {
-    mongoRepository.deleteById(id);
-  }
-
-  @Override
-  public boolean existsById(String id) {
-    return mongoRepository.existsById(id);
   }
 
   static class ShipScheduleFacetResult extends FacetResult<ShipScheduleEntity> {}

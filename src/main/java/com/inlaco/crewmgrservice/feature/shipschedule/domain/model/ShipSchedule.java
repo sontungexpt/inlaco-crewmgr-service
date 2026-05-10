@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 public class ShipSchedule {
   private String id;
 
-  private String clientId;
+  private String vesselOwnerId;
 
   private ShipInfo shipInfo;
 

@@ -10,9 +10,9 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ShipScheduleMongoRepository extends MongoRepository<ShipScheduleEntity, String> {
-  Page<ShipScheduleEntity> findByClientId(String clientId, Pageable pageable);
+  Page<ShipScheduleEntity> findByVesselOwnerId(String vesselOwnerId, Pageable pageable);
 
-  List<ShipScheduleEntity> findByClientId(String clientId);
+  List<ShipScheduleEntity> findByVesselOwnerId(String vesselOwnerId);
 
   Page<ShipScheduleEntity> findByShipIMO(String shipImo, Pageable pageable);
 

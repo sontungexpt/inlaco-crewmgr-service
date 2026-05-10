@@ -1,5 +1,6 @@
 package com.inlaco.crewmgrservice.infrastructure.security.config;
 
+import com.inlaco.crewmgrservice.feature.apikey.infrastructure.config.ApiKeyConfig;
 import com.inlaco.crewmgrservice.feature.apikey.infrastructure.security.ApiKeyAuthenticationFilter;
 import com.inlaco.crewmgrservice.infrastructure.security.jwt.filter.JwtAuthenticationFilter;
 import com.inlaco.crewmgrservice.infrastructure.websocket.config.WebSocketProperties;
@@ -39,6 +40,7 @@ public class SecurityConfig {
 
   private final SecurityProperties securityProperties;
   private final WebSocketProperties webSocketProperties;
+  private final ApiKeyConfig config;
 
   private final String[] SECURITY_WHITELIST_PATHS = {
     "/actuator/**", "/swagger-ui/**", "/v3/api-docs/**", "/scalar/**", "/webjars/**",
@@ -155,8 +157,8 @@ public class SecurityConfig {
             "Content-Type",
             "Accept",
             "X-Api-Key",
-            "X-API-Key-ID",
-            "X-API-Key-Secret",
+            config.getHeaders().getKeyId(),
+            config.getHeaders().getKeySecret(),
             "X-Forwarded-For",
             "X-Requested-With",
             "Access-Control-Allow-Origin",

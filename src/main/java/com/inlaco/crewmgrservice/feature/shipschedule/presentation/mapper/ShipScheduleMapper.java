@@ -6,7 +6,6 @@ import com.inlaco.crewmgrservice.feature.shipschedule.presentation.dto.request.C
 import com.inlaco.crewmgrservice.feature.shipschedule.presentation.dto.response.ShipScheduleResponse;
 import com.inlaco.crewmgrservice.shared.mapstruct.config.CentralMapperConfig;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 
 @Mapper(
@@ -16,7 +15,6 @@ import org.mapstruct.ReportingPolicy;
     config = CentralMapperConfig.class)
 public interface ShipScheduleMapper {
 
-  @Mapping(target = "shipInfo.image", ignore = true)
   ShipSchedule toShipSchedule(CreateShipScheduleRequest request);
 
   ShipScheduleResponse toShipScheduleResponse(ShipSchedule domain);

@@ -21,8 +21,8 @@ public class ApiKeyConfig {
   // ===== HEADERS =====
   @Data
   public static class Headers {
-    private String keyId;
-    private String keySecret;
+    private String keyId = "X-Api-Key";
+    private String keySecret = "X-Api-Secret";
   }
 
   // ===== SECURITY =====

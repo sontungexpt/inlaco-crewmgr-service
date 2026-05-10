@@ -8,7 +8,9 @@ import com.inlaco.crewmgrservice.feature.shipschedule.domain.model.ShipScheduleC
 import com.inlaco.crewmgrservice.feature.shipschedule.presentation.dto.request.CreateShipScheduleRequest;
 import com.inlaco.crewmgrservice.feature.shipschedule.presentation.dto.response.ShipScheduleResponse;
 import com.inlaco.crewmgrservice.feature.shipschedule.presentation.mapper.ShipScheduleMapper;
+import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import com.inlaco.crewmgrservice.infrastructure.config.openapi.OpenApiConfig;
+import com.inlaco.crewmgrservice.infrastructure.web.annotation.CurrentUser;
 import com.inlaco.crewmgrservice.infrastructure.web.annotation.Filter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -38,20 +40,20 @@ public class ShipScheduleController {
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   @PostMapping("")
   public ResponseEntity<ShipScheduleResponse> createSchedule(
-      @Valid @RequestBody CreateShipScheduleRequest request) {
+      @Valid @RequestBody CreateShipScheduleRequest request, User user) {
 
     ShipSchedule schedule = mapper.toShipSchedule(request);
     List<ShipScheduleCrewAssignment> assignments =
         request.getCrews().stream().map(mapper::toShipScheduleCrewAssignment).toList();
-    ShipSchedule created = shipScheduleUseCase.createSchedule(schedule, assignments);
+    ShipSchedule created = shipScheduleUseCase.createSchedule(schedule, assignments, user);
 
     return ResponseEntity.ok(mapper.toShipScheduleResponse(created));
   }
 
   @Operation(
-      summary = "Create a new ship schedule",
+      summary = "Get a ship schedule detail",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
-  @PostMapping("/{id}")
+  @GetMapping("/{id}")
   public ShipScheduleDetail getScheduleDetail(@PathVariable String id) {
     return shipScheduleUseCase.getScheduleDetail(id);
   }
@@ -63,6 +65,23 @@ public class ShipScheduleController {
   public Page<ShipScheduleResponse> getAllSchedules(
       @Filter ShipScheduleSearchCriteria criteria,
       @PageableDefault(page = 0, size = 10) Pageable pageable) {
+    return shipScheduleUseCase.getSchedules(criteria, pageable).map(mapper::toShipScheduleResponse);
+  }
+
+  @GetMapping("/me")
+  @Operation(
+      summary = "Get all ship schedules for authenticated client",
+      description =
+          "Retrieve all current ship schedules belonging to authenticated client using API key"
+              + " authentication")
+  public Page<ShipScheduleResponse> getMySchedules(
+      @Filter ShipScheduleSearchCriteria criteria,
+      @PageableDefault(page = 0, size = 10) Pageable pageable,
+      @CurrentUser User user) {
+    if (criteria == null) {
+      criteria = new ShipScheduleSearchCriteria();
+    }
+    criteria.setVesselOwnerId(user.getId());
     return shipScheduleUseCase.getSchedules(criteria, pageable).map(mapper::toShipScheduleResponse);
   }
 }

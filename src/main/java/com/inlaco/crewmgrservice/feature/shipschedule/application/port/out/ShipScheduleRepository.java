@@ -15,19 +15,13 @@ public interface ShipScheduleRepository {
 
   Page<ShipSchedule> findAll(Pageable pageable);
 
-  List<ShipSchedule> findAll();
-
   Page<ShipSchedule> findAll(ShipScheduleSearchCriteria criteria, Pageable pageable);
 
-  List<ShipSchedule> findByClientId(String clientId);
+  List<ShipSchedule> findByVesselOwnerId(String vesselOwnerId);
 
   List<ShipSchedule> findByShipImo(String shipImo);
 
   List<ShipSchedule> findByDepartureTimeBetween(Instant startTime, Instant endTime);
 
   List<ShipSchedule> findByStatus(String status);
-
-  void deleteById(String id);
-
-  boolean existsById(String id);
 }
