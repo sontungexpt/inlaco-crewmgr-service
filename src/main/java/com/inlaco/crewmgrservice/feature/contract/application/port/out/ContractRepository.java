@@ -22,6 +22,4 @@ public interface ContractRepository {
   List<Contract> findDueForActivation(Instant now);
 
   List<Contract> findDueForExpiration(Instant now);
-
-  List<Contract> findActiveContractsByShipIMO(String shipImoNumber);
 }

@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.feature.shipschedule.application.service;
 
-import com.inlaco.crewmgrservice.feature.contract.application.port.out.ContractRepository;
+import com.inlaco.crewmgrservice.feature.contract.application.port.out.CrewSupplyContractRepository;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.Contract;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.party.Party;
 import com.inlaco.crewmgrservice.feature.crew.application.port.in.CrewUseCase;
@@ -40,7 +40,7 @@ public class ShipScheduleService implements ShipScheduleUseCase {
   private final CrewUseCase crewUseCase;
   private final ShipScheduleDetailMapper detailMapper;
   private final UploadDispatcher uploadDispatcher;
-  private final ContractRepository contractRepository;
+  private final CrewSupplyContractRepository crewSupplyContractRepository;
 
   @Override
   public ShipSchedule createSchedule(
@@ -76,7 +76,8 @@ public class ShipScheduleService implements ShipScheduleUseCase {
       throw new IllegalArgumentException("Ship IMO number is required");
     }
 
-    List<Contract> activeContracts = contractRepository.findActiveContractsByShipIMO(shipImoNumber);
+    List<Contract> activeContracts =
+        crewSupplyContractRepository.findActiveContractsByShipIMO(shipImoNumber);
 
     if (activeContracts.isEmpty()) {
       throw new IllegalArgumentException(

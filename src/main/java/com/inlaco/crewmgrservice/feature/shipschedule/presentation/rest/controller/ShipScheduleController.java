@@ -8,6 +8,7 @@ import com.inlaco.crewmgrservice.feature.shipschedule.domain.model.ShipScheduleC
 import com.inlaco.crewmgrservice.feature.shipschedule.presentation.dto.request.CreateShipScheduleRequest;
 import com.inlaco.crewmgrservice.feature.shipschedule.presentation.dto.response.ShipScheduleResponse;
 import com.inlaco.crewmgrservice.feature.shipschedule.presentation.mapper.ShipScheduleMapper;
+import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import com.inlaco.crewmgrservice.infrastructure.config.openapi.OpenApiConfig;
 import com.inlaco.crewmgrservice.infrastructure.web.annotation.Filter;
 import io.swagger.v3.oas.annotations.Operation;
@@ -38,20 +39,20 @@ public class ShipScheduleController {
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   @PostMapping("")
   public ResponseEntity<ShipScheduleResponse> createSchedule(
-      @Valid @RequestBody CreateShipScheduleRequest request) {
+      @Valid @RequestBody CreateShipScheduleRequest request, User user) {
 
     ShipSchedule schedule = mapper.toShipSchedule(request);
     List<ShipScheduleCrewAssignment> assignments =
         request.getCrews().stream().map(mapper::toShipScheduleCrewAssignment).toList();
-    ShipSchedule created = shipScheduleUseCase.createSchedule(schedule, assignments);
+    ShipSchedule created = shipScheduleUseCase.createSchedule(schedule, assignments, user);
 
     return ResponseEntity.ok(mapper.toShipScheduleResponse(created));
   }
 
   @Operation(
-      summary = "Create a new ship schedule",
+      summary = "Get a ship schedule detail",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
-  @PostMapping("/{id}")
+  @GetMapping("/{id}")
   public ShipScheduleDetail getScheduleDetail(@PathVariable String id) {
     return shipScheduleUseCase.getScheduleDetail(id);
   }
