@@ -31,6 +31,7 @@ public class AttendanceLog {
   private AttendanceMethod method;
 
   private String location;
+  private String deviceId;
 
   private String note;
 

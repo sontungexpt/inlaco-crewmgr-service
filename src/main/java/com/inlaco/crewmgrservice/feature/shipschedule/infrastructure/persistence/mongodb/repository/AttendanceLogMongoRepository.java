@@ -28,5 +28,8 @@ public interface AttendanceLogMongoRepository extends MongoRepository<Attendance
   Optional<AttendanceLogEntity> findTopByCrewEmployeeCardIdAndShipScheduleIdOrderByTimestampDesc(
       String employeeCardId, String shipScheduleId);
 
+  Optional<AttendanceLogEntity> findTopByDeviceIdAndShipScheduleIdOrderByTimestampDesc(
+      String deviceId, String shipScheduleId);
+
   Page<AttendanceLogEntity> findAll(Pageable pageable);
 }

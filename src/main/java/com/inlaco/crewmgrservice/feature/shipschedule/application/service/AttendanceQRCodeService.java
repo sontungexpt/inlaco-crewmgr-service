@@ -65,6 +65,7 @@ public class AttendanceQRCodeService implements AttendanceQRCodeUseCase {
 
     String employeeCardId = assignment.getEmployeeCardId();
 
+    validateDeviceUsage(shipScheduleId, command.getDeviceId(), userId);
     validateAttendanceState(employeeCardId, shipScheduleId, expectedType);
 
     AttendanceLog log =
@@ -79,9 +80,27 @@ public class AttendanceQRCodeService implements AttendanceQRCodeUseCase {
             .checkType(expectedType)
             .method(AttendanceMethod.QR_CODE)
             .location(command.getLocation())
+            .deviceId(command.getDeviceId())
             .build();
 
     return attendanceLogRepository.save(log);
+  }
+
+  private void validateDeviceUsage(String shipScheduleId, String deviceId, String currentUserId) {
+    if (deviceId == null || deviceId.trim().isEmpty()) {
+      return;
+    }
+
+    AttendanceLog existingLog =
+        attendanceLogRepository
+            .findLastByDeviceIdInShipSchedule(deviceId, shipScheduleId)
+            .orElse(null);
+
+    if (existingLog != null && !existingLog.getCrewAccountId().equals(currentUserId)) {
+      throw new AttendanceQRCodeException(
+          AttendanceErrorCode.ATTENDANCE_DEVICE_ALREADY_USED,
+          "Device is already being used by another user");
+    }
   }
 
   private void validateAttendanceState(
