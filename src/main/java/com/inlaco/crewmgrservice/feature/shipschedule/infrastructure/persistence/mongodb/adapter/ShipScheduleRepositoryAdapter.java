@@ -67,7 +67,9 @@ public class ShipScheduleRepositoryAdapter implements ShipScheduleRepository {
 
   @Override
   public List<ShipSchedule> findByShipImo(String shipImo) {
-    return mongoRepository.findByShipIMO(shipImo).stream().map(entityMapper::toDomain).toList();
+    return mongoRepository.findByShipInfoImoNumber(shipImo).stream()
+        .map(entityMapper::toDomain)
+        .toList();
   }
 
   @Override

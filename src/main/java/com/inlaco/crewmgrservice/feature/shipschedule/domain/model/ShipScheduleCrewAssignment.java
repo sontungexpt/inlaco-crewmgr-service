@@ -22,4 +22,5 @@ public class ShipScheduleCrewAssignment {
 
   // This is snapshot information for legitimate crew member
   private String fullName;
+  private String note;
 }

@@ -27,4 +27,6 @@ public class ShipScheduleAssignedCrewDetail {
   private Gender gender;
 
   private String address;
+
+  private String note;
 }

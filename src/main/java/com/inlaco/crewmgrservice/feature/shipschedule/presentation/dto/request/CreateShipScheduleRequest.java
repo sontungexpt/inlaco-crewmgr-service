@@ -13,13 +13,16 @@ import lombok.Data;
 @Data
 public class CreateShipScheduleRequest {
 
-  @Valid @NotNull private ShipInfoRequest shipInfo;
+  @NotNull private ShipInfoRequest shipInfo;
 
   @NotNull(message = "Departure time is required")
   private Instant departureTime;
 
   @NotNull(message = "Arrival time is required")
   private Instant arrivalTime;
+
+  @NotBlank(message = "Route is required")
+  private String route;
 
   @NotBlank(message = "Departure port is required")
   private String departurePort;
@@ -34,5 +37,6 @@ public class CreateShipScheduleRequest {
 
   public static record AssignedCrew(
       @NotBlank(message = "Employee card ID is required") String employeeCardId,
-      @NotBlank(message = "Rank on board is required") String rankOnBoard) {}
+      @NotBlank(message = "Rank on board is required") String rankOnBoard,
+      String note) {}
 }

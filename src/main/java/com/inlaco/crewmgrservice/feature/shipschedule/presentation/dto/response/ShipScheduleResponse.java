@@ -9,8 +9,7 @@ import lombok.Data;
 public class ShipScheduleResponse {
 
   private String id;
-  private String clientId;
-
+  private String vesselOwnerId;
   private ShipInfoResponse shipInfo;
   private String route;
   private Instant departureTime;

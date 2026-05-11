@@ -12,6 +12,8 @@ import com.inlaco.crewmgrservice.feature.shipschedule.application.model.ShipSche
 import com.inlaco.crewmgrservice.feature.shipschedule.application.port.in.ShipScheduleUseCase;
 import com.inlaco.crewmgrservice.feature.shipschedule.application.port.out.ShipScheduleCrewAssignmentRepository;
 import com.inlaco.crewmgrservice.feature.shipschedule.application.port.out.ShipScheduleRepository;
+import com.inlaco.crewmgrservice.feature.shipschedule.domain.error.ShipScheduleErrorCode;
+import com.inlaco.crewmgrservice.feature.shipschedule.domain.exception.ShipScheduleException;
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.model.ShipSchedule;
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.model.ShipScheduleCrewAssignment;
 import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadDispatcher;
@@ -46,6 +48,7 @@ public class ShipScheduleService implements ShipScheduleUseCase {
   public ShipSchedule createSchedule(
       ShipSchedule schedule, List<ShipScheduleCrewAssignment> assignments, User authenticatedUser) {
     // Validate ship IMO against active contracts
+
     validateShipImoAgainstContracts(schedule, authenticatedUser);
 
     List<String> employeeCardIds =
@@ -54,7 +57,10 @@ public class ShipScheduleService implements ShipScheduleUseCase {
     List<CrewProfile> crewProfiles = crewUseCase.getProfilesByEmployeeCardIds(employeeCardIds);
 
     if (crewProfiles.size() != employeeCardIds.size()) {
-      throw new IllegalArgumentException("Some crew members do not exist");
+      throw new ShipScheduleException(
+          ShipScheduleErrorCode.CREW_PROFILE_NOT_FOUND,
+          "One or more crew profiles not found for employee card IDs: " + employeeCardIds,
+          employeeCardIds);
     }
 
     Map<String, CrewProfile> crewProfileMap =
@@ -73,14 +79,16 @@ public class ShipScheduleService implements ShipScheduleUseCase {
   private void validateShipImoAgainstContracts(ShipSchedule schedule, User authenticatedUser) {
     String shipImoNumber = schedule.getShipInfo().getImoNumber();
     if (shipImoNumber == null || shipImoNumber.trim().isEmpty()) {
-      throw new IllegalArgumentException("Ship IMO number is required");
+      throw new ShipScheduleException(
+          ShipScheduleErrorCode.SHIP_IMO_NUMBER_REQUIRED, "Ship IMO number is required");
     }
 
     List<Contract> activeContracts =
         crewSupplyContractRepository.findActiveContractsByShipIMO(shipImoNumber);
 
     if (activeContracts.isEmpty()) {
-      throw new IllegalArgumentException(
+      throw new ShipScheduleException(
+          ShipScheduleErrorCode.SHIP_NOT_FOUND_IN_ACTIVE_CONTRACTS,
           String.format(
               "Ship with IMO number %s is not found in any active deployment contracts",
               shipImoNumber));
@@ -90,7 +98,8 @@ public class ShipScheduleService implements ShipScheduleUseCase {
       Party party = contract.getPartners().get(0);
 
       if (!party.getAccountId().equals(authenticatedUser.getId())) {
-        throw new IllegalArgumentException(
+        throw new ShipScheduleException(
+            ShipScheduleErrorCode.SHIP_NOT_AUTHORIZED_FOR_USER,
             String.format(
                 "Ship with IMO number %s is not found in any active deployment contracts",
                 shipImoNumber));
@@ -103,8 +112,8 @@ public class ShipScheduleService implements ShipScheduleUseCase {
   private void enrichSchedule(
       ShipSchedule schedule, List<ShipScheduleCrewAssignment> assignments, User authenticatedUser) {
     log.debug("Enriching schedule");
-    schedule.setVesselOwnerId(authenticatedUser.getId());
 
+    schedule.setVesselOwnerId(authenticatedUser.getId());
     schedule
         .getShipInfo()
         .setImage(uploadDispatcher.enrich(AssetType.SHIP_IMAGE, schedule.getShipInfo().getImage()));
@@ -118,11 +127,13 @@ public class ShipScheduleService implements ShipScheduleUseCase {
       CrewProfile profile = profileMap.get(assignment.getEmployeeCardId());
 
       if (profile == null) {
-        throw new IllegalArgumentException("Crew profile not found");
+        throw new ShipScheduleException(
+            ShipScheduleErrorCode.CREW_PROFILE_NOT_FOUND, "Crew profile not found");
       }
 
       if (profile.getAccountId() == null) {
-        throw new IllegalArgumentException("Crew member has no account");
+        throw new ShipScheduleException(
+            ShipScheduleErrorCode.CREW_MEMBER_HAS_NO_ACCOUNT, "Crew member has no account");
       }
 
       assignment.setProfileId(profile.getId());
@@ -134,6 +145,7 @@ public class ShipScheduleService implements ShipScheduleUseCase {
 
   @Override
   public ShipScheduleDetail getScheduleDetail(String scheduleId) {
+    log.info("Fetching schedule detail with id: {}", scheduleId);
     ShipSchedule schedule = getSchedule(scheduleId);
     List<ShipScheduleCrewAssignment> assignments =
         assignmentRepository.findByScheduleId(scheduleId);
@@ -184,6 +196,7 @@ public class ShipScheduleService implements ShipScheduleUseCase {
 
   @Override
   public ShipSchedule getSchedule(String scheduleId) {
+    log.info("Fetching ship schedule with id: {}", scheduleId);
     return shipScheduleRepository
         .findById(scheduleId)
         .orElseThrow(() -> new ResourceNotFoundException(ShipSchedule.class, "id", scheduleId));
@@ -191,7 +204,7 @@ public class ShipScheduleService implements ShipScheduleUseCase {
 
   @Override
   public Page<ShipSchedule> getSchedules(ShipScheduleSearchCriteria criteria, Pageable pageable) {
-    log.debug("Fetching ship schedules with criteria: {}", criteria);
+    log.info("Fetching ship schedules with criteria: {}", criteria);
     return shipScheduleRepository.findAll(criteria, pageable);
   }
 }

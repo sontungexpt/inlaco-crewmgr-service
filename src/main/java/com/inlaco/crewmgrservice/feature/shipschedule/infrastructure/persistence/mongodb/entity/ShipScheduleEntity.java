@@ -1,6 +1,7 @@
 package com.inlaco.crewmgrservice.feature.shipschedule.infrastructure.persistence.mongodb.entity;
 
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.enums.ScheduleStatus;
+import com.inlaco.crewmgrservice.shared.objectvalue.ShipInfo;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,8 +25,7 @@ public class ShipScheduleEntity {
   @Id private String id; // MongoDB will auto-generate this
   private String vesselOwnerId;
 
-  private String shipIMO;
-  private String shipName;
+  private ShipInfo shipInfo;
 
   private String route;
 

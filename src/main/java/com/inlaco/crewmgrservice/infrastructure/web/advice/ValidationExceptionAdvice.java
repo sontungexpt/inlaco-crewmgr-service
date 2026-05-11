@@ -54,9 +54,8 @@ public class ValidationExceptionAdvice {
         .toResponseEntity();
   }
 
-  @ExceptionHandler(IllegalAccessException.class)
-  public ResponseEntity<?> handleIllegalArgumentException(
-      IllegalAccessException e, HttpServletRequest request) {
+  @ExceptionHandler({IllegalAccessException.class, IllegalArgumentException.class})
+  public ResponseEntity<?> handleIllegalArgumentException(Exception e, HttpServletRequest request) {
     return AdviceUtils.buildErrorResponse(
         HttpStatus.BAD_REQUEST, "ILLEGAL_AGRS_ERROR", "Illegal Args Error", request);
   }
