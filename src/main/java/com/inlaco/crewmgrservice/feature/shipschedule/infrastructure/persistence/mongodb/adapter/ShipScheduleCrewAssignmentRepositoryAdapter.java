@@ -5,11 +5,22 @@ import com.inlaco.crewmgrservice.feature.shipschedule.domain.model.ShipScheduleC
 import com.inlaco.crewmgrservice.feature.shipschedule.infrastructure.persistence.mongodb.entity.ShipScheduleCrewAssignmentEntity;
 import com.inlaco.crewmgrservice.feature.shipschedule.infrastructure.persistence.mongodb.mapper.ShipScheduleCrewAssignmentEntityMapper;
 import com.inlaco.crewmgrservice.feature.shipschedule.infrastructure.persistence.mongodb.repository.ShipScheduleCrewAssignmentMongoRepository;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
+import org.springframework.data.mongodb.core.BulkOperations;
+import org.springframework.data.mongodb.core.BulkOperations.BulkMode;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.util.Streamable;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -20,6 +31,7 @@ public class ShipScheduleCrewAssignmentRepositoryAdapter
 
   private final ShipScheduleCrewAssignmentEntityMapper mapper;
   private final ShipScheduleCrewAssignmentMongoRepository repository;
+  private final MongoTemplate mongoTemplate;
 
   @Override
   public ShipScheduleCrewAssignment save(ShipScheduleCrewAssignment shipScheduleCrewAssignment) {
@@ -48,23 +60,72 @@ public class ShipScheduleCrewAssignmentRepositoryAdapter
   }
 
   @Override
-  public List<ShipScheduleCrewAssignment> findByProfileId(String crewId) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'findByScheduleId'");
-  }
-
-  @Override
-  public boolean existsByCrewIdAndShipScheduleId(String crewId, String shipScheduleId) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException(
-        "Unimplemented method 'existsByCrewIdAndShipScheduleId'");
-  }
-
-  @Override
   public Optional<ShipScheduleCrewAssignment> findByAccountIdAndScheduleId(
       String accountId, String shipScheduleId) {
     return repository
         .findByAccountIdAndScheduleId(new ObjectId(accountId), new ObjectId(shipScheduleId))
         .map(mapper::toShipScheduleCrewAssignment);
+  }
+
+  @Override
+  public List<ShipScheduleCrewAssignment> saveAll(
+      Iterable<ShipScheduleCrewAssignment> assignments) {
+    if (assignments == null) return Collections.emptyList();
+    Streamable<ShipScheduleCrewAssignment> source = Streamable.of(assignments);
+    if (source.isEmpty()) return Collections.emptyList();
+
+    List<ShipScheduleCrewAssignmentEntity> newEntities = new ArrayList<>();
+    List<ShipScheduleCrewAssignment> upadateShipScheduleCrewAssignment = new ArrayList<>();
+    source.stream()
+        .forEach(
+            notification -> {
+              String id = notification.getId();
+              if (id == null) {
+                newEntities.add(mapper.toShipScheduleCrewAssignmentEntity(notification));
+              } else {
+                upadateShipScheduleCrewAssignment.add(notification);
+              }
+            });
+
+    if (upadateShipScheduleCrewAssignment.isEmpty()) {
+      return mongoTemplate.insert(newEntities, ShipScheduleCrewAssignmentEntity.class).stream()
+          .map(mapper::toShipScheduleCrewAssignment)
+          .toList();
+    }
+
+    List<String> resultIds =
+        upadateShipScheduleCrewAssignment.stream()
+            .map(ShipScheduleCrewAssignment::getId)
+            .collect(Collectors.toList());
+
+    Map<String, ShipScheduleCrewAssignmentEntity> existingMap =
+        repository.findAllById(resultIds).stream()
+            .collect(
+                Collectors.toMap(ShipScheduleCrewAssignmentEntity::getId, Function.identity()));
+
+    BulkOperations bulkOps =
+        mongoTemplate.bulkOps(BulkMode.UNORDERED, ShipScheduleCrewAssignmentEntity.class);
+    if (!newEntities.isEmpty()) {
+      bulkOps.insert(newEntities);
+    }
+
+    for (var assignment : upadateShipScheduleCrewAssignment) {
+      String id = assignment.getId();
+      var existing = existingMap.get(id);
+      if (existing == null) {
+        bulkOps.insert(mapper.toShipScheduleCrewAssignmentEntity(assignment));
+      } else {
+        mapper.updateFromShipScheduleCrewAssignment(assignment, existing);
+        bulkOps.replaceOne(Query.query(Criteria.where("_id").is(id)), existing);
+      }
+    }
+    bulkOps
+        .execute()
+        .getInserts()
+        .forEach(r -> resultIds.add(r.getId().asObjectId().getValue().toHexString()));
+
+    return repository.findAllById(resultIds).stream()
+        .map(mapper::toShipScheduleCrewAssignment)
+        .toList();
   }
 }

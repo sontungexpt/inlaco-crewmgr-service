@@ -1,9 +1,9 @@
 package com.inlaco.crewmgrservice.feature.shipschedule.application.service;
 
+import com.inlaco.crewmgrservice.feature.shipschedule.application.model.AttendanceQrClaims;
 import com.inlaco.crewmgrservice.feature.shipschedule.application.model.QrVerifyCommand;
 import com.inlaco.crewmgrservice.feature.shipschedule.application.port.in.AttendanceQRCodeUseCase;
 import com.inlaco.crewmgrservice.feature.shipschedule.application.port.out.AttendanceLogRepository;
-import com.inlaco.crewmgrservice.feature.shipschedule.application.port.out.AttendanceQRCodeRepository;
 import com.inlaco.crewmgrservice.feature.shipschedule.application.port.out.ShipScheduleCrewAssignmentRepository;
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.enums.AttendanceMethod;
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.enums.CheckType;
@@ -12,7 +12,6 @@ import com.inlaco.crewmgrservice.feature.shipschedule.domain.exception.Attendanc
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.model.AttendanceLog;
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.model.AttendanceQRCode;
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.model.ShipScheduleCrewAssignment;
-import java.time.Duration;
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,47 +22,41 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class AttendanceQRCodeService implements AttendanceQRCodeUseCase {
 
-  private static final Duration DEFAULT_QR_DURATION = Duration.ofMinutes(5);
-
-  private final AttendanceQRCodeRepository qrCodeRepository;
   private final AttendanceLogRepository attendanceLogRepository;
   private final ShipScheduleCrewAssignmentRepository assignmentRepository;
+  private final AttendanceQrTokenService qrTokenService;
 
   @Override
   public AttendanceQRCode generateQRCode(
-      String shipScheduleId, String employeeCardId, CheckType checkType, String userId) {
+      String shipScheduleId, CheckType checkType, String userId) {
 
-    AttendanceQRCode qrCode =
-        AttendanceQRCode.generate(shipScheduleId, employeeCardId, checkType, DEFAULT_QR_DURATION);
+    AttendanceQrClaims claims =
+        AttendanceQrClaims.builder()
+            .shipScheduleId(shipScheduleId)
+            .checkType(checkType)
+            .method(AttendanceMethod.QR_CODE)
+            .generatedBy(userId)
+            .generatedAt(Instant.now())
+            .build();
 
-    return qrCodeRepository.save(qrCode);
+    String token = qrTokenService.generate(claims);
+
+    return AttendanceQRCode.builder().token(token).build();
   }
 
   @Override
   @Transactional
   public AttendanceLog verifyQR(QrVerifyCommand command, String userId) {
-    String token = command.getToken();
 
-    AttendanceQRCode qrCode =
-        qrCodeRepository
-            .findByToken(token)
-            .orElseThrow(
-                () ->
-                    new AttendanceQRCodeException(
-                        AttendanceErrorCode.ATTENDANCE_QR_NOT_FOUND, "QR code not found"));
+    AttendanceQrClaims claims = qrTokenService.parse(command.getToken());
 
-    qrCode.verify();
+    CheckType expectedType = claims.getCheckType();
+    String shipScheduleId = claims.getShipScheduleId();
 
-    CheckType expectedType = command.getCheckType();
-    if (qrCode.getType() != expectedType) {
-
-      throw new AttendanceQRCodeException(
-          AttendanceErrorCode.ATTENDANCE_QR_INVALID_TYPE, "Invalid QR type");
-    }
-
+    // Check if user is assigned to this schedule
     ShipScheduleCrewAssignment assignment =
         assignmentRepository
-            .findByAccountIdAndScheduleId(userId, qrCode.getShipScheduleId())
+            .findByAccountIdAndScheduleId(userId, shipScheduleId)
             .orElseThrow(
                 () ->
                     new AttendanceQRCodeException(
@@ -72,13 +65,7 @@ public class AttendanceQRCodeService implements AttendanceQRCodeUseCase {
 
     String employeeCardId = assignment.getEmployeeCardId();
 
-    if (!qrCode.getEmployeeCardId().equals(employeeCardId)) {
-      throw new AttendanceQRCodeException(
-          AttendanceErrorCode.ATTENDANCE_QR_INVALID_OWNER,
-          "QR code does not belong to current user");
-    }
-
-    validateAttendanceState(employeeCardId, qrCode.getShipScheduleId(), expectedType);
+    validateAttendanceState(employeeCardId, shipScheduleId, expectedType);
 
     AttendanceLog log =
         AttendanceLog.builder()
@@ -87,18 +74,14 @@ public class AttendanceQRCodeService implements AttendanceQRCodeUseCase {
             .crewEmployeeCardId(employeeCardId)
             .crewName(assignment.getFullName())
             .crewRankOnBoard(assignment.getRankOnBoard())
-            .shipScheduleId(qrCode.getShipScheduleId())
+            .shipScheduleId(shipScheduleId)
             .timestamp(Instant.now())
             .checkType(expectedType)
             .method(AttendanceMethod.QR_CODE)
             .location(command.getLocation())
             .build();
 
-    AttendanceLog savedLog = attendanceLogRepository.save(log);
-
-    qrCodeRepository.deleteByToken(token);
-
-    return savedLog;
+    return attendanceLogRepository.save(log);
   }
 
   private void validateAttendanceState(
