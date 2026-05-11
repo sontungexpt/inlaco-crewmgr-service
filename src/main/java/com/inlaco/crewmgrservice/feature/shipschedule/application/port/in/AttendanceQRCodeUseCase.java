@@ -7,8 +7,7 @@ import com.inlaco.crewmgrservice.feature.shipschedule.domain.model.AttendanceQRC
 
 public interface AttendanceQRCodeUseCase {
 
-  AttendanceQRCode generateQRCode(
-      String shipScheduleId, String employeeCardId, CheckType checkType, String userId);
+  AttendanceQRCode generateQRCode(String shipScheduleId, CheckType checkType, String userId);
 
   AttendanceLog verifyQR(QrVerifyCommand command, String userId);
 }

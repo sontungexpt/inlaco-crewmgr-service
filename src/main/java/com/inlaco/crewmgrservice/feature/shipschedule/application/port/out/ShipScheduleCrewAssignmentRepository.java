@@ -8,12 +8,11 @@ public interface ShipScheduleCrewAssignmentRepository {
 
   ShipScheduleCrewAssignment save(ShipScheduleCrewAssignment shipScheduleCrewAssignment);
 
-  List<ShipScheduleCrewAssignment> findByScheduleId(String shipScheduleId);
+  List<ShipScheduleCrewAssignment> saveAll(
+      Iterable<ShipScheduleCrewAssignment> shipScheduleCrewAssignments);
 
-  List<ShipScheduleCrewAssignment> findByProfileId(String crewId);
+  List<ShipScheduleCrewAssignment> findByScheduleId(String shipScheduleId);
 
   Optional<ShipScheduleCrewAssignment> findByAccountIdAndScheduleId(
       String accountId, String shipScheduleId);
-
-  boolean existsByCrewIdAndShipScheduleId(String crewId, String shipScheduleId);
 }

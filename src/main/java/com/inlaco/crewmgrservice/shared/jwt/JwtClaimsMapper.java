@@ -1,4 +1,4 @@
-package com.inlaco.crewmgrservice.infrastructure.security.jwt.mapper;
+package com.inlaco.crewmgrservice.shared.jwt;
 
 import io.jsonwebtoken.Claims;
 import org.springframework.stereotype.Component;

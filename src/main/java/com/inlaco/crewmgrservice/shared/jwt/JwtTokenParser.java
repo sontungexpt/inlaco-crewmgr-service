@@ -1,4 +1,4 @@
-package com.inlaco.crewmgrservice.shared.support;
+package com.inlaco.crewmgrservice.shared.jwt;
 
 import com.inlaco.crewmgrservice.infrastructure.security.jwt.exception.JwtTokenException;
 import io.jsonwebtoken.Claims;
@@ -7,35 +7,17 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
-import java.util.Date;
-import java.util.Map;
 import javax.crypto.SecretKey;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 @Slf4j
-public class JwtUtils {
+@Component
+public class JwtTokenParser {
 
-  public static SecretKey getSigningKey(String secret) {
-    byte[] keyBytes = Decoders.BASE64.decode(secret);
-    return Keys.hmacShaKeyFor(keyBytes);
-  }
-
-  public static String generate(
-      SecretKey signingKey, String subject, Map<String, Object> claims, long ttlMs) {
-    return Jwts.builder()
-        .claims(claims)
-        .subject(subject)
-        .issuedAt(new Date())
-        .expiration(new Date(System.currentTimeMillis() + ttlMs))
-        .signWith(signingKey)
-        .compact();
-  }
-
-  public static Claims parse(String token, SecretKey signingKey) {
+  public Claims parse(String token, SecretKey secretKey) {
     try {
-      return Jwts.parser().verifyWith(signingKey).build().parseSignedClaims(token).getPayload();
+      return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload();
     } catch (MalformedJwtException ex) {
       log.debug("[JWT] Malformed JWT token");
       throw new JwtTokenException(token, "Malformed jwt token");
@@ -56,10 +38,5 @@ public class JwtUtils {
       log.debug("Invalid JWT token");
       throw new JwtTokenException(token, "Invalid JWT token");
     }
-  }
-
-  public static String extractSubject(String token, SecretKey signingKey) {
-    Claims claims = parse(token, signingKey);
-    return claims.getSubject();
   }
 }

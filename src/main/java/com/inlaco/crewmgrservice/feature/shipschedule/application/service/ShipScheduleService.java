@@ -73,6 +73,8 @@ public class ShipScheduleService implements ShipScheduleUseCase {
     ShipSchedule created = shipScheduleRepository.save(schedule);
     assignments.forEach(assignment -> assignment.setScheduleId(created.getId()));
 
+    assignmentRepository.saveAll(assignments);
+
     return created;
   }
 
