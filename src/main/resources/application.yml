@@ -39,12 +39,12 @@ token:
   qr-token:
     attendance:
       checkin:
-        secretKey: ${QR_ATTENDANCE_CHECKIN_SECRET_KEY:${token.accessToken.secret-key}}
-        expiration: ${QR_ATTENDANCE_CHECKIN_EXPIRATION:${token.accessToken.expiration}}
+        secretKey: ${QR_ATTENDANCE_CHECKIN_SECRET_KEY:${token.access-token.secret-key}}
+        expiration: ${QR_ATTENDANCE_CHECKIN_EXPIRATION:${token.access-token.expiration}}
 
       checkout:
-        secretKey: ${QR_ATTENDANCE_CHECKOUT_SECRET_KEY:${token.accessToken.secret-key}}
-        expiration: ${QR_ATTENDANCE_CHECKOUT_EXPIRATION:${token.accessToken.expiration}}
+        secretKey: ${QR_ATTENDANCE_CHECKOUT_SECRET_KEY:${token.access-token.secret-key}}
+        expiration: ${QR_ATTENDANCE_CHECKOUT_EXPIRATION:${token.access-token.expiration}}
 
 apikey:
   enabled: true
