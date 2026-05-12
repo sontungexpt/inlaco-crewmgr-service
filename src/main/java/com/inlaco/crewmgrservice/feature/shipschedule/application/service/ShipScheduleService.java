@@ -16,10 +16,12 @@ import com.inlaco.crewmgrservice.feature.shipschedule.domain.error.ShipScheduleE
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.exception.ShipScheduleException;
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.model.ShipSchedule;
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.model.ShipScheduleCrewAssignment;
+import com.inlaco.crewmgrservice.feature.shipschedule.domain.event.ShipScheduleCreatedEvent;
 import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadDispatcher;
 import com.inlaco.crewmgrservice.feature.upload.domain.enums.AssetType;
 import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceNotFoundException;
+import org.springframework.context.ApplicationEventPublisher;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,6 +45,7 @@ public class ShipScheduleService implements ShipScheduleUseCase {
   private final ShipScheduleDetailMapper detailMapper;
   private final UploadDispatcher uploadDispatcher;
   private final CrewSupplyContractRepository crewSupplyContractRepository;
+  private final ApplicationEventPublisher eventPublisher;
 
   @Override
   public ShipSchedule createSchedule(
@@ -74,6 +77,9 @@ public class ShipScheduleService implements ShipScheduleUseCase {
     assignments.forEach(assignment -> assignment.setScheduleId(created.getId()));
 
     assignmentRepository.saveAll(assignments);
+
+    // Publish event for ship schedule creation
+    eventPublisher.publishEvent(new ShipScheduleCreatedEvent(created, assignments, crewProfiles));
 
     return created;
   }
