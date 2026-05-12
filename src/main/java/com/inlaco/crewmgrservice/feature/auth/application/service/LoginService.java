@@ -15,6 +15,20 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service implementation for handling user authentication and login operations.
+ *
+ * <p>This service manages the authentication process, validating user credentials and generating
+ * authentication tokens for successful logins. It integrates with Spring Security for credential
+ * validation and manages security context.
+ *
+ * <p>The service generates both access tokens and refresh tokens, providing a complete
+ * authentication solution that supports token-based authentication with proper session management.
+ *
+ * @author Trần Võ Sơn Tùng
+ * @version 1.0
+ * @since 1.0
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -24,6 +38,20 @@ public class LoginService implements LoginUseCase {
   private final AccessTokenGenerator accessTokenGenerator;
   private final AuthenticationManager authenticationManager;
 
+  /**
+   * Authenticates a user and generates authentication tokens.
+   *
+   * <p>This method validates user credentials using Spring Security's AuthenticationManager, and
+   * upon successful authentication, generates both access and refresh tokens. The security context
+   * is updated with the authenticated user for subsequent requests.
+   *
+   * <p>The method logs authentication attempts and successful logins for security monitoring and
+   * audit purposes.
+   *
+   * @param command contains username and password for authentication
+   * @return AuthTokenResult containing access and refresh tokens
+   * @throws AuthenticationException if credentials are invalid
+   */
   @Override
   public AuthTokenResult login(LoginCommand command) {
     log.info("Login attempt for user {}", command.username());

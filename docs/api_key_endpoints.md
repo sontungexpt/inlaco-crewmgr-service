@@ -27,11 +27,11 @@ This document provides an overview of all available API endpoints for managing A
 
 ---
 
-## **2. Create API Key with TOTP**
+## **2. Create API Key with OTP**
 
-- **URL**: `/api/v1/api-keys/create-with-totp`
+- **URL**: `/api/v1/api-keys/create-with-otp`
 - **Method**: `POST`
-- **Description**: Creates a new API key with TOTP verification.
+- **Description**: Creates a new API key with OTP verification (supports both TOTP and normal OTP).
 - **Headers**:
   - `Authorization`: Bearer `<accessToken>`
 - **Security**: Requires `ADMIN` role
@@ -42,7 +42,10 @@ This document provides an overview of all available API endpoints for managing A
     "description": "string",
     "type": "EXTERNAL",
     "totpCode": "123456",
-    "purposeId": "apikey-V1StGXR8_Z5jdHi6B-myT1683225600000"
+    "totpPurposeId": "apikey-V1StGXR8_Z5jdHi6B-myT1683225600000",
+    "otpCode": "123456",
+    "otpPurposeId": "otp-purpose-id",
+    "otpSenderType": "EMAIL|SMS"
   }
   ```
 - **Response**:

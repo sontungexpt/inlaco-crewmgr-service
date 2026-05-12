@@ -11,6 +11,21 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Represents a crew member's profile in the crew management system.
+ *
+ * <p>Crew profiles contain comprehensive information about maritime crew members including personal
+ * details, professional information, and various status indicators that track their operational
+ * availability and current assignments.
+ *
+ * <p>Each crew member has multiple status dimensions: operational status for their overall
+ * availability, boarding status for ship assignments, and mobilization status for deployment
+ * readiness.
+ *
+ * @author Trần Võ Sơn Tùng
+ * @version 1.0
+ * @since 1.0
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -53,20 +68,43 @@ public class CrewProfile {
 
   @Builder.Default private CrewOperationalStatus status = CrewOperationalStatus.DRAFT;
 
+  /**
+   * Changes the crew member's operational status with validation.
+   *
+   * <p>This method updates the crew member's operational status after validating that the
+   * transition is allowed according to business rules defined in the CrewOperationalStatus enum.
+   *
+   * @param newStatus the new operational status to set
+   * @throws IllegalStateException if the status transition is not allowed
+   */
   public void changeStatus(CrewOperationalStatus newStatus) throws IllegalStateException {
     if (status == newStatus) return;
     status.validateTransition(newStatus);
     status = newStatus;
   }
 
+  /** Current boarding status - defaults to OFF_BOARD */
   @Builder.Default private BoardingStatus boardingStatus = BoardingStatus.OFF_BOARD;
 
+  /**
+   * Marks the crew member as boarded onto a ship.
+   *
+   * <p>This method changes the boarding status to ON_BOARD, indicating that the crew member is
+   * currently assigned and working on a vessel.
+   */
   public void board() {
     boardingStatus = BoardingStatus.ON_BOARD;
   }
 
+  /** Current mobilization status - defaults to AVAILABLE */
   @Builder.Default private MobilizationStatus mobilizationStatus = MobilizationStatus.AVAILABLE;
 
+  /**
+   * Marks the crew member as mobilized for deployment.
+   *
+   * <p>This method changes the mobilization status to MOBILIZED, indicating that the crew member
+   * has been mobilized and is ready for deployment or is currently deployed.
+   */
   public void mobilize() {
     mobilizationStatus = MobilizationStatus.MOBILIZED;
   }

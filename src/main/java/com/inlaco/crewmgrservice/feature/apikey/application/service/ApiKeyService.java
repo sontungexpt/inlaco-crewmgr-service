@@ -16,6 +16,20 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service implementation for managing API keys in the crew management system.
+ *
+ * <p>This service provides comprehensive API key management functionality including creation,
+ * validation, activation/deactivation, and various query operations. It supports different key
+ * types with configurable expiration policies and integrates with TOTP for enhanced security.
+ *
+ * <p>The service implements business rules for API key lifecycle management and ensures that all
+ * operations are properly audited and validated according to security requirements.
+ *
+ * @author Crew Management Service
+ * @version 1.0
+ * @since 1.0
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -25,12 +39,37 @@ public class ApiKeyService implements ApiKeyUseCase {
   private final ApiKeyConfig config;
   private final TotpUseCase totpUseCase;
 
+  /**
+   * Creates a new API key with default EXTERNAL type.
+   *
+   * <p>This method generates a new API key for the specified client and persists it to the
+   * repository. The key will have default expiration settings based on the EXTERNAL key type
+   * configuration.
+   *
+   * @param clientName the name of the client requesting the API key
+   * @param description optional description of the API key purpose
+   * @param createdBy the user or system that created the API key
+   * @return the created and persisted ApiKey instance
+   */
   @Override
   public ApiKey createApiKey(String clientName, String description, String createdBy) {
     ApiKey apiKey = generateNew(clientName, description, createdBy);
     return apiKeyRepository.save(apiKey);
   }
 
+  /**
+   * Generates a new API key instance with specified type.
+   *
+   * <p>This method creates a new API key with unique identifier and secret, calculates expiration
+   * based on the key type, and sets default values. The key is not persisted - use createApiKey()
+   * to save it.
+   *
+   * @param clientName the name of the client requesting the API key
+   * @param description optional description of the API key purpose
+   * @param createdBy the user or system that created the API key
+   * @param type the type of API key to create
+   * @return a new ApiKey instance (not persisted)
+   */
   public ApiKey generateNew(
       String clientName, String description, String createdBy, ApiKeyType type) {
     log.info("Generating new API key for client: {} with type: {}", clientName, type);
@@ -56,11 +95,33 @@ public class ApiKeyService implements ApiKeyUseCase {
         .build();
   }
 
+  /**
+   * Generates a new API key with default EXTERNAL type.
+   *
+   * <p>This is a convenience method that delegates to generateNew() with ApiKeyType.EXTERNAL as the
+   * default type.
+   *
+   * @param clientName the name of the client requesting the API key
+   * @param description optional description of the API key purpose
+   * @param createdBy the user or system that created the API key
+   * @return a new ApiKey instance with EXTERNAL type (not persisted)
+   */
   public ApiKey generateNew(String clientName, String description, String createdBy) {
     return generateNew(clientName, description, createdBy, ApiKeyType.EXTERNAL);
   }
 
-  /** Generate API key with TOTP verification */
+  /**
+   * Generates a new API key with TOTP verification for enhanced security.
+   *
+   * <p>This method verifies the provided TOTP code before creating the API key, providing an
+   * additional layer of security for sensitive operations. The TOTP verification must be successful
+   * for the key to be generated.
+   *
+   * @param request the API key creation request containing TOTP code and key details
+   * @param userId the ID of the user requesting the API key
+   * @return the created ApiKey instance
+   * @throws SecurityException if TOTP verification fails
+   */
   public ApiKey generateNewWithTotp(CreateApiKeyWithTotpRequest request, String userId) {
     log.info(
         "Generating new API key with TOTP verification for client: {}", request.getClientName());
@@ -82,7 +143,19 @@ public class ApiKeyService implements ApiKeyUseCase {
         request.getType() != null ? request.getType() : ApiKeyType.EXTERNAL);
   }
 
-  /** Verify TOTP for secret key viewing */
+  /**
+   * Verifies TOTP code for viewing secret key information.
+   *
+   * <p>This method provides an additional security layer before allowing users to view sensitive
+   * API key secrets. The TOTP verification ensures that only authorized users can access secret
+   * information.
+   *
+   * @param userId the ID of the user requesting to view the secret
+   * @param totpCode the TOTP code provided by the user
+   * @param purposeId the purpose identifier for this verification session
+   * @return true if verification is successful
+   * @throws SecurityException if TOTP verification fails
+   */
   public boolean verifyTotpForSecretViewing(String userId, String totpCode, String purposeId) {
     log.info("Verifying TOTP for secret key viewing for user: {}", userId);
 
@@ -98,6 +171,16 @@ public class ApiKeyService implements ApiKeyUseCase {
     }
   }
 
+  /**
+   * Calculates expiration date for API key based on its type.
+   *
+   * <p>This method uses the configuration settings to determine the appropriate expiration duration
+   * for the specified key type and calculates the absolute expiration timestamp from the current
+   * time.
+   *
+   * @param type the API key type to calculate expiration for
+   * @return Instant representing when the key will expire
+   */
   public Instant calculateExpiration(ApiKeyType type) {
     var expiration = config.getExpiration();
     var typeConfig = getTypeConfig(type, expiration);
@@ -105,11 +188,30 @@ public class ApiKeyService implements ApiKeyUseCase {
     return Instant.now().plus(typeConfig.getDuration());
   }
 
+  /**
+   * Checks if an API key type is renewable based on configuration.
+   *
+   * <p>This method determines whether keys of the specified type can be renewed when they approach
+   * expiration, based on the system configuration settings.
+   *
+   * @param type the API key type to check for renewability
+   * @return true if the key type is renewable, false otherwise
+   */
   public boolean isRenewable(ApiKeyType type) {
     var expiration = config.getExpiration();
     return getTypeConfig(type, expiration).isRenewable();
   }
 
+  /**
+   * Retrieves expiration configuration for a specific API key type.
+   *
+   * <p>This method looks up the expiration configuration for the given key type, falling back to
+   * default configuration if no specific configuration exists.
+   *
+   * @param type the API key type to get configuration for
+   * @param expiration the expiration configuration container
+   * @return the expiration configuration for the specified type
+   */
   private ApiKeyConfig.ExpirationConfig getTypeConfig(
       ApiKeyType type, ApiKeyConfig.Expiration expiration) {
     Map<ApiKeyType, ApiKeyConfig.ExpirationConfig> map = expiration.getByType();

@@ -201,9 +201,9 @@ This document provides an overview of all the available API endpoints for managi
 - **Description**: Marks a course as completed for a specific user.
 - **Headers**:
   - `Authorization`: Bearer `<accessToken>`
-+- **Response**: `204 No Content`
-+- **Usage**:
-+  Send a `POST` request with the course ID and user ID to mark the course as completed for the user.
+- **Response**: `204 No Content`
+- **Usage**:
+  Send a `POST` request with the course ID and user ID to mark the course as completed for the user.
 
 ---
 

@@ -21,6 +21,21 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service implementation for managing crew profiles and operations.
+ *
+ * <p>This service provides comprehensive crew profile management functionality including profile
+ * retrieval, creation, updates, and search operations. It integrates with identity management for
+ * crew operations and handles file uploads for profile assets.
+ *
+ * <p>The service maintains crew profiles with proper audit logging and exception handling, ensuring
+ * data integrity and providing a reliable interface for crew management operations throughout the
+ * system.
+ *
+ * @author Trần Võ Sơn Tùng
+ * @version 1.0
+ * @since 1.0
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -30,6 +45,17 @@ public class CrewService implements CrewUseCase {
   private final CrewIdentityUseCase crewIdentityUseCase;
   private final UploadDispatcher uploadDispatcher;
 
+  /**
+   * Retrieves a crew profile by its unique identifier.
+   *
+   * <p>This method fetches a specific crew profile from the repository using the provided profile
+   * ID. If the profile is not found, it throws a ResourceNotFoundException to indicate the missing
+   * resource.
+   *
+   * @param profileId the unique identifier of the crew profile to retrieve
+   * @return the CrewProfile with the specified ID
+   * @throws ResourceNotFoundException if no profile exists with the given ID
+   */
   @Override
   public CrewProfile getProfile(String profileId) {
     log.debug("Fetching crew profile with ID: {}", profileId);
@@ -42,6 +68,16 @@ public class CrewService implements CrewUseCase {
             });
   }
 
+  /**
+   * Retrieves a crew profile associated with a specific account.
+   *
+   * <p>This method finds the crew profile linked to the provided account ID. If no profile is found
+   * for the account, it throws a ResourceNotFoundException.
+   *
+   * @param accountId the account ID to find the crew profile for
+   * @return the CrewProfile associated with the account
+   * @throws ResourceNotFoundException if no profile exists for the account
+   */
   @Override
   public CrewProfile getProfileForAccount(String accountId) {
     log.debug("Fetching crew profile for account ID: {}", accountId);
@@ -54,18 +90,46 @@ public class CrewService implements CrewUseCase {
             });
   }
 
+  /**
+   * Searches for crew profiles based on specified criteria.
+   *
+   * <p>This method performs a paginated search of crew profiles using the provided search criteria.
+   * The criteria can include various filters like name, status, and other profile attributes.
+   *
+   * @param criteria the search criteria to filter crew profiles
+   * @param pageable pagination and sorting information
+   * @return a Page of CrewProfile matching the criteria
+   */
   @Override
   public Page<CrewProfile> getProfiles(CrewProfileSearchCriteria criteria, Pageable pageable) {
     log.debug("Fetching crew profiles with criteria: {}", criteria);
     return crewProfileRepository.findAll(criteria, pageable);
   }
 
+  /**
+   * Retrieves crew profiles by their employee card IDs.
+   *
+   * <p>This method finds all crew profiles that have the specified employee card IDs, useful for
+   * bulk operations and data synchronization.
+   *
+   * @param cardIds collection of employee card IDs to search for
+   * @return list of CrewProfile with matching employee card IDs
+   */
   @Override
   public List<CrewProfile> getProfilesByEmployeeCardIds(Iterable<String> cardIds) {
     log.debug("Fetching crew profiles by employee card IDs");
     return crewProfileRepository.findAllByEmployeeCardId(cardIds);
   }
 
+  /**
+   * Applies a labor contract to a crew member's profile.
+   *
+   * <p>This method associates a labor contract with a crew profile, creating a new profile if one
+   * doesn't exist for the account. The operation updates the crew profile with contract information
+   * and persists the changes.
+   *
+   * @param command contains the account ID and labor contract details
+   */
   @Override
   public void applyLaborContract(ApplyLaborContractCommand command) {
     String accountId = command.accountId();

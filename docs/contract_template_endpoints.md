@@ -8,7 +8,7 @@ This document provides an overview of all the available API endpoints for managi
 - **URL**: `/api/v1/contract-templates`
 - **Method**: `GET`
 - **Description**: Retrieves a paginated list of all contract templates.
-- **Security**: Requires Bearer token authentication
+- **Security**: Requires Bearer token authentication and ADMIN role
 - **Headers**:
   - `Authorization`: Bearer `<accessToken>`
 - **Query Parameters**:
@@ -38,6 +38,7 @@ This document provides an overview of all the available API endpoints for managi
 - **URL**: `/api/v1/contract-templates`
 - **Method**: `POST`
 - **Description**: Uploads a new contract template.
+- **Security**: Requires Bearer token authentication and ADMIN role
 - **Headers**:
   - `Authorization`: Bearer `<accessToken>`
 - **Request Parameters**:
@@ -68,6 +69,7 @@ This document provides an overview of all the available API endpoints for managi
 - **URL**: `/api/v1/contract-templates/{id}`
 - **Method**: `DELETE`
 - **Description**: Removes a contract template by its ID.
+- **Security**: Requires Bearer token authentication and ADMIN role
 - **Headers**:
   - `Authorization`: Bearer `<accessToken>`
 - **Response**: `204 No Content`

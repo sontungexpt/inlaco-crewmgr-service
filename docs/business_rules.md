@@ -22,25 +22,38 @@
 - Tạo mới một đợt điều động với thông tin tàu, thời gian, danh sách thuyền viên
 - Yêu cầu shipImageAssetId và user context cho việc tạo
 - Không giới hạn số lượng thuyền viên trong một đợt điều động
+- Role: ADMIN chỉ có thể tạo điều động
 
 **Query Operations:**
 - Hỗ trợ tìm kiếm theo nhiều tiêu chí: keyword, accountId, shipIMO, status, startDate, endDate
-- Sử dụng pagination cho các kết quả tìm kiếm
+- Sử dụng pagination cho các kết quả tìm kiếm (default: page=0, size=20)
 - Hỗ trợ tìm kiếm chi tiết với thông tin thuyền viên đầy đủ
+- Thuyền viên (SAILOR) có thể xem lịch trình của riêng mình qua endpoint `/mine`
+
+**Excel Export:**
+- Hỗ trợ export điều động ra file Excel
+- Cả ADMIN và SAILOR đều có thể export
 
 ## Crew Rental Request - Yêu Cầu Thuê Thuyền Viên
 
 ### Review Process
 
 **Review Request:**
-- Admin có thể review và approve/reject request
+- Admin có thể review và approve/reject request qua endpoint `/review`
 - Yêu cầu reviewer context cho việc đánh giá
 - Không có giới hạn về số lượng thuyền viên trong request
+- Sử dụng boolean parameter `accepted` để approve/reject
 
 **Create Request:**
-- Tạo yêu cầu thuê thuyền viên mới
+- USER có thể tạo yêu cầu thuê thuyền viên mới
 - Yêu cầu detailFileAssetId và shipImageAssetId
 - Yêu cầu user context cho việc tạo
+- Auto-assign status pending cho request mới
+
+**Query Operations:**
+- Admin có thể xem tất cả requests
+- User có thể xem requests của riêng mình qua endpoint `/me`
+- Hỗ trợ tìm kiếm theo nhiều tiêu chí với pagination
 
 **Contract Signing:**
 - Đánh dấu request đã ký hợp đồng với contractId tương ứng
@@ -53,6 +66,7 @@
 - Tạo hợp đồng cung cấp thuyền viên từ requestId
 - Yêu cầu CrewSupplyContract thông tin và assets
 - Yêu cầu creator context cho việc tạo
+- Endpoint riêng: `/api/v1/crew-supply-contracts`
 
 ### Labor Contract
 
@@ -60,11 +74,13 @@
 - Tạo hợp đồng lao động từ applicationId
 - Yêu cầu LaborContract thông tin và assets
 - Yêu cầu creator context cho việc tạo
+- Endpoint riêng: `/api/v1/labor-contracts`
 
 **Contract Lifecycle:**
-- Hỗ trợ update contract
+- Hỗ trợ update contract qua PATCH endpoint
 - Hỗ trợ signing contract
 - Hỗ trợ query contract theo các tiêu chí
+- Role-based access control cho các operations
 
 ## Ship Schedule - Lịch Trình Tàu
 
@@ -77,12 +93,29 @@
 - Hỗ trợ keyword search trên shipName, shipImo, clientId
 
 **Schedule Management:**
-- Tạo, cập nhật, xóa lịch trình tàu
+- Tạo lịch trình tàu với crew assignments
 - Quản lý danh sách thuyền viên (add, remove, update crew list)
 - Hỗ trợ tìm kiếm theo clientId, shipImo, date range
-- Pagination cho tất cả các query operations
+- Pagination cho tất cả các query operations (default: page=0, size=10)
+
+**External API Access:**
+- Hỗ trợ external API access qua API Key authentication
+- Client có thể xem schedules của mình qua endpoint `/me`
 
 ## Authentication & Security
+
+### User Authentication
+
+**Registration & Login:**
+- Public endpoints cho register và login
+- Support username/password authentication
+- Return JWT tokens (access + refresh)
+- Password confirmation required cho registration
+
+**Token Management:**
+- Refresh token capability
+- Logout functionality
+- Bearer token authentication
 
 ### Two-Step Verification
 
@@ -90,6 +123,7 @@
 - Hỗ trợ xác thực hai bước với TOTP
 - Yêu cầu user context cho việc enable/disable
 - Security considerations cho việc backup codes
+- Endpoint riêng cho TOTP management
 
 ### API Key Management
 
@@ -97,6 +131,64 @@
 - Tạo và quản lý API keys
 - Hỗ trợ revoke và refresh API keys
 - Rate limiting và security policies
+- Support OTP và TOTP cho API key creation
+- External API access với API Key authentication
+
+## User Management
+
+### User Profile
+
+**Profile Management:**
+- User có thể xem profile của mình
+- Role-based access control (USER, ADMIN, SAILOR)
+- User context tracking cho audit trail
+
+### Company Management
+
+**Company Operations:**
+- Quản lý thông tin công ty
+- Support cho vessel owner management
+- Integration với ship schedules
+
+## Recruitment & Job Applications
+
+### Job Posting
+
+**Post Management:**
+- Tạo và quản lý recruitment posts
+- Support cho job listings và applications
+
+### Application Process
+
+**Job Applications:**
+- User có thể apply cho jobs
+- Admin review process
+- Application lifecycle management
+- Support cho labor contract creation từ applications
+
+## Course Management
+
+**Training Courses:**
+- Quản lý courses đào tạo
+- Support cho crew certification
+- Course completion tracking
+
+## File Upload & Management
+
+**Asset Management:**
+- Support file upload cho contracts, requests, ships
+- Asset ID tracking cho files
+- Integration với các features khác
+
+## Notification System
+
+**Multi-channel Notifications:**
+- Email notifications
+- Push notifications (device tokens)
+- Event-driven notifications cho:
+  - New crew mobilization
+  - Ship schedule changes
+  - Contract lifecycle events
 
 ## General Business Rules
 
@@ -106,6 +198,7 @@
 - Tất cả các operation create/update đều yêu cầu user context
 - Tracking người thực hiện các thay đổi
 - Support cho audit và compliance
+- @CurrentUser annotation cho dependency injection
 
 ### Data Validation
 
@@ -113,6 +206,7 @@
 - Validation rules có thể thay đổi theo business requirements
 - Không hard-code validation logic
 - Support cho dynamic business rules
+- Jakarta validation annotations
 
 ### Search Pattern
 
@@ -120,3 +214,20 @@
 - Sử dụng SearchCriteria pattern cho tất cả các repository
 - Hỗ trợ flexible search với multiple criteria
 - Pagination và sorting support
+- @Filter annotation cho dynamic filtering
+
+### Role-Based Access Control
+
+**Permission Management:**
+- ADMIN: Full access
+- USER: Limited access (own data)
+- SAILOR: Crew-specific access
+- Method-level security với @RolesAllowed
+
+### API Documentation
+
+**OpenAPI Integration:**
+- Comprehensive API documentation
+- Security requirement definitions
+- Endpoint descriptions and examples
+- Swagger UI integration

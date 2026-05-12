@@ -1,6 +1,6 @@
-# API Endpoints Documentation
+# Authentication Endpoints Documentation
 
-This document provides an overview of all the available API endpoints in the `crewmgrservice` application. Each endpoint includes its URL, HTTP method, description, request body (if applicable), and usage instructions.
+This document provides an overview of Authentication-related API endpoints in the `crewmgrservice` application. Each endpoint includes its URL, HTTP method, description, request/response formats, and usage instructions.
 
 ---
 
@@ -98,9 +98,10 @@ This document provides an overview of all the available API endpoints in the `cr
 
 - **URL**: `/api/v1/auth/two-step-verification`
 - **Method**: `GET`
-- **Description**: Verifies the two-step verification token.
+- **Description**: Verifies the two-step verification token (email-based OTP).
+- **Security**: Public endpoint (no authentication required)
 - **Query Parameters**:
-  - `token`: The verification token.
+  - `token`: The verification token sent to user's email.
 - **Response**: `204 No Content`
 - **Usage**:
   Send a `GET` request with the `token` query parameter to verify the two-step verification.
@@ -111,12 +112,92 @@ This document provides an overview of all the available API endpoints in the `cr
 
 - **URL**: `/api/v1/auth/two-step-verification/resend`
 - **Method**: `POST`
-- **Description**: Resends the two-step verification token to the current user.
+- **Description**: Resends the two-step verification token to the current user's email.
+- **Security**: Requires `USER` role
 - **Headers**:
   - `Authorization`: Bearer `<accessToken>`
 - **Response**: `204 No Content`
 - **Usage**:
   Send a `POST` request with the `accessToken` in the `Authorization` header to resend the two-step verification token.
+
+---
+
+## **TOTP Endpoints**
+
+### **1. Enable TOTP**
+
+- **URL**: `/api/v1/auth/totp/enable`
+- **Method**: `POST`
+- **Description**: Enables TOTP two-factor authentication for the current user.
+- **Security**: Requires `USER` role
+- **Headers**:
+  - `Authorization`: Bearer `<accessToken>`
+- **Request Body**:
+  ```json
+  {
+    "password": "string",
+    "totpCode": "string"
+  }
+  ```
+- **Response**:
+  ```json
+  {
+    "secret": "string",
+    "qrCode": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...",
+    "backupCodes": ["123456", "789012", "345678"],
+    "instructions": "1. Scan QR code with your authenticator app..."
+  }
+  ```
+- **Usage**:
+  Send a `POST` request with password and TOTP code to enable TOTP 2FA.
+
+---
+
+### **2. Disable TOTP**
+
+- **URL**: `/api/v1/auth/totp/disable`
+- **Method**: `POST`
+- **Description**: Disables TOTP two-factor authentication for the current user.
+- **Security**: Requires `USER` role
+- **Headers**:
+  - `Authorization`: Bearer `<accessToken>`
+- **Request Body**:
+  ```json
+  {
+    "password": "string",
+    "totpCode": "string"
+  }
+  ```
+- **Response**: `204 No Content`
+- **Usage**:
+  Send a `POST` request with password and TOTP code to disable TOTP 2FA.
+
+---
+
+### **3. Generate Backup Codes**
+
+- **URL**: `/api/v1/auth/totp/backup-codes`
+- **Method**: `POST`
+- **Description**: Generates new backup codes for TOTP recovery.
+- **Security**: Requires `USER` role
+- **Headers**:
+  - `Authorization`: Bearer `<accessToken>`
+- **Request Body**:
+  ```json
+  {
+    "password": "string",
+    "totpCode": "string"
+  }
+  ```
+- **Response**:
+  ```json
+  {
+    "backupCodes": ["123456", "789012", "345678", "901234", "567890"],
+    "generatedAt": "2023-05-05T12:00:00Z"
+  }
+  ```
+- **Usage**:
+  Send a `POST` request with password and TOTP code to generate new backup codes.
 
 ---
 
@@ -131,305 +212,6 @@ This document provides an overview of all the available API endpoints in the `cr
   - JSON object containing asset links.
 - **Usage**:
   Send a `GET` request to retrieve the `assetlinks.json` file.
-
----
-
----
-
-## **Contract Endpoints**
-
-### **1. Update Contract**
-
-- **URL**: `/api/v1/contracts/{id}`
-- **Method**: `PATCH`
-- **Description**: Updates a contract with the provided patch data.
-- **Headers**:
-  - `Authorization`: Bearer `<accessToken>`
-- **Request Body**:
-  ```json
-  {
-  	"field1": "value1",
-  	"field2": "value2"
-  }
-  ```
-- **Response**:
-  ```json
-  {
-  	"id": "string",
-  	"field1": "value1",
-  	"field2": "value2"
-  }
-  ```
-- **Usage**:
-  Send a `PATCH` request with the contract ID and the fields to update in the request body.
-
----
-
-### **2. Activate Contract**
-
-- **URL**: `/api/v1/contracts/active/{id}`
-- **Method**: `POST`
-- **Description**: Activates a contract by its ID.
-- **Headers**:
-  - `Authorization`: Bearer `<accessToken>`
-- **Response**: `204 No Content`
-- **Usage**:
-  Send a `POST` request with the contract ID to activate the contract.
-
----
-
-### **3. Get Contract Details**
-
-- **URL**: `/api/v1/contracts/{id}`
-- **Method**: `GET`
-- **Description**: Retrieves the details of a specific contract by its ID.
-- **Headers**:
-  - `Authorization`: Bearer `<accessToken>`
-- **Query Parameters**:
-  - `version` (optional): The version of the contract to retrieve.
-- **Response**:
-  ```json
-  {
-  	"id": "string",
-  	"field1": "value1",
-  	"field2": "value2"
-  }
-  ```
-- **Usage**:
-  Send a `GET` request with the contract ID to retrieve its details. Optionally, include the `version` query parameter to fetch a specific version.
-
----
-
-### **4. Get Old Contract Versions**
-
-- **URL**: `/api/v1/contracts/{id}/old-versions`
-- **Method**: `GET`
-- **Description**: Retrieves all old versions of a specific contract.
-- **Headers**:
-  - `Authorization`: Bearer `<accessToken>`
-- **Response**:
-  ```json
-  [
-  	{
-  		"id": "string",
-  		"version": "integer",
-  		"field1": "value1",
-  		"field2": "value2"
-  	}
-  ]
-  ```
-- **Usage**:
-  Send a `GET` request with the contract ID to retrieve all its old versions.
-
----
-
-### **5. Get Contract for Application**
-
-- **URL**: `/api/v1/contracts/applications/{applicationId}`
-- **Method**: `GET`
-- **Description**: Retrieves the contract details associated with a specific application ID.
-- **Headers**:
-  - `Authorization`: Bearer `<accessToken>`
-- **Response**:
-  ```json
-  {
-  	"id": "string",
-  	"applicationId": "string",
-  	"field1": "value1",
-  	"field2": "value2"
-  }
-  ```
-- **Usage**:
-  Send a `GET` request with the application ID to retrieve the associated contract details.
-
----
-
-### **6. Get All Contracts**
-
-- **URL**: `/api/v1/contracts`
-- **Method**: `GET`
-- **Description**: Retrieves a paginated list of all contracts based on search criteria.
-- **Headers**:
-  - `Authorization`: Bearer `<accessToken>`
-- **Query Parameters**:
-  - `type` (optional): The type of contract (e.g., `LABOR_CONTRACT`).
-  - `signed` (optional): Filter by signed status (`true` or `false`).
-  - `page` (optional): Page number (default: 0).
-  - `size` (optional): Page size (default: 20).
-- **Response**:
-  ```json
-  {
-  	"content": [
-  		{
-  			"id": "string",
-  			"field1": "value1",
-  			"field2": "value2"
-  		}
-  	],
-  	"totalPages": "integer",
-  	"totalElements": "integer"
-  }
-  ```
-- **Usage**:
-  Send a `GET` request with optional query parameters to retrieve a paginated list of contracts.
-
----
-
-### **7. Get My Contracts**
-
-- **URL**: `/api/v1/contracts/me`
-- **Method**: `GET`
-- **Description**: Retrieves a paginated list of contracts belonging to the currently logged-in user.
-- **Headers**:
-  - `Authorization`: Bearer `<accessToken>`
-- **Query Parameters**:
-  - `page` (optional): Page number (default: 0).
-  - `size` (optional): Page size (default: 20).
-- **Response**:
-  ```json
-  {
-    "content": [ ... ],
-    "totalPages": "integer",
-    "totalElements": "integer"
-  }
-  ```
-
----
-
----
-
-## **Crew Supply Contract Endpoints**
-
-### **1. Create Crew Supply Contract**
-
-- **URL**: `/api/v1/contracts/supplies/{requestId}`
-- **Method**: `POST`
-- **Description**: Creates a new crew supply contract for a sailor.
-- **Headers**:
-  - `Authorization`: Bearer `<accessToken>`
-- **Request Parameters**:
-  - `contractFileAssetId` (required): The asset ID of the contract file.
-  - `shipImageAssetId` (required): The asset ID of the ship image.
-- **Request Body**:
-  ```json
-  {
-  	"field1": "value1",
-  	"field2": "value2"
-  }
-  ```
-- **Response**:
-  ```json
-  {
-  	"id": "string",
-  	"field1": "value1",
-  	"field2": "value2"
-  }
-  ```
-- **Usage**:
-  Send a `POST` request with the required parameters and body to create a new crew supply contract.
-
----
-
-## **Labor Contract Endpoints**
-
-### **1. Create Labor Contract**
-
-- **URL**: `/api/v1/contracts/labors/{applicationId}`
-- **Method**: `POST`
-- **Description**: Creates a new labor contract for a sailor.
-- **Headers**:
-  - `Authorization`: Bearer `<accessToken>`
-- **Request Body**:
-  ```json
-  {
-  	"field1": "value1",
-  	"field2": "value2",
-  	"contractFile": "fileAssetId",
-  	"attachments": ["attachment1", "attachment2"]
-  }
-  ```
-- **Response**:
-  ```json
-  {
-  	"id": "string",
-  	"field1": "value1",
-  	"field2": "value2"
-  }
-  ```
-- **Usage**:
-  Send a `POST` request with the application ID and the required fields in the body to create a new labor contract.
-
----
-
-## **Contract Template Endpoints**
-
-### **1. Get All Contract Templates**
-
-- **URL**: `/api/v1/contract-templates`
-- **Method**: `GET`
-- **Description**: Retrieves a paginated list of all contract templates.
-- **Headers**:
-  - `Authorization`: Bearer `<accessToken>`
-- **Query Parameters**:
-  - `type` (optional): The type of contract template.
-  - `page` (optional): Page number (default: 0).
-  - `size` (optional): Page size (default: 20).
-- **Response**:
-  ```json
-  {
-  	"content": [
-  		{
-  			"id": "string",
-  			"type": "string",
-  			"name": "string"
-  		}
-  	],
-  	"totalPages": "integer",
-  	"totalElements": "integer"
-  }
-  ```
-- **Usage**:
-  Send a `GET` request with optional query parameters to retrieve a paginated list of contract templates.
-
-### **2. Upload Contract Template**
-
-- **URL**: `/api/v1/contract-templates`
-- **Method**: `POST`
-- **Description**: Uploads a new contract template.
-- **Headers**:
-  - `Authorization`: Bearer `<accessToken>`
-- **Request Parameters**:
-  - `templateFileAssetId` (required): The asset ID of the template file.
-- **Request Body**:
-  ```json
-  {
-  	"name": "string",
-  	"type": "string",
-  	"description": "string"
-  }
-  ```
-- **Response**:
-  ```json
-  {
-  	"id": "string",
-  	"name": "string",
-  	"type": "string",
-  	"description": "string"
-  }
-  ```
-- **Usage**:
-  Send a `POST` request with the required parameters and body to upload a new contract template.
-
-### **3. Remove Contract Template**
-
-- **URL**: `/api/v1/contract-templates/{id}`
-- **Method**: `DELETE`
-- **Description**: Removes a contract template by its ID.
-- **Headers**:
-  - `Authorization`: Bearer `<accessToken>`
-- **Response**: `204 No Content`
-- **Usage**:
-  Send a `DELETE` request with the template ID to remove the contract template.
 
 ---
 
