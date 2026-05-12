@@ -202,3 +202,40 @@ inlaco:
       ship-schedule:
         subject: Inlaco Ship Schedule Notification
         path: mail/schedule/ship-schedule-notification.html
+
+  company:
+    default-status: ACTIVE
+    validation:
+      max-name-length: 200
+      max-description-length: 1000
+      max-registration-number-length: 50
+      max-tax-id-length: 50
+      max-address-length: 500
+      max-email-length: 100
+      max-website-length: 200
+      max-phone-number-length: 20
+
+  ship:
+    default-status: ACTIVE
+    validation:
+      max-name-length: 200
+      max-imo-number-length: 20
+      max-call-sign-length: 20
+      max-mmsi-length: 20
+      max-flag-length: 100
+      max-port-of-registry-length: 200
+      max-ship-type-length: 100
+      max-classification-society-length: 100
+      max-shipyard-length: 200
+      max-engine-type-length: 100
+      max-fuel-type-length: 50
+      max-description-length: 1000
+      min-year-built: 1800
+      max-deadweight: 1000000
+      max-gross-tonnage: 1000000
+      max-net-tonnage: 1000000
+      max-length-overall: 500
+      max-beam: 100
+      max-draft: 50
+      max-engine-power: 100000
+      max-crew-capacity: 1000
