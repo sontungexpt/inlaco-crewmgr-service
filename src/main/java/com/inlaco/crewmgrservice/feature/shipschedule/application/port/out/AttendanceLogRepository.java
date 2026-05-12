@@ -15,6 +15,8 @@ public interface AttendanceLogRepository {
   Optional<AttendanceLog> findLatestByEmployeeCardIdAndShipScheduleId(
       String employeeCardId, String shipScheduleId);
 
+  Optional<AttendanceLog> findLastByDeviceIdInShipSchedule(String deviceId, String shipScheduleId);
+
   List<AttendanceLog> findByCrewId(String crewId);
 
   List<AttendanceLog> findByShipScheduleId(String shipScheduleId);

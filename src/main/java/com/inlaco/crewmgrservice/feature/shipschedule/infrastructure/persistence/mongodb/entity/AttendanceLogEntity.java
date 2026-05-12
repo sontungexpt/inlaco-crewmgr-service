@@ -37,6 +37,7 @@ public class AttendanceLogEntity {
   private AttendanceMethod method;
 
   private String location;
+  private String deviceId;
 
   private String note;
 

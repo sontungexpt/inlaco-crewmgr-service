@@ -116,4 +116,12 @@ public class AttendanceLogRepositoryAdapter implements AttendanceLogRepository {
   public boolean existsById(String id) {
     return mongoRepository.existsById(id);
   }
+
+  @Override
+  public Optional<AttendanceLog> findLastByDeviceIdInShipSchedule(
+      String deviceId, String shipScheduleId) {
+    return mongoRepository
+        .findTopByDeviceIdAndShipScheduleIdOrderByTimestampDesc(deviceId, shipScheduleId)
+        .map(entityMapper::toDomain);
+  }
 }
