@@ -15,6 +15,7 @@ import com.inlaco.crewmgrservice.infrastructure.web.annotation.Filter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -74,14 +76,23 @@ public class ShipScheduleController {
       description =
           "Retrieve all current ship schedules belonging to authenticated client using API key"
               + " authentication")
+  @RolesAllowed({"USER", "SAILOR"})
   public Page<ShipScheduleResponse> getMySchedules(
       @Filter ShipScheduleSearchCriteria criteria,
       @PageableDefault(page = 0, size = 10) Pageable pageable,
-      @CurrentUser User user) {
+      @CurrentUser User user,
+      Authentication authentication) {
     if (criteria == null) {
       criteria = new ShipScheduleSearchCriteria();
     }
-    criteria.setVesselOwnerId(user.getId());
+
+    boolean isSailor =
+        authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("SAILOR"));
+    if (isSailor) {
+      criteria.setCrewAccountId(user.getId());
+    } else {
+      criteria.setVesselOwnerId(user.getId());
+    }
     return shipScheduleUseCase.getSchedules(criteria, pageable).map(mapper::toShipScheduleResponse);
   }
 }

@@ -6,47 +6,69 @@ This document provides an overview of Recruitment-related API endpoints in the `
 
 ## **1. Create Recruitment Post**
 
-- **URL**: `/api/v1/recruitment/posts`
+- **URL**: `/api/v1/posts`
 - **Method**: `POST`
-- **Description**: Creates a new recruitment post for job openings.
-- **Security**: Requires `ADMIN` role
+- **Description**: Creates a new recruitment post. Use `type: "RECRUITMENT"` to specify recruitment post type.
+- **Security**: Requires authentication (Bearer token)
 - **Headers**:
   - `Authorization`: Bearer `<accessToken>`
 - **Request Body**:
   ```json
   {
+    "type": "RECRUITMENT",
     "title": "string",
+    "content": "string",
     "description": "string",
     "position": "string",
-    "requirements": "string",
-    "salary": "string",
-    "location": "string",
-    "expirationDate": "2023-06-05T12:00:00Z",
-    "company": "string"
+    "expectedSalary": "string",
+    "active": true,
+    "workLocation": "string",
+    "recruitmentStartDate": "2023-06-05T12:00:00Z",
+    "recruitmentEndDate": "2023-07-05T12:00:00Z",
+    "company": "string",
+    "imageAssetId": "string",
+    "attachmentAssetIds": ["string"]
   }
   ```
 - **Response**:
   ```json
   {
     "id": "string",
+    "type": "RECRUITMENT",
     "title": "string",
+    "content": "string",
     "description": "string",
     "position": "string",
-    "requirements": "string",
-    "salary": "string",
-    "location": "string",
-    "status": "ACTIVE|EXPIRED|CLOSED",
-    "expirationDate": "2023-06-05T12:00:00Z",
+    "expectedSalary": "string",
+    "active": true,
+    "workLocation": "string",
+    "recruitmentStartDate": "2023-06-05T12:00:00Z",
+    "recruitmentEndDate": "2023-07-05T12:00:00Z",
     "company": "string",
-    "createdAt": "2023-05-05T12:00:00Z",
-    "author": {
+    "image": {
       "id": "string",
-      "name": "string"
-    }
+      "fileName": "string",
+      "originalFileName": "string",
+      "contentType": "string",
+      "size": "number",
+      "url": "string"
+    },
+    "attachments": [
+      {
+        "id": "string",
+        "fileName": "string",
+        "originalFileName": "string",
+        "contentType": "string",
+        "size": "number",
+        "url": "string"
+      }
+    ],
+    "authorId": "string",
+    "updatedAt": "2023-05-05T12:00:00Z"
   }
   ```
 - **Usage**:
-  Send a `POST` request with recruitment post details to create a new job posting.
+  Send a `POST` request with `type: "RECRUITMENT"` and recruitment post details to create a new job posting.
 
 ---
 
@@ -123,45 +145,71 @@ This document provides an overview of Recruitment-related API endpoints in the `
 
 ## **4. Apply for Job**
 
-- **URL**: `/api/v1/recruitment/posts/{postId}/apply`
+- **URL**: `/api/v1/applications/recruitment/{recruitmentPostId}`
 - **Method**: `POST`
 - **Description**: Submits a job application for a specific recruitment post.
 - **Security**: Requires `USER` role
 - **Headers**:
   - `Authorization`: Bearer `<accessToken>`
 - **Path Parameters**:
-  - `postId`: The ID of the recruitment post.
+  - `recruitmentPostId`: The ID of the recruitment post.
+- **Query Parameters**:
+  - `resumeAssetId` (required): Asset ID of uploaded resume file.
 - **Request Body**:
   ```json
   {
-    "coverLetter": "string",
-    "expectedSalary": "string",
-    "availableDate": "2023-05-15T12:00:00Z",
-    "resumeFile": "string",
-    "additionalDocuments": ["string"]
+    "fullName": "string",
+    "email": "string",
+    "phoneNumber": "string",
+    "address": "string",
+    "gender": "MALE|FEMALE|OTHER",
+    "languageSkills": "string",
+    "experiences": "string",
+    "resume": {
+      "id": "string",
+      "fileName": "string",
+      "originalFileName": "string",
+      "contentType": "string",
+      "size": "number",
+      "url": "string"
+    }
   }
   ```
 - **Response**:
   ```json
   {
     "id": "string",
-    "postId": "string",
-    "applicantId": "string",
-    "status": "PENDING|REVIEWED|ACCEPTED|REJECTED",
-    "coverLetter": "string",
-    "expectedSalary": "string",
-    "availableDate": "2023-05-15T12:00:00Z",
-    "appliedAt": "2023-05-05T12:00:00Z"
+    "accountId": "string",
+    "recruitmentPostId": "string",
+    "fullName": "string",
+    "email": "string",
+    "phoneNumber": "string",
+    "address": "string",
+    "gender": "MALE|FEMALE|OTHER",
+    "languageSkills": "string",
+    "experiences": "string",
+    "resume": {
+      "id": "string",
+      "fileName": "string",
+      "originalFileName": "string",
+      "contentType": "string",
+      "size": "number",
+      "url": "string"
+    },
+    "status": "APPLIED|SCREENING|INTERVIEW_SCHEDULED|INTERVIEWED|OFFERED|CONFIRMED|CONTRACT_PENDING_SIGNATURE|CONTRACT_SIGNED|HIRED|REJECTED|WITHDRAWN",
+    "appliedAt": "2023-05-05T12:00:00Z",
+    "updatedAt": "2023-05-05T12:00:00Z"
   }
   ```
 - **Usage**:
-  Send a `POST` request with application details to apply for a job.
+  1. Upload resume using upload endpoints to get `resumeAssetId`
+  2. Send a `POST` request with application details and `resumeAssetId` as query parameter.
 
 ---
 
 ## **5. Get My Job Applications**
 
-- **URL**: `/api/v1/recruitment/applications/me`
+- **URL**: `/api/v1/applications/mine`
 - **Method**: `GET`
 - **Description**: Retrieves job applications submitted by the current user.
 - **Security**: Requires `USER` role
@@ -177,17 +225,32 @@ This document provides an overview of Recruitment-related API endpoints in the `
     "content": [
       {
         "id": "string",
-        "postId": "string",
-        "postTitle": "string",
-        "company": "string",
-        "position": "string",
-        "status": "PENDING|REVIEWED|ACCEPTED|REJECTED",
+        "accountId": "string",
+        "recruitmentPostId": "string",
+        "fullName": "string",
+        "email": "string",
+        "phoneNumber": "string",
+        "address": "string",
+        "gender": "MALE|FEMALE|OTHER",
+        "languageSkills": "string",
+        "experiences": "string",
+        "resume": {
+          "id": "string",
+          "fileName": "string",
+          "originalFileName": "string",
+          "contentType": "string",
+          "size": "number",
+          "url": "string"
+        },
+        "status": "APPLIED|SCREENING|INTERVIEW_SCHEDULED|INTERVIEWED|OFFERED|CONFIRMED|CONTRACT_PENDING_SIGNATURE|CONTRACT_SIGNED|HIRED|REJECTED|WITHDRAWN",
         "appliedAt": "2023-05-05T12:00:00Z",
-        "reviewedAt": "2023-05-06T12:00:00Z"
+        "updatedAt": "2023-05-05T12:00:00Z"
       }
     ],
     "totalPages": "integer",
-    "totalElements": "integer"
+    "totalElements": "integer",
+    "size": "integer",
+    "number": "integer"
   }
   ```
 - **Usage**:
@@ -197,30 +260,30 @@ This document provides an overview of Recruitment-related API endpoints in the `
 
 ## **6. Admin Review Applications**
 
-- **URL**: `/api/v1/recruitment/applications/{applicationId}/review`
+- **URL**: `/api/v1/admin/applications/{id}/review`
 - **Method**: `POST`
 - **Description**: Allows an admin to review a job application.
 - **Security**: Requires `ADMIN` role
 - **Headers**:
   - `Authorization`: Bearer `<accessToken>`
 - **Path Parameters**:
-  - `applicationId`: The ID of the job application.
-- **Request Body**:
-  ```json
-  {
-    "status": "ACCEPTED|REJECTED",
-    "reviewNotes": "string"
-  }
-  ```
+  - `id`: The ID of the job application.
+- **Query Parameters**:
+  - `status` (required): New application status.
 - **Response**: `204 No Content`
 - **Usage**:
-  Send a `POST` request with review decision to update application status.
+  Send a `POST` request with new status to update application status.
+
+**Note**: Certain statuses cannot be set directly via review:
+- `HIRED`
+- `CONTRACT_SIGNED` 
+- `CONTRACT_PENDING_SIGNATURE`
 
 ---
 
 ## **7. Get All Applications (Admin)**
 
-- **URL**: `/api/v1/recruitment/applications`
+- **URL**: `/api/v1/applications`
 - **Method**: `GET`
 - **Description**: Retrieves all job applications for admin review.
 - **Security**: Requires `ADMIN` role
@@ -237,20 +300,32 @@ This document provides an overview of Recruitment-related API endpoints in the `
     "content": [
       {
         "id": "string",
-        "postId": "string",
-        "postTitle": "string",
-        "applicant": {
+        "accountId": "string",
+        "recruitmentPostId": "string",
+        "fullName": "string",
+        "email": "string",
+        "phoneNumber": "string",
+        "address": "string",
+        "gender": "MALE|FEMALE|OTHER",
+        "languageSkills": "string",
+        "experiences": "string",
+        "resume": {
           "id": "string",
-          "name": "string",
-          "email": "string"
+          "fileName": "string",
+          "originalFileName": "string",
+          "contentType": "string",
+          "size": "number",
+          "url": "string"
         },
-        "status": "PENDING|REVIEWED|ACCEPTED|REJECTED",
+        "status": "APPLIED|SCREENING|INTERVIEW_SCHEDULED|INTERVIEWED|OFFERED|CONFIRMED|CONTRACT_PENDING_SIGNATURE|CONTRACT_SIGNED|HIRED|REJECTED|WITHDRAWN",
         "appliedAt": "2023-05-05T12:00:00Z",
-        "reviewedAt": "2023-05-06T12:00:00Z"
+        "updatedAt": "2023-05-05T12:00:00Z"
       }
     ],
     "totalPages": "integer",
-    "totalElements": "integer"
+    "totalElements": "integer",
+    "size": "integer",
+    "number": "integer"
   }
   ```
 - **Usage**:

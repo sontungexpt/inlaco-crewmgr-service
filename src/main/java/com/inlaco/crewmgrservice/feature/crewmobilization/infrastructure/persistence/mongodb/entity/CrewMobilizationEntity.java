@@ -3,7 +3,6 @@ package com.inlaco.crewmgrservice.feature.crewmobilization.infrastructure.persis
 import com.inlaco.crewmgrservice.feature.crewmobilization.domain.enums.CrewMobilizationStatus;
 import com.inlaco.crewmgrservice.shared.objectvalue.ShipInfo;
 import java.time.Instant;
-import java.util.Set;
 import lombok.Data;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.CreatedBy;
@@ -18,6 +17,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class CrewMobilizationEntity {
 
   @Id private String id;
+
+  private String partnerAccountId;
 
   private String partnerName;
 
@@ -34,8 +35,6 @@ public class CrewMobilizationEntity {
   private Instant endDate;
 
   private CrewMobilizationStatus status;
-
-  private Set<CrewMobilizationAssignmentEntity> crews;
 
   @CreatedBy private ObjectId createdBy;
   @CreatedDate private Instant createdAt;

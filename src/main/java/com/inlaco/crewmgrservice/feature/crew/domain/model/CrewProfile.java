@@ -1,8 +1,6 @@
 package com.inlaco.crewmgrservice.feature.crew.domain.model;
 
-import com.inlaco.crewmgrservice.feature.crew.domain.enums.BoardingStatus;
 import com.inlaco.crewmgrservice.feature.crew.domain.enums.CrewOperationalStatus;
-import com.inlaco.crewmgrservice.feature.crew.domain.enums.MobilizationStatus;
 import com.inlaco.crewmgrservice.shared.objectvalue.Asset;
 import com.inlaco.crewmgrservice.shared.objectvalue.Gender;
 import java.time.Instant;
@@ -81,31 +79,5 @@ public class CrewProfile {
     if (status == newStatus) return;
     status.validateTransition(newStatus);
     status = newStatus;
-  }
-
-  /** Current boarding status - defaults to OFF_BOARD */
-  @Builder.Default private BoardingStatus boardingStatus = BoardingStatus.OFF_BOARD;
-
-  /**
-   * Marks the crew member as boarded onto a ship.
-   *
-   * <p>This method changes the boarding status to ON_BOARD, indicating that the crew member is
-   * currently assigned and working on a vessel.
-   */
-  public void board() {
-    boardingStatus = BoardingStatus.ON_BOARD;
-  }
-
-  /** Current mobilization status - defaults to AVAILABLE */
-  @Builder.Default private MobilizationStatus mobilizationStatus = MobilizationStatus.AVAILABLE;
-
-  /**
-   * Marks the crew member as mobilized for deployment.
-   *
-   * <p>This method changes the mobilization status to MOBILIZED, indicating that the crew member
-   * has been mobilized and is ready for deployment or is currently deployed.
-   */
-  public void mobilize() {
-    mobilizationStatus = MobilizationStatus.MOBILIZED;
   }
 }

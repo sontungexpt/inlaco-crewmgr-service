@@ -4,275 +4,184 @@ This document provides an overview of File Upload-related API endpoints in the `
 
 ---
 
-## **1. Upload File**
-
-- **URL**: `/api/v1/upload`
-- **Method**: `POST`
-- **Description**: Uploads a file to the system and returns an asset ID for reference.
-- **Security**: Requires authentication (Bearer token or API Key)
-- **Headers**:
-  - `Authorization`: Bearer `<accessToken>` OR `X-API-Key: <apiKey>`
-  - `Content-Type`: `multipart/form-data`
-- **Request Body**:
-  - `file`: The file to upload (required)
-  - `category` (optional): File category for organization (e.g., CONTRACT, AVATAR, SHIP_IMAGE, DOCUMENT)
-  - `description` (optional): File description for metadata
-- **Supported File Types**:
-  - Images: JPEG, PNG, GIF, WebP
-  - Documents: PDF, DOC, DOCX, XLS, XLSX
-  - Archives: ZIP, RAR
-- **File Size Limits**:
-  - Images: Max 10MB
-  - Documents: Max 50MB
-  - Archives: Max 100MB
-- **Response**:
-  ```json
-  {
-    "id": "string",
-    "fileName": "string",
-    "originalFileName": "string",
-    "contentType": "string",
-    "size": "integer",
-    "category": "string",
-    "description": "string",
-    "url": "string",
-    "uploadedAt": "2023-05-05T12:00:00Z",
-    "uploadedBy": "string"
-  }
-  ```
-- **Usage**:
-  Send a `POST` request with file data to upload and receive an asset ID for reference.
-
----
-
-## **2. Get File Info**
-
-- **URL**: `/api/v1/upload/{assetId}`
-- **Method**: `GET`
-- **Description**: Retrieves metadata about a specific uploaded file.
-- **Security**: Requires authentication (Bearer token or API Key)
-- **Headers**:
-  - `Authorization`: Bearer `<accessToken>` OR `X-API-Key: <apiKey>`
-- **Path Parameters**:
-  - `assetId`: The ID of the uploaded file.
-- **Response**:
-  ```json
-  {
-    "id": "string",
-    "fileName": "string",
-    "originalFileName": "string",
-    "contentType": "string",
-    "size": "integer",
-    "category": "string",
-    "description": "string",
-    "url": "string",
-    "uploadedAt": "2023-05-05T12:00:00Z",
-    "uploadedBy": "string",
-    "downloadCount": "integer",
-    "lastAccessedAt": "2023-05-05T12:00:00Z"
-  }
-  ```
-- **Usage**:
-  Send a `GET` request with asset ID to retrieve file metadata.
-
----
-
-## **3. Download File**
-
-- **URL**: `/api/v1/upload/{assetId}/download`
-- **Method**: `GET`
-- **Description**: Downloads the actual file content.
-- **Security**: Requires authentication (Bearer token or API Key)
-- **Headers**:
-  - `Authorization`: Bearer `<accessToken>` OR `X-API-Key: <apiKey>`
-- **Path Parameters**:
-  - `assetId`: The ID of the file to download.
-- **Response**:
-  - Content-Type: File's original content type
-  - Content-Disposition: `attachment; filename=<originalFileName>`
-  - Binary file data
-- **Usage**:
-  Send a `GET` request with asset ID to download the file.
-
----
-
-## **4. Get File Preview**
-
-- **URL**: `/api/v1/upload/{assetId}/preview`
-- **Method**: `GET`
-- **Description**: Returns a preview of the file (for images and PDFs).
-- **Security**: Requires authentication (Bearer token or API Key)
-- **Headers**:
-  - `Authorization`: Bearer `<accessToken>` OR `X-API-Key: <apiKey>`
-- **Path Parameters**:
-  - `assetId`: The ID of the file to preview.
-- **Query Parameters**:
-  - `width` (optional): Width for image preview (default: 300).
-  - `height` (optional): Height for image preview (default: 300).
-  - `quality` (optional): Image quality 0-100 (default: 80).
-- **Response**:
-  - Images: Resized image data with appropriate content type
-  - PDFs: First page as image or thumbnail
-  - Other formats: 404 Not Supported
-- **Usage**:
-  Send a `GET` request with asset ID to get file preview.
-
----
-
-## **5. Delete File**
-
-- **URL**: `/api/v1/upload/{assetId}`
-- **Method**: `DELETE`
-- **Description**: Deletes an uploaded file from the system.
-- **Security**: Requires authentication (Bearer token or API Key)
-- **Headers**:
-  - `Authorization`: Bearer `<accessToken>` OR `X-API-Key: <apiKey>`
-- **Path Parameters**:
-  - `assetId`: The ID of the file to delete.
-- **Response**: `204 No Content`
-- **Usage**:
-  Send a `DELETE` request with asset ID to permanently delete the file.
-
----
-
-## **6. List My Files**
-
-- **URL**: `/api/v1/upload/me`
-- **Method**: `GET`
-- **Description**: Retrieves files uploaded by the current user.
-- **Security**: Requires authentication (Bearer token or API Key)
-- **Headers**:
-  - `Authorization`: Bearer `<accessToken>` OR `X-API-Key: <apiKey>`
-- **Query Parameters**:
-  - `page` (optional): Page number (default: 0).
-  - `size` (optional): Page size (default: 20).
-  - `category` (optional): Filter by file category.
-  - `contentType` (optional): Filter by content type.
-  - `startDate` (optional): Filter by upload date (from).
-  - `endDate` (optional): Filter by upload date (to).
-- **Response**:
-  ```json
-  {
-    "content": [
-      {
-        "id": "string",
-        "fileName": "string",
-        "originalFileName": "string",
-        "contentType": "string",
-        "size": "integer",
-        "category": "string",
-        "url": "string",
-        "uploadedAt": "2023-05-05T12:00:00Z",
-        "downloadCount": "integer"
-      }
-    ],
-    "totalPages": "integer",
-    "totalElements": "integer"
-  }
-  ```
-- **Usage**:
-  Send a `GET` request with optional filters to retrieve files uploaded by the authenticated user.
-
----
-
-## **7. Get All Files (Admin)**
+## **1. Get Upload Options (Signed Parameters)**
 
 - **URL**: `/api/v1/upload`
 - **Method**: `GET`
-- **Description**: Retrieves all uploaded files in the system (admin only).
-- **Security**: Requires `ADMIN` role
+- **Description**: Retrieves signed upload parameters for direct file upload to Cloudinary. This endpoint provides the necessary parameters and signatures for secure client-side file uploads.
+- **Security**: Requires `USER` role
 - **Headers**:
   - `Authorization`: Bearer `<accessToken>`
 - **Query Parameters**:
-  - `page` (optional): Page number (default: 0).
-  - `size` (optional): Page size (default: 20).
-  - `category` (optional): Filter by file category.
-  - `contentType` (optional): Filter by content type.
-  - `uploadedBy` (optional): Filter by uploader ID.
-  - `startDate` (optional): Filter by upload date (from).
-  - `endDate` (optional): Filter by upload date (to).
+  - `strategy` (required): Asset type for upload organization (see Asset Types below)
+  - Additional parameters can be passed as query parameters for specific upload strategies
 - **Response**:
   ```json
   {
-    "content": [
-      {
-        "id": "string",
-        "fileName": "string",
-        "originalFileName": "string",
-        "contentType": "string",
-        "size": "integer",
-        "category": "string",
-        "uploadedBy": "string",
-        "uploadedAt": "2023-05-05T12:00:00Z",
-        "downloadCount": "integer"
-      }
-    ],
-    "totalPages": "integer",
-    "totalElements": "integer"
+    "timestamp": "string",
+    "signature": "string",
+    "api_key": "string",
+    "cloud_name": "string",
+    "folder": "string",
+    "public_id": "string",
+    "tags": ["string"],
+    "upload_preset": "string",
+    "additional_params": {
+      "key": "value"
+    }
   }
   ```
 - **Usage**:
-  Send a `GET` request with optional filters to retrieve all uploaded files.
+  1. Call this endpoint to get signed parameters
+  2. Use the returned parameters to upload directly to Cloudinary
+  3. Cloudinary returns the file URL and metadata
+  4. Store the asset information in your application
 
 ---
 
-## **File Categories**
+## **2. Upload File (Direct to Cloudinary)**
 
-### Supported Categories
+- **URL**: `https://api.cloudinary.com/v1_1/{cloud_name}/auto/upload`
+- **Method**: `POST`
+- **Description**: Uploads file directly to Cloudinary using signed parameters from the Get Upload Options endpoint.
+- **Security**: Uses signed parameters from the API endpoint
+- **Headers**:
+  - `Content-Type`: `multipart/form-data`
+- **Request Body**:
+  - `file`: The file to upload (required)
+  - `api_key`: From Get Upload Options response
+  - `timestamp`: From Get Upload Options response
+  - `signature`: From Get Upload Options response
+  - `folder`: From Get Upload Options response
+  - `public_id`: From Get Upload Options response (optional)
+  - `upload_preset`: From Get Upload Options response (optional)
+  - Additional parameters as provided by the signed response
+- **Response**:
+  ```json
+  {
+    "public_id": "string",
+    "version": "integer",
+    "signature": "string",
+    "width": "integer",
+    "height": "integer",
+    "format": "string",
+    "resource_type": "string",
+    "created_at": "string",
+    "tags": ["string"],
+    "bytes": "integer",
+    "type": "string",
+    "etag": "string",
+    "placeholder": "boolean",
+    "url": "string",
+    "secure_url": "string",
+    "access_mode": "string",
+    "original_filename": "string"
+  }
+  ```
+- **Usage**:
+  Upload directly to Cloudinary using the signed parameters obtained from the Get Upload Options endpoint.
 
-- **CONTRACT**: Contract documents and templates
-- **AVATAR**: User profile pictures and avatars
-- **SHIP_IMAGE**: Ship photos and vessel images
-- **DOCUMENT**: General documents and certificates
-- **CREW_DOCUMENT**: Crew member documents and certificates
-- **RECRUITMENT**: Job posting attachments and resumes
-- **COURSE**: Training materials and certificates
-- **SCHEDULE**: Schedule-related documents
-- **OTHER**: Miscellaneous files
+---
 
-### Category-Based Access Control
+## **Asset Types**
 
-- **Public Categories**: Some files may be publicly accessible
-- **Private Categories**: Require authentication and ownership verification
-- **Admin-Only Categories**: Only accessible by administrators
-- **Role-Based Access**: Different access levels based on user roles
+### Supported Asset Types
+
+The following asset types are supported for organizing uploads in Cloudinary folders:
+
+- **DEFAULT**: General purpose uploads
+- **COURSE_WALLPAPER**: Course wallpaper images
+- **TRAINING_PROVIDER_LOGO**: Training provider logos
+- **RESUME**: Resume/CV files
+- **CONTRACT_TEMPLATE**: Contract template documents
+- **CREW_RENTAL_REQUEST_DETAIL_FILE**: Crew rental request detail files
+- **CONTRACT_FILE**: Contract documents
+- **SHIP_IMAGE**: Ship and vessel images
+- **SHIP_DOCUMENT**: Ship-related documents
+- **POST_IMAGE**: Post/announcement images
+- **POST_ATTACHMENT**: Post/announcement attachments
+- **CREW_PROFILE**: Crew member profile photos
+- **CITIZEN_IDENTITY_CARD**: Citizen identity card documents
+- **SOCIAL_INSURANCE**: Social insurance documents
+- **ACCIDENT_INSURANCE**: Accident insurance documents
+- **COMPANY_LOGO**: Company logo images
+
+### Upload Strategies
+
+The following upload strategies are defined in the system (subset of Asset Types):
+
+- **DEFAULT**
+- **COURSE_WALLPAPER**
+- **TRAINING_PROVIDER_LOGO**
+- **RESUME**
+- **CONTRACT_TEMPLATE**
+- **CREW_RENTAL_REQUEST_DETAIL_FILE**
+- **CONTRACT_FILE**
+- **SHIP_IMAGE**
 
 ---
 
 ## **Security Features**
 
-### File Validation
+### Cloudinary Integration
 
-- **Virus Scanning**: Automatic scanning of uploaded files
-- **Content Type Verification**: Server-side validation of file types
-- **Size Enforcement**: Strict enforcement of size limits
-- **Name Sanitization**: Removal of malicious characters from filenames
+- **Signed Uploads**: All uploads use signed parameters to prevent unauthorized uploads
+- **Cloud-Based Storage**: Files stored securely on Cloudinary infrastructure
+- **CDN Delivery**: Automatic CDN integration for fast file delivery globally
+- **Automatic Optimization**: Cloudinary automatically optimizes images and files
 
 ### Access Control
 
-- **Ownership Verification**: Users can only access their own files
-- **Asset ID System**: Non-sequential, hard-to-guess identifiers
-- **Signed URLs**: Temporary signed URLs for secure downloads
-- **Audit Logging**: All file operations are logged
+- **Role-Based Access**: Upload endpoints require `USER` role authentication
+- **Signed Parameters**: Upload signatures prevent unauthorized file uploads
+- **Folder Organization**: Files organized by asset type in separate Cloudinary folders
+- **Secure URLs**: Cloudinary provides secure URLs with access controls
 
-### Storage Management
+### File Management
 
-- **Automatic Cleanup**: Removal of unused files after 30 days
-- **Storage Quotas**: Per-user and system-wide storage limits
-- **Backup Strategy**: Regular backups of uploaded files
-- **CDN Integration**: Content delivery network for fast downloads
+- **Cloudinary Features**: Leverages Cloudinary's built-in security and optimization
+- **Automatic Transformations**: Image resizing, format optimization, and quality adjustment
+- **Backup & Redundancy**: Cloudinary provides automatic backup and redundancy
+- **Global CDN**: Files delivered from edge locations worldwide
 
 ---
 
 ## **Business Rules**
 
-- **File Ownership**: Users can only access and manage their own files
-- **Admin Access**: Administrators can access all files in the system
-- **Category Restrictions**: Some file types restricted to specific user roles
-- **Size Limits**: Enforced at upload time with clear error messages
-- **Audit Trail**: All file operations tracked with user context
-- **Retention Policy**: Files automatically cleaned up based on access patterns
-- **Integration**: Asset IDs used throughout system for file references
+- **Asset Type Organization**: Files organized by asset type in separate folders
+- **Signed Upload Flow**: Two-step process: get signed parameters, then upload to Cloudinary
+- **Client-Side Upload**: Files uploaded directly from client to Cloudinary (reduces server load)
+- **Authentication Required**: All upload operations require valid authentication
+- **Asset Type Validation**: Only supported asset types can be used for uploads
+- **Cloudinary Limits**: Subject to Cloudinary's file size and format limitations
+- **Integration**: Cloudinary URLs and metadata stored in application for reference
+
+---
+
+## **Usage Example**
+
+### Complete Upload Flow
+
+1. **Get Upload Options**:
+   ```bash
+   GET /api/v1/upload?strategy=COMPANY_LOGO
+   Authorization: Bearer <token>
+   ```
+
+2. **Upload to Cloudinary**:
+   ```bash
+   POST https://api.cloudinary.com/v1_1/{cloud_name}/auto/upload
+   Content-Type: multipart/form-data
+   
+   file: <binary_file_data>
+   api_key: <from_step_1>
+   timestamp: <from_step_1>
+   signature: <from_step_1>
+   folder: <from_step_1>
+   ```
+
+3. **Store Asset Information**:
+   Use the Cloudinary response to store file metadata in your application database.
 
 ---
 

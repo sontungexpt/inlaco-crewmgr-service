@@ -1,14 +1,23 @@
 package com.inlaco.crewmgrservice.feature.crew.application.port.out;
 
-import com.inlaco.crewmgrservice.feature.crew.application.model.CrewProfileSearchCriteria;
+import com.inlaco.crewmgrservice.feature.crew.domain.enums.CrewOperationalStatus;
 import com.inlaco.crewmgrservice.feature.crew.domain.model.CrewProfile;
 import java.util.List;
 import java.util.Optional;
-import org.jspecify.annotations.Nullable;
+import lombok.Builder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface CrewProfileRepository {
+
+  @Builder
+  public record CrewProfileSearchCriteria(
+      String keyword,
+      String professionalPosition,
+      Boolean official,
+      CrewOperationalStatus workStatus,
+      List<String> excludedIds,
+      List<String> excludedEmployeeCardIds) {}
 
   CrewProfile save(CrewProfile profile);
 
@@ -22,7 +31,8 @@ public interface CrewProfileRepository {
 
   Page<CrewProfile> findAll(Pageable pageable);
 
-  Page<CrewProfile> findAll(@Nullable CrewProfileSearchCriteria criteria, Pageable pageable);
+  Page<CrewProfile> findAll(
+      CrewProfileRepository.CrewProfileSearchCriteria criteria, Pageable pageable);
 
   List<CrewProfile> findAllById(Iterable<String> ids);
 

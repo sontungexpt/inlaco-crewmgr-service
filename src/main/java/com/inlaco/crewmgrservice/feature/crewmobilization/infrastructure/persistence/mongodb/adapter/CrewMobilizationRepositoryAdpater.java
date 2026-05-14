@@ -9,6 +9,8 @@ import com.inlaco.crewmgrservice.feature.crewmobilization.infrastructure.persist
 import com.inlaco.crewmgrservice.feature.crewmobilization.infrastructure.persistence.mongodb.mapper.CrewMobilizationEntityMapper;
 import com.inlaco.crewmgrservice.feature.crewmobilization.infrastructure.persistence.mongodb.repository.CrewMobilizationMongoRepository;
 import com.inlaco.crewmgrservice.infrastructure.persistence.mongodb.aggregation.FacetResult;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -56,38 +58,13 @@ public class CrewMobilizationRepositoryAdpater implements CrewMobilizationReposi
   @Override
   public Page<CrewMobilization> findAll(
       CrewMobilizationSearchCriteria criteria, Pageable pageable) {
-    var query = new Criteria();
 
-    if (criteria != null) {
-      if (criteria.getKeyword() != null && !criteria.getKeyword().isEmpty()) {
-        query.orOperator(
-            Criteria.where("partnerName").regex(criteria.getKeyword(), "i"),
-            Criteria.where("shipInfo.name").regex(criteria.getKeyword(), "i"));
-      }
-      if (criteria.getStatus() != null) {
-        query.and("status").is(criteria.getStatus());
-      }
-
-      if (criteria.getStartDate() != null) {
-        query.and("startDate").gte(criteria.getStartDate());
-      }
-
-      if (criteria.getEndDate() != null) {
-        query.and("endDate").lte(criteria.getEndDate());
-      }
-
-      if (criteria.getAccountId() != null && !criteria.getAccountId().isEmpty()) {
-        query.and("crews.accountId").is(new ObjectId(criteria.getAccountId()));
-      }
-
-      if (criteria.getShipIMO() != null && !criteria.getShipIMO().isEmpty()) {
-        query.and("shipInfo.imoNumber").is(criteria.getShipIMO());
-      }
-    }
+    Criteria matchCriteria = buildCriteria(criteria);
 
     Aggregation aggregation =
         newAggregation(
-            match(query),
+            lookup("crew_mobilization_assignments", "_id", "mobilizationId", "crews"),
+            match(matchCriteria),
             facet(Aggregation.count().as(FacetResult.COUNT_KEY))
                 .as(FacetResult.COUNT_FACET_NAME)
                 .and(
@@ -102,6 +79,61 @@ public class CrewMobilizationRepositoryAdpater implements CrewMobilizationReposi
         .getUniqueMappedResult()
         .toPage(pageable)
         .map(mapper::toCrewMobilization);
+  }
+
+  private Criteria buildCriteria(CrewMobilizationSearchCriteria criteria) {
+    List<Criteria> andCriteria = new ArrayList<>();
+    if (criteria == null) {
+      return new Criteria();
+    }
+
+    if (criteria.getKeyword() != null && !criteria.getKeyword().isBlank()) {
+
+      String keyword = criteria.getKeyword().trim();
+
+      andCriteria.add(
+          new Criteria()
+              .orOperator(
+                  Criteria.where("partnerName").regex(keyword, "i"),
+                  Criteria.where("shipInfo.name").regex(keyword, "i"),
+                  Criteria.where("shipInfo.imoNumber").regex(keyword, "i")));
+    }
+
+    if (criteria.getStatus() != null) {
+
+      andCriteria.add(Criteria.where("status").is(criteria.getStatus()));
+    }
+
+    if (criteria.getStartDate() != null) {
+
+      andCriteria.add(Criteria.where("startDate").gte(criteria.getStartDate()));
+    }
+
+    if (criteria.getEndDate() != null) {
+
+      andCriteria.add(Criteria.where("endDate").lte(criteria.getEndDate()));
+    }
+
+    /*
+     * ACCOUNT ID
+     */
+    if (criteria.getAccountId() != null && !criteria.getAccountId().isBlank()) {
+
+      andCriteria.add(Criteria.where("crews.accountId").is(new ObjectId(criteria.getAccountId())));
+    }
+    if (criteria.getClientId() != null && !criteria.getClientId().isBlank()) {
+      andCriteria.add(Criteria.where("partnerAccountId").is(new ObjectId(criteria.getClientId())));
+    }
+
+    if (criteria.getShipIMO() != null && !criteria.getShipIMO().isBlank()) {
+      andCriteria.add(Criteria.where("shipInfo.imoNumber").is(criteria.getShipIMO()));
+    }
+
+    if (andCriteria.isEmpty()) {
+      return new Criteria();
+    }
+
+    return new Criteria().andOperator(andCriteria);
   }
 
   @Override

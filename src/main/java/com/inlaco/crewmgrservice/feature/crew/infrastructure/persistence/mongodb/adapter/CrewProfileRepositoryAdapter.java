@@ -2,7 +2,6 @@ package com.inlaco.crewmgrservice.feature.crew.infrastructure.persistence.mongod
 
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
-import com.inlaco.crewmgrservice.feature.crew.application.model.CrewProfileSearchCriteria;
 import com.inlaco.crewmgrservice.feature.crew.application.port.out.CrewProfileRepository;
 import com.inlaco.crewmgrservice.feature.crew.domain.model.CrewProfile;
 import com.inlaco.crewmgrservice.feature.crew.infrastructure.persistence.mongodb.entity.CrewProfileEntity;
@@ -21,7 +20,6 @@ import java.util.stream.StreamSupport;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
-import org.jspecify.annotations.Nullable;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
@@ -159,7 +157,7 @@ public class CrewProfileRepositoryAdapter implements CrewProfileRepository {
 
   @Override
   public Page<CrewProfile> findAll(
-      @Nullable CrewProfileSearchCriteria criteria, Pageable pageable) {
+      CrewProfileRepository.CrewProfileSearchCriteria criteria, Pageable pageable) {
 
     pageable = PageableUtils.enforceIdSort(pageable);
 
@@ -206,13 +204,23 @@ public class CrewProfileRepositoryAdapter implements CrewProfileRepository {
         andConditions.add(
             Criteria.where("professionalPosition").is(criteria.professionalPosition()));
       }
+      if (criteria.excludedEmployeeCardIds() != null
+          && !criteria.excludedEmployeeCardIds().isEmpty()) {
+        log.debug("Filter by excludedEmployeeCardIds: {}", criteria.excludedEmployeeCardIds());
+        andConditions.add(Criteria.where("employeeCardId").nin(criteria.excludedEmployeeCardIds()));
+      }
+
+      if (criteria.excludedIds() != null && !criteria.excludedIds().isEmpty()) {
+        log.debug("Filter by excludedIds: {}", criteria.excludedIds());
+        andConditions.add(
+            Criteria.where("_id").nin(criteria.excludedIds().stream().map(ObjectId::new).toList()));
+      }
     }
 
     Criteria finalCriteria = new Criteria();
     if (!andConditions.isEmpty()) {
       finalCriteria.andOperator(andConditions.toArray(new Criteria[0]));
     }
-
     Aggregation aggregation =
         newAggregation(
             match(finalCriteria),

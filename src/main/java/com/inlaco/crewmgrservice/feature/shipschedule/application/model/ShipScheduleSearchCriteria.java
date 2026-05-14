@@ -14,7 +14,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString(
     of = {
-      "keyword",
+      "keyword", "crewAccountId",
       "vesselOwnerId",
       "shipIMO",
       "status",
@@ -22,7 +22,7 @@ import lombok.ToString;
       "departureEndTime"
     })
 public class ShipScheduleSearchCriteria {
-
+  private String crewAccountId;
   private String keyword;
   private String vesselOwnerId;
   private String shipIMO;

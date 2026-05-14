@@ -23,6 +23,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -94,11 +95,19 @@ public class CrewMobilizationController {
   public Page<CrewMobilizationResponse> getMySchedules(
       @Filter CrewMobilizationSearchCriteria criteria,
       @CurrentUser User user,
+      Authentication authentication,
       @PageableDefault(page = 0, size = 20) Pageable pageable) {
     if (criteria == null) {
       criteria = new CrewMobilizationSearchCriteria();
     }
-    criteria.setAccountId(user.getId());
+
+    boolean isSailor =
+        authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("SAILOR"));
+    if (isSailor) {
+      criteria.setAccountId(user.getId());
+    } else {
+      criteria.setClientId(user.getId());
+    }
     return crewMobilizationScheduleQueryUseCase
         .findMobilizations(criteria, pageable)
         .map(mapper::toCrewMobilizationResponse);

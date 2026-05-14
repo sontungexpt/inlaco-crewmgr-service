@@ -1,5 +1,6 @@
 package com.inlaco.crewmgrservice.feature.shipschedule.infrastructure.persistence.mongodb.entity;
 
+import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,6 +26,8 @@ public class ShipScheduleCrewAssignmentEntity {
   private String employeeCardId;
 
   private String rankOnBoard;
+  private Instant onboardedAt;
+  private Instant offboardedAt;
 
   // This is snapshot information for legitimate crew member
   private String fullName;

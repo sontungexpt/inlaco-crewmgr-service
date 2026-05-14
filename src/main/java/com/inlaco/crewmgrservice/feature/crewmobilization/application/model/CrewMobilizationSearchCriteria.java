@@ -14,7 +14,12 @@ import lombok.NoArgsConstructor;
 public class CrewMobilizationSearchCriteria {
 
   private String keyword;
+  // Cient id of this mobilization
+  private String clientId;
+
+  // Crew id of this mobilization
   private String accountId;
+
   private String shipIMO;
   private CrewMobilizationStatus status;
   private Instant startDate;

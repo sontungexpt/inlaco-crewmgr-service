@@ -103,7 +103,14 @@ public class CrewService implements CrewUseCase {
   @Override
   public Page<CrewProfile> getProfiles(CrewProfileSearchCriteria criteria, Pageable pageable) {
     log.debug("Fetching crew profiles with criteria: {}", criteria);
-    return crewProfileRepository.findAll(criteria, pageable);
+    CrewProfileRepository.CrewProfileSearchCriteria searchCriteria =
+        CrewProfileRepository.CrewProfileSearchCriteria.builder()
+            .keyword(criteria.keyword())
+            .professionalPosition(criteria.professionalPosition())
+            .official(criteria.official())
+            .workStatus(criteria.workStatus())
+            .build();
+    return crewProfileRepository.findAll(searchCriteria, pageable);
   }
 
   /**
@@ -415,18 +422,5 @@ public class CrewService implements CrewUseCase {
     log.info("Crew profile self-update completed. profileId={}", saved.getId());
 
     return saved;
-  }
-
-  @Override
-  public void mobilizeCrew(String profileId) {
-    CrewProfile profile = getProfile(profileId);
-
-    log.debug("Assigning crew. profileId={}", profileId);
-
-    profile.mobilize();
-
-    crewProfileRepository.save(profile);
-
-    log.info("Crew assigned. profileId={}", profileId);
   }
 }

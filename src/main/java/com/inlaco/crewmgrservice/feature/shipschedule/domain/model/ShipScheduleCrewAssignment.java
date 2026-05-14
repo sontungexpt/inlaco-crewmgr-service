@@ -1,5 +1,6 @@
 package com.inlaco.crewmgrservice.feature.shipschedule.domain.model;
 
+import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,6 +20,9 @@ public class ShipScheduleCrewAssignment {
   private String employeeCardId;
 
   private String rankOnBoard;
+
+  private Instant onboardedAt;
+  private Instant offboardedAt;
 
   // This is snapshot information for legitimate crew member
   private String fullName;

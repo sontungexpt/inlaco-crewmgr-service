@@ -13,15 +13,12 @@ public class CrewMobilizationAssignment {
   private String mobilizationId;
 
   private String profileId;
-
   private String accountId;
-
   private String employeeCardId;
 
   private String rankOnBoard;
 
   private Instant startDate;
-
   private Instant endDate;
 
   private String remark;

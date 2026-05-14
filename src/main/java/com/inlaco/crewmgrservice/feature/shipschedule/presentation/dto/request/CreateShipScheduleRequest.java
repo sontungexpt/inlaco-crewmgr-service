@@ -38,5 +38,7 @@ public class CreateShipScheduleRequest {
   public static record AssignedCrew(
       @NotBlank(message = "Employee card ID is required") String employeeCardId,
       @NotBlank(message = "Rank on board is required") String rankOnBoard,
+      Instant onboardedAt,
+      Instant offboardedAt,
       String note) {}
 }

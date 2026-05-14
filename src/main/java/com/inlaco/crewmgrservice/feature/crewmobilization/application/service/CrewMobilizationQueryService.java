@@ -113,6 +113,7 @@ public class CrewMobilizationQueryService implements CrewMobilizationQueryUseCas
   public Page<CrewMobilization> findMobilizations(
       CrewMobilizationSearchCriteria criteria, Pageable pageable) {
     log.debug("Fetching crew mobilization schedules with criteria: {}", criteria);
+
     return crewMobilizationScheduleRepository.findAll(criteria, pageable);
   }
 }
