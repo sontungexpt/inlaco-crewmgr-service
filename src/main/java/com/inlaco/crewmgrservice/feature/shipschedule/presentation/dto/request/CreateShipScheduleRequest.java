@@ -2,6 +2,7 @@ package com.inlaco.crewmgrservice.feature.shipschedule.presentation.dto.request;
 
 import com.inlaco.crewmgrservice.feature.crewrental.presentation.dto.ShipInfoRequest;
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.enums.ScheduleStatus;
+import com.inlaco.crewmgrservice.infrastructure.web.payload.request.constraint.TimeFrame;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -38,7 +39,16 @@ public class CreateShipScheduleRequest {
   public static record AssignedCrew(
       @NotBlank(message = "Employee card ID is required") String employeeCardId,
       @NotBlank(message = "Rank on board is required") String rankOnBoard,
-      Instant onboardedAt,
-      Instant offboardedAt,
-      String note) {}
+      Instant boardingTime,
+      Instant disembarkTime,
+      @NotBlank(message = "Boarding port is required") String boardingPort,
+      @NotBlank(message = "Disembark port is required") String disembarkPort,
+      String note)
+      implements TimeFrame {
+
+    @Override
+    public List<Range> getTimeFrames() {
+      return List.of(Range.bothRequired(boardingTime, disembarkTime));
+    }
+  }
 }

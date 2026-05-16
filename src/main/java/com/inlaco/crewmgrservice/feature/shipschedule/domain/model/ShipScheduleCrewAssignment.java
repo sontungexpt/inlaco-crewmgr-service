@@ -21,8 +21,11 @@ public class ShipScheduleCrewAssignment {
 
   private String rankOnBoard;
 
-  private Instant onboardedAt;
-  private Instant offboardedAt;
+  private Instant boardingTime;
+  private Instant disembarkTime;
+
+  private String boardingPort;
+  private String disembarkPort;
 
   // This is snapshot information for legitimate crew member
   private String fullName;
