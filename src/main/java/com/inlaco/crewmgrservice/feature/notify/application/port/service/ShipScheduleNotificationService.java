@@ -12,7 +12,6 @@ import com.inlaco.crewmgrservice.feature.notify.domain.objectvalue.NewShipSchedu
 import com.inlaco.crewmgrservice.feature.notify.sender.NotificationDispatcher;
 import com.inlaco.crewmgrservice.feature.notify.sender.email.EmailRequest;
 import com.inlaco.crewmgrservice.feature.notify.sender.pushnotification.ExpoNotificationRequest;
-import com.inlaco.crewmgrservice.feature.notify.sender.websocket.WebSocketNotificationPayload;
 import com.inlaco.crewmgrservice.feature.notify.sender.websocket.WebSocketNotificationRequest;
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.model.ShipSchedule;
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.model.ShipScheduleCrewAssignment;
@@ -86,14 +85,6 @@ public class ShipScheduleNotificationService implements ShipScheduleNotification
     sendWebSocketNotification(notifications, shipSchedule.getId());
 
     sendPushNotification(crewProfiles, shipSchedule.getId());
-  }
-
-  record ShipScheduleNotificationPayload(String title, String message, String scheduleId)
-      implements WebSocketNotificationPayload {
-    @Override
-    public String getMessage() {
-      return message;
-    }
   }
 
   private void sendWebSocketNotification(List<Notification> notifications, String scheduleId) {

@@ -10,10 +10,10 @@ import com.inlaco.crewmgrservice.feature.crewrental.infrastructure.persistence.m
 import com.inlaco.crewmgrservice.feature.crewrental.infrastructure.persistence.mongodb.repository.CrewRentalRequestMongoRepository;
 import com.inlaco.crewmgrservice.infrastructure.persistence.mongodb.aggregation.FacetResult;
 import com.inlaco.crewmgrservice.shared.constant.PhoneNumberRegexp;
+import com.inlaco.crewmgrservice.shared.support.ConsoleUtils;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -56,8 +56,9 @@ public class CrewRentalRequestRepositoryAdapter implements CrewRentalRequestRepo
         query.and("shipInfo.name").regex(keyword, "i");
       }
 
+      ConsoleUtils.print("criteria.getAccountId(): " + criteria.getAccountId());
       if (criteria.getAccountId() != null && !criteria.getAccountId().isEmpty()) {
-        query.and("accountId").is(new ObjectId(criteria.getAccountId()));
+        query.and("accountId").is(criteria.getAccountId());
       }
 
       if (criteria.getStatus() != null) {

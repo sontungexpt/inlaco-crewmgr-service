@@ -13,7 +13,6 @@ import com.inlaco.crewmgrservice.feature.notify.domain.objectvalue.NewCrewMobili
 import com.inlaco.crewmgrservice.feature.notify.sender.NotificationDispatcher;
 import com.inlaco.crewmgrservice.feature.notify.sender.email.EmailRequest;
 import com.inlaco.crewmgrservice.feature.notify.sender.pushnotification.ExpoNotificationRequest;
-import com.inlaco.crewmgrservice.feature.notify.sender.websocket.WebSocketNotificationPayload;
 import com.inlaco.crewmgrservice.feature.notify.sender.websocket.WebSocketNotificationRequest;
 import java.util.List;
 import java.util.Map;
@@ -82,14 +81,6 @@ public class MobilizationScheduleNotificationService
     sendWebSocketNotification(notifications, mobilization.getId());
 
     sendPushNotification(profiles, mobilization.getId());
-  }
-
-  record CrewMobilizationNotificationPayload(String title, String message, String scheduleId)
-      implements WebSocketNotificationPayload {
-    @Override
-    public String getMessage() {
-      return message;
-    }
   }
 
   private void sendWebSocketNotification(List<Notification> notifications, String scheduleId) {

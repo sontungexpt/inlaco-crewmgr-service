@@ -2,5 +2,5 @@ package com.inlaco.crewmgrservice.feature.notify.domain.objectvalue;
 
 import com.inlaco.crewmgrservice.feature.notify.domain.model.NotificationPayload;
 
-public record NewCrewMobilizationNotificationPayload(String scheduleId)
+public record NewCrewMobilizationNotificationPayload(String mobilizationId)
     implements NotificationPayload {}

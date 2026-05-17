@@ -96,7 +96,8 @@ public class CrewRentalRequestController {
   @Operation(
       summary = "Find a request by id",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
-  @RolesAllowed("ADMIN")
+  // WARN: Hack role here but did not really check the role
+  @RolesAllowed({"ADMIN", "USER"})
   @GetMapping("/{id}")
   public CrewRentalRequestResponse getCrewRentalRequest(@PathVariable("id") @ObjectId String id) {
     return crewRentalRequestMapper.toCrewRentalRequestResponse(
