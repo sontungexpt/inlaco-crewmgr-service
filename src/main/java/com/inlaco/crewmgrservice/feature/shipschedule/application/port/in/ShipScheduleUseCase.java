@@ -5,6 +5,7 @@ import com.inlaco.crewmgrservice.feature.shipschedule.application.model.ShipSche
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.model.ShipSchedule;
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.model.ShipScheduleCrewAssignment;
 import com.inlaco.crewmgrservice.feature.user.domain.model.User;
+import java.time.Instant;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,4 +19,10 @@ public interface ShipScheduleUseCase {
   ShipSchedule getSchedule(String scheduleId);
 
   ShipScheduleDetail getScheduleDetail(String scheduleId);
+
+  List<ShipScheduleCrewAssignment> findAssignmentsOverlappingTimeRange(
+      String profileId, Instant startDate, Instant endDate);
+
+  List<ShipScheduleCrewAssignment> findAssignmentsFullyWithinTimeRange(
+      String profileId, Instant startDate, Instant endDate);
 }

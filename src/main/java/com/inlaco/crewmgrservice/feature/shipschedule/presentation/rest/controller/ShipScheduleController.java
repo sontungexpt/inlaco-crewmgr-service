@@ -6,6 +6,7 @@ import com.inlaco.crewmgrservice.feature.shipschedule.application.port.in.ShipSc
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.model.ShipSchedule;
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.model.ShipScheduleCrewAssignment;
 import com.inlaco.crewmgrservice.feature.shipschedule.presentation.dto.request.CreateShipScheduleRequest;
+import com.inlaco.crewmgrservice.feature.shipschedule.presentation.dto.response.CrewAssignmentResponse;
 import com.inlaco.crewmgrservice.feature.shipschedule.presentation.dto.response.ShipScheduleResponse;
 import com.inlaco.crewmgrservice.feature.shipschedule.presentation.mapper.ShipScheduleMapper;
 import com.inlaco.crewmgrservice.feature.user.domain.model.User;
@@ -17,6 +18,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
+import java.time.Instant;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -94,5 +96,26 @@ public class ShipScheduleController {
       criteria.setVesselOwnerId(user.getId());
     }
     return shipScheduleUseCase.getSchedules(criteria, pageable).map(mapper::toShipScheduleResponse);
+  }
+
+  @GetMapping("/crew/{profileId}/assignments/overlap")
+  @Operation(
+      summary = "Get all ship schedules for sailor",
+      description =
+          "Retrieve all current ship schedules belonging to authenticated sailor using API key"
+              + " authentication")
+  @RolesAllowed({"SAILOR"})
+  public ResponseEntity<List<CrewAssignmentResponse>>
+      findCrewAssignmentsByProfileIdAndTimeRangeOverlap(
+          @PathVariable String profileId,
+          @RequestParam Instant startDate,
+          @RequestParam Instant endDate) {
+
+    return ResponseEntity.ok(
+        shipScheduleUseCase
+            .findAssignmentsOverlappingTimeRange(profileId, startDate, endDate)
+            .stream()
+            .map(mapper::toCrewAssignmentResponse)
+            .toList());
   }
 }

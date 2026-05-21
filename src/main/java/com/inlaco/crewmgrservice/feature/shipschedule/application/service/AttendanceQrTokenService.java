@@ -4,7 +4,7 @@ import com.inlaco.crewmgrservice.feature.shipschedule.application.config.QrToken
 import com.inlaco.crewmgrservice.feature.shipschedule.application.model.AttendanceQrClaims;
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.enums.AttendanceMethod;
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.enums.CheckType;
-import com.inlaco.crewmgrservice.feature.shipschedule.domain.errors.AttendanceErrorCode;
+import com.inlaco.crewmgrservice.feature.shipschedule.domain.error.AttendanceErrorCode;
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.exception.AttendanceQRCodeException;
 import com.inlaco.crewmgrservice.shared.jwt.JwtKeyProvider;
 import com.inlaco.crewmgrservice.shared.jwt.JwtTokenGenerator;

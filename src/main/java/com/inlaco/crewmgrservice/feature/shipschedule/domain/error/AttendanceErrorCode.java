@@ -1,4 +1,4 @@
-package com.inlaco.crewmgrservice.feature.shipschedule.domain.errors;
+package com.inlaco.crewmgrservice.feature.shipschedule.domain.error;
 
 import com.inlaco.crewmgrservice.shared.kernel.error.HttpMappableErrorCode;
 

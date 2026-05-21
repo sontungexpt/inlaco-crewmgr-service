@@ -17,8 +17,13 @@ public interface CrewMobilizationAssignmentRepository {
 
   List<CrewMobilizationAssignment> findByProfileId(String profileId);
 
+  List<CrewMobilizationAssignment> findByProfileId(
+      String profileId, Instant startDate, Instant endDate);
+
   boolean existsAssignmentOverlap(String profileId, Instant startDate, Instant endDate);
 
   List<CrewMobilizationAssignment> findNonEndedAssignmentsByEmployeeCardIds(
       Iterable<String> profileIds);
+
+  List<CrewMobilizationAssignment> findAllActiveAssignments();
 }

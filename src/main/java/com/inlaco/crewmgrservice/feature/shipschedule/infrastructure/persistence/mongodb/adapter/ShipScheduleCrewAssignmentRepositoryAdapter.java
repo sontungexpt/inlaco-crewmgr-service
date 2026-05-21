@@ -5,6 +5,7 @@ import com.inlaco.crewmgrservice.feature.shipschedule.domain.model.ShipScheduleC
 import com.inlaco.crewmgrservice.feature.shipschedule.infrastructure.persistence.mongodb.entity.ShipScheduleCrewAssignmentEntity;
 import com.inlaco.crewmgrservice.feature.shipschedule.infrastructure.persistence.mongodb.mapper.ShipScheduleCrewAssignmentEntityMapper;
 import com.inlaco.crewmgrservice.feature.shipschedule.infrastructure.persistence.mongodb.repository.ShipScheduleCrewAssignmentMongoRepository;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.BulkOperations;
 import org.springframework.data.mongodb.core.BulkOperations.BulkMode;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -125,6 +127,50 @@ public class ShipScheduleCrewAssignmentRepositoryAdapter
         .forEach(r -> resultIds.add(r.getId().asObjectId().getValue().toHexString()));
 
     return repository.findAllById(resultIds).stream()
+        .map(mapper::toShipScheduleCrewAssignment)
+        .toList();
+  }
+
+  @Override
+  public List<ShipScheduleCrewAssignment> findByProfileIdAndTimeRangeOverlap(
+      String profileId, Instant startDate, Instant endDate) {
+
+    Criteria criteria =
+        Criteria.where("profileId")
+            .is(new ObjectId(profileId))
+            .and("boardingTime")
+            .lte(endDate)
+            .and("disembarkTime")
+            .gte(startDate);
+
+    Query query =
+        new Query(criteria)
+            // Sort by boarding time for timetable rendering
+            .with(Sort.by(Sort.Direction.ASC, "boardingTime"));
+
+    return mongoTemplate.find(query, ShipScheduleCrewAssignmentEntity.class).stream()
+        .map(mapper::toShipScheduleCrewAssignment)
+        .toList();
+  }
+
+  @Override
+  public List<ShipScheduleCrewAssignment> findByProfileIdFullyInTimeRange(
+      String profileId, Instant startDate, Instant endDate) {
+
+    Criteria criteria =
+        Criteria.where("profileId")
+            .is(new ObjectId(profileId))
+            .and("boardingTime")
+            .gte(startDate)
+            .and("disembarkTime")
+            .lte(endDate);
+
+    Query query =
+        new Query(criteria)
+            // Sort by start time for schedule ordering
+            .with(Sort.by(Sort.Direction.ASC, "boardingTime"));
+
+    return mongoTemplate.find(query, ShipScheduleCrewAssignmentEntity.class).stream()
         .map(mapper::toShipScheduleCrewAssignment)
         .toList();
   }

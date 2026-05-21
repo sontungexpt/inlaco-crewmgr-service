@@ -116,4 +116,15 @@ public class CrewMobilizationQueryService implements CrewMobilizationQueryUseCas
 
     return crewMobilizationScheduleRepository.findAll(criteria, pageable);
   }
+
+  @Override
+  public List<CrewMobilizationAssignment> findCrewsAssigned(String mobilizationId) {
+    return crewMobilizationAssignmentRepository.findByMobilizationId(mobilizationId);
+  }
+
+  @Override
+  public List<CrewMobilizationAssignment> findAllActiveAssignments() {
+
+    return crewMobilizationAssignmentRepository.findAllActiveAssignments();
+  }
 }

@@ -7,7 +7,7 @@ import com.inlaco.crewmgrservice.feature.shipschedule.application.port.out.Atten
 import com.inlaco.crewmgrservice.feature.shipschedule.application.port.out.ShipScheduleCrewAssignmentRepository;
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.enums.AttendanceMethod;
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.enums.CheckType;
-import com.inlaco.crewmgrservice.feature.shipschedule.domain.errors.AttendanceErrorCode;
+import com.inlaco.crewmgrservice.feature.shipschedule.domain.error.AttendanceErrorCode;
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.exception.AttendanceQRCodeException;
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.model.AttendanceLog;
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.model.AttendanceQRCode;

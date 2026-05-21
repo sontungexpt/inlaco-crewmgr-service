@@ -3,6 +3,7 @@ package com.inlaco.crewmgrservice.feature.shipschedule.presentation.mapper;
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.model.ShipSchedule;
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.model.ShipScheduleCrewAssignment;
 import com.inlaco.crewmgrservice.feature.shipschedule.presentation.dto.request.CreateShipScheduleRequest;
+import com.inlaco.crewmgrservice.feature.shipschedule.presentation.dto.response.CrewAssignmentResponse;
 import com.inlaco.crewmgrservice.feature.shipschedule.presentation.dto.response.ShipScheduleResponse;
 import com.inlaco.crewmgrservice.shared.mapstruct.config.CentralMapperConfig;
 import com.inlaco.crewmgrservice.shared.mapstruct.mapper.ShipInfoResponseMapper;
@@ -23,4 +24,6 @@ public interface ShipScheduleMapper {
 
   ShipScheduleCrewAssignment toShipScheduleCrewAssignment(
       CreateShipScheduleRequest.AssignedCrew entity);
+
+  CrewAssignmentResponse toCrewAssignmentResponse(ShipScheduleCrewAssignment assignment);
 }

@@ -5,6 +5,7 @@ import com.inlaco.crewmgrservice.feature.contract.domain.model.Contract;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.party.Party;
 import com.inlaco.crewmgrservice.feature.crew.application.port.in.CrewUseCase;
 import com.inlaco.crewmgrservice.feature.crew.domain.model.CrewProfile;
+import com.inlaco.crewmgrservice.feature.crewmobilization.application.port.in.CrewMobilizationQueryUseCase;
 import com.inlaco.crewmgrservice.feature.shipschedule.application.mapper.ShipScheduleDetailMapper;
 import com.inlaco.crewmgrservice.feature.shipschedule.application.model.ShipScheduleAssignedCrewDetail;
 import com.inlaco.crewmgrservice.feature.shipschedule.application.model.ShipScheduleDetail;
@@ -13,15 +14,15 @@ import com.inlaco.crewmgrservice.feature.shipschedule.application.port.in.ShipSc
 import com.inlaco.crewmgrservice.feature.shipschedule.application.port.out.ShipScheduleCrewAssignmentRepository;
 import com.inlaco.crewmgrservice.feature.shipschedule.application.port.out.ShipScheduleRepository;
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.error.ShipScheduleErrorCode;
+import com.inlaco.crewmgrservice.feature.shipschedule.domain.event.ShipScheduleCreatedEvent;
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.exception.ShipScheduleException;
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.model.ShipSchedule;
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.model.ShipScheduleCrewAssignment;
-import com.inlaco.crewmgrservice.feature.shipschedule.domain.event.ShipScheduleCreatedEvent;
 import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadDispatcher;
 import com.inlaco.crewmgrservice.feature.upload.domain.enums.AssetType;
 import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceNotFoundException;
-import org.springframework.context.ApplicationEventPublisher;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,6 +31,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -41,6 +43,7 @@ public class ShipScheduleService implements ShipScheduleUseCase {
 
   private final ShipScheduleRepository shipScheduleRepository;
   private final ShipScheduleCrewAssignmentRepository assignmentRepository;
+  private final CrewMobilizationQueryUseCase mobilizationQueryUseCase;
   private final CrewUseCase crewUseCase;
   private final ShipScheduleDetailMapper detailMapper;
   private final UploadDispatcher uploadDispatcher;
@@ -214,5 +217,44 @@ public class ShipScheduleService implements ShipScheduleUseCase {
   public Page<ShipSchedule> getSchedules(ShipScheduleSearchCriteria criteria, Pageable pageable) {
     log.info("Fetching ship schedules with criteria: {}", criteria);
     return shipScheduleRepository.findAll(criteria, pageable);
+  }
+
+  @Override
+  public List<ShipScheduleCrewAssignment> findAssignmentsOverlappingTimeRange(
+      String profileId, Instant startDate, Instant endDate) {
+
+    log.info(
+        "Finding assignments overlapping time range for profileId: {}, startDate: {}, endDate: {}",
+        profileId,
+        startDate,
+        endDate);
+
+    List<ShipScheduleCrewAssignment> assignments =
+        assignmentRepository.findByProfileIdAndTimeRangeOverlap(profileId, startDate, endDate);
+
+    log.debug("Found {} overlapping assignments for profileId: {}", assignments.size(), profileId);
+
+    return assignments;
+  }
+
+  @Override
+  public List<ShipScheduleCrewAssignment> findAssignmentsFullyWithinTimeRange(
+      String profileId, Instant startDate, Instant endDate) {
+
+    log.info(
+        "Finding assignments fully within time range for profileId: {}, startDate: {}, endDate: {}",
+        profileId,
+        startDate,
+        endDate);
+
+    List<ShipScheduleCrewAssignment> assignments =
+        assignmentRepository.findByProfileIdFullyInTimeRange(profileId, startDate, endDate);
+
+    log.debug(
+        "Found {} assignments fully within time range for profileId: {}",
+        assignments.size(),
+        profileId);
+
+    return assignments;
   }
 }

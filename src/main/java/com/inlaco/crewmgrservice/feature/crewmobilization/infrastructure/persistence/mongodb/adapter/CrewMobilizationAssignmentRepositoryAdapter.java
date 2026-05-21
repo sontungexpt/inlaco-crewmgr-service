@@ -15,6 +15,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.BulkOperations;
 import org.springframework.data.mongodb.core.BulkOperations.BulkMode;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -154,6 +155,37 @@ public class CrewMobilizationAssignmentRepositoryAdapter
     return repository
         .findByEmployeeCardIdInAndEndDateGreaterThan(employeeCardIds, Instant.now())
         .stream()
+        .map(mapper::toDomain)
+        .toList();
+  }
+
+  @Override
+  public List<CrewMobilizationAssignment> findAllActiveAssignments() {
+    Instant now = Instant.now();
+
+    Query query = new Query(Criteria.where("startDate").lte(now).and("endDate").gte(now));
+
+    return mongoTemplate.find(query, CrewMobilizationAssignmentEntity.class).stream()
+        .map(mapper::toDomain)
+        .toList();
+  }
+
+  @Override
+  public List<CrewMobilizationAssignment> findByProfileId(
+      String profileId, Instant startDate, Instant endDate) {
+
+    Criteria criteria =
+        Criteria.where("profileId")
+            .is(new ObjectId(profileId))
+            // overlap condition
+            .and("startDate")
+            .lte(endDate)
+            .and("endDate")
+            .gte(startDate);
+
+    Query query = new Query(criteria).with(Sort.by(Sort.Direction.ASC, "startDate"));
+
+    return mongoTemplate.find(query, CrewMobilizationAssignmentEntity.class).stream()
         .map(mapper::toDomain)
         .toList();
   }
