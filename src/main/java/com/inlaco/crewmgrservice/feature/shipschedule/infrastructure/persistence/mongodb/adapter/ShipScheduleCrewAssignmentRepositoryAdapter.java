@@ -174,4 +174,35 @@ public class ShipScheduleCrewAssignmentRepositoryAdapter
         .map(mapper::toShipScheduleCrewAssignment)
         .toList();
   }
+
+  @Override
+  public List<ShipScheduleCrewAssignment> findByTimeRangeOverlap(
+      Instant startTime, Instant endTime) {
+
+    Criteria criteria =
+        Criteria.where("boardingTime").lte(endTime).and("disembarkTime").gte(startTime);
+
+    Query query =
+        new Query(criteria)
+            // Sort by start time for schedule ordering
+            .with(Sort.by(Sort.Direction.ASC, "boardingTime"));
+    return mongoTemplate.find(query, ShipScheduleCrewAssignmentEntity.class).stream()
+        .map(mapper::toShipScheduleCrewAssignment)
+        .toList();
+  }
+
+  @Override
+  public boolean existsProfileIdAndTimeRangeOverlap(
+      String profileId, Instant startDate, Instant endDate) {
+
+    Criteria criteria =
+        Criteria.where("profileId")
+            .is(new ObjectId(profileId))
+            .and("boardingTime")
+            .lte(endDate)
+            .and("disembarkTime")
+            .gte(startDate);
+    Query query = new Query(criteria);
+    return mongoTemplate.exists(query, ShipScheduleCrewAssignmentEntity.class);
+  }
 }

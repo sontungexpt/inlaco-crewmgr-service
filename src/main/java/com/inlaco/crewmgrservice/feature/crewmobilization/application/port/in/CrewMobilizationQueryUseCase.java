@@ -20,4 +20,6 @@ public interface CrewMobilizationQueryUseCase {
   List<CrewMobilizationAssignment> findCrewsAssigned(String mobilizationId);
 
   List<CrewMobilizationAssignment> findAllActiveAssignments();
+
+  Page<CrewMobilizationAssignment> findAllActiveAssignments(Pageable pageable);
 }

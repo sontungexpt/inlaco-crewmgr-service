@@ -258,4 +258,27 @@ public class ShipScheduleService implements ShipScheduleUseCase {
 
     return assignments;
   }
+
+  @Override
+  public List<ShipScheduleCrewAssignment> findAssignmentsTimeRangeOverlap(
+      Instant startDate, Instant endDate) {
+
+    log.info(
+        "Finding assignments between time range for startDate: {}, endDate: {}",
+        startDate,
+        endDate);
+
+    return assignmentRepository.findByTimeRangeOverlap(startDate, endDate);
+  }
+
+  @Override
+  public boolean hasAssignmentOverlap(String profileId, Instant startDate, Instant endDate) {
+
+    log.info(
+        "Checking for assignment overlap for profileId: {}, startDate: {}, endDate: {}",
+        profileId,
+        startDate,
+        endDate);
+    return assignmentRepository.existsProfileIdAndTimeRangeOverlap(profileId, startDate, endDate);
+  }
 }

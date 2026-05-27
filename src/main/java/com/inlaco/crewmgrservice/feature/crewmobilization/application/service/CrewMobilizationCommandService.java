@@ -8,12 +8,16 @@ import com.inlaco.crewmgrservice.feature.crewmobilization.application.port.in.Cr
 import com.inlaco.crewmgrservice.feature.crewmobilization.application.port.out.CrewMobilizationAssignmentRepository;
 import com.inlaco.crewmgrservice.feature.crewmobilization.application.port.out.CrewMobilizationRepository;
 import com.inlaco.crewmgrservice.feature.crewmobilization.domain.event.NewCrewMobilizationEvent;
+import com.inlaco.crewmgrservice.feature.crewmobilization.domain.exception.CrewAssignmentOverlapException;
+import com.inlaco.crewmgrservice.feature.crewmobilization.domain.exception.CrewAssignmentOverlapException.ConflictAssignment;
 import com.inlaco.crewmgrservice.feature.crewmobilization.domain.model.CrewMobilization;
 import com.inlaco.crewmgrservice.feature.crewmobilization.domain.model.CrewMobilizationAssignment;
+import com.inlaco.crewmgrservice.feature.shipschedule.application.port.in.ShipScheduleUseCase;
 import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadDispatcher;
 import com.inlaco.crewmgrservice.feature.upload.domain.enums.AssetType;
 import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceNotFoundException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -40,6 +44,8 @@ public class CrewMobilizationCommandService implements CrewMobilizationCommandUs
   private final ContractQueryUseCase contractQueryUseCase;
 
   private final UploadDispatcher uploadDispatcher;
+
+  private final ShipScheduleUseCase shipScheduleUseCase;
 
   @Override
   @Transactional
@@ -127,6 +133,8 @@ public class CrewMobilizationCommandService implements CrewMobilizationCommandUs
         existingAssignments.stream()
             .collect(Collectors.groupingBy(CrewMobilizationAssignment::getEmployeeCardId));
 
+    List<ConflictAssignment> conflicts = new ArrayList<>();
+
     for (Map.Entry<String, List<CrewMobilizationAssignment>> entry :
         assignmentsByEmployeeCardId.entrySet()) {
 
@@ -139,18 +147,40 @@ public class CrewMobilizationCommandService implements CrewMobilizationCommandUs
 
       for (CrewMobilizationAssignment newAssignment : newAssignments) {
 
+        boolean overlap = false;
         for (CrewMobilizationAssignment existing : existingCrewAssignments) {
 
-          boolean overlap =
+          overlap =
               newAssignment.getStartDate().isBefore(existing.getEndDate())
                   && newAssignment.getEndDate().isAfter(existing.getStartDate());
 
           if (overlap) {
-
-            throw new IllegalArgumentException(
-                "Crew already assigned in overlapping period: " + employeeCardId);
+            conflicts.add(
+                new ConflictAssignment(
+                    employeeCardId,
+                    "Crew already mobbilized in overlapping period",
+                    existing.getStartDate(),
+                    existing.getEndDate()));
           }
         }
+
+        if (!overlap
+            && shipScheduleUseCase.hasAssignmentOverlap(
+                newAssignment.getProfileId(),
+                newAssignment.getStartDate(),
+                newAssignment.getEndDate())) {
+
+          conflicts.add(
+              new ConflictAssignment(
+                  employeeCardId,
+                  "Crew already in ship schedule in overlapping period",
+                  newAssignment.getStartDate(),
+                  newAssignment.getEndDate()));
+        }
+      }
+
+      if (!conflicts.isEmpty()) {
+        throw new CrewAssignmentOverlapException(conflicts);
       }
     }
   }

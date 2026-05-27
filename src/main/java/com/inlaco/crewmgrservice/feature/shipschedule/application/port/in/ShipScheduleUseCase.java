@@ -23,6 +23,11 @@ public interface ShipScheduleUseCase {
   List<ShipScheduleCrewAssignment> findAssignmentsOverlappingTimeRange(
       String profileId, Instant startDate, Instant endDate);
 
+  boolean hasAssignmentOverlap(String profileId, Instant startDate, Instant endDate);
+
   List<ShipScheduleCrewAssignment> findAssignmentsFullyWithinTimeRange(
       String profileId, Instant startDate, Instant endDate);
+
+  List<ShipScheduleCrewAssignment> findAssignmentsTimeRangeOverlap(
+      Instant startDate, Instant endDate);
 }

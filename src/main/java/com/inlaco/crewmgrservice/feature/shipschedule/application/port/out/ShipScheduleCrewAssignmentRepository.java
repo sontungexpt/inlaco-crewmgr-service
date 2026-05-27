@@ -51,6 +51,10 @@ public interface ShipScheduleCrewAssignmentRepository {
   List<ShipScheduleCrewAssignment> findByProfileIdAndTimeRangeOverlap(
       String profileId, Instant startDate, Instant endDate);
 
+  boolean existsProfileIdAndTimeRangeOverlap(String profileId, Instant startDate, Instant endDate);
+
+  List<ShipScheduleCrewAssignment> findByTimeRangeOverlap(Instant startTime, Instant endTime);
+
   /*
    * Find all assignments that are COMPLETELY inside
    * the requested time range.

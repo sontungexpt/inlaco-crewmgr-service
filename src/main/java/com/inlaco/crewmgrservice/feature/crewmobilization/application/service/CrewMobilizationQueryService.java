@@ -127,4 +127,11 @@ public class CrewMobilizationQueryService implements CrewMobilizationQueryUseCas
 
     return crewMobilizationAssignmentRepository.findAllActiveAssignments();
   }
+
+  @Override
+  public Page<CrewMobilizationAssignment> findAllActiveAssignments(Pageable pageable) {
+
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'findAllActiveAssignments'");
+  }
 }
