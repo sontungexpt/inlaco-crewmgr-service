@@ -35,6 +35,8 @@ public class ShipSchedule {
   private String updatedBy;
   private Instant updatedAt;
 
+  private int totalCrews;
+
   public void changeStatus(ScheduleStatus newStatus) throws IllegalStateException {
     if (status == newStatus) return;
     status.validateTransition(newStatus);

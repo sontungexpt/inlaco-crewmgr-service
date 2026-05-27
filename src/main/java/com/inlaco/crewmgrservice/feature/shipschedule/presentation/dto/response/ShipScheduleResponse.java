@@ -16,6 +16,7 @@ public class ShipScheduleResponse {
   private Instant arrivalTime;
   private String departurePort;
   private String arrivalPort;
+  private int totalCrews;
   private ScheduleStatus status;
   private String createdBy;
   private Instant createdAt;

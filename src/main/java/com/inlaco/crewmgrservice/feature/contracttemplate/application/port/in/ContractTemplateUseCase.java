@@ -1,5 +1,6 @@
 package com.inlaco.crewmgrservice.feature.contracttemplate.application.port.in;
 
+import com.inlaco.crewmgrservice.feature.contracttemplate.application.model.ContractTemplateSearchCriteria;
 import com.inlaco.crewmgrservice.feature.contracttemplate.domain.model.ContractTemplate;
 import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
@@ -10,6 +11,9 @@ public interface ContractTemplateUseCase {
   ContractTemplate getTemplateById(String id);
 
   Page<ContractTemplate> getAllTemplates(@Nullable String type, Pageable pageable);
+
+  Page<ContractTemplate> getAllTemplates(
+      @Nullable ContractTemplateSearchCriteria criteria, Pageable pageable);
 
   ContractTemplate uploadTemplate(String templateFileAssetId, ContractTemplate template);
 

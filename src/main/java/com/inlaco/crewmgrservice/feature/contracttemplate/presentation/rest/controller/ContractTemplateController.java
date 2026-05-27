@@ -1,11 +1,13 @@
 package com.inlaco.crewmgrservice.feature.contracttemplate.presentation.rest.controller;
 
+import com.inlaco.crewmgrservice.feature.contracttemplate.application.model.ContractTemplateSearchCriteria;
 import com.inlaco.crewmgrservice.feature.contracttemplate.application.port.in.ContractTemplateUseCase;
 import com.inlaco.crewmgrservice.feature.contracttemplate.domain.model.ContractTemplate;
 import com.inlaco.crewmgrservice.feature.contracttemplate.presentation.rest.dto.request.NewContractTemplate;
 import com.inlaco.crewmgrservice.feature.contracttemplate.presentation.rest.dto.response.ContractTemplateResponse;
 import com.inlaco.crewmgrservice.feature.contracttemplate.presentation.rest.mapper.ContractTemplateMapper;
 import com.inlaco.crewmgrservice.infrastructure.config.openapi.OpenApiConfig;
+import com.inlaco.crewmgrservice.infrastructure.web.annotation.Filter;
 import com.inlaco.crewmgrservice.infrastructure.web.annotation.PageableQueryParams;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -43,10 +45,10 @@ public class ContractTemplateController {
   @GetMapping("")
   @PageableQueryParams
   public Page<ContractTemplateResponse> getAllContractTemplates(
-      @RequestParam(required = false) String type,
+      @Filter ContractTemplateSearchCriteria criteria,
       @PageableDefault(page = 0, size = 20) Pageable pageable) {
     return contractTemplateService
-        .getAllTemplates(type, pageable)
+        .getAllTemplates(criteria, pageable)
         .map(contractTemplateMapper::toContractTemplateResponse);
   }
 

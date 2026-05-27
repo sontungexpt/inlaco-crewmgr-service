@@ -29,6 +29,8 @@ public class ShipScheduleDetail {
 
   private ScheduleStatus status;
 
+  private int totalCrews;
+
   private List<ShipScheduleAssignedCrewDetail> crews;
 
   private String createdBy;

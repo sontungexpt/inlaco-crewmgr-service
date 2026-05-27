@@ -36,13 +36,12 @@ public class ShipScheduleEntity {
   private String departurePort;
   private String arrivalPort;
 
+  private int totalCrews;
+
   private ScheduleStatus status;
 
   @CreatedBy private ObjectId createdBy;
-
   @CreatedDate private Instant createdAt;
-
   @LastModifiedBy private ObjectId updatedBy;
-
   @LastModifiedDate private Instant updatedAt;
 }

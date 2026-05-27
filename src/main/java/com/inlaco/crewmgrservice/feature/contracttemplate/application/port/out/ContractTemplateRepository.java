@@ -1,5 +1,6 @@
 package com.inlaco.crewmgrservice.feature.contracttemplate.application.port.out;
 
+import com.inlaco.crewmgrservice.feature.contracttemplate.application.model.ContractTemplateSearchCriteria;
 import com.inlaco.crewmgrservice.feature.contracttemplate.domain.model.ContractTemplate;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -14,6 +15,8 @@ public interface ContractTemplateRepository {
   void deleteById(String id);
 
   Page<ContractTemplate> findAll(Pageable pageable);
+
+  Page<ContractTemplate> findAll(ContractTemplateSearchCriteria criteria, Pageable pageable);
 
   Page<ContractTemplate> findByType(String type, Pageable pageable);
 }

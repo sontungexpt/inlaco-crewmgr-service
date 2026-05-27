@@ -76,6 +76,7 @@ public class ShipScheduleService implements ShipScheduleUseCase {
     enrichSchedule(schedule, assignments, authenticatedUser);
     enrichAssignments(assignments, crewProfileMap);
 
+    schedule.setTotalCrews(crewProfiles.size());
     ShipSchedule created = shipScheduleRepository.save(schedule);
     assignments.forEach(assignment -> assignment.setScheduleId(created.getId()));
 
