@@ -2,7 +2,7 @@ package com.inlaco.crewmgrservice.feature.notify.application.port.service;
 
 import com.inlaco.crewmgrservice.feature.crew.domain.model.CrewProfile;
 import com.inlaco.crewmgrservice.feature.crewmobilization.domain.model.CrewMobilization;
-import com.inlaco.crewmgrservice.feature.notify.application.port.in.CrewMobilizationNotificationUseCase;
+import com.inlaco.crewmgrservice.feature.notify.application.port.in.MobilizationNotificationUseCase;
 import com.inlaco.crewmgrservice.feature.notify.application.port.out.DeviceTokenRepostiory;
 import com.inlaco.crewmgrservice.feature.notify.application.port.out.NotificationRepository;
 import com.inlaco.crewmgrservice.feature.notify.domain.enums.DeviceType;
@@ -26,8 +26,7 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class MobilizationScheduleNotificationService
-    implements CrewMobilizationNotificationUseCase {
+public class MobilizationNotificationService implements MobilizationNotificationUseCase {
 
   private final DeviceTokenRepostiory deviceTokenRepostiory;
   private final NotificationDispatcher notificationDispatcher;

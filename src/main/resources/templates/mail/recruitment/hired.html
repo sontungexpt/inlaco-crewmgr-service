@@ -55,7 +55,7 @@
     <div class="email-container">
       <!-- Header -->
       <div class="header">
-        <h1 th:text="'Congratulations, ' + ${candidateName} + '!'">
+        <h1 th:text="'Congratulations, ' + ${candidate_name} + '!'">
           Congratulations!
         </h1>
       </div>
@@ -64,15 +64,15 @@
       <div class="content">
         <p>
           Dear
-          <span th:text="${candidateName}">Candidate</span>,
+          <span th:text="${candidate_name}">Candidate</span>,
         </p>
 
         <p>
           We are delighted to inform you that you have successfully passed our
           selection process for the
-          <strong th:text="${positionName}">Position</strong>
+          <strong th:text="${position_name}">Position</strong>
           role at
-          <strong th:text="${companyName}">Company</strong>. Congratulations on
+          <strong th:text="${company_name}">Company</strong>. Congratulations on
           this exciting achievement!
         </p>
 
@@ -85,7 +85,7 @@
           To help you prepare, please review the attached documents and complete
           any necessary paperwork before your start date. If you have any
           questions or need assistance, feel free to reach out to us at
-          <a th:href="'mailto:' + ${supportEmail}" th:text="${supportEmail}">
+          <a th:href="'mailto:' + ${support_email}" th:text="${support_email}">
             email@example.com </a
           >.
         </p>
@@ -105,8 +105,8 @@
       <!-- Footer -->
       <div class="footer">
         <p>
-          © <span th:text="${year}">2025</span>
-          <span th:text="${companyName}">Company</span>. All rights reserved.
+          © <span th:text="${currrent_year}">2025</span>
+          <span th:text="${company_name}">Company</span>. All rights reserved.
         </p>
       </div>
     </div>

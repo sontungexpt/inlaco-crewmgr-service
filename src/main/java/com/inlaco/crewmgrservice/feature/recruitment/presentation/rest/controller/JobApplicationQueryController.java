@@ -55,7 +55,7 @@ public class JobApplicationQueryController {
   @PageableQueryParams
   @RolesAllowed("USER")
   public Page<JobApplicationResponse> getMyApplications(
-      @CurrentUser User user, JobApplicationSearchCriteria criteria, Pageable pageable) {
+      @CurrentUser User user, @Filter JobApplicationSearchCriteria criteria, Pageable pageable) {
     if (criteria == null) {
       criteria = new JobApplicationSearchCriteria();
     }

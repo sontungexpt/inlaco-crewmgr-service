@@ -7,13 +7,13 @@ import com.inlaco.crewmgrservice.feature.contract.application.port.out.LaborCont
 import com.inlaco.crewmgrservice.feature.contract.domain.event.ContractCreatedEvent;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.Contract;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.LaborContract;
-import com.inlaco.crewmgrservice.feature.contract.domain.model.party.Party;
 import com.inlaco.crewmgrservice.feature.recruitment.application.port.in.JobApplicationQueryUseCase;
 import com.inlaco.crewmgrservice.feature.recruitment.domain.model.JobApplication;
 import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadDispatcher;
 import com.inlaco.crewmgrservice.feature.upload.domain.enums.AssetType;
 import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceAlreadyInUseException;
+import com.inlaco.crewmgrservice.shared.support.ConsoleUtils;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,8 +45,10 @@ public class CreateLaborContractService implements CreateLaborContractUseCase {
     String accountId = jobApplication.getAccountId();
 
     log.debug("Fetching contract file for labor contract creation.");
-    contract.setContractFile(
-        uploadDispatcher.fetch(AssetType.CONTRACT_FILE, assets.getContractFile()));
+    if (assets.getContractFile() != null && !assets.getContractFile().isBlank()) {
+      contract.setContractFile(
+          uploadDispatcher.fetch(AssetType.CONTRACT_FILE, assets.getContractFile()));
+    }
 
     List<String> attachments = assets.getAttachments();
     if (attachments != null && !attachments.isEmpty()) {
@@ -59,9 +61,8 @@ public class CreateLaborContractService implements CreateLaborContractUseCase {
 
     contract.setApplicationId(applicationId);
     contract.setAccountId(accountId);
-
-    Party applicant = contract.getPartners().get(0);
-    applicant.setAccountId(accountId);
+    contract.getPartners().get(0).setAccountId(accountId);
+    ConsoleUtils.print(contract);
 
     var newContract = contractRepository.save(contract);
     log.info("Publishing ContractCreatedEvent for labor contract with ID: {}", newContract.getId());

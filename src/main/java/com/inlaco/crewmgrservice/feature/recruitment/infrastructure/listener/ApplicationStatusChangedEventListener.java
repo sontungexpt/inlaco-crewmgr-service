@@ -6,6 +6,7 @@ import com.inlaco.crewmgrservice.feature.recruitment.domain.enums.ApplicationSta
 import com.inlaco.crewmgrservice.feature.recruitment.domain.event.ApplicationStatusChangedEvent;
 import com.inlaco.crewmgrservice.feature.recruitment.domain.model.JobApplication;
 import com.inlaco.crewmgrservice.feature.recruitment.infrastructure.config.RecruitmentEmailProperties;
+import java.time.Year;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -83,6 +84,9 @@ public class ApplicationStatusChangedEventListener {
     var context = new Context();
     context.setVariable("candidate_name", application.getFullName());
     context.setVariable("position_name", application.getPosition());
+    context.setVariable("current_year", Year.now().getValue());
+    context.setVariable("company_name", "INLACO");
+    context.setVariable("support_email", "support@inlaco.com");
     return templateEngine.process(path, context);
   }
 }
