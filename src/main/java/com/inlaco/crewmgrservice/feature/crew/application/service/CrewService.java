@@ -157,6 +157,7 @@ public class CrewService implements CrewUseCase {
     crewPrrofile.setBirthDate(command.birthDate());
     crewPrrofile.setProfessionalPosition(command.position());
     crewPrrofile.setEmail(command.email());
+    crewPrrofile.setCitizenIdentityCardId(command.identificationCardId());
 
     if (crewPrrofile.getEmployeeCardId() == null) {
       crewPrrofile.setEmployeeCardId(crewIdentityUseCase.generateEmployeeCardId());

@@ -39,6 +39,7 @@ public class CrewContractSignedEventListener {
             party.getPhone(),
             party.getEmail(),
             party.getBirthDate(),
-            contract.getPosition()));
+            contract.getPosition(),
+            party.getIdentificationCardId()));
   }
 }
