@@ -80,6 +80,21 @@ public class CrewProfileController {
   }
 
   @Operation(
+      summary = "Fetch all mobilized crew profiles",
+      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
+  @GetMapping("/my-mobilized")
+  @RolesAllowed("USER")
+  @PageableQueryParams
+  public Page<CrewProfileResponse> getMyMobilizedCrewProfiles(
+      @Filter CrewProfileSearchCriteria criteria,
+      @PageableDefault(page = 0, size = 20) Pageable pageable,
+      @CurrentUser User user) {
+    return crewUseCase
+        .getMyMobilizedCrewProfiles(criteria, pageable, user)
+        .map(crewProfileMapper::toCrewProfileResponse);
+  }
+
+  @Operation(
       summary = "Find sailor profile of current user",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   @GetMapping("/me")

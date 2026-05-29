@@ -113,6 +113,12 @@ public class CrewService implements CrewUseCase {
     return crewProfileRepository.findAll(searchCriteria, pageable);
   }
 
+  @Override
+  public Page<CrewProfile> getMyMobilizedCrewProfiles(
+      CrewProfileSearchCriteria criteria, Pageable pageable, User user) {
+    throw new UnsupportedOperationException("Unimplemented method 'getMyMobilizedCrewProfiles'");
+  }
+
   /**
    * Retrieves crew profiles by their employee card IDs.
    *
