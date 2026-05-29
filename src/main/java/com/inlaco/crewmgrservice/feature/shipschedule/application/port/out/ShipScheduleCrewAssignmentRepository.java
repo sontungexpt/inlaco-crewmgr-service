@@ -53,6 +53,9 @@ public interface ShipScheduleCrewAssignmentRepository {
 
   boolean existsProfileIdAndTimeRangeOverlap(String profileId, Instant startDate, Instant endDate);
 
+  boolean existsEmployeeCardIdAndTimeRangeOverlap(
+      String employeeCardId, Instant startDate, Instant endDate);
+
   List<ShipScheduleCrewAssignment> findByTimeRangeOverlap(Instant startTime, Instant endTime);
 
   /*

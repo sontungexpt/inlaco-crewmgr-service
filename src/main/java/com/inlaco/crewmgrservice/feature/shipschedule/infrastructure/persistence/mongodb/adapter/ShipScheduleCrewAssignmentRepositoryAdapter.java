@@ -205,4 +205,18 @@ public class ShipScheduleCrewAssignmentRepositoryAdapter
     Query query = new Query(criteria);
     return mongoTemplate.exists(query, ShipScheduleCrewAssignmentEntity.class);
   }
+
+  @Override
+  public boolean existsEmployeeCardIdAndTimeRangeOverlap(
+      String employeeCardId, Instant startDate, Instant endDate) {
+    Criteria criteria =
+        Criteria.where("employeeCardId")
+            .is(employeeCardId)
+            .and("boardingTime")
+            .lte(endDate)
+            .and("disembarkTime")
+            .gte(startDate);
+    Query query = new Query(criteria);
+    return mongoTemplate.exists(query, ShipScheduleCrewAssignmentEntity.class);
+  }
 }

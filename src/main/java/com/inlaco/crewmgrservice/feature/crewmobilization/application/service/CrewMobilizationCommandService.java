@@ -7,16 +7,17 @@ import com.inlaco.crewmgrservice.feature.crew.domain.model.CrewProfile;
 import com.inlaco.crewmgrservice.feature.crewmobilization.application.port.in.CrewMobilizationCommandUseCase;
 import com.inlaco.crewmgrservice.feature.crewmobilization.application.port.out.CrewMobilizationAssignmentRepository;
 import com.inlaco.crewmgrservice.feature.crewmobilization.application.port.out.CrewMobilizationRepository;
+import com.inlaco.crewmgrservice.feature.crewmobilization.domain.error.CrewMobilizationErrorCode;
 import com.inlaco.crewmgrservice.feature.crewmobilization.domain.event.NewCrewMobilizationEvent;
 import com.inlaco.crewmgrservice.feature.crewmobilization.domain.exception.CrewAssignmentOverlapException;
 import com.inlaco.crewmgrservice.feature.crewmobilization.domain.exception.CrewAssignmentOverlapException.ConflictAssignment;
+import com.inlaco.crewmgrservice.feature.crewmobilization.domain.exception.CrewMobilizationValidationException;
 import com.inlaco.crewmgrservice.feature.crewmobilization.domain.model.CrewMobilization;
 import com.inlaco.crewmgrservice.feature.crewmobilization.domain.model.CrewMobilizationAssignment;
 import com.inlaco.crewmgrservice.feature.shipschedule.application.port.in.ShipScheduleUseCase;
 import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadDispatcher;
 import com.inlaco.crewmgrservice.feature.upload.domain.enums.AssetType;
 import com.inlaco.crewmgrservice.feature.user.domain.model.User;
-import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -69,7 +70,9 @@ public class CrewMobilizationCommandService implements CrewMobilizationCommandUs
     List<CrewProfile> crewProfiles = crewUseCase.getProfilesByEmployeeCardIds(employeeCardIds);
 
     if (crewProfiles.size() != employeeCardIds.size()) {
-      throw new IllegalArgumentException("Some crew members do not exist");
+      throw new CrewMobilizationValidationException(
+          CrewMobilizationErrorCode.CREW_MOBILIZATION_CREW_NOT_FOUND,
+          "Some crew members do not exist");
     }
 
     Map<String, CrewProfile> crewProfileMap =
@@ -94,27 +97,49 @@ public class CrewMobilizationCommandService implements CrewMobilizationCommandUs
   }
 
   private CrewSupplyContract getAndValidateContract(String contractId, User user) {
+
     var contract = contractQueryUseCase.getContract(contractId, null, user);
+
     if (!(contract instanceof CrewSupplyContract supplyContract)) {
-      throw new ResourceNotFoundException(CrewSupplyContract.class, "id", contractId);
+
+      throw new CrewMobilizationValidationException(
+          CrewMobilizationErrorCode.CREW_MOBILIZATION_CONTRACT_NOT_FOUND,
+          "Crew supply contract not found");
     }
+
     if (!supplyContract.isSigned() || supplyContract.isCancelled() || supplyContract.isExpired()) {
-      throw new IllegalArgumentException("Contract is not active");
+
+      throw new CrewMobilizationValidationException(
+          CrewMobilizationErrorCode.CREW_MOBILIZATION_CONTRACT_NOT_ACTIVE,
+          "Contract is not active");
     }
+
     return supplyContract;
   }
 
   private void validateAssignments(List<CrewMobilizationAssignment> assignments) {
+
     if (assignments == null || assignments.isEmpty()) {
-      throw new IllegalArgumentException("Assignments cannot be empty");
+
+      throw new CrewMobilizationValidationException(
+          CrewMobilizationErrorCode.CREW_MOBILIZATION_INVALID_ASSIGNMENTS,
+          "Assignments cannot be empty");
     }
 
     for (CrewMobilizationAssignment assignment : assignments) {
+
       if (assignment.getStartDate() == null || assignment.getEndDate() == null) {
-        throw new IllegalArgumentException("Assignment dates cannot be null");
+
+        throw new CrewMobilizationValidationException(
+            CrewMobilizationErrorCode.CREW_MOBILIZATION_INVALID_ASSIGNMENT_DATE,
+            "Assignment dates cannot be null");
       }
+
       if (!assignment.getStartDate().isBefore(assignment.getEndDate())) {
-        throw new IllegalArgumentException("Assignment start date must be before end date");
+
+        throw new CrewMobilizationValidationException(
+            CrewMobilizationErrorCode.CREW_MOBILIZATION_INVALID_ASSIGNMENT_DATE,
+            "Assignment start date must be before end date");
       }
     }
   }
@@ -165,8 +190,8 @@ public class CrewMobilizationCommandService implements CrewMobilizationCommandUs
         }
 
         if (!overlap
-            && shipScheduleUseCase.hasAssignmentOverlap(
-                newAssignment.getProfileId(),
+            && shipScheduleUseCase.hasAssignmentOverlapByEmployeeCardId(
+                newAssignment.getEmployeeCardId(),
                 newAssignment.getStartDate(),
                 newAssignment.getEndDate())) {
 
@@ -211,16 +236,22 @@ public class CrewMobilizationCommandService implements CrewMobilizationCommandUs
       List<CrewMobilizationAssignment> assignments, Map<String, CrewProfile> profileMap) {
 
     log.debug("Enriching assignments");
+
     for (CrewMobilizationAssignment assignment : assignments) {
 
       CrewProfile profile = profileMap.get(assignment.getEmployeeCardId());
 
       if (profile == null) {
-        throw new IllegalArgumentException("Crew profile not found");
+
+        throw new CrewMobilizationValidationException(
+            CrewMobilizationErrorCode.CREW_MOBILIZATION_CREW_NOT_FOUND, "Crew profile not found");
       }
 
       if (profile.getAccountId() == null) {
-        throw new IllegalArgumentException("Crew member has no account");
+
+        throw new CrewMobilizationValidationException(
+            CrewMobilizationErrorCode.CREW_MOBILIZATION_CREW_HAS_NO_ACCOUNT,
+            "Crew member has no account");
       }
 
       assignment.setProfileId(profile.getId());

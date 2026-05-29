@@ -13,7 +13,6 @@ import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadDispat
 import com.inlaco.crewmgrservice.feature.upload.domain.enums.AssetType;
 import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceAlreadyInUseException;
-import com.inlaco.crewmgrservice.shared.support.ConsoleUtils;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -62,7 +61,6 @@ public class CreateLaborContractService implements CreateLaborContractUseCase {
     contract.setApplicationId(applicationId);
     contract.setAccountId(accountId);
     contract.getPartners().get(0).setAccountId(accountId);
-    ConsoleUtils.print(contract);
 
     var newContract = contractRepository.save(contract);
     log.info("Publishing ContractCreatedEvent for labor contract with ID: {}", newContract.getId());
