@@ -13,6 +13,7 @@ public class CrewSupplyContract extends Contract {
     super(ContractType.SUPPLY_CONTRACT);
   }
 
+  private String accountId;
   private String crewRentalRequestId;
   private ShipInfo shipInfo;
 

@@ -9,6 +9,7 @@ import com.inlaco.crewmgrservice.feature.contract.domain.model.LaborContract;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.UpdateContractCommand;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.UpdateCrewSupplyContractCommand;
 import com.inlaco.crewmgrservice.feature.contract.domain.model.UpdateLaborContractCommand;
+import com.inlaco.crewmgrservice.feature.contract.domain.model.party.Party;
 import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadDispatcher;
 import com.inlaco.crewmgrservice.feature.upload.domain.enums.AssetType;
 import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceNotFoundException;
@@ -93,7 +94,20 @@ public class UpdateContractService implements UpdateContractUseCase {
         | patch.getExpiredDate().ifUpdated(contract::setExpiredDate)
         | patch.getContractFreezeDelayMinutes().ifUpdated(contract::setContractFreezeDelayMinutes)
         | patch.getInitiator().ifUpdated(contract::setInitiator)
-        | patch.getPartners().ifUpdated(contract::setPartners);
+        | patch
+            .getPartners()
+            .ifUpdated(
+                newPartners -> {
+                  for (int index = 0; index < newPartners.size(); index++) {
+                    Party newPartner = newPartners.get(index);
+                    Party existingPartner = contract.getPartners().get(index);
+
+                    // Fix tạm thời để accountId ko bị mất khi update
+                    String accountId = existingPartner.getAccountId();
+                    newPartner.setAccountId(accountId);
+                  }
+                  contract.setPartners(newPartners);
+                });
   }
 
   private boolean applyCommonAssetChanges(Contract contract, UpdateContractCommand patch) {

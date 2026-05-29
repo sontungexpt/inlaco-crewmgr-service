@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -99,6 +100,7 @@ public class ContractRepositoryAdapter implements ContractRepository {
             new Criteria()
                 .orOperator(
                     Criteria.where("initiator.accountId").is(criteria.getRelativeAccountId()),
+                    Criteria.where("accountId").is(new ObjectId(criteria.getRelativeAccountId())),
                     Criteria.where("partners.accountId").is(criteria.getRelativeAccountId())));
       }
     }
