@@ -54,174 +54,6 @@ public class ShipScheduleService implements ShipScheduleUseCase {
   private final CrewSupplyContractRepository crewSupplyContractRepository;
   private final ApplicationEventPublisher eventPublisher;
 
-  //  @Override
-  //  public ShipSchedule createSchedule(
-  //      ShipSchedule schedule, List<ShipScheduleCrewAssignment> assignments, User
-  // authenticatedUser)
-  // {
-  //    // Validate ship IMO against active contracts
-  //
-  //    validateShipImoAgainstContracts(schedule, authenticatedUser);
-  //
-  //    List<String> employeeCardIds =
-  //        assignments.stream().map(ShipScheduleCrewAssignment::getEmployeeCardId).toList();
-  //
-  //    List<CrewProfile> crewProfiles = crewUseCase.getProfilesByEmployeeCardIds(employeeCardIds);
-  //
-  //    if (crewProfiles.size() != employeeCardIds.size()) {
-  //      throw new ShipScheduleException(
-  //          ShipScheduleErrorCode.CREW_PROFILE_NOT_FOUND,
-  //          "One or more crew profiles not found for employee card IDs: " + employeeCardIds,
-  //          // all not found employee card ids
-  //          employeeCardIds.stream()
-  //              .filter(id -> !crewProfiles.stream().anyMatch(p ->
-  // p.getEmployeeCardId().equals(id)))
-  //              .toList());
-  //    }
-  //
-  //    Map<String, CrewProfile> crewProfileMap =
-  //        crewProfiles.stream()
-  //            .collect(Collectors.toMap(CrewProfile::getEmployeeCardId, Function.identity()));
-  //
-  //    enrichSchedule(schedule, assignments, authenticatedUser);
-  //    enrichAssignments(assignments, crewProfileMap);
-  //
-  //    schedule.setTotalCrews(crewProfiles.size());
-  //    ShipSchedule created = shipScheduleRepository.save(schedule);
-  //    assignments.forEach(assignment -> assignment.setScheduleId(created.getId()));
-  //
-  //    assignmentRepository.saveAll(assignments);
-  //
-  //    // Publish event for ship schedule creation
-  //    eventPublisher.publishEvent(new ShipScheduleCreatedEvent(created, assignments,
-  // crewProfiles));
-  //
-  //    return created;
-  //  }
-  //
-  //  private void validateAssignments(List<ShipScheduleCrewAssignment> assignments) {
-  //
-  //    if (assignments == null || assignments.isEmpty()) {
-  //      throw new ShipScheduleException(
-  //          ShipScheduleErrorCode.CREW_PROFILE_NOT_FOUND, "Assignments cannot be null or empty");
-  //    }
-  //
-  //    for (ShipScheduleCrewAssignment assignment : assignments) {
-  //
-  //      if (assignment.getBoardingTime() == null || assignment.getDisembarkTime() == null) {
-  //        throw new ShipScheduleException(
-  //            ShipScheduleErrorCode.INVALID_ASSIGNMENT_DATE, "Assignment dates cannot be null");
-  //      }
-  //
-  //      if (!assignment.getBoardingTime().isBefore(assignment.getDisembarkTime())) {
-  //        throw new ShipScheduleException(
-  //            ShipScheduleErrorCode.INVALID_ASSIGNMENT_DATE, "Start date must be before end
-  // date");
-  //      }
-  //    }
-  //  }
-  //
-  //  private void validateAssignmentOverlap(
-  //      List<ShipScheduleCrewAssignment> newAssignments, List<String> employeeCardIds) {
-  //
-  //    // group new assignments by crew
-  //    Map<String, List<ShipScheduleCrewAssignment>> newAssignmentsByCrew =
-  //        newAssignments.stream()
-  //            .collect(Collectors.groupingBy(ShipScheduleCrewAssignment::getEmployeeCardId));
-  //
-  //    // load existing assignments that may overlap
-  //    List<ShipScheduleCrewAssignment> existingAssignments =
-  //        assignmentRepository.findByEmployeeCardIdsAndTimeRangeOverlap(
-  //            employeeCardIds,
-  //            newAssignments.stream()
-  //                .map(ShipScheduleCrewAssignment::getBoardingTime)
-  //                .min(Instant::compareTo)
-  //                .orElse(Instant.now()),
-  //            newAssignments.stream()
-  //                .map(ShipScheduleCrewAssignment::getDisembarkTime)
-  //                .max(Instant::compareTo)
-  //                .orElse(Instant.now()));
-  //
-  //    // group existing assignments by crew
-  //    Map<String, List<ShipScheduleCrewAssignment>> existingAssignmentsByCrew =
-  //        existingAssignments.stream()
-  //            .collect(Collectors.groupingBy(ShipScheduleCrewAssignment::getEmployeeCardId));
-  //
-  //    List<CrewAssignmentBusyException.ConflictAssignment> overlapErrors = new ArrayList<>();
-  //
-  //    for (var entry : newAssignmentsByCrew.entrySet()) {
-  //
-  //      String employeeCardId = entry.getKey();
-  //
-  //      List<ShipScheduleCrewAssignment> newCrewAssignments = entry.getValue();
-  //      List<ShipScheduleCrewAssignment> existingCrewAssignments =
-  //          existingAssignmentsByCrew.getOrDefault(employeeCardId, List.of());
-  //
-  //      for (var newAssignment : newCrewAssignments) {
-  //        for (var existingAssignment : existingCrewAssignments) {
-  //
-  //          boolean isOverlapping =
-  //              newAssignment.getBoardingTime().isBefore(existingAssignment.getDisembarkTime())
-  //                  &&
-  // newAssignment.getDisembarkTime().isAfter(existingAssignment.getBoardingTime());
-  //
-  //          if (isOverlapping) {
-  //            overlapErrors.add(
-  //                new CrewAssignmentBusyException.ConflictAssignment(
-  //                    employeeCardId,
-  //                    String.format(
-  //                        "Crew %s is already assigned between %s and %s",
-  //                        employeeCardId,
-  //                        existingAssignment.getBoardingTime().toString(),
-  //                        existingAssignment.getDisembarkTime().toString()),
-  //                    existingAssignment.getBoardingTime(),
-  //                    existingAssignment.getDisembarkTime()));
-  //          }
-  //        }
-  //      }
-  //    }
-  //
-  //    if (!overlapErrors.isEmpty()) {
-  //      throw new CrewAssignmentBusyException(overlapErrors);
-  //    }
-  //  }
-  //
-  //  private void validateShipImoAgainstContracts(ShipSchedule schedule, User authenticatedUser) {
-  //    String shipImoNumber = schedule.getShipInfo().getImoNumber();
-  //    if (shipImoNumber == null || shipImoNumber.trim().isEmpty()) {
-  //      throw new ShipScheduleException(
-  //          ShipScheduleErrorCode.SHIP_IMO_NUMBER_REQUIRED, "Ship IMO number is required");
-  //    }
-  //
-  //    List<Contract> activeContracts =
-  //        crewSupplyContractRepository.findActiveContractsByShipIMO(shipImoNumber);
-  //
-  //    if (activeContracts.isEmpty()) {
-  //      throw new ShipScheduleException(
-  //          ShipScheduleErrorCode.SHIP_NOT_FOUND_IN_ACTIVE_CONTRACTS,
-  //          String.format(
-  //              "Ship with IMO number %s is not found in any active deployment contracts",
-  //              shipImoNumber));
-  //    }
-  //
-  //    for (var contract : activeContracts) {
-  //      Party party = contract.getPartners().get(0);
-  //
-  //      if (!party.getAccountId().equals(authenticatedUser.getId())) {
-  //        throw new ShipScheduleException(
-  //            ShipScheduleErrorCode.SHIP_NOT_AUTHORIZED_FOR_USER,
-  //            String.format(
-  //                "Ship with IMO number %s is not found in any active deployment contracts",
-  //                shipImoNumber));
-  //      }
-  //    }
-  //
-  //    log.debug("Found {} active contracts for ship IMO: {}", activeContracts.size(),
-  // shipImoNumber);
-  //  }
-  //
-  //
-
   @Override
   @Transactional
   public ShipSchedule createSchedule(
@@ -270,6 +102,7 @@ public class ShipScheduleService implements ShipScheduleUseCase {
     ConsoleUtils.print(contracts);
 
     ConsoleUtils.print(user.getId());
+
     boolean authorized =
         contracts.stream()
             .flatMap(c -> c.getPartners().stream())
@@ -323,7 +156,7 @@ public class ShipScheduleService implements ShipScheduleUseCase {
         existingAssignments.stream()
             .collect(Collectors.groupingBy(CrewMobilizationAssignment::getEmployeeCardId));
 
-    List<ConflictAssignment> conflicts = new ArrayList<>();
+    List<ConflictAssignment> mobilizationConflicts = new ArrayList<>();
 
     /*
      * CHECK EACH NEW ASSIGNMENT
@@ -343,7 +176,7 @@ public class ShipScheduleService implements ShipScheduleUseCase {
 
         if (overlap) {
 
-          conflicts.add(
+          mobilizationConflicts.add(
               new ConflictAssignment(
                   employeeCardId,
                   "Crew already assigned on overlapping schedule",
@@ -356,8 +189,8 @@ public class ShipScheduleService implements ShipScheduleUseCase {
     /*
      * THROW IF ANY CONFLICT
      */
-    if (!conflicts.isEmpty()) {
-      throw new CrewAssignmentBusyException(conflicts);
+    if (!mobilizationConflicts.isEmpty()) {
+      throw new CrewAssignmentBusyException(mobilizationConflicts);
     }
   }
 
