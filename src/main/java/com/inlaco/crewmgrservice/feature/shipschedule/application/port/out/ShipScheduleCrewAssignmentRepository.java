@@ -87,4 +87,7 @@ public interface ShipScheduleCrewAssignmentRepository {
 
   List<ShipScheduleCrewAssignment> findByProfileIdFullyInTimeRange(
       String profileId, Instant startDate, Instant endDate);
+
+  List<ShipScheduleCrewAssignment> findByEmployeeCardIdsAndShipIMO(
+      Iterable<String> employeeCardIds, String shipIMO);
 }

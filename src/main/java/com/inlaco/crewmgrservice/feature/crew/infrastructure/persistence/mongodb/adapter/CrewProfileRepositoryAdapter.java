@@ -8,7 +8,6 @@ import com.inlaco.crewmgrservice.feature.crew.infrastructure.persistence.mongodb
 import com.inlaco.crewmgrservice.feature.crew.infrastructure.persistence.mongodb.mapper.CrewProfileEntityMapper;
 import com.inlaco.crewmgrservice.feature.crew.infrastructure.persistence.mongodb.repository.CrewProfileMongoRepository;
 import com.inlaco.crewmgrservice.feature.crewmobilization.infrastructure.persistence.mongodb.entity.CrewMobilizationAssignmentEntity;
-import com.inlaco.crewmgrservice.feature.crewmobilization.infrastructure.persistence.mongodb.entity.CrewMobilizationEntity;
 import com.inlaco.crewmgrservice.infrastructure.persistence.mongodb.aggregation.FacetResult;
 import com.inlaco.crewmgrservice.infrastructure.persistence.support.PageableUtils;
 import java.time.Instant;
@@ -273,6 +272,157 @@ public class CrewProfileRepositoryAdapter implements CrewProfileRepository {
     return repository.countByEmployeeCardIdIn(ids) == ids.size();
   }
 
+  //  @Override
+  //  public Page<CrewProfile> findMobilizedCrewProfiles(
+  //      CrewProfileSearchCriteria criteria, Pageable pageable, String clientId) {
+  //
+  //    pageable = PageableUtils.enforceIdSort(pageable);
+  //
+  //    Instant now = Instant.now();
+  //
+  //    List<AggregationOperation> operations = new ArrayList<>();
+  //
+  //    /*
+  //     * Join assignments
+  //     */
+  //    operations.add(
+  //        lookup(
+  //            mongoOperations.getCollectionName(CrewMobilizationAssignmentEntity.class),
+  //            "_id",
+  //            "profileId",
+  //            "assignments"));
+  //
+  //    operations.add(unwind("assignments"));
+  //
+  //    /*
+  //     * Active assignment only
+  //     */
+  //    operations.add(
+  //        match(
+  //
+  // Criteria.where("assignments.startDate").lte(now).and("assignments.endDate").gte(now)));
+  //
+  //    /*
+  //     * Join mobilization
+  //     */
+  //    operations.add(
+  //        lookup(
+  //            mongoOperations.getCollectionName(CrewMobilizationEntity.class),
+  //            "assignments.mobilizationId",
+  //            "_id",
+  //            "mobilization"));
+  //
+  //    operations.add(unwind("mobilization"));
+  //
+  //    /*
+  //     * Client filter
+  //     */
+  //    operations.add(match(Criteria.where("mobilization.partnerAccountId").is(clientId)));
+  //
+  //    /*
+  //     * Crew profile filters
+  //     */
+  //    List<Criteria> andConditions = new ArrayList<>();
+  //
+  //    if (criteria != null) {
+  //
+  //      if (StringUtils.hasText(criteria.keyword())) {
+  //
+  //        String keyword = criteria.keyword().trim();
+  //
+  //        andConditions.add(
+  //            new Criteria()
+  //                .orOperator(
+  //                    Criteria.where("employeeCardId").regex(keyword, "i"),
+  //                    Criteria.where("phoneNumber").regex(keyword, "i"),
+  //                    Criteria.where("fullName").regex(keyword, "i"),
+  //                    Criteria.where("email").regex(keyword, "i")));
+  //      }
+  //
+  //      if (criteria.official() != null) {
+  //
+  //        if (criteria.official()) {
+  //
+  //          andConditions.add(
+  //              new Criteria()
+  //                  .andOperator(
+  //                      Criteria.where("employeeCardId").exists(true),
+  //                      Criteria.where("employeeCardId").ne("")));
+  //        } else {
+  //
+  //          andConditions.add(
+  //              new Criteria()
+  //                  .orOperator(
+  //                      Criteria.where("employeeCardId").exists(false),
+  //                      Criteria.where("employeeCardId").is(null),
+  //                      Criteria.where("employeeCardId").is("")));
+  //        }
+  //      }
+  //
+  //      if (criteria.workStatus() != null) {
+  //
+  //        andConditions.add(Criteria.where("status").is(criteria.workStatus()));
+  //      }
+  //
+  //      if (StringUtils.hasText(criteria.professionalPosition())) {
+  //
+  //        andConditions.add(
+  //            Criteria.where("professionalPosition").is(criteria.professionalPosition()));
+  //      }
+  //
+  //      if (criteria.excludedEmployeeCardIds() != null
+  //          && !criteria.excludedEmployeeCardIds().isEmpty()) {
+  //
+  //
+  // andConditions.add(Criteria.where("employeeCardId").nin(criteria.excludedEmployeeCardIds()));
+  //      }
+  //
+  //      if (criteria.excludedIds() != null && !criteria.excludedIds().isEmpty()) {
+  //
+  //        andConditions.add(
+  //
+  // Criteria.where("_id").nin(criteria.excludedIds().stream().map(ObjectId::new).toList()));
+  //      }
+  //    }
+  //
+  //    if (!andConditions.isEmpty()) {
+  //
+  //      operations.add(match(new Criteria().andOperator(andConditions.toArray(new Criteria[0]))));
+  //    }
+  //
+  //    /*
+  //     * One crew can have multiple assignments
+  //     * => remove duplicates before counting
+  //     */
+  //
+  //    operations.add(group("_id").first(ROOT).as("doc"));
+  //
+  //    operations.add(replaceRoot("doc"));
+  //
+  //    /*
+  //     * Pagination
+  //     */
+  //    operations.add(
+  //        facet(Aggregation.count().as(FacetResult.COUNT_KEY))
+  //            .as(FacetResult.COUNT_FACET_NAME)
+  //            .and(
+  //                sort(pageable.getSort()), skip(pageable.getOffset()),
+  // limit(pageable.getPageSize()))
+  //            .as(FacetResult.DATA_FACET_NAME));
+  //
+  //    Aggregation aggregation = newAggregation(operations);
+  //
+  //    CrewProfileEntityFacetResult result =
+  //        mongoOperations
+  //            .aggregate(aggregation, CrewProfileEntity.class, CrewProfileEntityFacetResult.class)
+  //            .getUniqueMappedResult();
+  //
+  //    if (result == null) {
+  //      return Page.empty(pageable);
+  //    }
+  //
+  //    return result.toPage(pageable).map(mapper::toCrewProfile);
+  //  }
   @Override
   public Page<CrewProfile> findMobilizedCrewProfiles(
       CrewProfileSearchCriteria criteria, Pageable pageable, String clientId) {
@@ -284,50 +434,13 @@ public class CrewProfileRepositoryAdapter implements CrewProfileRepository {
     List<AggregationOperation> operations = new ArrayList<>();
 
     /*
-     * Join assignments
-     */
-    operations.add(
-        lookup(
-            mongoOperations.getCollectionName(CrewMobilizationAssignmentEntity.class),
-            "_id",
-            "profileId",
-            "assignments"));
-
-    operations.add(unwind("assignments"));
-
-    /*
-     * Active assignment only
-     */
-    operations.add(
-        match(
-            Criteria.where("assignments.startDate").lte(now).and("assignments.endDate").gte(now)));
-
-    /*
-     * Join mobilization
-     */
-    operations.add(
-        lookup(
-            mongoOperations.getCollectionName(CrewMobilizationEntity.class),
-            "assignments.mobilizationId",
-            "_id",
-            "mobilization"));
-
-    operations.add(unwind("mobilization"));
-
-    /*
-     * Client filter
-     */
-    operations.add(match(Criteria.where("mobilization.partnerAccountId").is(clientId)));
-
-    /*
-     * Crew profile filters
+     * 1. PROFILE FILTER FIRST (giảm dataset trước join)
      */
     List<Criteria> andConditions = new ArrayList<>();
 
     if (criteria != null) {
 
       if (StringUtils.hasText(criteria.keyword())) {
-
         String keyword = criteria.keyword().trim();
 
         andConditions.add(
@@ -340,16 +453,13 @@ public class CrewProfileRepositoryAdapter implements CrewProfileRepository {
       }
 
       if (criteria.official() != null) {
-
         if (criteria.official()) {
-
           andConditions.add(
               new Criteria()
                   .andOperator(
                       Criteria.where("employeeCardId").exists(true),
                       Criteria.where("employeeCardId").ne("")));
         } else {
-
           andConditions.add(
               new Criteria()
                   .orOperator(
@@ -360,46 +470,64 @@ public class CrewProfileRepositoryAdapter implements CrewProfileRepository {
       }
 
       if (criteria.workStatus() != null) {
-
         andConditions.add(Criteria.where("status").is(criteria.workStatus()));
       }
 
       if (StringUtils.hasText(criteria.professionalPosition())) {
-
         andConditions.add(
             Criteria.where("professionalPosition").is(criteria.professionalPosition()));
       }
 
       if (criteria.excludedEmployeeCardIds() != null
           && !criteria.excludedEmployeeCardIds().isEmpty()) {
-
         andConditions.add(Criteria.where("employeeCardId").nin(criteria.excludedEmployeeCardIds()));
       }
 
       if (criteria.excludedIds() != null && !criteria.excludedIds().isEmpty()) {
-
         andConditions.add(
             Criteria.where("_id").nin(criteria.excludedIds().stream().map(ObjectId::new).toList()));
       }
     }
 
     if (!andConditions.isEmpty()) {
-
       operations.add(match(new Criteria().andOperator(andConditions.toArray(new Criteria[0]))));
     }
 
     /*
-     * One crew can have multiple assignments
-     * => remove duplicates before counting
+     * 2. LOOKUP ASSIGNMENTS (NO UNWIND)
+     * + filter trực tiếp trong lookup
      */
+    operations.add(
+        lookup(
+            mongoOperations.getCollectionName(CrewMobilizationAssignmentEntity.class),
+            "_id",
+            "profileId",
+            "assignments"));
 
+    /*
+     * 3. FILTER ASSIGNMENTS INLINE (NO mobilization join)
+     * - thay mobilization.partnerAccountId
+     * - dùng luôn assignments.partnerAccountId
+     */
+    operations.add(
+        match(
+            new Criteria()
+                .andOperator(
+                    Criteria.where("assignments.0").exists(true),
+                    Criteria.where("assignments.partnerAccountId").is(clientId),
+                    Criteria.where("assignments.startDate").lte(now),
+                    Criteria.where("assignments.endDate").gte(now))));
+
+    /*
+     * 4. REMOVE DUPLICATES (giữ như bạn đang dùng)
+     */
     operations.add(group("_id").first(ROOT).as("doc"));
-
     operations.add(replaceRoot("doc"));
 
     /*
-     * Pagination
+     * 5. PAGINATION
      */
+
     operations.add(
         facet(Aggregation.count().as(FacetResult.COUNT_KEY))
             .as(FacetResult.COUNT_FACET_NAME)

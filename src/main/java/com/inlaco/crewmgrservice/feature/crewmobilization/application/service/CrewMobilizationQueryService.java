@@ -144,4 +144,19 @@ public class CrewMobilizationQueryService implements CrewMobilizationQueryUseCas
     return crewMobilizationAssignmentRepository.findAllActiveAssignmentsForClient(
         clientId, pageable);
   }
+
+  @Override
+  public List<CrewMobilizationAssignment> findAllActiveAssignmentsForClientWithShipIMO(
+      String clientId, String shipIMO) {
+    return crewMobilizationAssignmentRepository.findAllActiveAssignmentsForClientWithShipIMO(
+        clientId, shipIMO);
+  }
+
+  @Override
+  public List<CrewMobilizationAssignment>
+      findAllActiveAssignmentsForClientWithShipIMOAndEmployeeCardIds(
+          String clientId, String shipIMO, Iterable<String> employeeCardIds) {
+    return crewMobilizationAssignmentRepository.findAllActiveAssignmentsForClientWithShipIMO(
+        clientId, shipIMO);
+  }
 }

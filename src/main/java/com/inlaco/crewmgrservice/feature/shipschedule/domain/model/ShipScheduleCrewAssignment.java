@@ -13,6 +13,8 @@ import lombok.NoArgsConstructor;
 public class ShipScheduleCrewAssignment {
   private String id;
 
+  private String vesselOwnerId;
+  private String shipIMO;
   private String scheduleId;
 
   private String profileId;

@@ -12,6 +12,10 @@ public class CrewMobilizationAssignment {
 
   private String mobilizationId;
 
+  private String contractId;
+  private String crewRentalRequestId;
+  private String partnerAccountId;
+
   private String profileId;
   private String accountId;
   private String employeeCardId;

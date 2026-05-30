@@ -33,4 +33,10 @@ public interface CrewMobilizationAssignmentRepository {
 
   Page<CrewMobilizationAssignment> findAllActiveAssignmentsForClient(
       String clientId, Pageable pageable);
+
+  List<CrewMobilizationAssignment> findAllActiveAssignmentsForClientWithShipIMO(
+      String clientId, String shipIMO);
+
+  List<CrewMobilizationAssignment> findAllActiveAssignmentsForClientWithShipIMOAndEmployeeCardIds(
+      String clientId, String shipIMO, Iterable<String> employeeCardIds);
 }

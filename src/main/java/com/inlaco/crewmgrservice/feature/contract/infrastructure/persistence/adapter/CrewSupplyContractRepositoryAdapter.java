@@ -31,6 +31,7 @@ public class CrewSupplyContractRepositoryAdapter implements CrewSupplyContractRe
                     Criteria.where("status").is(ContractStatus.ACTIVE),
                     Criteria.where("type").is(ContractType.SUPPLY_CONTRACT),
                     Criteria.where("shipInfo.imoNumber").is(shipImoNumber)));
+
     List<ContractEntity> entities = mongoTemplate.find(query, ContractEntity.class);
     return entities.stream().map(mapper::toContract).toList();
   }

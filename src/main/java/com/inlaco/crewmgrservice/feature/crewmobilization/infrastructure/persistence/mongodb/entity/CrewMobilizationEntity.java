@@ -18,6 +18,10 @@ public class CrewMobilizationEntity {
 
   @Id private String id;
 
+  private String contractId;
+
+  private String crewRentalRequestId;
+
   private String partnerAccountId;
 
   private String partnerName;

@@ -5,7 +5,6 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 import com.inlaco.crewmgrservice.feature.crewmobilization.application.port.out.CrewMobilizationAssignmentRepository;
 import com.inlaco.crewmgrservice.feature.crewmobilization.domain.model.CrewMobilizationAssignment;
 import com.inlaco.crewmgrservice.feature.crewmobilization.infrastructure.persistence.mongodb.entity.CrewMobilizationAssignmentEntity;
-import com.inlaco.crewmgrservice.feature.crewmobilization.infrastructure.persistence.mongodb.entity.CrewMobilizationEntity;
 import com.inlaco.crewmgrservice.feature.crewmobilization.infrastructure.persistence.mongodb.mapper.CrewMobilizationAssignmentEntityMapper;
 import com.inlaco.crewmgrservice.feature.crewmobilization.infrastructure.persistence.mongodb.repository.CrewMobilizationAssignmentMongoRepository;
 import com.inlaco.crewmgrservice.infrastructure.persistence.mongodb.aggregation.FacetResult;
@@ -28,7 +27,6 @@ import org.springframework.data.mongodb.core.BulkOperations.BulkMode;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
-import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.util.Streamable;
@@ -205,30 +203,21 @@ public class CrewMobilizationAssignmentRepositoryAdapter
 
     Instant now = Instant.now();
 
-    Aggregation aggregation =
-        Aggregation.newAggregation(
-            Aggregation.lookup(
-                mongoTemplate.getCollectionName(CrewMobilizationEntity.class),
-                "mobilizationId",
-                "_id",
-                "mobilization"),
-            Aggregation.unwind("mobilization"),
-            Aggregation.match(
-                new Criteria()
-                    .andOperator(
-                        Criteria.where("mobilization.partnerAccountId").is(clientId),
-                        Criteria.where("startDate").lte(now),
-                        Criteria.where("endDate").gte(now))));
+    Criteria criteria =
+        new Criteria()
+            .andOperator(
+                Criteria.where("partnerAccountId").is(clientId),
+                Criteria.where("startDate").lte(now),
+                Criteria.where("endDate").gte(now));
 
-    AggregationResults<CrewMobilizationAssignmentEntity> results =
-        mongoTemplate.aggregate(
-            aggregation,
-            CrewMobilizationAssignmentEntity.class,
-            CrewMobilizationAssignmentEntity.class);
+    Query query = new Query(criteria);
 
-    return results.getMappedResults().stream().map(mapper::toDomain).toList();
+    return mongoTemplate.find(query, CrewMobilizationAssignmentEntity.class).stream()
+        .map(mapper::toDomain)
+        .toList();
   }
 
+  @Override
   public Page<CrewMobilizationAssignment> findAllActiveAssignmentsForClient(
       String clientId, Pageable pageable) {
 
@@ -237,38 +226,27 @@ public class CrewMobilizationAssignmentRepositoryAdapter
     List<AggregationOperation> operations = new ArrayList<>();
 
     /*
-     * Active assignment
-     */
-    operations.add(match(Criteria.where("startDate").lte(now).and("endDate").gte(now)));
-
-    /*
-     * Join mobilization
+     * 1. FILTER DIRECT (NO LOOKUP)
      */
     operations.add(
-        lookup(
-            mongoTemplate.getCollectionName(CrewMobilizationEntity.class),
-            "mobilizationId",
-            "_id",
-            "mobilization"));
-
-    operations.add(unwind("mobilization"));
-
-    /*
-     * Filter by client
-     */
-    operations.add(match(Criteria.where("mobilization.partnerAccountId").is(clientId)));
+        match(
+            new Criteria()
+                .andOperator(
+                    Criteria.where("partnerAccountId").is(clientId),
+                    Criteria.where("startDate").lte(now),
+                    Criteria.where("endDate").gte(now))));
 
     /*
-     * Pagination
+     * 2. PAGINATION
      */
     operations.add(
-        facet(Aggregation.count().as(FacetResult.COUNT_KEY))
+        facet(count().as(FacetResult.COUNT_KEY))
             .as(FacetResult.COUNT_FACET_NAME)
             .and(
                 sort(pageable.getSort()), skip(pageable.getOffset()), limit(pageable.getPageSize()))
             .as(FacetResult.DATA_FACET_NAME));
 
-    Aggregation aggregation = newAggregation(operations);
+    Aggregation aggregation = Aggregation.newAggregation(operations);
 
     CrewMobilizationAssignmentFacetResult result =
         mongoTemplate
@@ -285,6 +263,50 @@ public class CrewMobilizationAssignmentRepositoryAdapter
     return result.toPage(pageable).map(mapper::toDomain);
   }
 
+  @Override
+  public List<CrewMobilizationAssignment> findAllActiveAssignmentsForClientWithShipIMO(
+      String clientId, String shipIMO) {
+
+    Instant now = Instant.now();
+
+    Criteria criteria =
+        new Criteria()
+            .andOperator(
+                Criteria.where("partnerAccountId").is(clientId),
+                Criteria.where("shipIMO").is(shipIMO),
+                Criteria.where("startDate").lte(now),
+                Criteria.where("endDate").gte(now));
+
+    Query query = new Query(criteria);
+
+    return mongoTemplate.find(query, CrewMobilizationAssignmentEntity.class).stream()
+        .map(mapper::toDomain)
+        .toList();
+  }
+
   static class CrewMobilizationAssignmentFacetResult
       extends FacetResult<CrewMobilizationAssignmentEntity> {}
+
+  @Override
+  public List<CrewMobilizationAssignment>
+      findAllActiveAssignmentsForClientWithShipIMOAndEmployeeCardIds(
+          String clientId, String shipIMO, Iterable<String> employeeCardIds) {
+
+    Instant now = Instant.now();
+
+    Criteria criteria =
+        new Criteria()
+            .andOperator(
+                Criteria.where("partnerAccountId").is(clientId),
+                Criteria.where("employeeCardId").in(employeeCardIds),
+                Criteria.where("shipIMO").is(shipIMO),
+                Criteria.where("startDate").lte(now),
+                Criteria.where("endDate").gte(now));
+
+    Query query = new Query(criteria);
+
+    return mongoTemplate.find(query, CrewMobilizationAssignmentEntity.class).stream()
+        .map(mapper::toDomain)
+        .toList();
+  }
 }

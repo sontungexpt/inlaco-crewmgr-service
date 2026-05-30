@@ -81,15 +81,9 @@ public class CrewMobilizationCommandService implements CrewMobilizationCommandUs
 
     enrichMobilization(mobilization, contract, shipImageAssetId);
 
-    enrichAssignments(assignments, crewProfileMap);
-
     CrewMobilization savedMobilization = mobilizationRepository.save(mobilization);
 
-    assignments.forEach(
-        assignment -> {
-          assignment.setShipIMO(savedMobilization.getShipInfo().getImoNumber());
-          assignment.setMobilizationId(savedMobilization.getId());
-        });
+    enrichAssignments(assignments, crewProfileMap, contract, savedMobilization);
 
     assignmentRepository.saveAll(assignments);
 
@@ -218,10 +212,9 @@ public class CrewMobilizationCommandService implements CrewMobilizationCommandUs
       CrewMobilization mobilization, CrewSupplyContract contract, String shipImageAssetId) {
     log.debug("Enriching mobilization");
 
-    mobilization.setPartnerAccountId(contract.getPartners().get(0).getAccountId());
-
     mobilization.setCrewRentalRequestId(contract.getCrewRentalRequestId());
-
+    mobilization.setContractId(contract.getId());
+    mobilization.setPartnerAccountId(contract.getPartners().get(0).getAccountId());
     mobilization.getShipInfo().setImoNumber(contract.getShipInfo().getImoNumber());
 
     if (shipImageAssetId != null) {
@@ -237,7 +230,10 @@ public class CrewMobilizationCommandService implements CrewMobilizationCommandUs
   }
 
   private void enrichAssignments(
-      List<CrewMobilizationAssignment> assignments, Map<String, CrewProfile> profileMap) {
+      List<CrewMobilizationAssignment> assignments,
+      Map<String, CrewProfile> profileMap,
+      CrewSupplyContract contract,
+      CrewMobilization mobilization) {
 
     log.debug("Enriching assignments");
 
@@ -260,6 +256,11 @@ public class CrewMobilizationCommandService implements CrewMobilizationCommandUs
 
       assignment.setProfileId(profile.getId());
       assignment.setAccountId(profile.getAccountId());
+      assignment.setShipIMO(contract.getShipInfo().getImoNumber());
+      assignment.setPartnerAccountId(contract.getPartners().get(0).getAccountId());
+      assignment.setCrewRentalRequestId(contract.getCrewRentalRequestId());
+      assignment.setContractId(contract.getId());
+      assignment.setMobilizationId(mobilization.getId());
     }
   }
 }

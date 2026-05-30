@@ -19,6 +19,12 @@ public class CrewMobilizationAssignmentEntity {
 
   @Indexed private ObjectId profileId;
 
+  @Indexed private String contractId;
+
+  private String crewRentalRequestId;
+
+  @Indexed private String partnerAccountId;
+
   @Indexed private ObjectId accountId;
 
   @Indexed private String employeeCardId;

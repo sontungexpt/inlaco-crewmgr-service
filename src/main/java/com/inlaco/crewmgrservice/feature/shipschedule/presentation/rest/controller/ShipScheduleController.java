@@ -44,7 +44,7 @@ public class ShipScheduleController {
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   @PostMapping("")
   public ResponseEntity<ShipScheduleResponse> createSchedule(
-      @Valid @RequestBody CreateShipScheduleRequest request, User user) {
+      @Valid @RequestBody CreateShipScheduleRequest request, @CurrentUser User user) {
 
     ShipSchedule schedule = mapper.toShipSchedule(request);
     List<ShipScheduleCrewAssignment> assignments =

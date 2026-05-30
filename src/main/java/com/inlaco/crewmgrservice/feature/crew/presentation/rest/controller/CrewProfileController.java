@@ -42,7 +42,7 @@ public class CrewProfileController {
       summary = "Find crew profile by id",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   @GetMapping("/{profileId}")
-  @RolesAllowed("ADMIN")
+  @RolesAllowed("USER")
   public CrewProfileResponse getCrewProfile(@ObjectId @PathVariable("profileId") String profileId) {
     return crewProfileMapper.toCrewProfileResponse(crewUseCase.getProfile(profileId));
   }

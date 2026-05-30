@@ -241,4 +241,20 @@ public class ShipScheduleCrewAssignmentRepositoryAdapter
         .map(mapper::toShipScheduleCrewAssignment)
         .toList();
   }
+
+  @Override
+  public List<ShipScheduleCrewAssignment> findByEmployeeCardIdsAndShipIMO(
+      Iterable<String> employeeCardIds, String shipIMO) {
+
+    List<String> employeeCardIdsList =
+        StreamSupport.stream(employeeCardIds.spliterator(), false).toList();
+
+    Criteria criteria =
+        Criteria.where("employeeCardId").in(employeeCardIdsList).and("shipIMO").is(shipIMO);
+
+    Query query = new Query(criteria);
+    return mongoTemplate.find(query, ShipScheduleCrewAssignmentEntity.class).stream()
+        .map(mapper::toShipScheduleCrewAssignment)
+        .toList();
+  }
 }
