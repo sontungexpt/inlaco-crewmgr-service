@@ -85,7 +85,11 @@ public class CrewMobilizationCommandService implements CrewMobilizationCommandUs
 
     CrewMobilization savedMobilization = mobilizationRepository.save(mobilization);
 
-    assignments.forEach(assignment -> assignment.setMobilizationId(savedMobilization.getId()));
+    assignments.forEach(
+        assignment -> {
+          assignment.setShipIMO(savedMobilization.getShipInfo().getImoNumber());
+          assignment.setMobilizationId(savedMobilization.getId());
+        });
 
     assignmentRepository.saveAll(assignments);
 
@@ -255,7 +259,6 @@ public class CrewMobilizationCommandService implements CrewMobilizationCommandUs
       }
 
       assignment.setProfileId(profile.getId());
-
       assignment.setAccountId(profile.getAccountId());
     }
   }

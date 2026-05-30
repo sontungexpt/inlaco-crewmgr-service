@@ -25,6 +25,8 @@ public class CrewMobilizationAssignmentEntity {
 
   private String rankOnBoard;
 
+  private String shipIMO;
+
   @Indexed private Instant startDate;
 
   @Indexed private Instant endDate;

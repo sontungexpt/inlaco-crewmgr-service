@@ -28,6 +28,9 @@ public interface ShipScheduleUseCase {
   boolean hasAssignmentOverlapByEmployeeCardId(
       String employeeCardId, Instant startDate, Instant endDate);
 
+  List<ShipScheduleCrewAssignment> findAssignmentsByEmployeeCardIdsAndTimeRangeOverlap(
+      Iterable<String> employeeCardIds, Instant startDate, Instant endDate);
+
   List<ShipScheduleCrewAssignment> findAssignmentsFullyWithinTimeRange(
       String profileId, Instant startDate, Instant endDate);
 

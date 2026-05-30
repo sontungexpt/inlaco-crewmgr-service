@@ -58,6 +58,9 @@ public interface ShipScheduleCrewAssignmentRepository {
 
   List<ShipScheduleCrewAssignment> findByTimeRangeOverlap(Instant startTime, Instant endTime);
 
+  List<ShipScheduleCrewAssignment> findByEmployeeCardIdsAndTimeRangeOverlap(
+      Iterable<String> employeeCardIds, Instant startTime, Instant endTime);
+
   /*
    * Find all assignments that are COMPLETELY inside
    * the requested time range.

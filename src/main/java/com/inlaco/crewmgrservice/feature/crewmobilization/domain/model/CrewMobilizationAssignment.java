@@ -17,6 +17,7 @@ public class CrewMobilizationAssignment {
   private String employeeCardId;
 
   private String rankOnBoard;
+  private String shipIMO;
 
   private Instant startDate;
   private Instant endDate;

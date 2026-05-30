@@ -66,7 +66,10 @@ public class ShipScheduleService implements ShipScheduleUseCase {
       throw new ShipScheduleException(
           ShipScheduleErrorCode.CREW_PROFILE_NOT_FOUND,
           "One or more crew profiles not found for employee card IDs: " + employeeCardIds,
-          employeeCardIds);
+          // all not found employee card ids
+          employeeCardIds.stream()
+              .filter(id -> !crewProfiles.stream().anyMatch(p -> p.getEmployeeCardId().equals(id)))
+              .toList());
     }
 
     Map<String, CrewProfile> crewProfileMap =
@@ -86,6 +89,91 @@ public class ShipScheduleService implements ShipScheduleUseCase {
     eventPublisher.publishEvent(new ShipScheduleCreatedEvent(created, assignments, crewProfiles));
 
     return created;
+  }
+
+  private void validateAssignments(List<ShipScheduleCrewAssignment> assignments) {
+
+    if (assignments == null || assignments.isEmpty()) {
+      throw new ShipScheduleException(
+          ShipScheduleErrorCode.CREW_PROFILE_NOT_FOUND, "Assignments cannot be null or empty");
+    }
+
+    for (ShipScheduleCrewAssignment assignment : assignments) {
+
+      if (assignment.getBoardingTime() == null || assignment.getDisembarkTime() == null) {
+        throw new ShipScheduleException(
+            ShipScheduleErrorCode.INVALID_ASSIGNMENT_DATE, "Assignment dates cannot be null");
+      }
+
+      if (!assignment.getBoardingTime().isBefore(assignment.getDisembarkTime())) {
+        throw new ShipScheduleException(
+            ShipScheduleErrorCode.INVALID_ASSIGNMENT_DATE, "Start date must be before end date");
+      }
+    }
+  }
+
+  private void validateAssignmentOverlap(
+      List<ShipScheduleCrewAssignment> newAssignments, List<String> employeeCardIds) {
+
+    // group new assignments by crew
+    Map<String, List<ShipScheduleCrewAssignment>> newAssignmentsByCrew =
+        newAssignments.stream()
+            .collect(Collectors.groupingBy(ShipScheduleCrewAssignment::getEmployeeCardId));
+
+    // load existing assignments that may overlap
+    List<ShipScheduleCrewAssignment> existingAssignments =
+        assignmentRepository.findByEmployeeCardIdsAndTimeRangeOverlap(
+            employeeCardIds,
+            newAssignments.stream()
+                .map(ShipScheduleCrewAssignment::getBoardingTime)
+                .min(Instant::compareTo)
+                .orElse(Instant.now()),
+            newAssignments.stream()
+                .map(ShipScheduleCrewAssignment::getDisembarkTime)
+                .max(Instant::compareTo)
+                .orElse(Instant.now()));
+
+    // group existing assignments by crew
+    Map<String, List<ShipScheduleCrewAssignment>> existingAssignmentsByCrew =
+        existingAssignments.stream()
+            .collect(Collectors.groupingBy(ShipScheduleCrewAssignment::getEmployeeCardId));
+
+    List<CrewAssignmentBusyException.ConflictAssignment> overlapErrors = new ArrayList<>();
+
+    for (var entry : newAssignmentsByCrew.entrySet()) {
+
+      String employeeCardId = entry.getKey();
+
+      List<ShipScheduleCrewAssignment> newCrewAssignments = entry.getValue();
+      List<ShipScheduleCrewAssignment> existingCrewAssignments =
+          existingAssignmentsByCrew.getOrDefault(employeeCardId, List.of());
+
+      for (var newAssignment : newCrewAssignments) {
+        for (var existingAssignment : existingCrewAssignments) {
+
+          boolean isOverlapping =
+              newAssignment.getBoardingTime().isBefore(existingAssignment.getDisembarkTime())
+                  && newAssignment.getDisembarkTime().isAfter(existingAssignment.getBoardingTime());
+
+          if (isOverlapping) {
+            overlapErrors.add(
+                new CrewAssignmentBusyException.ConflictAssignment(
+                    employeeCardId,
+                    String.format(
+                        "Crew %s is already assigned between %s and %s",
+                        employeeCardId,
+                        existingAssignment.getBoardingTime().toString(),
+                        existingAssignment.getDisembarkTime().toString()),
+                    existingAssignment.getBoardingTime(),
+                    existingAssignment.getDisembarkTime()));
+          }
+        }
+      }
+    }
+
+    if (!overlapErrors.isEmpty()) {
+      throw new CrewAssignmentBusyException(overlapErrors);
+    }
   }
 
   private void validateShipImoAgainstContracts(ShipSchedule schedule, User authenticatedUser) {
@@ -293,5 +381,18 @@ public class ShipScheduleService implements ShipScheduleUseCase {
         endDate);
     return assignmentRepository.existsEmployeeCardIdAndTimeRangeOverlap(
         employeeCardId, startDate, endDate);
+  }
+
+  @Override
+  public List<ShipScheduleCrewAssignment> findAssignmentsByEmployeeCardIdsAndTimeRangeOverlap(
+      Iterable<String> employeeCardIds, Instant startDate, Instant endDate) {
+
+    log.info(
+        "Finding assignments for employeeCardIds: {}, startDate: {}, endDate: {}",
+        employeeCardIds,
+        startDate,
+        endDate);
+    return assignmentRepository.findByEmployeeCardIdsAndTimeRangeOverlap(
+        employeeCardIds, startDate, endDate);
   }
 }

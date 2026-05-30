@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
@@ -218,5 +219,26 @@ public class ShipScheduleCrewAssignmentRepositoryAdapter
             .gte(startDate);
     Query query = new Query(criteria);
     return mongoTemplate.exists(query, ShipScheduleCrewAssignmentEntity.class);
+  }
+
+  @Override
+  public List<ShipScheduleCrewAssignment> findByEmployeeCardIdsAndTimeRangeOverlap(
+      Iterable<String> employeeCardIds, Instant startTime, Instant endTime) {
+
+    List<String> employeeCardIdsList =
+        StreamSupport.stream(employeeCardIds.spliterator(), false).toList();
+
+    Criteria criteria =
+        Criteria.where("employeeCardId")
+            .in(employeeCardIdsList)
+            .and("boardingTime")
+            .lte(endTime)
+            .and("disembarkTime")
+            .gte(startTime);
+
+    Query query = new Query(criteria);
+    return mongoTemplate.find(query, ShipScheduleCrewAssignmentEntity.class).stream()
+        .map(mapper::toShipScheduleCrewAssignment)
+        .toList();
   }
 }
