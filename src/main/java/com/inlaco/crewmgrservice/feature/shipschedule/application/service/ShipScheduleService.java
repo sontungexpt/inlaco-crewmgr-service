@@ -23,7 +23,6 @@ import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadDispat
 import com.inlaco.crewmgrservice.feature.upload.domain.enums.AssetType;
 import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceNotFoundException;
-import com.inlaco.crewmgrservice.shared.support.ConsoleUtils;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -98,10 +97,6 @@ public class ShipScheduleService implements ShipScheduleUseCase {
     }
 
     List<Contract> contracts = crewSupplyContractRepository.findActiveContractsByShipIMO(imo);
-
-    ConsoleUtils.print(contracts);
-
-    ConsoleUtils.print(user.getId());
 
     boolean authorized =
         contracts.stream()
