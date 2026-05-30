@@ -41,4 +41,7 @@ public interface CrewProfileRepository {
   List<CrewProfile> findAllByEmployeeCardId(Iterable<String> cardIds);
 
   boolean existsAllByEmployeeCardIds(Iterable<String> employeeIds);
+
+  Page<CrewProfile> findMobilizedCrewProfiles(
+      CrewProfileSearchCriteria criteria, Pageable pageable, String id);
 }

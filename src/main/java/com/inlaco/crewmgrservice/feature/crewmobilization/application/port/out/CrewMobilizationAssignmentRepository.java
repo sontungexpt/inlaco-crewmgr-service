@@ -4,6 +4,8 @@ import com.inlaco.crewmgrservice.feature.crewmobilization.domain.model.CrewMobil
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface CrewMobilizationAssignmentRepository {
 
@@ -26,4 +28,9 @@ public interface CrewMobilizationAssignmentRepository {
       Iterable<String> profileIds);
 
   List<CrewMobilizationAssignment> findAllActiveAssignments();
+
+  List<CrewMobilizationAssignment> findAllActiveAssignmentsForClient(String clientId);
+
+  Page<CrewMobilizationAssignment> findAllActiveAssignmentsForClient(
+      String clientId, Pageable pageable);
 }

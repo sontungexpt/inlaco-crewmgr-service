@@ -7,7 +7,7 @@ import java.util.Map;
 public class CompanyException extends ApplicationException {
 
   public CompanyException(CompanyErrorCode errorCode, String message) {
-    super(errorCode, message, Map.of());
+    super(errorCode, message);
   }
 
   public CompanyException(CompanyErrorCode errorCode, String message, Map<String, Object> details) {

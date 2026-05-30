@@ -130,8 +130,18 @@ public class CrewMobilizationQueryService implements CrewMobilizationQueryUseCas
 
   @Override
   public Page<CrewMobilizationAssignment> findAllActiveAssignments(Pageable pageable) {
-
-    // TODO Auto-generated method stub
     throw new UnsupportedOperationException("Unimplemented method 'findAllActiveAssignments'");
+  }
+
+  @Override
+  public List<CrewMobilizationAssignment> findAllActiveAssignmentsForClient(String clientId) {
+    return crewMobilizationAssignmentRepository.findAllActiveAssignmentsForClient(clientId);
+  }
+
+  @Override
+  public Page<CrewMobilizationAssignment> findAllActiveAssignmentsForClient(
+      String clientId, Pageable pageable) {
+    return crewMobilizationAssignmentRepository.findAllActiveAssignmentsForClient(
+        clientId, pageable);
   }
 }

@@ -7,7 +7,7 @@ import java.util.List;
 
 public class CrewAssignmentOverlapException extends ApplicationException {
 
-  public static record ConflictAssignment(
+  public record ConflictAssignment(
       String employeeCardId, String message, Instant startDate, Instant endDate) {}
 
   public CrewAssignmentOverlapException(List<ConflictAssignment> conflicts) {
@@ -15,5 +15,9 @@ public class CrewAssignmentOverlapException extends ApplicationException {
         CrewMobilizationErrorCode.CREW_MOBILIZATION_ASSIGNMENT_OVERLAP_ERROR,
         "Some crews already busy now",
         conflicts);
+  }
+
+  public CrewAssignmentOverlapException(List<ConflictAssignment> conflicts, String message) {
+    super(CrewMobilizationErrorCode.CREW_MOBILIZATION_ASSIGNMENT_OVERLAP_ERROR, message, conflicts);
   }
 }

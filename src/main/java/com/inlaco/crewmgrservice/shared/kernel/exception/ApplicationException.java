@@ -8,26 +8,30 @@ public abstract class ApplicationException extends RuntimeException {
 
   private final ErrorCode errorCode;
   private final String errorCodeStr;
+  private final Object data;
 
   protected ApplicationException(ErrorCode errorCode, String message) {
     super(message);
     this.errorCode = errorCode;
     this.errorCodeStr = null;
+    this.data = null;
   }
 
   protected ApplicationException(ErrorCode errorCode, String message, Object data) {
     super(message);
     this.errorCode = errorCode;
     this.errorCodeStr = null;
+    this.data = data;
   }
 
   protected ApplicationException(String errorCode, String message) {
     super(message);
     this.errorCodeStr = errorCode;
     this.errorCode = null;
+    this.data = null;
   }
 
   public Object getData() {
-    return null;
+    return data;
   }
 }

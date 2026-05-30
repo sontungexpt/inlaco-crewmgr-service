@@ -9,6 +9,7 @@ import com.inlaco.crewmgrservice.feature.crew.application.port.out.CrewProfileRe
 import com.inlaco.crewmgrservice.feature.crew.domain.enums.CrewOperationalStatus;
 import com.inlaco.crewmgrservice.feature.crew.domain.model.ApplyLaborContractCommand;
 import com.inlaco.crewmgrservice.feature.crew.domain.model.CrewProfile;
+import com.inlaco.crewmgrservice.feature.crewmobilization.application.port.in.CrewMobilizationQueryUseCase;
 import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadDispatcher;
 import com.inlaco.crewmgrservice.feature.upload.domain.enums.AssetType;
 import com.inlaco.crewmgrservice.feature.user.domain.model.User;
@@ -44,6 +45,7 @@ public class CrewService implements CrewUseCase {
   private final CrewProfileRepository crewProfileRepository;
   private final CrewIdentityUseCase crewIdentityUseCase;
   private final UploadDispatcher uploadDispatcher;
+  private final CrewMobilizationQueryUseCase crewMobilizationQueryUseCase;
 
   /**
    * Retrieves a crew profile by its unique identifier.
@@ -116,7 +118,14 @@ public class CrewService implements CrewUseCase {
   @Override
   public Page<CrewProfile> getMyMobilizedCrewProfiles(
       CrewProfileSearchCriteria criteria, Pageable pageable, User user) {
-    throw new UnsupportedOperationException("Unimplemented method 'getMyMobilizedCrewProfiles'");
+    CrewProfileRepository.CrewProfileSearchCriteria searchcriteria =
+        CrewProfileRepository.CrewProfileSearchCriteria.builder()
+            .keyword(criteria.keyword())
+            .professionalPosition(criteria.professionalPosition())
+            .official(criteria.official())
+            .workStatus(criteria.workStatus())
+            .build();
+    return crewProfileRepository.findMobilizedCrewProfiles(searchcriteria, pageable, user.getId());
   }
 
   /**
