@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -109,11 +110,26 @@ public class ShipScheduleService implements ShipScheduleUseCase {
     }
 
     if (contracts.isEmpty()) {
+      log.debug("No active contracts found for ship IMO: {}", imo);
       throw new ShipScheduleException(
           ShipScheduleErrorCode.SHIP_NOT_FOUND_IN_ACTIVE_CONTRACTS, "No active contract found");
     }
 
     log.debug("Found {} active contracts for ship IMO: {}", contracts.size(), imo);
+
+    Optional<ShipSchedule> overlapShipSchedules =
+        shipScheduleRepository.findOneByShipImoAndTimeOverlap(
+            imo, schedule.getDepartureTime(), schedule.getArrivalTime());
+
+    if (!overlapShipSchedules.isEmpty()) {
+      log.debug("Found overlap for ship IMO: {}", imo);
+      throw new ShipScheduleException(
+          ShipScheduleErrorCode.SHIP_SCHEDULE_TIME_OVERLAP,
+          "Ship schedule overlaps with existing schedules",
+          overlapShipSchedules.get());
+    }
+
+    log.debug("No overlap found for ship IMO: {}", imo);
   }
 
   private void validateCrewExist(List<String> ids, List<CrewProfile> profiles) {

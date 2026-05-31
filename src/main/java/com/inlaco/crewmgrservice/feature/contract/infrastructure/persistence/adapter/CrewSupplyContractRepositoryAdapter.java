@@ -35,4 +35,18 @@ public class CrewSupplyContractRepositoryAdapter implements CrewSupplyContractRe
     List<ContractEntity> entities = mongoTemplate.find(query, ContractEntity.class);
     return entities.stream().map(mapper::toContract).toList();
   }
+
+  @Override
+  public boolean existsActiveContractsByShipIMO(String shipImoNumber) {
+
+    Query query =
+        Query.query(
+            new Criteria()
+                .andOperator(
+                    Criteria.where("status").is(ContractStatus.ACTIVE),
+                    Criteria.where("type").is(ContractType.SUPPLY_CONTRACT),
+                    Criteria.where("shipInfo.imoNumber").is(shipImoNumber)));
+
+    return mongoTemplate.exists(query, ContractEntity.class);
+  }
 }

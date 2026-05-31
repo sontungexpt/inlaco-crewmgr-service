@@ -21,6 +21,12 @@ public interface ShipScheduleRepository {
 
   List<ShipSchedule> findByShipImo(String shipImo);
 
+  List<ShipSchedule> findByShipImoAndTimeOverlap(
+      String shipImo, Instant startTime, Instant endTime);
+
+  Optional<ShipSchedule> findOneByShipImoAndTimeOverlap(
+      String shipImo, Instant startTime, Instant endTime);
+
   List<ShipSchedule> findByDepartureTimeBetween(Instant startTime, Instant endTime);
 
   List<ShipSchedule> findByStatus(String status);

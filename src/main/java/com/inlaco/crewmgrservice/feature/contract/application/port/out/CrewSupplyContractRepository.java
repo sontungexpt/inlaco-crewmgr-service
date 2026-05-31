@@ -6,4 +6,6 @@ import java.util.List;
 public interface CrewSupplyContractRepository {
 
   List<Contract> findActiveContractsByShipIMO(String shipImoNumber);
+
+  boolean existsActiveContractsByShipIMO(String shipImoNumber);
 }

@@ -30,7 +30,9 @@ public enum ShipScheduleErrorCode implements HttpMappableErrorCode {
 
   // ===================== Permission / business rule =====================
   SCHEDULE_CREATION_FORBIDDEN("SHIP_SCHEDULE_ERR_014", 403),
-  CONTRACT_NOT_ACTIVE_FOR_SHIP("SHIP_SCHEDULE_ERR_015", 400);
+  CONTRACT_NOT_ACTIVE_FOR_SHIP("SHIP_SCHEDULE_ERR_015", 400),
+
+  SHIP_SCHEDULE_TIME_OVERLAP("SHIP_SCHEDULE_ERR_016", 409);
 
   private final String code;
   private final int status;

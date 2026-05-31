@@ -21,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -177,5 +178,44 @@ public class ShipScheduleRepositoryAdapter implements ShipScheduleRepository {
     return new Criteria().andOperator(andCriteria);
   }
 
+  @Override
+  public List<ShipSchedule> findByShipImoAndTimeOverlap(
+      String shipImo, Instant startTime, Instant endTime) {
+
+    Criteria criteria =
+        new Criteria()
+            .andOperator(
+                Criteria.where("shipInfo.imoNumber").is(shipImo),
+                Criteria.where("departureTime").lte(endTime),
+                Criteria.where("arrivalTime").gte(startTime));
+
+    Query query = new Query(criteria);
+
+    return mongoTemplate.find(query, ShipScheduleEntity.class).stream()
+        .map(entityMapper::toDomain)
+        .toList();
+  }
+
   static class ShipScheduleFacetResult extends FacetResult<ShipScheduleEntity> {}
+
+  @Override
+  public Optional<ShipSchedule> findOneByShipImoAndTimeOverlap(
+      String shipImo, Instant startTime, Instant endTime) {
+
+    Criteria criteria =
+        new Criteria()
+            .andOperator(
+                Criteria.where("shipInfo.imoNumber").is(shipImo),
+                Criteria.where("departureTime").lte(endTime),
+                Criteria.where("arrivalTime").gte(startTime));
+
+    Query query = new Query(criteria);
+
+    var found = mongoTemplate.findOne(query, ShipScheduleEntity.class);
+
+    if (found == null) {
+      return Optional.empty();
+    }
+    return Optional.of(entityMapper.toDomain(found));
+  }
 }
