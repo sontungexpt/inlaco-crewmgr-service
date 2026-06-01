@@ -16,6 +16,7 @@ public class AttendanceLogSearchCriteria {
   private String crewAccountId;
   private String keyword;
   private CheckType checkType;
+  private String location;
   private Instant startTime;
   private Instant endTime;
 }

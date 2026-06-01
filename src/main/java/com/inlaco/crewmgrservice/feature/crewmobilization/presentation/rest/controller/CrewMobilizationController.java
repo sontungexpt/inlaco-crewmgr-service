@@ -102,7 +102,8 @@ public class CrewMobilizationController {
     }
 
     boolean isSailor =
-        authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("SAILOR"));
+        authentication.getAuthorities().stream()
+            .anyMatch(a -> a.getAuthority().equals("ROLE_SAILOR"));
     if (isSailor) {
       criteria.setAccountId(user.getId());
     } else {

@@ -5,6 +5,7 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 import com.inlaco.crewmgrservice.feature.shipschedule.application.model.ShipScheduleSearchCriteria;
 import com.inlaco.crewmgrservice.feature.shipschedule.application.port.out.ShipScheduleRepository;
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.model.ShipSchedule;
+import com.inlaco.crewmgrservice.feature.shipschedule.infrastructure.persistence.mongodb.entity.ShipScheduleCrewAssignmentEntity;
 import com.inlaco.crewmgrservice.feature.shipschedule.infrastructure.persistence.mongodb.entity.ShipScheduleEntity;
 import com.inlaco.crewmgrservice.feature.shipschedule.infrastructure.persistence.mongodb.mapper.ShipScheduleEntityMapper;
 import com.inlaco.crewmgrservice.feature.shipschedule.infrastructure.persistence.mongodb.repository.ShipScheduleMongoRepository;
@@ -97,23 +98,49 @@ public class ShipScheduleRepositoryAdapter implements ShipScheduleRepository {
   @Override
   public Page<ShipSchedule> findAll(ShipScheduleSearchCriteria criteria, Pageable pageable) {
 
-    Criteria matchCriteria = buildCriteria(criteria);
+    List<org.springframework.data.mongodb.core.aggregation.AggregationOperation> stages =
+        new ArrayList<>();
 
-    Aggregation aggregation =
-        newAggregation(
-            lookup("ship_schedule_crew_assignments", "_id", "scheduleId", "crewAssignments"),
-            match(matchCriteria),
-            facet(Aggregation.count().as(FacetResult.COUNT_KEY))
-                .as(FacetResult.COUNT_FACET_NAME)
-                .and(
-                    sort(pageable.getSort()),
-                    skip(pageable.getOffset()),
-                    limit(pageable.getPageSize()))
-                .as(FacetResult.DATA_FACET_NAME));
+    // 1. Tách và build các điều kiện lọc thuộc bảng ShipScheduleEntity gốc
+    Criteria scheduleCriteria = buildScheduleCriteria(criteria);
+    stages.add(match(scheduleCriteria));
+
+    // 2. Kiểm tra xem có cần tìm theo Crew Account Id hay không
+    boolean hasCrewFilter =
+        criteria != null
+            && criteria.getCrewAccountId() != null
+            && !criteria.getCrewAccountId().isBlank();
+
+    if (hasCrewFilter) {
+      // CHỈ thực hiện lookup khi thực sự cần lọc theo Crew
+      stages.add(
+          lookup(
+              mongoTemplate.getCollectionName(ShipScheduleCrewAssignmentEntity.class),
+              "_id",
+              "scheduleId",
+              "crewAssignments"));
+
+      // Lọc chính xác bản ghi sau khi đã join mảng
+      stages.add(
+          match(
+              Criteria.where("crewAssignments.accountId")
+                  .is(new ObjectId(criteria.getCrewAccountId()))));
+    }
+
+    // 3. Công đoạn Facet phân trang cuối cùng (Luôn luôn có)
+    stages.add(
+        facet(Aggregation.count().as(FacetResult.COUNT_KEY))
+            .as(FacetResult.COUNT_FACET_NAME)
+            .and(
+                sort(pageable.getSort()), skip(pageable.getOffset()), limit(pageable.getPageSize()))
+            .as(FacetResult.DATA_FACET_NAME));
+
+    // Tạo Aggregation từ danh sách các stage động
+    Aggregation aggregation = newAggregation(stages);
 
     ShipScheduleFacetResult result =
         mongoTemplate
-            .aggregate(aggregation, "ship_schedules", ShipScheduleFacetResult.class)
+            .aggregate(aggregation, ShipScheduleEntity.class, ShipScheduleFacetResult.class)
             .getUniqueMappedResult();
 
     if (result == null) {
@@ -123,18 +150,11 @@ public class ShipScheduleRepositoryAdapter implements ShipScheduleRepository {
     return result.toPage(pageable).map(entityMapper::toDomain);
   }
 
-  private Criteria buildCriteria(ShipScheduleSearchCriteria criteria) {
-
+  private Criteria buildScheduleCriteria(ShipScheduleSearchCriteria criteria) {
     List<Criteria> andCriteria = new ArrayList<>();
 
     if (criteria == null) {
       return new Criteria();
-    }
-
-    if (criteria.getCrewAccountId() != null && !criteria.getCrewAccountId().isBlank()) {
-      andCriteria.add(
-          Criteria.where("crewAssignments.accountId")
-              .is(new ObjectId(criteria.getCrewAccountId())));
     }
 
     if (criteria.getVesselOwnerId() != null && !criteria.getVesselOwnerId().isBlank()) {
@@ -146,7 +166,6 @@ public class ShipScheduleRepositoryAdapter implements ShipScheduleRepository {
     }
 
     if (criteria.getStatus() != null) {
-
       andCriteria.add(Criteria.where("status").is(criteria.getStatus()));
     }
 
