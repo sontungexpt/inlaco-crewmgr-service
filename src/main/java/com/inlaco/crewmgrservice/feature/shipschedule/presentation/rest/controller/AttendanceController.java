@@ -42,7 +42,7 @@ public class AttendanceController {
   @Operation(
       summary = "Generate a QR code for check-in",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
-  @RolesAllowed("ADMIN")
+  @RolesAllowed({"ADMIN", "USER"})
   public AttendanceQRCodeResponse generateCheckInQRCode(
       @RequestParam CheckType checkType,
       @PathVariable String shipScheduleId,
