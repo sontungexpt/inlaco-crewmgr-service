@@ -22,19 +22,22 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class AttendanceQRCodeService implements AttendanceQRCodeUseCase {
 
+  private static final double MAX_DISTANCE_METERS = 100;
+
   private final AttendanceLogRepository attendanceLogRepository;
   private final ShipScheduleCrewAssignmentRepository assignmentRepository;
   private final AttendanceQrTokenService qrTokenService;
 
   @Override
   public AttendanceQRCode generateQRCode(
-      String shipScheduleId, CheckType checkType, String userId) {
+      String shipScheduleId, CheckType checkType, String location, String userId) {
 
     AttendanceQrClaims claims =
         AttendanceQrClaims.builder()
             .shipScheduleId(shipScheduleId)
             .checkType(checkType)
             .method(AttendanceMethod.QR_CODE)
+            .location(location)
             .generatedBy(userId)
             .generatedAt(Instant.now())
             .build();
@@ -49,6 +52,16 @@ public class AttendanceQRCodeService implements AttendanceQRCodeUseCase {
   public AttendanceLog verifyQR(QrVerifyCommand command, String userId) {
 
     AttendanceQrClaims claims = qrTokenService.parse(command.getToken());
+
+    String location = claims.getLocation();
+
+    if (location != null
+        && !location.isBlank()
+        && command.getLocation() != null
+        && !command.getLocation().isBlank()) {
+
+      validateLocation(claims.getLocation(), command.getLocation());
+    }
 
     CheckType expectedType = claims.getCheckType();
     String shipScheduleId = claims.getShipScheduleId();
@@ -101,6 +114,57 @@ public class AttendanceQRCodeService implements AttendanceQRCodeUseCase {
           AttendanceErrorCode.ATTENDANCE_DEVICE_ALREADY_USED,
           "Device is already being used by another user");
     }
+  }
+
+  private void validateLocation(String expectedLocation, String actualLocation) {
+
+    try {
+
+      String[] expected = expectedLocation.split(",");
+      String[] actual = actualLocation.split(",");
+
+      double expectedLat = Double.parseDouble(expected[0]);
+      double expectedLng = Double.parseDouble(expected[1]);
+
+      double actualLat = Double.parseDouble(actual[0]);
+      double actualLng = Double.parseDouble(actual[1]);
+
+      double accuracy = actual.length >= 3 ? Double.parseDouble(actual[2]) : 0;
+
+      double distance = calculateDistanceMeters(expectedLat, expectedLng, actualLat, actualLng);
+
+      double allowedDistance = Math.max(MAX_DISTANCE_METERS, accuracy * 2);
+
+      if (distance > allowedDistance) {
+        throw new AttendanceQRCodeException(
+            AttendanceErrorCode.ATTENDANCE_INVALID_LOCATION,
+            "You are too far from attendance location");
+      }
+
+    } catch (Exception e) {
+
+      throw new AttendanceQRCodeException(
+          AttendanceErrorCode.ATTENDANCE_INVALID_LOCATION, "Invalid location data");
+    }
+  }
+
+  private double calculateDistanceMeters(double lat1, double lon1, double lat2, double lon2) {
+
+    final int EARTH_RADIUS = 6371000;
+
+    double latDistance = Math.toRadians(lat2 - lat1);
+    double lonDistance = Math.toRadians(lon2 - lon1);
+
+    double a =
+        Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+            + Math.cos(Math.toRadians(lat1))
+                * Math.cos(Math.toRadians(lat2))
+                * Math.sin(lonDistance / 2)
+                * Math.sin(lonDistance / 2);
+
+    double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    return EARTH_RADIUS * c;
   }
 
   private void validateAttendanceState(

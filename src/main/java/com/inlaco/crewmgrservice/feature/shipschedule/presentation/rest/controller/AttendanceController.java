@@ -45,6 +45,7 @@ public class AttendanceController {
   @RolesAllowed({"ADMIN", "USER"})
   public AttendanceQRCodeResponse generateCheckInQRCode(
       @RequestParam CheckType checkType,
+      @RequestParam(defaultValue = "") String location,
       @PathVariable String shipScheduleId,
       @RequestParam(defaultValue = "QR_CODE") AttendanceMethod method,
       @CurrentUser User authenticatedUser) {
@@ -52,7 +53,8 @@ public class AttendanceController {
     switch (method) {
       case QR_CODE:
         return mapper.toAttendanceQRCodeResponse(
-            qrCodeUseCase.generateQRCode(shipScheduleId, checkType, authenticatedUser.getId()));
+            qrCodeUseCase.generateQRCode(
+                shipScheduleId, checkType, location, authenticatedUser.getId()));
 
       default:
         throw new IllegalArgumentException("Unsupported method: " + method);

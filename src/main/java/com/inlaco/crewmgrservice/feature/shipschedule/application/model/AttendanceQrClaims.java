@@ -23,5 +23,7 @@ public class AttendanceQrClaims {
 
   private String generatedBy;
 
+  private String location;
+
   @Default private Instant generatedAt = Instant.now();
 }
