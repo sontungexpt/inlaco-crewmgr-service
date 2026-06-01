@@ -199,6 +199,9 @@ inlaco:
       sailor-schedule:
         subject: Inlaco Work Schedule Notification
         path: mail/schedule/sailor-work-notification.html
+      partner-mobilization:
+        subject: Inlaco Work Schedule Notification
+        path: mail/schedule/partner-mobilization-notification.html
       ship-schedule:
         subject: Inlaco Ship Schedule Notification
         path: mail/schedule/ship-schedule-notification.html

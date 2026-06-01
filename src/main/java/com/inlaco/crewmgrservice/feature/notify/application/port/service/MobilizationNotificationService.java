@@ -42,6 +42,12 @@ public class MobilizationNotificationService implements MobilizationNotification
   @Value("${inlaco.template.email.sailor-schedule.subject}")
   private String EMAIL_SUBJECT;
 
+  @Value("${inlaco.template.email.partner-mobilization.path}")
+  private String PARTNER_TEMPLATE_PATH;
+
+  @Value("${inlaco.template.email.partner-mobilization.subject}")
+  private String PARTNER_EMAIL_SUBJECT;
+
   private static String TITLE = "Lịch điều động";
 
   private static String MESSAGE = "Bạn có lịch điều động mới. Vui lồng kiểm tra lịch điều động";
@@ -75,7 +81,8 @@ public class MobilizationNotificationService implements MobilizationNotification
 
     notificationRepository.saveAll(notifications);
 
-    sendEmail(profiles, mobilization);
+    sendEmailToCrew(profiles, mobilization);
+    sendEmailToPartners(List.of(mobilization.getPartnerEmail()), mobilization);
 
     sendWebSocketNotification(notifications, mobilization.getId());
 
@@ -128,7 +135,27 @@ public class MobilizationNotificationService implements MobilizationNotification
     log.info("Expo push notification dispatched to {} tokens", tokens.size());
   }
 
-  private void sendEmail(List<CrewProfile> profiles, CrewMobilization schedule) {
+  private void sendEmailToPartners(List<String> partnerEmails, CrewMobilization mobilization) {
+    partnerEmails.forEach(
+        email -> {
+          if (email == null || email.isBlank()) {
+            log.warn("Partner email is null or blank");
+            return;
+          }
+
+          log.debug(
+              "Sending schedule notification email to partner [email={}, scheduleId={}]",
+              email,
+              mobilization.getId());
+
+          notificationDispatcher.sendNotificationAsync(
+              EmailRequest.html(
+                      email, buildPartnerMobilizationEmailContent(mobilization), EMAIL_SUBJECT)
+                  .build());
+        });
+  }
+
+  private void sendEmailToCrew(List<CrewProfile> profiles, CrewMobilization schedule) {
     profiles.forEach(
         profile -> {
           if (profile.getEmail() == null || profile.getEmail().isBlank()) {
@@ -147,6 +174,18 @@ public class MobilizationNotificationService implements MobilizationNotification
                       profile.getEmail(), buildEmailContent(profile, schedule), EMAIL_SUBJECT)
                   .build());
         });
+  }
+
+  private String buildPartnerMobilizationEmailContent(CrewMobilization schedule) {
+    Context context = new Context();
+
+    context.setVariable("recipient_name", "Đối tác");
+    context.setVariable("company_name", "INLACO");
+    context.setVariable("start_date", schedule.getStartDate().toString());
+    context.setVariable("estimated_end_date", schedule.getEndDate().toString());
+    context.setVariable("home_page_link", CLIENT_HOME_PAGE_LINK);
+
+    return templateEngine.process("partner-schedule-notification", context);
   }
 
   private String buildEmailContent(CrewProfile profile, CrewMobilization schedule) {
