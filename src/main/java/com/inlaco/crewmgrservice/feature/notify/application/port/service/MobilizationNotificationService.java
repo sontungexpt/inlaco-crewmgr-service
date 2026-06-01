@@ -14,6 +14,7 @@ import com.inlaco.crewmgrservice.feature.notify.sender.NotificationDispatcher;
 import com.inlaco.crewmgrservice.feature.notify.sender.email.EmailRequest;
 import com.inlaco.crewmgrservice.feature.notify.sender.pushnotification.ExpoNotificationRequest;
 import com.inlaco.crewmgrservice.feature.notify.sender.websocket.WebSocketNotificationRequest;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -52,6 +53,10 @@ public class MobilizationNotificationService implements MobilizationNotification
 
   private static String MESSAGE = "Bạn có lịch điều động mới. Vui lồng kiểm tra lịch điều động";
 
+  private static final String PARTNER_TITLE = "Thông báo điều động nhân sự";
+  private static final String PARTNER_MESSAGE =
+      "Công ty inlaco đã điều động một số thuyền viên cho bạn";
+
   @Override
   public void notifyUsers(CrewMobilization mobilization, List<CrewProfile> profiles) {
     log.debug("Handling schedule notification [id={}]", mobilization.getId());
@@ -66,18 +71,31 @@ public class MobilizationNotificationService implements MobilizationNotification
         profiles.size(),
         mobilization.getId());
 
-    List<Notification> notifications =
-        profiles.stream()
-            .map(
-                profile ->
-                    Notification.builder()
-                        .title(TITLE)
-                        .recipientId(profile.getAccountId())
-                        .message(MESSAGE)
-                        .type(NotificationType.NEW_MOBILIZATION_SCHEDULE)
-                        .payload(new NewCrewMobilizationNotificationPayload(mobilization.getId()))
-                        .build())
-            .toList();
+    List<Notification> notifications = new ArrayList<>();
+
+    for (CrewProfile profile : profiles) {
+      Notification notification =
+          Notification.builder()
+              .title(TITLE)
+              .recipientId(profile.getAccountId())
+              .message(MESSAGE)
+              .type(NotificationType.NEW_MOBILIZATION_SCHEDULE)
+              .payload(new NewCrewMobilizationNotificationPayload(mobilization.getId()))
+              .build();
+
+      notifications.add(notification);
+    }
+
+    Notification partnerNotification =
+        Notification.builder()
+            .title(PARTNER_TITLE)
+            .recipientId(mobilization.getPartnerAccountId())
+            .message(PARTNER_MESSAGE)
+            .type(NotificationType.NEW_MOBILIZATION_SCHEDULE)
+            .payload(new NewCrewMobilizationNotificationPayload(mobilization.getId()))
+            .build();
+
+    notifications.add(partnerNotification);
 
     notificationRepository.saveAll(notifications);
 
@@ -101,6 +119,7 @@ public class MobilizationNotificationService implements MobilizationNotification
   }
 
   private void sendPushNotification(List<CrewProfile> profiles, String scheduleId) {
+    log.info("Sending Expo push notification for schedule {}", scheduleId);
     // Collect all device tokens for the target users
     List<DeviceToken> tokens =
         profiles.stream()
@@ -136,6 +155,8 @@ public class MobilizationNotificationService implements MobilizationNotification
   }
 
   private void sendEmailToPartners(List<String> partnerEmails, CrewMobilization mobilization) {
+    log.debug("Sending schedule notification email to partners {}", partnerEmails);
+
     partnerEmails.forEach(
         email -> {
           if (email == null || email.isBlank()) {
@@ -150,7 +171,9 @@ public class MobilizationNotificationService implements MobilizationNotification
 
           notificationDispatcher.sendNotificationAsync(
               EmailRequest.html(
-                      email, buildPartnerMobilizationEmailContent(mobilization), EMAIL_SUBJECT)
+                      email,
+                      buildPartnerMobilizationEmailContent(mobilization),
+                      PARTNER_EMAIL_SUBJECT)
                   .build());
         });
   }
@@ -179,13 +202,13 @@ public class MobilizationNotificationService implements MobilizationNotification
   private String buildPartnerMobilizationEmailContent(CrewMobilization schedule) {
     Context context = new Context();
 
-    context.setVariable("recipient_name", "Đối tác");
+    context.setVariable("recipient_name", schedule.getPartnerName());
     context.setVariable("company_name", "INLACO");
     context.setVariable("start_date", schedule.getStartDate().toString());
     context.setVariable("estimated_end_date", schedule.getEndDate().toString());
     context.setVariable("home_page_link", CLIENT_HOME_PAGE_LINK);
 
-    return templateEngine.process("partner-schedule-notification", context);
+    return templateEngine.process(PARTNER_TEMPLATE_PATH, context);
   }
 
   private String buildEmailContent(CrewProfile profile, CrewMobilization schedule) {

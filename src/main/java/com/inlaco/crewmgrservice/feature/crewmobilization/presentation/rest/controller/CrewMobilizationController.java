@@ -79,8 +79,8 @@ public class CrewMobilizationController {
       summary = "Find schedule detail by id",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   @GetMapping("/{id}")
-  @RolesAllowed({"ADMIN", "SAILOR"})
-  public CrewMobilizationResponse getScheduleDetail(@ObjectId @PathVariable("id") String id) {
+  @RolesAllowed({"ADMIN", "SAILOR", "USER"})
+  public CrewMobilizationResponse getMobilizationDetail(@ObjectId @PathVariable("id") String id) {
     return mapper.toCrewMobilizationResponse(
         crewMobilizationScheduleQueryUseCase.findDetailMobilization(id));
   }
@@ -89,10 +89,10 @@ public class CrewMobilizationController {
       summary = "Find schedules of the current logged-in sailor (paginated)",
       description = "Fetch schedules that include the current user's crew cardId",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
-  @RolesAllowed("SAILOR")
+  @RolesAllowed({"SAILOR", "USER"})
   @PageableQueryParams
   @GetMapping("/mine")
-  public Page<CrewMobilizationResponse> getMySchedules(
+  public Page<CrewMobilizationResponse> getMyMobilizations(
       @Filter CrewMobilizationSearchCriteria criteria,
       @CurrentUser User user,
       Authentication authentication,

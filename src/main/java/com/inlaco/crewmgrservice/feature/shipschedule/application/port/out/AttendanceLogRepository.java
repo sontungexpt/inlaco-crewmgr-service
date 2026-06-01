@@ -1,5 +1,6 @@
 package com.inlaco.crewmgrservice.feature.shipschedule.application.port.out;
 
+import com.inlaco.crewmgrservice.feature.shipschedule.application.model.AttendanceLogSearchCriteria;
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.model.AttendanceLog;
 import java.time.Instant;
 import java.util.List;
@@ -32,6 +33,8 @@ public interface AttendanceLogRepository {
       String shipScheduleId, Instant startTime, Instant endTime);
 
   Page<AttendanceLog> findAll(Pageable pageable);
+
+  Page<AttendanceLog> findAll(AttendanceLogSearchCriteria criteria, Pageable pageable);
 
   void deleteById(String id);
 

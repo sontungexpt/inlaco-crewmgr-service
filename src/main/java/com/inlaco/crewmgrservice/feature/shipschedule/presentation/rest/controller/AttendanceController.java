@@ -1,6 +1,8 @@
 package com.inlaco.crewmgrservice.feature.shipschedule.presentation.rest.controller;
 
+import com.inlaco.crewmgrservice.feature.shipschedule.application.model.AttendanceLogSearchCriteria;
 import com.inlaco.crewmgrservice.feature.shipschedule.application.model.QrVerifyCommand;
+import com.inlaco.crewmgrservice.feature.shipschedule.application.port.in.AttendanceLogUseCase;
 import com.inlaco.crewmgrservice.feature.shipschedule.application.port.in.AttendanceQRCodeUseCase;
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.enums.AttendanceMethod;
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.enums.CheckType;
@@ -12,12 +14,16 @@ import com.inlaco.crewmgrservice.feature.shipschedule.presentation.mapper.Attend
 import com.inlaco.crewmgrservice.feature.user.domain.model.User;
 import com.inlaco.crewmgrservice.infrastructure.config.openapi.OpenApiConfig;
 import com.inlaco.crewmgrservice.infrastructure.web.annotation.CurrentUser;
+import com.inlaco.crewmgrservice.infrastructure.web.annotation.Filter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -30,6 +36,7 @@ public class AttendanceController {
 
   private final AttendanceQRCodeUseCase qrCodeUseCase;
   private final AttendanceMapper mapper;
+  private final AttendanceLogUseCase logUseCase;
 
   @GetMapping("/{shipScheduleId}")
   @Operation(
@@ -50,6 +57,21 @@ public class AttendanceController {
       default:
         throw new IllegalArgumentException("Unsupported method: " + method);
     }
+  }
+
+  @Operation(
+      summary = "Get all logs for a ship schedule",
+      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
+  @GetMapping("/{shipScheduleId}/logs")
+  public Page<AttendanceLogResponse> getLogs(
+      @Filter AttendanceLogSearchCriteria criteria,
+      @PathVariable String shipScheduleId,
+      @PageableDefault(page = 0, size = 10) Pageable pageable) {
+    if (criteria == null) {
+      criteria = new AttendanceLogSearchCriteria();
+    }
+    criteria.setShipScheduleId(shipScheduleId);
+    return logUseCase.getLogs(criteria, pageable).map(mapper::toAttendanceLogResponse);
   }
 
   @PostMapping("/verify")

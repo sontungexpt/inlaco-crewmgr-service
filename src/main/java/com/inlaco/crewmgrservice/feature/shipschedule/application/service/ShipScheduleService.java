@@ -13,9 +13,10 @@ import com.inlaco.crewmgrservice.feature.shipschedule.application.model.ShipSche
 import com.inlaco.crewmgrservice.feature.shipschedule.application.port.in.ShipScheduleUseCase;
 import com.inlaco.crewmgrservice.feature.shipschedule.application.port.out.ShipScheduleCrewAssignmentRepository;
 import com.inlaco.crewmgrservice.feature.shipschedule.application.port.out.ShipScheduleRepository;
-import com.inlaco.crewmgrservice.feature.shipschedule.application.service.CrewAssignmentBusyException.ConflictAssignment;
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.error.ShipScheduleErrorCode;
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.event.ShipScheduleCreatedEvent;
+import com.inlaco.crewmgrservice.feature.shipschedule.domain.exception.CrewAssignmentBusyException;
+import com.inlaco.crewmgrservice.feature.shipschedule.domain.exception.CrewAssignmentBusyException.ConflictAssignment;
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.exception.ShipScheduleException;
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.model.ShipSchedule;
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.model.ShipScheduleCrewAssignment;
