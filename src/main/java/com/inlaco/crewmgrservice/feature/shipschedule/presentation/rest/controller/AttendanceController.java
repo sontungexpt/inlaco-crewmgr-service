@@ -17,7 +17,9 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -72,5 +74,25 @@ public class AttendanceController {
       default:
         throw new IllegalArgumentException("Unsupported method: " + request.getType());
     }
+  }
+
+  @GetMapping("/{shipScheduleId}/logs")
+  @Operation(
+      summary = "Get attendance history by ship schedule",
+      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
+  @RolesAllowed({"ADMIN", "USER", "SAILOR"})
+  public List<AttendanceLogResponse> getAttendanceHistory(
+      @PathVariable String shipScheduleId,
+      @CurrentUser User user,
+      Authentication authentication) {
+    boolean isAdmin =
+        authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ADMIN"));
+    boolean isSailor =
+        authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("SAILOR"));
+
+    return qrCodeUseCase.getAttendanceHistory(shipScheduleId, user.getId(), isAdmin, isSailor)
+        .stream()
+        .map(mapper::toAttendanceLogResponse)
+        .toList();
   }
 }

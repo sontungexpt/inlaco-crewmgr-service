@@ -2,12 +2,12 @@ package com.inlaco.crewmgrservice.infrastructure.web.advice;
 
 import com.inlaco.crewmgrservice.infrastructure.security.jwt.exception.JwtTokenException;
 import jakarta.servlet.http.HttpServletRequest;
-import java.nio.file.AccessDeniedException;
 import javax.security.auth.login.AccountExpiredException;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;

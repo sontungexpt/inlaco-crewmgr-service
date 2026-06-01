@@ -4,6 +4,7 @@ import com.inlaco.crewmgrservice.feature.shipschedule.application.model.Attendan
 import com.inlaco.crewmgrservice.feature.shipschedule.application.model.QrVerifyCommand;
 import com.inlaco.crewmgrservice.feature.shipschedule.application.port.in.AttendanceQRCodeUseCase;
 import com.inlaco.crewmgrservice.feature.shipschedule.application.port.out.AttendanceLogRepository;
+import com.inlaco.crewmgrservice.feature.shipschedule.application.port.out.ShipScheduleRepository;
 import com.inlaco.crewmgrservice.feature.shipschedule.application.port.out.ShipScheduleCrewAssignmentRepository;
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.enums.AttendanceMethod;
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.enums.CheckType;
@@ -11,9 +12,14 @@ import com.inlaco.crewmgrservice.feature.shipschedule.domain.error.AttendanceErr
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.exception.AttendanceQRCodeException;
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.model.AttendanceLog;
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.model.AttendanceQRCode;
+import com.inlaco.crewmgrservice.feature.shipschedule.domain.model.ShipSchedule;
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.model.ShipScheduleCrewAssignment;
+import com.inlaco.crewmgrservice.shared.kernel.exception.ResourceNotFoundException;
 import java.time.Instant;
+import java.util.Comparator;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AttendanceQRCodeService implements AttendanceQRCodeUseCase {
 
   private final AttendanceLogRepository attendanceLogRepository;
+  private final ShipScheduleRepository shipScheduleRepository;
   private final ShipScheduleCrewAssignmentRepository assignmentRepository;
   private final AttendanceQrTokenService qrTokenService;
 
@@ -86,6 +93,35 @@ public class AttendanceQRCodeService implements AttendanceQRCodeUseCase {
     return attendanceLogRepository.save(log);
   }
 
+  @Override
+  @Transactional(readOnly = true)
+  public List<AttendanceLog> getAttendanceHistory(
+      String shipScheduleId, String userId, boolean isAdmin, boolean isSailor) {
+    if (isAdmin) {
+      return sortNewestFirst(attendanceLogRepository.findByShipScheduleId(shipScheduleId));
+    }
+
+    ShipSchedule shipSchedule = getSchedule(shipScheduleId);
+
+    if (isSailor) {
+      assignmentRepository
+          .findByAccountIdAndScheduleId(userId, shipScheduleId)
+          .orElseThrow(
+              () ->
+                  new AccessDeniedException(
+                      "You are not assigned to this ship schedule"));
+
+      return sortNewestFirst(
+          attendanceLogRepository.findByCrewIdAndShipScheduleId(userId, shipScheduleId));
+    }
+
+    if (!userId.equals(shipSchedule.getVesselOwnerId())) {
+      throw new AccessDeniedException("You are not allowed to view this attendance history");
+    }
+
+    return sortNewestFirst(attendanceLogRepository.findByShipScheduleId(shipScheduleId));
+  }
+
   private void validateDeviceUsage(String shipScheduleId, String deviceId, String currentUserId) {
     if (deviceId == null || deviceId.trim().isEmpty()) {
       return;
@@ -129,5 +165,15 @@ public class AttendanceQRCodeService implements AttendanceQRCodeUseCase {
       throw new AttendanceQRCodeException(
           AttendanceErrorCode.ATTENDANCE_ALREADY_CHECKED_OUT, "Crew already checked out");
     }
+  }
+
+  private ShipSchedule getSchedule(String shipScheduleId) {
+    return shipScheduleRepository
+        .findById(shipScheduleId)
+        .orElseThrow(() -> new ResourceNotFoundException(ShipSchedule.class, "id", shipScheduleId));
+  }
+
+  private List<AttendanceLog> sortNewestFirst(List<AttendanceLog> logs) {
+    return logs.stream().sorted(Comparator.comparing(AttendanceLog::getTimestamp).reversed()).toList();
   }
 }
