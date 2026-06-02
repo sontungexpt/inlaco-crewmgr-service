@@ -10,6 +10,7 @@ import com.inlaco.crewmgrservice.feature.crewrental.infrastructure.persistence.m
 import com.inlaco.crewmgrservice.feature.crewrental.infrastructure.persistence.mongodb.repository.CrewRentalRequestMongoRepository;
 import com.inlaco.crewmgrservice.infrastructure.persistence.mongodb.aggregation.FacetResult;
 import com.inlaco.crewmgrservice.shared.constant.PhoneNumberRegexp;
+import com.inlaco.crewmgrservice.shared.support.ConsoleUtils;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,7 +46,7 @@ public class CrewRentalRequestRepositoryAdapter implements CrewRentalRequestRepo
     var query = new Criteria();
 
     if (criteria != null) {
-      String keyword = criteria.keyword();
+      String keyword = criteria.getKeyword();
       if (StringUtils.hasText(keyword)) {
         if (PhoneNumberRegexp.ITU_T_E_164.isValid(keyword)) {
           query.and("companyPhone").regex(keyword, "i");
@@ -55,8 +56,13 @@ public class CrewRentalRequestRepositoryAdapter implements CrewRentalRequestRepo
         query.and("shipInfo.name").regex(keyword, "i");
       }
 
-      if (criteria.status() != null) {
-        query.and("status").is(criteria.status());
+      ConsoleUtils.print("criteria.getAccountId(): " + criteria.getAccountId());
+      if (criteria.getAccountId() != null && !criteria.getAccountId().isEmpty()) {
+        query.and("accountId").is(criteria.getAccountId());
+      }
+
+      if (criteria.getStatus() != null) {
+        query.and("status").is(criteria.getStatus());
       }
     }
 

@@ -8,25 +8,49 @@ This document provides an overview of the Labor Contract-related API endpoints i
 - **URL**: `/api/v1/contracts/labors/{applicationId}`
 - **Method**: `POST`
 - **Description**: Creates a new labor contract for a sailor.
+- **Security**: Requires Bearer token authentication and ADMIN role
 - **Headers**:
   - `Authorization`: Bearer `<accessToken>`
+- **Path Parameters**:
+  - `applicationId`: The application ID
 - **Request Body**:
   ```json
   {
-    "field1": "value1",
-    "field2": "value2",
-    "contractFile": "fileAssetId",
-    "attachments": ["attachment1", "attachment2"]
+    "type": "LABOR_CONTRACT",
+    "title": "string",
+    "initiator": {
+      "id": "string",
+      "name": "string",
+      "type": "COMPANY|SAILOR"
+    },
+    "partners": [
+      {
+        "id": "string",
+        "name": "string",
+        "type": "COMPANY|SAILOR"
+      }
+    ],
+    "contractFile": "assetId",
+    "attachments": ["assetId1", "assetId2"],
+    "customAttributes": [
+      {
+        "key": "string",
+        "value": "string"
+      }
+    ],
+    "activationDate": "2023-05-05T12:00:00Z",
+    "expiredDate": "2023-06-05T12:00:00Z",
+    "contractFreezeDelayMinutes": 5,
+    "position": "string",
+    "workingLocation": "string",
+    "basicSalary": "string",
+    "allowance": "string",
+    "receiveMethod": "string",
+    "payday": "string",
+    "salaryReviewPeriod": "string"
   }
   ```
-- **Response**:
-  ```json
-  {
-    "id": "string",
-    "field1": "value1",
-    "field2": "value2"
-  }
-  ```
+- **Response**: Same as Contract Response in contract_endpoints.md
 - **Usage**:
   Send a `POST` request with the application ID and the required fields in the body to create a new labor contract.
 

@@ -27,4 +27,7 @@ public interface CrewUseCase {
   CrewProfile adminUpdateProfile(String id, UpdateCrewProfileAdminCommand command, User user);
 
   CrewProfile crewUpdateProfile(String id, UpdateCrewProfileCrewCommand command, User user);
+
+  Page<CrewProfile> getMyMobilizedCrewProfiles(
+      CrewProfileSearchCriteria criteria, Pageable pageable, User user);
 }

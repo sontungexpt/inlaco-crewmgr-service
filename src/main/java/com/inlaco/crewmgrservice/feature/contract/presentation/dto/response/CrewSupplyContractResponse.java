@@ -13,8 +13,6 @@ public class CrewSupplyContractResponse extends ContractResponse {
     super(ContractType.SUPPLY_CONTRACT);
   }
 
-  private int numOfCrews;
-
   private String crewRentalRequestId;
 
   private ShipInfoResponse shipInfo;

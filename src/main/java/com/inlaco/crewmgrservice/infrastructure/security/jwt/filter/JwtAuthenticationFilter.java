@@ -40,6 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   @Override
   protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
     boolean fullyPublic = publicEndpointResolver.isFullyPublic(request);
+
     log.info("[JWT] Checking if request should be filtered: fullyPublic={}", fullyPublic);
     return fullyPublic;
   }
@@ -53,11 +54,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       Authentication existingAuth = SecurityContextHolder.getContext().getAuthentication();
       // Already authenticated
       if (existingAuth != null && !isAnonymous(existingAuth)) {
-        log.debug(
-            "[JWT] User already authenticated, skipping filter for request: {}",
-            request.getRequestURI());
         log.info(
-            "[JWT] Authentication successful, proceeding with filter chain for request: {}",
+            "[JWT] User already authenticated, skipping filter for request: {}",
             request.getRequestURI());
         filterChain.doFilter(request, response);
         return;
@@ -66,7 +64,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       HttpHeaderUtils.extractBearerToken(request).ifPresent(token -> authenticate(token, request));
       filterChain.doFilter(request, response);
     } catch (JwtTokenException ex) {
-      log.error(
+      log.warn(
           "[JWT] Authentication failed for request: {}. Error: {}",
           request.getRequestURI(),
           ex.getMessage());

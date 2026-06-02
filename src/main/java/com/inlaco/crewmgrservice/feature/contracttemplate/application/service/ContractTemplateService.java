@@ -1,5 +1,6 @@
 package com.inlaco.crewmgrservice.feature.contracttemplate.application.service;
 
+import com.inlaco.crewmgrservice.feature.contracttemplate.application.model.ContractTemplateSearchCriteria;
 import com.inlaco.crewmgrservice.feature.contracttemplate.application.port.in.ContractTemplateUseCase;
 import com.inlaco.crewmgrservice.feature.contracttemplate.application.port.out.ContractTemplateRepository;
 import com.inlaco.crewmgrservice.feature.contracttemplate.domain.model.ContractTemplate;
@@ -41,6 +42,12 @@ public class ContractTemplateService implements ContractTemplateUseCase {
     }
     log.debug("Fetching all contract templates");
     return contractTemplateRepository.findAll(pageable);
+  }
+
+  @Override
+  public Page<ContractTemplate> getAllTemplates(
+      @Nullable ContractTemplateSearchCriteria criteria, Pageable pageable) {
+    return contractTemplateRepository.findAll(criteria, pageable);
   }
 
   @Override

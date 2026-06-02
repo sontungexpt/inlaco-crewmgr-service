@@ -76,9 +76,28 @@ public class CrewRentalRequestController {
   }
 
   @Operation(
+      summary = "Find my requests",
+      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
+  @RolesAllowed("USER")
+  @GetMapping("/me")
+  public Page<CrewRentalRequestResponse> getMyRequests(
+      @Filter CrewRentalRequestSearchCriteria criteria,
+      @CurrentUser User user,
+      @PageableDefault(page = 0, size = 20) Pageable pageable) {
+    if (criteria == null) {
+      criteria = new CrewRentalRequestSearchCriteria();
+    }
+    criteria.setAccountId(user.getId());
+    return crewRentalRequestUseCase
+        .getRequests(criteria, pageable)
+        .map(crewRentalRequestMapper::toCrewRentalRequestResponse);
+  }
+
+  @Operation(
       summary = "Find a request by id",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
-  @RolesAllowed("ADMIN")
+  // WARN: Hack role here but did not really check the role
+  @RolesAllowed({"ADMIN", "USER"})
   @GetMapping("/{id}")
   public CrewRentalRequestResponse getCrewRentalRequest(@PathVariable("id") @ObjectId String id) {
     return crewRentalRequestMapper.toCrewRentalRequestResponse(

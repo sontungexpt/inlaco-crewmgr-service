@@ -30,12 +30,81 @@ websocket:
   endpoint: ${WEB_SOCKET_ENDPOINT:/ws}
   allowed-origins: ${WEB_SOCKET_ALLOWED_ORIGINS:${security.allowed-cors-origins}}
 
-auth:
+token:
   access-token:
-    secret-key: ${JWT_SECRET_KEY} # bắt buộc phải có
+    secret-key: ${JWT_ACCESS_SECRET_KEY}
     expiration: ${JWT_ACCESS_EXPIRATION:1800000} # default 30 mins
   refresh-token:
-    expiration: ${JWT_REFRESH_EXPIRATION:2592000000} # default 30 dáy
+    expiration: ${JWT_REFRESH_EXPIRATION:2592000000} # default 30 days
+  qr-token:
+    attendance:
+      checkin:
+        secretKey: ${QR_ATTENDANCE_CHECKIN_SECRET_KEY:${token.access-token.secret-key}}
+        expiration: ${QR_ATTENDANCE_CHECKIN_EXPIRATION:300000}
+
+      checkout:
+        secretKey: ${QR_ATTENDANCE_CHECKOUT_SECRET_KEY:${token.access-token.secret-key}}
+        expiration: ${QR_ATTENDANCE_CHECKOUT_EXPIRATION:300000}
+
+apikey:
+  enabled: true
+  headers:
+    key-id: "X-API-Key-ID"
+    key-secret: "X-API-Key-Secret"
+
+  security:
+    require-https: false
+
+  expiration:
+    default-value: 365d
+    default-renewable: false
+
+    by-type:
+      EXTERNAL:
+        duration: 90d
+        renewable: true
+      INTERNAL:
+        duration: 30d
+        renewable: false
+
+totp:
+  # Spring Boot Starter TOTP Configuration (Global defaults)
+  # Number of characters in TOTP secret (128 = standard length)
+  secret:
+    length: 128
+  # Number of digits in TOTP codes (6 digits = 1,000,000 combinations)
+  code:
+    length: 6
+  # Time period for each TOTP code in seconds (30 seconds = standard)
+  time:
+    period: 30
+    # Time discrepancy tolerance: allows codes from previous/future steps (2 = 90s before/after, 1.5min total window)
+    discrepancy: 2
+
+  # Customization fields
+
+  # QR code image dimensions in pixels
+  qr:
+    width: 200
+    height: 200
+    margin: 1
+
+  cleanup:
+    # Cleanup schedule: "0 0 2 * * *" = daily at 2:00 AM
+    cron: "0 0 2 * * *"
+    lifetime: 30d
+
+  # Per-purpose TOTP configurations (overrides global settings)
+  purposes:
+    api-key-creation:
+      secret:
+        length: 128
+      code:
+        length: 6
+      time:
+        period: 30
+        discrepancy: 1 # 1 minute total window
+      description: "API Key Creation - User Friendly"
 
 resend:
   api-key: ${RESEND_API_KEY}
@@ -106,7 +175,7 @@ inlaco:
   client:
     base-url: ${INLACO_CLIENT_BASE_URL:http://localhost:3000}
     endpoint:
-      login: ${inlaco.client.base-url}/login
+      login: ${inlaco.client.base-url}/#/login
       error: ${inlaco.client.base-url}/error
 
   template:
@@ -130,3 +199,46 @@ inlaco:
       sailor-schedule:
         subject: Inlaco Work Schedule Notification
         path: mail/schedule/sailor-work-notification.html
+      partner-mobilization:
+        subject: Inlaco Work Schedule Notification
+        path: mail/schedule/partner-mobilization-notification.html
+      ship-schedule:
+        subject: Inlaco Ship Schedule Notification
+        path: mail/schedule/ship-schedule-notification.html
+
+  company:
+    default-status: ACTIVE
+    validation:
+      max-name-length: 200
+      max-description-length: 1000
+      max-registration-number-length: 50
+      max-tax-id-length: 50
+      max-address-length: 500
+      max-email-length: 100
+      max-website-length: 200
+      max-phone-number-length: 20
+
+  ship:
+    default-status: ACTIVE
+    validation:
+      max-name-length: 200
+      max-imo-number-length: 20
+      max-call-sign-length: 20
+      max-mmsi-length: 20
+      max-flag-length: 100
+      max-port-of-registry-length: 200
+      max-ship-type-length: 100
+      max-classification-society-length: 100
+      max-shipyard-length: 200
+      max-engine-type-length: 100
+      max-fuel-type-length: 50
+      max-description-length: 1000
+      min-year-built: 1800
+      max-deadweight: 1000000
+      max-gross-tonnage: 1000000
+      max-net-tonnage: 1000000
+      max-length-overall: 500
+      max-beam: 100
+      max-draft: 50
+      max-engine-power: 100000
+      max-crew-capacity: 1000

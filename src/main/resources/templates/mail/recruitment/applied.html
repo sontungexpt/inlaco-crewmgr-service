@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title th:text="'Application Successful - ' + ${companyName}">
+    <title th:text="'Application Successful - ' + ${company_name}">
       Application Successful
     </title>
 
@@ -58,7 +58,7 @@
     <div class="email-container">
       <!-- Header -->
       <div class="header">
-        <h1 th:text="'Congratulations, ' + ${candidateName} + '!'">
+        <h1 th:text="'Congratulations, ' + ${candidate_name} + '!'">
           Congratulations!
         </h1>
       </div>
@@ -67,14 +67,14 @@
       <div class="content">
         <p>
           Dear
-          <span th:text="${candidateName}">Candidate</span>,
+          <span th:text="${candidate_name}">Candidate</span>,
         </p>
 
         <p>
           We are pleased to confirm that your application for the position of
-          <strong th:text="${positionName}">Position</strong>
+          <strong th:text="${position_name}">Position</strong>
           at
-          <strong th:text="${companyName}">Company</strong>
+          <strong th:text="${company_name}">Company</strong>
           has been successfully submitted.
         </p>
 
@@ -87,7 +87,7 @@
         <p>
           If you have any questions in the meantime, please do not hesitate to
           reach out to us at
-          <a th:href="'mailto:' + ${contactEmail}" th:text="${contactEmail}">
+          <a th:href="'mailto:' + ${contact_email}" th:text="${contact_email}">
             contact@example.com </a
           >.
         </p>
@@ -96,14 +96,14 @@
 
         <p>
           Thank you for your interest in joining the team at
-          <strong th:text="${companyName}">Company</strong>. We look forward to
+          <strong th:text="${company_name}">Company</strong>. We look forward to
           connecting with you soon!
         </p>
 
         <p>Sincerely,</p>
         <p>
           <strong>
-            The <span th:text="${companyName}">Company</span> Recruitment Team
+            The <span th:text="${company_name}">Company</span> Recruitment Team
           </strong>
         </p>
       </div>
@@ -111,8 +111,8 @@
       <!-- Footer -->
       <div class="footer">
         <p>
-          © <span th:text="${currentYear}">2025</span>
-          <span th:text="${companyName}">Company</span>. All rights reserved.
+          © <span th:text="${current_year}">2025</span>
+          <span th:text="${company_name}">Company</span>. All rights reserved.
         </p>
       </div>
     </div>

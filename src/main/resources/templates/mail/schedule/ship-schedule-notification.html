@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ship Schedule Notification</title>
+
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+      }
+      .container {
+        width: 100%;
+        max-width: 600px;
+        margin: 20px auto;
+        background-color: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+      .header {
+        background-color: #003366;
+        color: #ffffff;
+        text-align: center;
+        padding: 20px;
+      }
+      .content {
+        padding: 20px;
+        color: #333333;
+      }
+      .footer {
+        background-color: #f4f4f4;
+        text-align: center;
+        padding: 10px;
+        font-size: 12px;
+        color: #888888;
+      }
+      .btn {
+        background-color: #007bff;
+        color: #ffffff;
+        padding: 10px 20px;
+        text-decoration: none;
+        border-radius: 5px;
+        display: inline-block;
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Ship Schedule Notification</h1>
+      </div>
+
+      <div class="content">
+        <p>
+          Dear
+          <span th:text="${recipient_name}">Recipient</span>,
+        </p>
+
+        <p>
+          We would like to inform you about your new ship schedule at
+          <span th:text="${company_name}">Company</span> Company. Please observe
+          the details at
+          <a th:href="${home_page_link}" th:text="${home_page_link}"> Home Page </a
+          >.
+        </p>
+
+        <ul>
+          <li>
+            <strong>Ship Name:</strong>
+            <span th:text="${ship_name}">Ship Name</span>
+          </li>
+          <li>
+            <strong>Route:</strong>
+            <span th:text="${route}">Route</span>
+          </li>
+          <li>
+            <strong>Departure Time:</strong>
+            <span th:text="${departure_time}">Departure Time</span>
+          </li>
+          <li>
+            <strong>Arrival Time:</strong>
+            <span th:text="${arrival_time}">Arrival Time</span>
+          </li>
+          <li>
+            <strong>Departure Port:</strong>
+            <span th:text="${departure_port}">Departure Port</span>
+          </li>
+          <li>
+            <strong>Arrival Port:</strong>
+            <span th:text="${arrival_port}">Arrival Port</span>
+          </li>
+        </ul>
+
+        <p>
+          Please ensure you have all the necessary documents and equipment ready
+          for your journey.
+        </p>
+
+        <a th:href="${info_link}" class="btn"> View Full Details </a>
+      </div>
+
+      <div class="footer">
+        <p>Best regards,</p>
+        <p><span th:text="${company_name}">Company</span> Company</p>
+      </div>
+    </div>
+  </body>
+</html>

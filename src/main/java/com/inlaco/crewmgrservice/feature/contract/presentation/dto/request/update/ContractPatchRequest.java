@@ -38,12 +38,22 @@ public class ContractPatchRequest implements TimeFrame, Serializable {
 
   @Override
   public List<Range> getTimeFrames() {
-    if (activationDate.isUnchanged() && expiredDate.isUnchanged()) {
+
+    Instant start = null;
+    Instant end = null;
+
+    if (activationDate instanceof Patch.Updated<Instant> updated) {
+      start = updated.value();
+    }
+
+    if (expiredDate instanceof Patch.Updated<Instant> updated) {
+      end = updated.value();
+    }
+
+    if (start == null && end == null) {
       return List.of();
     }
-    return List.of(
-        Range.bothRequiredIfEitherPresent(
-            ((Patch.Updated<Instant>) activationDate).asOptional().orElse(null),
-            ((Patch.Updated<Instant>) expiredDate).asOptional().orElse(null)));
+
+    return List.of(Range.bothRequiredIfEitherPresent(start, end));
   }
 }

@@ -6,9 +6,10 @@ import com.inlaco.crewmgrservice.feature.crew.application.model.UpdateCrewProfil
 import com.inlaco.crewmgrservice.feature.crew.application.port.in.CrewIdentityUseCase;
 import com.inlaco.crewmgrservice.feature.crew.application.port.in.CrewUseCase;
 import com.inlaco.crewmgrservice.feature.crew.application.port.out.CrewProfileRepository;
-import com.inlaco.crewmgrservice.feature.crew.domain.enums.CrewStatus;
+import com.inlaco.crewmgrservice.feature.crew.domain.enums.CrewOperationalStatus;
 import com.inlaco.crewmgrservice.feature.crew.domain.model.ApplyLaborContractCommand;
 import com.inlaco.crewmgrservice.feature.crew.domain.model.CrewProfile;
+import com.inlaco.crewmgrservice.feature.crewmobilization.application.port.in.CrewMobilizationQueryUseCase;
 import com.inlaco.crewmgrservice.feature.upload.application.port.in.UploadDispatcher;
 import com.inlaco.crewmgrservice.feature.upload.domain.enums.AssetType;
 import com.inlaco.crewmgrservice.feature.user.domain.model.User;
@@ -21,6 +22,21 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service implementation for managing crew profiles and operations.
+ *
+ * <p>This service provides comprehensive crew profile management functionality including profile
+ * retrieval, creation, updates, and search operations. It integrates with identity management for
+ * crew operations and handles file uploads for profile assets.
+ *
+ * <p>The service maintains crew profiles with proper audit logging and exception handling, ensuring
+ * data integrity and providing a reliable interface for crew management operations throughout the
+ * system.
+ *
+ * @author Trần Võ Sơn Tùng
+ * @version 1.0
+ * @since 1.0
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -29,7 +45,19 @@ public class CrewService implements CrewUseCase {
   private final CrewProfileRepository crewProfileRepository;
   private final CrewIdentityUseCase crewIdentityUseCase;
   private final UploadDispatcher uploadDispatcher;
+  private final CrewMobilizationQueryUseCase crewMobilizationQueryUseCase;
 
+  /**
+   * Retrieves a crew profile by its unique identifier.
+   *
+   * <p>This method fetches a specific crew profile from the repository using the provided profile
+   * ID. If the profile is not found, it throws a ResourceNotFoundException to indicate the missing
+   * resource.
+   *
+   * @param profileId the unique identifier of the crew profile to retrieve
+   * @return the CrewProfile with the specified ID
+   * @throws ResourceNotFoundException if no profile exists with the given ID
+   */
   @Override
   public CrewProfile getProfile(String profileId) {
     log.debug("Fetching crew profile with ID: {}", profileId);
@@ -42,6 +70,16 @@ public class CrewService implements CrewUseCase {
             });
   }
 
+  /**
+   * Retrieves a crew profile associated with a specific account.
+   *
+   * <p>This method finds the crew profile linked to the provided account ID. If no profile is found
+   * for the account, it throws a ResourceNotFoundException.
+   *
+   * @param accountId the account ID to find the crew profile for
+   * @return the CrewProfile associated with the account
+   * @throws ResourceNotFoundException if no profile exists for the account
+   */
   @Override
   public CrewProfile getProfileForAccount(String accountId) {
     log.debug("Fetching crew profile for account ID: {}", accountId);
@@ -54,18 +92,66 @@ public class CrewService implements CrewUseCase {
             });
   }
 
+  /**
+   * Searches for crew profiles based on specified criteria.
+   *
+   * <p>This method performs a paginated search of crew profiles using the provided search criteria.
+   * The criteria can include various filters like name, status, and other profile attributes.
+   *
+   * @param criteria the search criteria to filter crew profiles
+   * @param pageable pagination and sorting information
+   * @return a Page of CrewProfile matching the criteria
+   */
   @Override
   public Page<CrewProfile> getProfiles(CrewProfileSearchCriteria criteria, Pageable pageable) {
     log.debug("Fetching crew profiles with criteria: {}", criteria);
-    return crewProfileRepository.findAll(criteria, pageable);
+    CrewProfileRepository.CrewProfileSearchCriteria searchCriteria =
+        CrewProfileRepository.CrewProfileSearchCriteria.builder()
+            .keyword(criteria.keyword())
+            .professionalPosition(criteria.professionalPosition())
+            .official(criteria.official())
+            .workStatus(criteria.workStatus())
+            .build();
+    return crewProfileRepository.findAll(searchCriteria, pageable);
   }
 
+  @Override
+  public Page<CrewProfile> getMyMobilizedCrewProfiles(
+      CrewProfileSearchCriteria criteria, Pageable pageable, User user) {
+    CrewProfileRepository.CrewProfileSearchCriteria searchcriteria =
+        CrewProfileRepository.CrewProfileSearchCriteria.builder()
+            .keyword(criteria.keyword())
+            .professionalPosition(criteria.professionalPosition())
+            .official(criteria.official())
+            .workStatus(criteria.workStatus())
+            .build();
+    return crewProfileRepository.findMobilizedCrewProfiles(searchcriteria, pageable, user.getId());
+  }
+
+  /**
+   * Retrieves crew profiles by their employee card IDs.
+   *
+   * <p>This method finds all crew profiles that have the specified employee card IDs, useful for
+   * bulk operations and data synchronization.
+   *
+   * @param cardIds collection of employee card IDs to search for
+   * @return list of CrewProfile with matching employee card IDs
+   */
   @Override
   public List<CrewProfile> getProfilesByEmployeeCardIds(Iterable<String> cardIds) {
     log.debug("Fetching crew profiles by employee card IDs");
     return crewProfileRepository.findAllByEmployeeCardId(cardIds);
   }
 
+  /**
+   * Applies a labor contract to a crew member's profile.
+   *
+   * <p>This method associates a labor contract with a crew profile, creating a new profile if one
+   * doesn't exist for the account. The operation updates the crew profile with contract information
+   * and persists the changes.
+   *
+   * @param command contains the account ID and labor contract details
+   */
   @Override
   public void applyLaborContract(ApplyLaborContractCommand command) {
     String accountId = command.accountId();
@@ -86,13 +172,14 @@ public class CrewService implements CrewUseCase {
     crewPrrofile.setBirthDate(command.birthDate());
     crewPrrofile.setProfessionalPosition(command.position());
     crewPrrofile.setEmail(command.email());
+    crewPrrofile.setCitizenIdentityCardId(command.identificationCardId());
 
     if (crewPrrofile.getEmployeeCardId() == null) {
       crewPrrofile.setEmployeeCardId(crewIdentityUseCase.generateEmployeeCardId());
     }
 
     if (crewPrrofile.getStatus() == null) {
-      crewPrrofile.setStatus(CrewStatus.DRAFT);
+      crewPrrofile.setStatus(CrewOperationalStatus.DRAFT);
     }
 
     log.info("Saving crew profile for account ID: {}", accountId);

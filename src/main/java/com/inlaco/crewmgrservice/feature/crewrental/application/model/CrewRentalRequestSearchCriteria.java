@@ -1,5 +1,11 @@
 package com.inlaco.crewmgrservice.feature.crewrental.application.model;
 
 import com.inlaco.crewmgrservice.feature.crewrental.domain.enums.CrewRentalRequestStatus;
+import lombok.Data;
 
-public record CrewRentalRequestSearchCriteria(String keyword, CrewRentalRequestStatus status) {}
+@Data
+public class CrewRentalRequestSearchCriteria {
+  private String accountId;
+  private String keyword;
+  private CrewRentalRequestStatus status;
+}

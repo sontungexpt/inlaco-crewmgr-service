@@ -1,7 +1,9 @@
 package com.inlaco.crewmgrservice.feature.contract.application.model;
 
+import com.inlaco.crewmgrservice.feature.contract.domain.enums.ContractStatus;
 import com.inlaco.crewmgrservice.feature.contract.domain.enums.ContractType;
 import java.time.Instant;
+import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,6 +15,11 @@ public class ContractSearchCriteria {
   private String relativeAccountId;
 
   private Boolean signed;
+  private Boolean active;
+
+  private Set<ContractStatus> includedStatuses;
+  private Set<ContractStatus> excludedStatuses;
+
   private ContractType type;
 
   private Instant activationDateStart;

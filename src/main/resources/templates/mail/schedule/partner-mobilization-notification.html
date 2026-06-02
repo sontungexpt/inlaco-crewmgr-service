@@ -1,0 +1,110 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Thông báo lịch điều động</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f6f8fb;
+        margin: 0;
+        padding: 0;
+      }
+
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        background: #ffffff;
+        padding: 24px;
+        border-radius: 10px;
+      }
+
+      .header {
+        text-align: center;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #eee;
+      }
+
+      .title {
+        font-size: 20px;
+        font-weight: bold;
+        color: #1a73e8;
+      }
+
+      .content {
+        padding: 16px 0;
+        font-size: 14px;
+        color: #333;
+        line-height: 1.6;
+      }
+
+      .info-box {
+        background: #f1f5ff;
+        padding: 12px;
+        border-radius: 8px;
+        margin: 12px 0;
+      }
+
+      .label {
+        font-weight: bold;
+        color: #555;
+      }
+
+      .footer {
+        margin-top: 24px;
+        font-size: 12px;
+        color: #888;
+        text-align: center;
+        border-top: 1px solid #eee;
+        padding-top: 12px;
+      }
+
+      .button {
+        display: inline-block;
+        margin-top: 16px;
+        padding: 10px 16px;
+        background: #1a73e8;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="header">
+        <div class="title">Thông báo lịch điều động</div>
+      </div>
+
+      <div class="content">
+        <p>Xin chào <b th:text="${recipient_name}">Partner</b>,</p>
+
+        <p>
+          Hệ thống <b th:text="${company_name}">INLACO</b> vừa tạo một lịch điều
+          động mới liên quan đến đối tác.
+        </p>
+
+        <div class="info-box">
+          <p>
+            <span class="label">Ngày bắt đầu:</span>
+            <span th:text="${start_date}"></span>
+          </p>
+          <p>
+            <span class="label">Ngày kết thúc dự kiến:</span>
+            <span th:text="${estimated_end_date}"></span>
+          </p>
+        </div>
+
+        <p>Vui lòng truy cập hệ thống để xem chi tiết lịch điều động.</p>
+
+        <a class="button" th:href="${home_page_link}"> Xem chi tiết </a>
+      </div>
+
+      <div class="footer">
+        Email này được gửi tự động từ hệ thống INLACO<br />
+        © INLACO
+      </div>
+    </div>
+  </body>
+</html>

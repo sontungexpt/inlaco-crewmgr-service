@@ -42,7 +42,7 @@ public class CrewProfileController {
       summary = "Find crew profile by id",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   @GetMapping("/{profileId}")
-  @RolesAllowed("ADMIN")
+  @RolesAllowed("USER")
   public CrewProfileResponse getCrewProfile(@ObjectId @PathVariable("profileId") String profileId) {
     return crewProfileMapper.toCrewProfileResponse(crewUseCase.getProfile(profileId));
   }
@@ -76,6 +76,21 @@ public class CrewProfileController {
       @PageableDefault(page = 0, size = 20) Pageable pageable) {
     return crewUseCase
         .getProfiles(criteria, pageable)
+        .map(crewProfileMapper::toCrewProfileResponse);
+  }
+
+  @Operation(
+      summary = "Fetch all mobilized crew profiles",
+      security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
+  @GetMapping("/my-mobilized")
+  @RolesAllowed("USER")
+  @PageableQueryParams
+  public Page<CrewProfileResponse> getMyMobilizedCrewProfiles(
+      @Filter CrewProfileSearchCriteria criteria,
+      @PageableDefault(page = 0, size = 20) Pageable pageable,
+      @CurrentUser User user) {
+    return crewUseCase
+        .getMyMobilizedCrewProfiles(criteria, pageable, user)
         .map(crewProfileMapper::toCrewProfileResponse);
   }
 

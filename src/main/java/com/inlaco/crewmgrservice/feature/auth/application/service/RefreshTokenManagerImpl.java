@@ -22,7 +22,7 @@ public class RefreshTokenManagerImpl implements RefreshTokenManager {
 
   private static short MAX_RETRY = 5;
 
-  @Value("${auth.refresh-token.expiration}")
+  @Value("${token.refresh-token.expiration}")
   private long REFRESH_TOKEN_EXPIRATION;
 
   private final RefreshTokenRepository repository;

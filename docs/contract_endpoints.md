@@ -2,6 +2,109 @@
 
 This document provides an overview of all the available API endpoints for managing contracts in the `crewmgrservice` application.
 
+## Data Transfer Objects (DTOs)
+
+### ContractSearchCriteria
+```json
+{
+  "type": "SUPPLY_CONTRACT|LABOR_CONTRACT",
+  "signed": "boolean",
+  "companyId": "string",
+  "crewId": "string",
+  "status": "DRAFT|SIGNED|ACTIVE|EXPIRED|CANCELLED"
+}
+```
+
+### ContractResponse
+```json
+{
+  "id": "string",
+  "version": "integer",
+  "type": "SUPPLY_CONTRACT|LABOR_CONTRACT",
+  "status": "DRAFT|SIGNED|ACTIVE|EXPIRED|CANCELLED",
+  "parties": [
+    {
+      "type": "LABOR|STATIC",
+      "name": "string",
+      "email": "string",
+      "taxCode": "string",
+      "identificationCardId": "string",
+      "identificationCardIssuedDate": "2023-05-05T12:00:00Z",
+      "identificationCardIssuedPlace": "string",
+      "bankAccount": "string",
+      "bankName": "string",
+      "birthDate": "2023-05-05T12:00:00Z",
+      "birthPlace": "string",
+      "nationality": "string",
+      "temporaryAddress": "string"
+    }
+  ],
+  "createdAt": "2023-05-05T12:00:00Z",
+  "updatedAt": "2023-05-05T12:00:00Z"
+}
+```
+
+### ContractPatchRequest
+```json
+{
+  "title": "string",
+  "description": "string",
+  "parties": [
+    {
+      "type": "LABOR|STATIC",
+      "name": "string",
+      "email": "string",
+      "taxCode": "string",
+      "identificationCardId": "string",
+      "identificationCardIssuedDate": "2023-05-05T12:00:00Z",
+      "identificationCardIssuedPlace": "string",
+      "bankAccount": "string",
+      "bankName": "string",
+      "birthDate": "2023-05-05T12:00:00Z",
+      "birthPlace": "string",
+      "nationality": "string",
+      "temporaryAddress": "string"
+    }
+  ]
+}
+```
+
+## Enums
+
+### ContractStatus
+```java
+public enum ContractStatus {
+  DRAFT,
+  SIGNED,
+  ACTIVE,
+  EXPIRED,
+  CANCELLED;
+  
+  // Allowed transitions:
+  // DRAFT → SIGNED, CANCELLED
+  // SIGNED → ACTIVE, CANCELLED
+  // ACTIVE → EXPIRED, CANCELLED
+  // EXPIRED → (no transitions)
+  // CANCELLED → (no transitions)
+}
+```
+
+### ContractType
+```java
+public enum ContractType {
+  SUPPLY_CONTRACT,
+  LABOR_CONTRACT
+}
+```
+
+### PartyType
+```java
+public enum PartyType {
+  LABOR,
+  STATIC
+}
+```
+
 ---
 
 ## **1. Update Contract**
@@ -9,13 +112,31 @@ This document provides an overview of all the available API endpoints for managi
 - **URL**: `/api/v1/contracts/{id}`
 - **Method**: `PATCH`
 - **Description**: Updates a contract with the provided patch data.
+- **Security**: Requires Bearer token authentication
 - **Headers**:
   - `Authorization`: Bearer `<accessToken>`
 - **Request Body**:
   ```json
   {
-  	"field1": "value1",
-  	"field2": "value2"
+  	"title": "string",
+  	"description": "string",
+  	"parties": [
+  	  {
+  	    "type": "LABOR|STATIC",
+  	    "name": "string",
+  	    "email": "string",
+  	    "taxCode": "string",
+  	    "identificationCardId": "string",
+  	    "identificationCardIssuedDate": "2023-05-05T12:00:00Z",
+  	    "identificationCardIssuedPlace": "string",
+  	    "bankAccount": "string",
+  	    "bankName": "string",
+  	    "birthDate": "2023-05-05T12:00:00Z",
+  	    "birthPlace": "string",
+  	    "nationality": "string",
+  	    "temporaryAddress": "string"
+  	  }
+  	]
   }
   ```
 - **Response**:

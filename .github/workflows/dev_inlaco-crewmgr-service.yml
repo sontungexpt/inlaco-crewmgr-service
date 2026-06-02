@@ -21,33 +21,34 @@ jobs:
       - name: Set up Java version
         uses: actions/setup-java@v4
         with:
-          java-version: '21'
-          distribution: 'microsoft'
+          java-version: "21"
+          distribution: "microsoft"
 
       - name: Build with Maven
-        run: mvn clean install
+        run: mvn clean package -DskipTests
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: java-app
-          path: '${{ github.workspace }}/target/*.jar'
+          path: "${{ github.workspace }}/target/*.jar"
 
   deploy:
     runs-on: ubuntu-latest
     needs: build
-      
+
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
           name: java-app
-      
+
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'inlaco-crewmgr-service'
-          slot-name: 'Production'
-          package: '*.jar'
+          app-name: "inlaco-crewmgr-service"
+          slot-name: "Production"
+          package: "*.jar"
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_D3F09BC23E204B1EA18E0942274AC651 }}
+

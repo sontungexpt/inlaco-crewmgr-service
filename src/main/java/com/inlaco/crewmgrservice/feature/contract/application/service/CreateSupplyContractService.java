@@ -37,6 +37,7 @@ public class CreateSupplyContractService implements CreateSupplyContractUseCase 
 
     contract.setCrewRentalRequestId(requestId);
     contract.getPartners().get(0).setAccountId(crewRentalRequest.getAccountId());
+    contract.setAccountId(crewRentalRequest.getAccountId());
 
     String contractFileAssetId = assets.getContractFile();
     if (contractFileAssetId != null) {

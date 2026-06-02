@@ -9,4 +9,5 @@ public record ApplyLaborContractCommand(
     String phone,
     String email,
     Instant birthDate,
-    String position) {}
+    String position,
+    String identificationCardId) {}

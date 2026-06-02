@@ -17,5 +17,5 @@ public interface ContractQueryUseCase {
   Page<? extends Contract> getContractsByUser(
       ContractSearchCriteria criteria, User user, Pageable pageable);
 
-  List<Contract> getOldContractVersions(String contractId);
+  List<Contract> getOldContractVersions(String contractId, Integer currentVersion);
 }

@@ -38,6 +38,7 @@ public abstract class ContractResponse {
   private List<DynamicAttribute> customAttributes = new ArrayList<>();
 
   private int version;
+  private boolean hasNewerVersion;
 
   private ContractStatus status;
 

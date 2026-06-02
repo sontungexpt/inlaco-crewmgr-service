@@ -1,6 +1,6 @@
 package com.inlaco.crewmgrservice.feature.crew.infrastructure.persistence.mongodb.entity;
 
-import com.inlaco.crewmgrservice.feature.crew.domain.enums.CrewStatus;
+import com.inlaco.crewmgrservice.feature.crew.domain.enums.CrewOperationalStatus;
 import com.inlaco.crewmgrservice.shared.objectvalue.Asset;
 import com.inlaco.crewmgrservice.shared.objectvalue.Gender;
 import java.time.Instant;
@@ -41,7 +41,7 @@ public class CrewProfileEntity {
 
   private Gender gender;
 
-  private CrewStatus status;
+  private CrewOperationalStatus status;
 
   private String professionalPosition;
 

@@ -59,33 +59,35 @@
       <div class="content">
         <p>
           Dear
-          <span th:text="${recipientName}">Recipient</span>,
+          <span th:text="${recipient_name}">Recipient</span>,
         </p>
 
         <p>
           We would like to inform you about your work schedule for this week at
-          <span th:text="${companyName}">Company</span> Company. Please observe
+          <span th:text="${company_name}">Company</span> Company. Please observe
           the details at
-          <a th:href="${homePageLink}" th:text="${homePageLink}"> Home Page </a
-          >.
+          <a th:href="${home_page_link}" th:text="${home_page_link}">
+            Home Page
+          </a>
+          .
         </p>
 
         <ul>
           <li>
             <strong>Start Date:</strong>
-            <span th:text="${startDate}">Start Date</span>
+            <span th:text="${start_date}">Start Date</span>
           </li>
           <li>
             <strong>Estimated End Date:</strong>
-            <span th:text="${estimatedEndDate}">End Date</span>
+            <span th:text="${estimated_end_date}">End Date</span>
           </li>
           <li>
             <strong>Start Location:</strong>
-            <span th:text="${startLocation}">Start Location</span>
+            <span th:text="${start_location}">Start Location</span>
           </li>
           <li>
             <strong>End Location:</strong>
-            <span th:text="${endLocation}">End Location</span>
+            <span th:text="${end_location}">End Location</span>
           </li>
         </ul>
 
@@ -94,12 +96,12 @@
           for your work.
         </p>
 
-        <a th:href="${infoLink}" class="btn"> View Full Details </a>
+        <a th:href="${info_link}" class="btn"> View Full Details </a>
       </div>
 
       <div class="footer">
         <p>Best regards,</p>
-        <p><span th:text="${companyName}">Company</span> Company</p>
+        <p><span th:text="${company_name}">Company</span> Company</p>
       </div>
     </div>
   </body>

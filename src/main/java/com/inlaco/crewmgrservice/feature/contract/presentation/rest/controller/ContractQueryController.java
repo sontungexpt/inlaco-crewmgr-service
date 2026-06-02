@@ -50,8 +50,9 @@ public class ContractQueryController {
       summary = "Get old contract versions",
       security = {@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH_NAME)})
   @GetMapping("/{id}/old-versions")
-  public List<Contract> getOldContractVersions(@PathVariable String id) {
-    return contractQueryUseCase.getOldContractVersions(id);
+  public List<Contract> getOldContractVersions(
+      @RequestParam(required = false) Integer currentVersion, @PathVariable String id) {
+    return contractQueryUseCase.getOldContractVersions(id, currentVersion);
   }
 
   @Operation(

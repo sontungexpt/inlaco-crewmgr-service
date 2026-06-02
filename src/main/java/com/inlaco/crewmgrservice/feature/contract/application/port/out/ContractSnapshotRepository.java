@@ -11,4 +11,6 @@ public interface ContractSnapshotRepository {
   List<Contract> findByContractId(String contractId);
 
   Optional<Contract> findByContractIdAndVersion(String contractId, int version);
+
+  List<Contract> findByContractIdAndVersionLessThan(String contractId, int version);
 }

@@ -1,0 +1,166 @@
+{
+    "message": "OK",
+    "data": {
+        "terminal": {
+            "id": "919e83d0-494b-4e1d-98d2-bfac1c5ca09b",
+            "name": "Counter_A1",
+            "display_name": "",
+            "status": 2,
+            "is_show_full_diagram": false,
+            "item_detector": false,
+            "operation_type": 0,
+            "enforce_contact_info": false,
+            "max_lockers_per_user": 0,
+            "start_time": "",
+            "end_time": "",
+            "terminal_address": "",
+            "location_id": null,
+            "location_name": null,
+            "contact_number": "",
+            "system_name": "CITIGYM",
+            "lms_url": null,
+            "admin_passcode": "555555",
+            "admin_card": "",
+            "type": 5
+        },
+        "available_locker": [],
+        "lockers": [],
+        "blocks": [],
+        "setting": {
+            "mqtt": {
+                "host": "mqtt.relacsys.com",
+                "port": 1883,
+                "project_code": "qc_citigym",
+                "password": "919e83d0-494b-4e1d-98d2-bfac1c5ca09b"
+            },
+            "kiosk": {
+                "kiosk_config": {
+                    "owner_image": "",
+                    "auto_trigger_delay_after_door_closed": "",
+                    "sub_screen_background": "",
+                    "home_screen_background": "",
+                    "face_matching_threshold": "1",
+                    "email_domains": "",
+                    "sub_screen_logo": "",
+                    "update_similarity_threshold": "1",
+                    "check_door_on_confirm": "False",
+                    "home_screen_logo": "https://i.imgur.com/qVmEFHX.png",
+                    "owner_text": "",
+                    "banner_media": ""
+                },
+                "": {
+                    "open_all_lockers_for_collection": "False",
+                    "enable_pin_usage_for_collection": "False"
+                }
+            },
+            "work_flow": {
+                "locker_expiry_time": 0.01,
+                "check_out_time": "22:00",
+                "last_saved": "2026-03-13T07:31:44.2689798Z"
+            },
+            "languages": [
+                {
+                    "id": "61524662-9b9e-46a8-929e-98457e4d3445",
+                    "status": 2,
+                    "created_time": "2025-11-06T04:35:01.2228747Z",
+                    "name": "Tiếng Việt",
+                    "key": "vi",
+                    "remark": ""
+                },
+                {
+                    "id": "0bce21f1-5c32-4e33-8d9f-c95027657740",
+                    "status": 2,
+                    "created_time": "2025-11-06T04:34:53.9584856Z",
+                    "name": "English",
+                    "key": "en",
+                    "remark": "111"
+                }
+            ]
+        }
+    },
+    "code": 200,
+    "error": null
+}
+{
+    "message": "OK",
+    "data": {
+        "terminal": {
+            "id": "919e83d0-494b-4e1d-98d2-bfac1c5ca09b",
+            "name": "Counter_A1",
+            "display_name": "",
+            "status": 2,
+            "is_show_full_diagram": false,
+            "item_detector": false,
+            "operation_type": 0,
+            "enforce_contact_info": false,
+            "max_lockers_per_user": 0,
+            "start_time": "",
+            "end_time": "",
+            "terminal_address": "",
+            "location_id": null,
+            "location_name": null,
+            "contact_number": "",
+            "system_name": "CITIGYM",
+            "lms_url": null,
+            "admin_passcode": "555555",
+            "admin_card": "",
+            "type": 5
+        },
+        "available_locker": [],
+        "lockers": [],
+        "blocks": [],
+        "setting": {
+            "mqtt": {
+                "host": "mqtt.relacsys.com",
+                "port": 1883,
+                "project_code": "qc_citigym",
+                "password": "919e83d0-494b-4e1d-98d2-bfac1c5ca09b"
+            },
+            "kiosk": {
+                "kiosk_config": {
+                    "owner_image": "",
+                    "auto_trigger_delay_after_door_closed": "",
+                    "sub_screen_background": "",
+                    "home_screen_background": "",
+                    "face_matching_threshold": "1",
+                    "email_domains": "",
+                    "sub_screen_logo": "",
+                    "update_similarity_threshold": "1",
+                    "check_door_on_confirm": "False",
+                    "home_screen_logo": "https://i.imgur.com/qVmEFHX.png",
+                    "owner_text": "",
+                    "banner_media": ""
+                },
+                "": {
+                    "open_all_lockers_for_collection": "False",
+                    "enable_pin_usage_for_collection": "False"
+                }
+            },
+            "work_flow": {
+                "locker_expiry_time": 0.01,
+                "check_out_time": "22:00",
+                "last_saved": "2026-03-13T07:31:44.2689798Z"
+            },
+            "languages": [
+                {
+                    "id": "61524662-9b9e-46a8-929e-98457e4d3445",
+                    "status": 2,
+                    "created_time": "2025-11-06T04:35:01.2228747Z",
+                    "name": "Tiếng Việt",
+                    "key": "vi",
+                    "remark": ""
+                },
+                {
+                    "id": "0bce21f1-5c32-4e33-8d9f-c95027657740",
+                    "status": 2,
+                    "created_time": "2025-11-06T04:34:53.9584856Z",
+                    "name": "English",
+                    "key": "en",
+                    "remark": "111"
+                }
+            ]
+        }
+    },
+    "code": 200,
+    "error": null
+}

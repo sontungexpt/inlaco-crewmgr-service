@@ -1,0 +1,31 @@
+package com.inlaco.crewmgrservice.feature.shipschedule.application.model;
+
+import com.inlaco.crewmgrservice.feature.shipschedule.domain.enums.AttendanceMethod;
+import com.inlaco.crewmgrservice.feature.shipschedule.domain.enums.CheckType;
+import java.time.Instant;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Builder.Default;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+
+@Builder
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
+public class AttendanceQrClaims {
+
+  private String shipScheduleId;
+
+  private CheckType checkType;
+
+  private AttendanceMethod method;
+
+  private String generatedBy;
+
+  private String location;
+
+  @Default private Instant generatedAt = Instant.now();
+}
