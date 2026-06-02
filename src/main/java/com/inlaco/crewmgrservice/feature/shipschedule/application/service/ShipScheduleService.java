@@ -300,6 +300,11 @@ public class ShipScheduleService implements ShipScheduleUseCase {
       // schedule data
       detail.setEmployeeCardId(ac.getEmployeeCardId());
       detail.setRankOnBoard(ac.getRankOnBoard());
+      detail.setBoardingPort(ac.getBoardingPort());
+      detail.setDisembarkPort(ac.getDisembarkPort());
+      detail.setBoardingTime(ac.getBoardingTime());
+      detail.setDisembarkTime(ac.getDisembarkTime());
+      detail.setNote(ac.getNote());
 
       // profile data
       if (profile != null) {
