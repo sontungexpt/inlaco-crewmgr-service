@@ -175,7 +175,7 @@ inlaco:
   client:
     base-url: ${INLACO_CLIENT_BASE_URL:http://localhost:3000}
     endpoint:
-      login: ${inlaco.client.base-url}/login
+      login: ${inlaco.client.base-url}/#/login
       error: ${inlaco.client.base-url}/error
 
   template:
