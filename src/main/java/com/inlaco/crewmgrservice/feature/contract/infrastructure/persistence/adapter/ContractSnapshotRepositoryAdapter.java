@@ -31,6 +31,15 @@ public class ContractSnapshotRepositoryAdapter implements ContractSnapshotReposi
   }
 
   @Override
+  public List<Contract> findByContractIdAndVersionLessThan(String contractId, int version) {
+    return repository
+        .findByContractIdAndVersionNumLessThan(new ObjectId(contractId), version)
+        .stream()
+        .map(mapper::toContract)
+        .toList();
+  }
+
+  @Override
   public Optional<Contract> findByContractIdAndVersion(String contractId, int version) {
     return repository
         .findByContractIdAndVersionNum(new ObjectId(contractId), version)

@@ -66,8 +66,19 @@ public class ContractQueryService implements ContractQueryUseCase {
   }
 
   @Override
-  public List<Contract> getOldContractVersions(String contractId) {
-    return contractSnapshotRepository.findByContractId(contractId).stream()
+  public List<Contract> getOldContractVersions(String contractId, Integer currentVersion) {
+    if (currentVersion == null) {
+      log.debug("Requesting all contract versions for contract {}", contractId);
+      return contractSnapshotRepository.findByContractId(contractId).stream()
+          .sorted(Comparator.comparing(Contract::getVersion))
+          .toList();
+    }
+
+    log.debug(
+        "Requesting contract versions less than {} for contract {}", currentVersion, contractId);
+    return contractSnapshotRepository
+        .findByContractIdAndVersionLessThan(contractId, currentVersion)
+        .stream()
         .sorted(Comparator.comparing(Contract::getVersion))
         .toList();
   }

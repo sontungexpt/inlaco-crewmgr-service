@@ -66,6 +66,7 @@ public abstract class Contract {
   private Asset contractFile;
   private List<Asset> attachments = new ArrayList<>();
   private Version version = new Version(1, Instant.now());
+  private boolean hasNewerVersion = false;
   private List<DynamicAttribute> customAttributes = new ArrayList<>();
 
   // ======================

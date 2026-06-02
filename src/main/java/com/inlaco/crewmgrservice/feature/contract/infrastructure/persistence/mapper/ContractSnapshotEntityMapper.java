@@ -83,7 +83,10 @@ public class ContractSnapshotEntityMapper {
 
   private Map<String, Object> serialize(Contract contract) {
     try {
-      return Collections.unmodifiableMap(OBJECT_MAPPER.convertValue(contract, MAP_TYPE));
+      Map<String, Object> map = new HashMap<>(OBJECT_MAPPER.convertValue(contract, MAP_TYPE));
+      // The snapshot always has newer version
+      map.put("hasNewerVersion", true);
+      return Collections.unmodifiableMap(map);
     } catch (Exception e) {
       throw new IllegalStateException("Failed to serialize contract", e);
     }
@@ -97,7 +100,10 @@ public class ContractSnapshotEntityMapper {
     }
 
     try {
-      return OBJECT_MAPPER.convertValue(payload, clazz);
+      Contract contract = OBJECT_MAPPER.convertValue(payload, clazz);
+      // The snapshot always has newer version
+      contract.setHasNewerVersion(true);
+      return contract;
     } catch (Exception e) {
       throw new IllegalStateException("Failed to deserialize contract", e);
     }
