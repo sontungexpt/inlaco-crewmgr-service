@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AttendanceQRCodeService implements AttendanceQRCodeUseCase {
 
   private static final double MAX_DISTANCE_METERS = 20;
+  private static final double MAX_EXPECTED_ACCURACY = 100;
 
   private final AttendanceLogRepository attendanceLogRepository;
   private final ShipScheduleCrewAssignmentRepository assignmentRepository;
@@ -142,15 +143,28 @@ public class AttendanceQRCodeService implements AttendanceQRCodeUseCase {
               Double.parseDouble(actual[0]),
               Double.parseDouble(actual[1]));
 
-      double accuracy = actual.length >= 3 ? Double.parseDouble(actual[2]) : 0;
+      double expectedAccuracy = expected.length >= 3 ? Double.parseDouble(expected[2]) : 0;
+      double actualAccuracy = actual.length >= 3 ? Double.parseDouble(actual[2]) : 0;
 
-      double allowedDistance = Math.max(MAX_DISTANCE_METERS, accuracy * 2);
+      double allowedDistance = Math.max(MAX_DISTANCE_METERS, actualAccuracy * 2);
 
-      log.info(
-          "QR location validation - distance={}m, accuracy={}m, allowed={}m",
+      log.debug(
+          "Attendance location validation. expected={}, actual={}, distance={}, allowed={},"
+              + " actualAccuracy={}, expectedAccuracy={}",
+          expectedLocation,
+          actualLocation,
           Math.round(distance),
-          Math.round(accuracy),
-          Math.round(allowedDistance));
+          Math.round(allowedDistance),
+          actualAccuracy,
+          expectedAccuracy);
+
+      if (actualAccuracy > MAX_EXPECTED_ACCURACY) {
+        log.warn(
+            "Skip location validation because QR location accuracy is poor. accuracy={}m",
+            expectedAccuracy);
+
+        return;
+      }
 
       if (distance > allowedDistance) {
 
