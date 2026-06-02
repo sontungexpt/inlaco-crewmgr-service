@@ -35,7 +35,7 @@ token:
     secret-key: ${JWT_ACCESS_SECRET_KEY}
     expiration: ${JWT_ACCESS_EXPIRATION:1800000} # default 30 mins
   refresh-token:
-    expiration: ${JWT_REFRESH_EXPIRATION:2592000000} # default 30 dáy
+    expiration: ${JWT_REFRESH_EXPIRATION:2592000000} # default 30 days
   qr-token:
     attendance:
       checkin:
