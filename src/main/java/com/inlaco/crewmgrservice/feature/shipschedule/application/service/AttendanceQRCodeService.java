@@ -14,15 +14,17 @@ import com.inlaco.crewmgrservice.feature.shipschedule.domain.model.AttendanceQRC
 import com.inlaco.crewmgrservice.feature.shipschedule.domain.model.ShipScheduleCrewAssignment;
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class AttendanceQRCodeService implements AttendanceQRCodeUseCase {
 
-  private static final double MAX_DISTANCE_METERS = 100;
+  private static final double MAX_DISTANCE_METERS = 20;
 
   private final AttendanceLogRepository attendanceLogRepository;
   private final ShipScheduleCrewAssignmentRepository assignmentRepository;
@@ -54,6 +56,8 @@ public class AttendanceQRCodeService implements AttendanceQRCodeUseCase {
     AttendanceQrClaims claims = qrTokenService.parse(command.getToken());
 
     String location = claims.getLocation();
+
+    log.debug("QR claims: {}", claims.toString()); // Debu
 
     if (location != null
         && !location.isBlank()
@@ -100,16 +104,24 @@ public class AttendanceQRCodeService implements AttendanceQRCodeUseCase {
   }
 
   private void validateDeviceUsage(String shipScheduleId, String deviceId, String currentUserId) {
-    if (deviceId == null || deviceId.trim().isEmpty()) {
+
+    if (deviceId == null || deviceId.isBlank()) {
       return;
     }
 
-    AttendanceLog existingLog =
+    AttendanceLog existing =
         attendanceLogRepository
             .findLastByDeviceIdInShipSchedule(deviceId, shipScheduleId)
             .orElse(null);
 
-    if (existingLog != null && !existingLog.getCrewAccountId().equals(currentUserId)) {
+    if (existing != null && !existing.getCrewAccountId().equals(currentUserId)) {
+
+      log.warn(
+          "Device already used. deviceId={}, currentUser={}, existingUser={}",
+          deviceId,
+          currentUserId,
+          existing.getCrewAccountId());
+
       throw new AttendanceQRCodeException(
           AttendanceErrorCode.ATTENDANCE_DEVICE_ALREADY_USED,
           "Device is already being used by another user");
@@ -123,28 +135,43 @@ public class AttendanceQRCodeService implements AttendanceQRCodeUseCase {
       String[] expected = expectedLocation.split(",");
       String[] actual = actualLocation.split(",");
 
-      double expectedLat = Double.parseDouble(expected[0]);
-      double expectedLng = Double.parseDouble(expected[1]);
-
-      double actualLat = Double.parseDouble(actual[0]);
-      double actualLng = Double.parseDouble(actual[1]);
+      double distance =
+          calculateDistanceMeters(
+              Double.parseDouble(expected[0]),
+              Double.parseDouble(expected[1]),
+              Double.parseDouble(actual[0]),
+              Double.parseDouble(actual[1]));
 
       double accuracy = actual.length >= 3 ? Double.parseDouble(actual[2]) : 0;
 
-      double distance = calculateDistanceMeters(expectedLat, expectedLng, actualLat, actualLng);
-
       double allowedDistance = Math.max(MAX_DISTANCE_METERS, accuracy * 2);
 
+      log.info(
+          "QR location validation - distance={}m, accuracy={}m, allowed={}m",
+          Math.round(distance),
+          Math.round(accuracy),
+          Math.round(allowedDistance));
+
       if (distance > allowedDistance) {
+
+        log.warn(
+            "Attendance location validation failed - distance={}m > allowed={}m",
+            Math.round(distance),
+            Math.round(allowedDistance));
+
         throw new AttendanceQRCodeException(
             AttendanceErrorCode.ATTENDANCE_INVALID_LOCATION,
             "You are too far from attendance location");
       }
 
+    } catch (AttendanceQRCodeException e) {
+      throw e;
     } catch (Exception e) {
 
+      log.warn("Invalid location format. expected={}, actual={}", expectedLocation, actualLocation);
+
       throw new AttendanceQRCodeException(
-          AttendanceErrorCode.ATTENDANCE_INVALID_LOCATION, "Invalid location data");
+          AttendanceErrorCode.ATTENDANCE_QR_INVALID, "Invalid location data");
     }
   }
 
@@ -155,6 +182,7 @@ public class AttendanceQRCodeService implements AttendanceQRCodeUseCase {
     double latDistance = Math.toRadians(lat2 - lat1);
     double lonDistance = Math.toRadians(lon2 - lon1);
 
+    // Use Haversine formula
     double a =
         Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
             + Math.cos(Math.toRadians(lat1))
@@ -176,22 +204,29 @@ public class AttendanceQRCodeService implements AttendanceQRCodeUseCase {
             .orElse(null);
 
     if (latest == null) {
+
       if (nextType == CheckType.OUT) {
+
+        log.warn(
+            "Attendance sequence invalid. employeeCardId={} tried OUT without IN", employeeCardId);
+
         throw new AttendanceQRCodeException(
             AttendanceErrorCode.ATTENDANCE_INVALID_SEQUENCE, "Cannot check out before check in");
       }
+
       return;
     }
 
-    if (latest.getCheckType() == nextType) {
-
-      if (nextType == CheckType.IN) {
-        throw new AttendanceQRCodeException(
-            AttendanceErrorCode.ATTENDANCE_ALREADY_CHECKED_IN, "Crew already checked in");
-      }
-
-      throw new AttendanceQRCodeException(
-          AttendanceErrorCode.ATTENDANCE_ALREADY_CHECKED_OUT, "Crew already checked out");
+    if (latest.getCheckType() != nextType) {
+      return;
     }
+
+    log.warn("Duplicate attendance detected. employeeCardId={}, type={}", employeeCardId, nextType);
+
+    throw new AttendanceQRCodeException(
+        nextType == CheckType.IN
+            ? AttendanceErrorCode.ATTENDANCE_ALREADY_CHECKED_IN
+            : AttendanceErrorCode.ATTENDANCE_ALREADY_CHECKED_OUT,
+        nextType == CheckType.IN ? "Crew already checked in" : "Crew already checked out");
   }
 }

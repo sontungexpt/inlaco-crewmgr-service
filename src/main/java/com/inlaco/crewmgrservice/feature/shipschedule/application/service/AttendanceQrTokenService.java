@@ -48,6 +48,7 @@ public class AttendanceQrTokenService {
     payload.put("method", AttendanceMethod.QR_CODE.name());
     payload.put("generatedBy", claims.getGeneratedBy());
     payload.put("generatedAt", claims.getGeneratedAt().toEpochMilli());
+    payload.put("location", claims.getLocation());
 
     return checkTypeStr
         + TOKEN_SEPARATOR
@@ -83,6 +84,7 @@ public class AttendanceQrTokenService {
         .method(AttendanceMethod.valueOf((String) claims.get("method")))
         .generatedBy((String) claims.get("generatedBy"))
         .generatedAt(Instant.ofEpochMilli((Long) claims.get("generatedAt")))
+        .location((String) claims.get("location"))
         .build();
   }
 
