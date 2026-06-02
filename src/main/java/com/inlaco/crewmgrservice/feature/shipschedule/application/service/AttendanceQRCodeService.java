@@ -158,7 +158,7 @@ public class AttendanceQRCodeService implements AttendanceQRCodeUseCase {
           actualAccuracy,
           expectedAccuracy);
 
-      if (actualAccuracy > MAX_EXPECTED_ACCURACY) {
+      if (expectedAccuracy > MAX_EXPECTED_ACCURACY) {
         log.warn(
             "Skip location validation because QR location accuracy is poor. accuracy={}m",
             expectedAccuracy);
