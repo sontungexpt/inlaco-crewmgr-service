@@ -87,16 +87,30 @@ public class RateLimiterService {
   private String signingKey;
 
   // Rate limiter configuration
-  private final int maxRequests = 60;
-  private final int burstCapacity = 20;
-  private final long windowSeconds = 60L;
+  @Value("${rate-limiter.max-requests:60}")
+  private int maxRequests = 60;
+
+  @Value("${rate-limiter.burst-capacity:20}")
+  private int burstCapacity = 20;
+
+  @Value("${rate-limiter.window-seconds:60}")
+  private long windowSeconds = 60L;
 
   // Attack detection configuration
-  private final int attackThreshold = 5;
-  private final long attackWindowSeconds = 300L;
-  private final long alertCooldownSeconds = 300L;
-  private final long alertTokenTtlSeconds = 1800L;
-  private final long blockDurationSeconds = 86400L; // 24 hours
+  @Value("${rate-limiter.attack.threshold:5}")
+  private int attackThreshold = 5;
+
+  @Value("${rate-limiter.attack.window-seconds:300}")
+  private long attackWindowSeconds = 300L;
+
+  @Value("${rate-limiter.attack.alert-cooldown-seconds:300}")
+  private long alertCooldownSeconds = 300L;
+
+  @Value("${rate-limiter.attack.alert-token-ttl-seconds:1800}")
+  private long alertTokenTtlSeconds = 1800L;
+
+  @Value("${rate-limiter.attack.block-duration-seconds:86400}")
+  private long blockDurationSeconds = 86400L; // 24 hours
 
   public int getMaxTokens() {
     return maxRequests;

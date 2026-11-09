@@ -31,6 +31,17 @@ httpsms:
 security:
   allowed-cors-origins: ${ALLOWED_CORS_ORIGINS}
 
+rate-limiter:
+  max-requests: ${RATE_LIMITER_MAX_REQUESTS:60}
+  burst-capacity: ${RATE_LIMITER_BURST_CAPACITY:20}
+  window-seconds: ${RATE_LIMITER_WINDOW_SECONDS:60}
+  attack:
+    threshold: ${RATE_LIMITER_ATTACK_THRESHOLD:5}
+    window-seconds: ${RATE_LIMITER_ATTACK_WINDOW_SECONDS:300}
+    alert-cooldown-seconds: ${RATE_LIMITER_ALERT_COOLDOWN_SECONDS:300}
+    alert-token-ttl-seconds: ${RATE_LIMITER_ALERT_TOKEN_TTL_SECONDS:1800}
+    block-duration-seconds: ${RATE_LIMITER_BLOCK_DURATION_SECONDS:86400}
+
 websocket:
   endpoint: ${WEB_SOCKET_ENDPOINT:/ws}
   allowed-origins: ${WEB_SOCKET_ALLOWED_ORIGINS:${security.allowed-cors-origins}}
