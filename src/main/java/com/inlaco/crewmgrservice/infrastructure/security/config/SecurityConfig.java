@@ -3,6 +3,7 @@ package com.inlaco.crewmgrservice.infrastructure.security.config;
 import com.inlaco.crewmgrservice.feature.apikey.infrastructure.config.ApiKeyConfig;
 import com.inlaco.crewmgrservice.feature.apikey.infrastructure.security.ApiKeyAuthenticationFilter;
 import com.inlaco.crewmgrservice.infrastructure.security.jwt.filter.JwtAuthenticationFilter;
+import com.inlaco.crewmgrservice.infrastructure.security.ratelimmter.RateLimitFilter;
 import com.inlaco.crewmgrservice.infrastructure.websocket.config.WebSocketProperties;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +42,7 @@ public class SecurityConfig {
   private final SecurityProperties securityProperties;
   private final WebSocketProperties webSocketProperties;
   private final ApiKeyConfig config;
+  private final RateLimitFilter rateLimitFilter;
 
   private final String[] SECURITY_WHITELIST_PATHS = {
     "/actuator/**", "/swagger-ui/**", "/v3/api-docs/**", "/scalar/**", "/webjars/**",
@@ -115,6 +117,8 @@ public class SecurityConfig {
         // This allows requests with API keys to be authenticated without JWT
         .addFilterBefore(lazyJwtAuthTokenFilter, UsernamePasswordAuthenticationFilter.class)
         .addFilterBefore(apiKeyAuthenticationFilter, JwtAuthenticationFilter.class)
+        // Rate limit filter runs after authentication so the user identity is known
+        .addFilterAfter(rateLimitFilter, JwtAuthenticationFilter.class)
         // disable login and logout because we use JWT
         // session management
         .sessionManagement(

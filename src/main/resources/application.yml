@@ -6,6 +6,11 @@ admin:
   username: ${ADMIN_USERNAME}
   password: ${ADMIN_PASSWORD}
 
+# Demo accounts for admin and company (supports username or username:password, separated by comma)
+demo:
+  default-password: ${DEMO_DEFAULT_PASSWORD:Recruiter123}
+  accounts: ${DEMO_ADMIN_ACCOUNTS:recruiteradmin@gmail.com}
+
 server:
   port: ${PORT:8080}
 
